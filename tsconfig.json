@@ -31,11 +31,12 @@
         "removeComments": true,
 
         "incremental": true,
+        "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
 
         "baseUrl": ".",
 
         "types": ["node"]
     },
-    "include": ["src"],
+    "include": ["src/**/*.ts"],
     "exclude": ["node_modules", "dist"]
 }

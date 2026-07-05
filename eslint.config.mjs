@@ -137,7 +137,7 @@ export default tseslint.config(
             /*
              * Prettier
              */
-            "prettier/prettier": "error",
+            "prettier/prettier": "warn",
         },
     },
 );

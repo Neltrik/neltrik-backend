@@ -1,0 +1,13 @@
+import { NestFactory } from "@nestjs/core";
+
+import { AppModule } from "./app.module";
+
+async function bootstrap(): Promise<void> {
+    const app = await NestFactory.create(AppModule);
+    const port = 3000;
+    await app.listen(port);
+    // eslint-disable-next-line no-console
+    console.log(`🚀 Server running on http://localhost:${port}`);
+}
+
+void bootstrap();

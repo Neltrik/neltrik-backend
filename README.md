@@ -38,6 +38,7 @@ Backend del sistema **Neltrik**, desarrollado con **NestJS**, **TypeScript** y *
 ├── src/
 │   ├── config/
 │   ├── prisma/
+│   ├── modules/
 │   ├── app.module.ts
 │   └── main.ts
 │
@@ -71,6 +72,89 @@ pnpm install
 # 🔧 Variables de entorno
 
 Crear un archivo `.env` tomando como referencia `.env.example`.
+
+---
+
+# 🛠️ Herramientas de desarrollo
+
+## Crear un módulo
+
+Genera automáticamente un módulo siguiendo la estructura de Clean Architecture definida para Neltrik.
+
+```bash
+pnpm module:create <module-name>
+```
+
+Ejemplo:
+
+```bash
+pnpm module:create auth
+```
+
+Estructura generada:
+
+```text
+src/
+└── modules/
+    └── auth/
+        ├── application/
+        │   └── use-cases/
+        ├── domain/
+        │   ├── entities/
+        │   ├── errors/
+        │   ├── interfaces/
+        │   ├── types/
+        │   └── value-objects/
+        ├── infrastructure/
+        │   ├── database/
+        │   ├── mappers/
+        │   ├── providers/
+        │   └── repositories/
+        ├── presentation/
+        │   ├── controllers/
+        │   ├── dto/
+        │   └── responses/
+        ├── tests/
+        └── auth.module.ts
+```
+
+### Convención para nombres de módulos
+
+Los módulos deben nombrarse utilizando **kebab-case**.
+
+Reglas:
+
+- Solo letras minúsculas.
+- Las palabras se separan mediante guiones (`-`).
+- No se permiten espacios.
+- No se permiten guiones bajos (`_`).
+- No se permiten caracteres especiales.
+- El nombre debe comenzar con una letra.
+- No puede iniciar ni terminar con un guion.
+- No puede contener guiones consecutivos.
+
+Ejemplos válidos:
+
+```text
+auth
+ats
+candidate
+candidate-profile
+candidate-profile-v2
+```
+
+Ejemplos inválidos:
+
+```text
+Auth
+AUTH
+candidate_profile
+candidate profile
+candidate-
+-candidate
+candidate--profile
+candidate.profile
+```
 
 ---
 

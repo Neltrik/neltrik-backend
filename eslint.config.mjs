@@ -21,9 +21,7 @@ export default tseslint.config(
                 ...globals.node,
             },
             parserOptions: {
-                projectService: {
-                    allowDefaultProject: ["prisma.config.ts"],
-                },
+                project: ["./tsconfig.json", "./tsconfig.cli.json"],
                 // @ts-ignore
                 tsconfigRootDir: import.meta.dirname,
             },

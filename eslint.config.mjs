@@ -6,7 +6,6 @@ import tseslint from "typescript-eslint";
 import prettierPlugin from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
 import simpleImportSort from "eslint-plugin-simple-import-sort";
-import "node:path";
 
 export default tseslint.config(
     {
@@ -22,7 +21,10 @@ export default tseslint.config(
                 ...globals.node,
             },
             parserOptions: {
-                projectService: true,
+                projectService: {
+                    allowDefaultProject: ["prisma.config.ts"],
+                },
+                // @ts-ignore
                 tsconfigRootDir: import.meta.dirname,
             },
         },

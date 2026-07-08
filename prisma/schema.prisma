@@ -12,3 +12,45 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum VacancyStatus {
+  DRAFT
+  PUBLISHED
+  CLOSED
+  ARCHIVED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+}
+
+enum WorkMode {
+  ONSITE
+  REMOTE
+  HYBRID
+}
+
+model Vacancy {
+  id             String         @id @default(uuid()) @db.Uuid
+  title          String         @db.VarChar(255)
+  description    String         @db.Text
+  companyId      String         @map("company_id") @db.Uuid
+  recruiterId    String         @map("recruiter_id") @db.Uuid
+  employmentType EmploymentType @map("employment_type")
+  workMode       WorkMode       @map("work_mode")
+  closingDate    DateTime       @map("closing_date")
+  status         VacancyStatus  @default(DRAFT)
+  salary         Decimal?       @db.Decimal(12, 2)
+  location       String?        @db.VarChar(255)
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+  deletedAt      DateTime?      @map("deleted_at")
+
+  @@index([companyId])
+  @@index([recruiterId])
+  @@index([status])
+  @@map("vacancies")
+}

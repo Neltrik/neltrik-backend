@@ -21,6 +21,7 @@
         "prisma:reset": "prisma migrate reset",
         "prisma:studio": "prisma studio",
         "prisma:format": "prisma format",
+        "prisma:validate": "prisma validate",
         "module:create": "tsx scripts/create-module.ts",
         "prepare": "husky"
     },

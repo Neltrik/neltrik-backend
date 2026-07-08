@@ -17,4 +17,5 @@ export const MODULE_FOLDERS = [
     "presentation/responses",
 
     "tests",
+    "docs",
 ];

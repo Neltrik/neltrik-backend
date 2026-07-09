@@ -34,6 +34,9 @@
         "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
 
         "baseUrl": ".",
+        "paths": {
+            "@/prisma/*": ["src/prisma/*"]
+        },
 
         "types": ["node"]
     },

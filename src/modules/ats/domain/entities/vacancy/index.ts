@@ -1,8 +1,10 @@
 import { InvalidClosingDateError } from "../../errors/invalid-closing-date";
 import { InvalidSalaryError } from "../../errors/invalid-salary";
 import { InvalidTitleError } from "../../errors/invalid-title";
+import type { EmploymentType } from "../../types/employment-type";
 import type { VacancyState } from "../../types/vacancy-props";
-import { VACANCY_STATUS } from "../../types/vacancy-status";
+import { VACANCY_STATUS, type VacancyStatus } from "../../types/vacancy-status";
+import type { WorkMode } from "../../types/work-mode";
 
 export class Vacancy {
     private readonly props: VacancyState;
@@ -33,5 +35,61 @@ export class Vacancy {
         if (closingDate <= createdAt) {
             throw new InvalidClosingDateError();
         }
+    }
+
+    public get id(): string {
+        return this.props.id;
+    }
+
+    public get title(): string {
+        return this.props.title;
+    }
+
+    public get description(): string {
+        return this.props.description;
+    }
+
+    public get companyId(): string {
+        return this.props.companyId;
+    }
+
+    public get recruiterId(): string {
+        return this.props.recruiterId;
+    }
+
+    public get employmentType(): EmploymentType {
+        return this.props.employmentType;
+    }
+
+    public get workMode(): WorkMode {
+        return this.props.workMode;
+    }
+
+    public get closingDate(): Date {
+        return this.props.closingDate;
+    }
+
+    public get status(): VacancyStatus {
+        return this.props.status;
+    }
+
+    public get salary(): number | null {
+        return this.props.salary;
+    }
+
+    public get location(): string | null {
+        return this.props.location;
+    }
+
+    public get createdAt(): Date {
+        return this.props.createdAt;
+    }
+
+    public get updatedAt(): Date {
+        return this.props.updatedAt;
+    }
+
+    public get deletedAt(): Date | null {
+        return this.props.deletedAt;
     }
 }

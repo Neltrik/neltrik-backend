@@ -28,34 +28,34 @@ Dentro del proceso participan diferentes actores como el reclutador, el candidat
 
 ## 👤 Actores (¿Quién realiza acciones?)
 
-* Recruiter (Reclutador)
-* Candidate (Candidato)
-* Hiring Company (Empresa contratante)
-* Interviewer (Entrevistador)
-* Administrator (Administrador del sistema)
+- Recruiter (Reclutador)
+- Candidate (Candidato)
+- Hiring Company (Empresa contratante)
+- Interviewer (Entrevistador)
+- Administrator (Administrador del sistema)
 
 ---
 
 ## 📦 Entidades (¿Qué información administra el dominio?)
 
-* Vacancy
-* Candidate
-* Application *(se valida en el Paso 3)*
-* Interview
-* Technical Assessment *(en análisis)*
-* Offer *(descartada para el MVP)*
-* Attachment *(CV, certificados, portafolio, etc.)*
+- Vacancy
+- Candidate
+- Application _(se valida en el Paso 3)_
+- Interview
+- Technical Assessment _(en análisis)_
+- Offer _(descartada para el MVP)_
+- Attachment _(CV, certificados, portafolio, etc.)_
 
 ---
 
 ## 💡 Conceptos del negocio
 
-* Recruitment Process
-* Stage
-* Vacancy Status
-* Application Status
-* Interview Result
-* Hiring Decision
+- Recruitment Process
+- Stage
+- Vacancy Status
+- Application Status
+- Interview Result
+- Hiring Decision
 
 ---
 
@@ -65,11 +65,11 @@ Después del análisis del dominio se definieron las siguientes entidades para e
 
 | Concepto             | Estado         |
 | -------------------- | -------------- |
-| Vacancy              | ✅ Confirmada   |
-| Candidate            | ✅ Confirmada   |
-| Interview            | ✅ Confirmada   |
-| Application          | ✅ Confirmada   |
-| Attachment           | ✅ Confirmada   |
+| Vacancy              | ✅ Confirmada  |
+| Candidate            | ✅ Confirmada  |
+| Interview            | ✅ Confirmada  |
+| Application          | ✅ Confirmada  |
+| Attachment           | ✅ Confirmada  |
 | Technical Assessment | 🟡 En análisis |
 
 > **Nota:** La entidad **Offer** fue descartada para el MVP. Se evaluará en futuras versiones del sistema.
@@ -107,34 +107,34 @@ Attachment
 
 ### Vacancy → Application
 
-* Una **Application** debe pertenecer siempre a una **Vacancy**.
-* Una **Vacancy** no puede permanecer abierta indefinidamente. El sistema podrá cerrarla automáticamente cuando supere el tiempo máximo configurado sin ser cerrada manualmente.
+- Una **Application** debe pertenecer siempre a una **Vacancy**.
+- Una **Vacancy** no puede permanecer abierta indefinidamente. El sistema podrá cerrarla automáticamente cuando supere el tiempo máximo configurado sin ser cerrada manualmente.
 
 ---
 
 ### Candidate → Application
 
-* Un candidato no puede tener más de una **Application** para la misma **Vacancy**.
-* Toda **Application** debe crearse con un estado inicial.
-* Un **Recruiter** no puede crear **Applications** manualmente.
-* La política de reaplicación será configurable en futuras versiones del sistema.
+- Un candidato no puede tener más de una **Application** para la misma **Vacancy**.
+- Toda **Application** debe crearse con un estado inicial.
+- Un **Recruiter** no puede crear **Applications** manualmente.
+- La política de reaplicación será configurable en futuras versiones del sistema.
 
 ---
 
 ### Candidate → Attachment
 
-* El candidato no puede superar el número máximo de archivos permitido por el sistema.
-* Solo se permiten archivos con las extensiones definidas por el sistema.
-* Cada archivo debe respetar el tamaño máximo permitido.
-* Cada archivo conserva su identidad.
-* Los archivos utilizados en una **Application** no pueden eliminarse.
-* Los archivos utilizados en una **Application** pueden actualizarse.
+- El candidato no puede superar el número máximo de archivos permitido por el sistema.
+- Solo se permiten archivos con las extensiones definidas por el sistema.
+- Cada archivo debe respetar el tamaño máximo permitido.
+- Cada archivo conserva su identidad.
+- Los archivos utilizados en una **Application** no pueden eliminarse.
+- Los archivos utilizados en una **Application** pueden actualizarse.
 
 ---
 
 ### Application → Interview
 
-* Toda **Interview** debe pertenecer a una **Application**.
+- Toda **Interview** debe pertenecer a una **Application**.
 
 ---
 
@@ -162,7 +162,7 @@ Attachment
 
 ## Términos prohibidos
 
-| ❌ No usar            | ✅ Usar             |
+| ❌ No usar           | ✅ Usar            |
 | -------------------- | ------------------ |
 | Job                  | Vacancy            |
 | JobOffer             | Vacancy            |
@@ -176,10 +176,10 @@ Attachment
 
 ## Convenciones del dominio
 
-* Todo el código del dominio se escribirá en **inglés**.
-* Cada concepto tendrá un único nombre; no se utilizarán sinónimos.
-* Si aparece un nuevo concepto durante el desarrollo, primero deberá incorporarse al Lenguaje Ubicuo antes de implementarse.
-* Conceptos como `User`, `Role`, `Permission`, `Session` o `AccessToken` pertenecen a otros dominios (Users/Auth) y no forman parte del lenguaje del dominio ATS.
+- Todo el código del dominio se escribirá en **inglés**.
+- Cada concepto tendrá un único nombre; no se utilizarán sinónimos.
+- Si aparece un nuevo concepto durante el desarrollo, primero deberá incorporarse al Lenguaje Ubicuo antes de implementarse.
+- Conceptos como `User`, `Role`, `Permission`, `Session` o `AccessToken` pertenecen a otros dominios (Users/Auth) y no forman parte del lenguaje del dominio ATS.
 
 ---
 

@@ -125,7 +125,7 @@ export default tseslint.config(
                         ["^@nestjs", "^@?\\w"],
 
                         // Alias del proyecto
-                        // ["^@/"],
+                        ["^@/"],
 
                         // Relativos
                         ["^\\."],

@@ -1,16 +1,19 @@
-import { randomUUID } from "crypto";
-import { Vacancy } from "src/modules/ats/domain/entities/vacancy";
+import { type IdGenerator } from "@/shared/id-generator";
 
+import { Vacancy } from "../../../domain/entities/vacancy";
 import type { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
 import { type CreateVacancyInput } from "./input";
 import { type CreateVacancyOutput } from "./output";
 
 export class CreateVacancyUseCase {
-    constructor(private readonly vacancyRepository: VacancyRepository) {}
+    constructor(
+        private readonly vacancyRepository: VacancyRepository,
+        private readonly idGenerator: IdGenerator,
+    ) {}
 
     public async execute(input: CreateVacancyInput): Promise<CreateVacancyOutput> {
         const vacancy = new Vacancy({
-            id: randomUUID(),
+            id: this.idGenerator.generate(),
             title: input.title,
             description: input.description,
             companyId: input.companyId,

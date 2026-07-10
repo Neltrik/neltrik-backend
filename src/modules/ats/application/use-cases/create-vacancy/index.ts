@@ -3,11 +3,12 @@ import { Vacancy } from "src/modules/ats/domain/entities/vacancy";
 
 import type { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
 import { type CreateVacancyInput } from "./input";
+import { type CreateVacancyOutput } from "./output";
 
 export class CreateVacancyUseCase {
     constructor(private readonly vacancyRepository: VacancyRepository) {}
 
-    public async execute(input: CreateVacancyInput): Promise<void> {
+    public async execute(input: CreateVacancyInput): Promise<CreateVacancyOutput> {
         const vacancy = new Vacancy({
             id: randomUUID(),
             title: input.title,
@@ -24,5 +25,8 @@ export class CreateVacancyUseCase {
             deletedAt: null,
         });
         await this.vacancyRepository.create(vacancy);
+        return { id: vacancy.id };
     }
 }
+
+export { CreateVacancyInput };

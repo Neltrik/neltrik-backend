@@ -1,10 +1,8 @@
 import { InvalidClosingDateError } from "../../errors/invalid-closing-date";
 import { InvalidSalaryError } from "../../errors/invalid-salary";
 import { InvalidTitleError } from "../../errors/invalid-title";
-import type { EmploymentType } from "../../types";
-import type { VacancyState } from "../../types";
-import { VACANCY_STATUS, type VacancyStatus } from "../../types";
-import type { WorkMode } from "../../types/";
+import type { EmploymentType, VacancyState, VacancyStatus, WorkMode } from "../../types";
+import { VACANCY_STATUS } from "../../types";
 
 export class Vacancy {
     private readonly props: VacancyState;

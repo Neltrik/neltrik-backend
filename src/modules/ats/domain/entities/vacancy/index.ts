@@ -1,15 +1,15 @@
 import { InvalidClosingDateError } from "../../errors/invalid-closing-date";
 import { InvalidSalaryError } from "../../errors/invalid-salary";
 import { InvalidTitleError } from "../../errors/invalid-title";
-import type { EmploymentType } from "../../types/employment-type";
-import type { VacancyState } from "../../types/vacancy-props";
-import { VACANCY_STATUS, type VacancyStatus } from "../../types/vacancy-status";
-import type { WorkMode } from "../../types/work-mode";
+import type { EmploymentType } from "../../types";
+import type { VacancyState } from "../../types";
+import { VACANCY_STATUS, type VacancyStatus } from "../../types";
+import type { WorkMode } from "../../types/";
 
 export class Vacancy {
     private readonly props: VacancyState;
 
-    constructor(props: VacancyState) {
+    constructor(props: Omit<VacancyState, "status">) {
         this.ensureValidSalary(props.salary);
         this.ensureTitleIsNotEmpty(props.title);
         this.ensureClosingDateIsAfterCreatedAt(props.closingDate, props.createdAt);

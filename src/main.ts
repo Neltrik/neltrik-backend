@@ -1,10 +1,11 @@
 import { Logger, ValidationPipe, VersioningType } from "@nestjs/common";
-import { NestFactory } from "@nestjs/core";
+import { NestFactory, Reflector } from "@nestjs/core";
 import compression from "compression";
 import helmet from "helmet";
 
 import { AppModule } from "./app.module";
 import { env } from "./config";
+import { ResponseInterceptor } from "./shared/http";
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
@@ -23,6 +24,7 @@ async function bootstrap(): Promise<void> {
         origin: env.FRONTEND_URL,
         credentials: true,
     });
+    app.useGlobalInterceptors(new ResponseInterceptor(app.get(Reflector)));
     app.setGlobalPrefix("api");
     app.enableVersioning({
         type: VersioningType.URI,

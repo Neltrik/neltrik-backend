@@ -1,17 +1,19 @@
 import { Logger, ValidationPipe, VersioningType } from "@nestjs/common";
-import { NestFactory, Reflector } from "@nestjs/core";
+import { NestFactory } from "@nestjs/core";
 import compression from "compression";
 import helmet from "helmet";
 
 import { AppModule } from "./app.module";
 import { configureSwagger, env } from "./config";
 import { ResponseInterceptor } from "./shared/http";
+import { SanitizationPipe } from "./shared/sanitization";
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
         logger: ["log", "warn", "error"],
     });
     app.useGlobalPipes(
+        app.get(SanitizationPipe),
         new ValidationPipe({
             whitelist: true,
             forbidNonWhitelisted: true,
@@ -24,7 +26,7 @@ async function bootstrap(): Promise<void> {
         origin: env.FRONTEND_URL,
         credentials: true,
     });
-    app.useGlobalInterceptors(new ResponseInterceptor(app.get(Reflector)));
+    app.useGlobalInterceptors(app.get(ResponseInterceptor));
     app.setGlobalPrefix("api");
     configureSwagger(app);
     app.enableVersioning({

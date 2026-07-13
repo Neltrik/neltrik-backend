@@ -4,7 +4,7 @@ import compression from "compression";
 import helmet from "helmet";
 
 import { AppModule } from "./app.module";
-import { env } from "./config";
+import { configureSwagger, env } from "./config";
 import { ResponseInterceptor } from "./shared/http";
 
 async function bootstrap(): Promise<void> {
@@ -26,6 +26,7 @@ async function bootstrap(): Promise<void> {
     });
     app.useGlobalInterceptors(new ResponseInterceptor(app.get(Reflector)));
     app.setGlobalPrefix("api");
+    configureSwagger(app);
     app.enableVersioning({
         type: VersioningType.URI,
     });

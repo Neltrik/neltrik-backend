@@ -1,6 +1,8 @@
+import { ERROR_MESSAGES } from "../messages";
+
 export class InvalidSalaryError extends Error {
     constructor() {
-        super("Salary cannot be negative.");
-        this.name = "InvalidSalaryError";
+        super(ERROR_MESSAGES.INVALID_SALARY);
+        this.name = InvalidSalaryError.name;
     }
 }

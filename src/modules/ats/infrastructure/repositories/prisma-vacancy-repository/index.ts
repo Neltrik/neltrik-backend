@@ -3,7 +3,7 @@ import { PrismaService } from "src/prisma/index";
 
 import { Vacancy } from "../../../domain/entities/vacancy";
 import { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
-import { VacancyMapper } from "../../mappers/vacancy";
+import { VacancyMapper } from "../../mappers";
 
 @Injectable()
 export class PrismaVacancyRepository extends VacancyRepository {

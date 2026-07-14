@@ -1,6 +1,4 @@
-import { InvalidClosingDateError } from "../../errors/invalid-closing-date";
-import { InvalidSalaryError } from "../../errors/invalid-salary";
-import { InvalidTitleError } from "../../errors/invalid-title";
+import { InvalidClosingDateError, InvalidSalaryError, InvalidTitleError } from "../../errors";
 import type { EmploymentType, VacancyState, VacancyStatus, WorkMode } from "../../types";
 import { VACANCY_STATUS } from "../../types";
 

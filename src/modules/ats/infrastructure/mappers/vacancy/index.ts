@@ -1,4 +1,5 @@
 import { type Vacancy } from "../../../domain/entities/vacancy";
+import { MESSAGES } from "../message";
 
 export class VacancyMapper {
     public static toPersistence(vacancy: Vacancy) {
@@ -21,6 +22,6 @@ export class VacancyMapper {
     }
 
     public static toDomain() {
-        throw new Error("Method not implemented.");
+        throw new Error(MESSAGES.METHOD_NOT_IMPLEMENTED);
     }
 }

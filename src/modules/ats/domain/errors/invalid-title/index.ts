@@ -1,6 +1,8 @@
+import { ERROR_MESSAGES } from "../messages";
+
 export class InvalidTitleError extends Error {
     constructor() {
-        super("Title cannot be empty.");
-        this.name = "InvalidTitleError";
+        super(ERROR_MESSAGES.INVALID_TITLE);
+        this.name = InvalidTitleError.name;
     }
 }

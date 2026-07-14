@@ -53,21 +53,9 @@ export class CreateVacancyRequestDto {
     location!: string | null;
 }
 
-export class CreateVacancyDataDto {
+export class CreateVacancyResultDto {
     @ApiProperty({
         example: "b8b2a9d5-73f7-47c8-a76b-fd2c91d8d7d1",
     })
     id!: string;
-}
-
-export class CreateVacancyResponseDto {
-    @ApiProperty({
-        type: CreateVacancyDataDto,
-    })
-    data!: CreateVacancyDataDto;
-
-    @ApiProperty({
-        example: "Vacancy created successfully.",
-    })
-    message!: string;
 }

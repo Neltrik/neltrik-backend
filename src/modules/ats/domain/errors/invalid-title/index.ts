@@ -1,8 +1,9 @@
-import { ERROR_MESSAGES } from "../messages";
+import { DomainError } from "@/shared/errors";
 
-export class InvalidTitleError extends Error {
+import { DOMAIN_ERROR_CODES, ERROR_MESSAGES } from "../messages";
+
+export class InvalidTitleError extends DomainError {
     constructor() {
-        super(ERROR_MESSAGES.INVALID_TITLE);
-        this.name = InvalidTitleError.name;
+        super(ERROR_MESSAGES.INVALID_TITLE, DOMAIN_ERROR_CODES.INVALID_TITLE);
     }
 }

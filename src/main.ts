@@ -5,7 +5,7 @@ import helmet from "helmet";
 
 import { AppModule } from "./app.module";
 import { configureSwagger, env } from "./config";
-import { ResponseInterceptor } from "./shared/http";
+import { GlobalExceptionFilter, ResponseInterceptor } from "./shared/http";
 import { SanitizationPipe } from "./shared/sanitization";
 
 async function bootstrap(): Promise<void> {
@@ -20,6 +20,7 @@ async function bootstrap(): Promise<void> {
             transform: true,
         }),
     );
+    app.useGlobalFilters(app.get(GlobalExceptionFilter));
     app.use(helmet());
     app.use(compression());
     app.enableCors({

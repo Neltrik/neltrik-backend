@@ -1,8 +1,9 @@
-import { ERROR_MESSAGES } from "../messages";
+import { DomainError } from "@/shared/errors";
 
-export class InvalidSalaryError extends Error {
+import { DOMAIN_ERROR_CODES, ERROR_MESSAGES } from "../messages";
+
+export class InvalidSalaryError extends DomainError {
     constructor() {
-        super(ERROR_MESSAGES.INVALID_SALARY);
-        this.name = InvalidSalaryError.name;
+        super(ERROR_MESSAGES.INVALID_SALARY, DOMAIN_ERROR_CODES.INVALID_SALARY);
     }
 }

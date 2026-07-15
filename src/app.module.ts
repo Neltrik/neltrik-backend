@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 
 import { AtsModule } from "./modules/ats/ats.module";
 import { PrismaModule } from "./prisma";
+import { ErrorsModule } from "./shared/errors";
 import { HttpModule } from "./shared/http";
 import { IdGeneratorModule } from "./shared/id-generator";
 import { SanitizationModule } from "./shared/sanitization";
@@ -12,6 +13,7 @@ import { SanitizationModule } from "./shared/sanitization";
         ConfigModule.forRoot({ isGlobal: true }),
         PrismaModule,
         HttpModule,
+        ErrorsModule,
         IdGeneratorModule,
         SanitizationModule,
         AtsModule,

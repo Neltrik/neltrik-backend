@@ -1,10 +1,13 @@
-import { type IdGenerator } from "@/shared/id-generator";
+import { Injectable } from "@nestjs/common";
+
+import { IdGenerator } from "@/shared/id-generator";
 
 import { Vacancy } from "../../../domain/entities/vacancy";
-import type { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
+import { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
 import { type CreateVacancyInput } from "./input";
 import { type CreateVacancyOutput } from "./output";
 
+@Injectable()
 export class CreateVacancyUseCase {
     constructor(
         private readonly vacancyRepository: VacancyRepository,

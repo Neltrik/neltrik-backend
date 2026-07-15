@@ -11,6 +11,6 @@ export const RESPONSE_CODES = {
     FORBIDDEN: "FORBIDDEN",
     NOT_FOUND: "NOT_FOUND",
     CONFLICT: "CONFLICT",
-    INTERNAL_ERROR: "INTERNAL_ERROR",
+    INTERNAL_ERROR: "INTERNAL_SERVER_ERROR",
 } as const;
 export type ResponseCodes = (typeof RESPONSE_CODES)[keyof typeof RESPONSE_CODES];

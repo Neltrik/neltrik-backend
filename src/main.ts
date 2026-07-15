@@ -1,25 +1,19 @@
-import { Logger, ValidationPipe, VersioningType } from "@nestjs/common";
+import { Logger, VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import compression from "compression";
 import helmet from "helmet";
 
 import { AppModule } from "./app.module";
 import { configureSwagger, env } from "./config";
-import { GlobalExceptionFilter, ResponseInterceptor } from "./shared/http";
+import { GlobalExceptionFilter } from "./shared/errors";
+import { ResponseInterceptor } from "./shared/http";
 import { SanitizationPipe } from "./shared/sanitization";
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
         logger: ["log", "warn", "error"],
     });
-    app.useGlobalPipes(
-        app.get(SanitizationPipe),
-        new ValidationPipe({
-            whitelist: true,
-            forbidNonWhitelisted: true,
-            transform: true,
-        }),
-    );
+    app.useGlobalPipes(app.get(SanitizationPipe));
     app.useGlobalFilters(app.get(GlobalExceptionFilter));
     app.use(helmet());
     app.use(compression());

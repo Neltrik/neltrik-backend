@@ -1,7 +1,10 @@
+import { Injectable } from "@nestjs/common";
+
 import { type ErrorDetail } from "../contracts";
 import { DomainError } from "../exceptions";
 import { ExceptionHandlingStrategy } from "./exception-strategy";
 
+@Injectable()
 export class DomainExceptionHandlingStrategy extends ExceptionHandlingStrategy {
     supports(error: unknown): boolean {
         return error instanceof DomainError;

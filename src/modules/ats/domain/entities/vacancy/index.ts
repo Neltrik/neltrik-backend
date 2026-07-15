@@ -22,7 +22,7 @@ export class Vacancy {
     }
 
     private ensureTitleIsNotEmpty(title: string): void {
-        if (title.trim() !== "") {
+        if (title.trim() === "") {
             throw new InvalidTitleError();
         }
     }

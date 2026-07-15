@@ -12,7 +12,7 @@ export class ResponseBuilder {
             data,
             code,
             message,
-            details,
+            details: details.length === 1 ? [] : details,
             meta,
         };
     }

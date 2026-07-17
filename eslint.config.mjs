@@ -9,23 +9,26 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 export default tseslint.config(
     {
-        ignores: ["dist/**", "node_modules/**", "coverage/**", "*.config.js", "*.config.mjs"],
+        ignores: ["dist/**", "node_modules/**", "coverage/**", "scripts/**", "jest.config.ts", "*.config.*"],
     },
+
     js.configs.recommended,
     ...tseslint.configs.recommendedTypeChecked,
     prettierConfig,
+
     {
-        files: ["**/*.ts"],
+        files: ["src/**/*.ts"],
+
         languageOptions: {
             globals: {
                 ...globals.node,
             },
             parserOptions: {
-                project: ["./tsconfig.json", "./tsconfig.cli.json"],
-                // @ts-ignore
+                project: "./tsconfig.eslint.json",
                 tsconfigRootDir: import.meta.dirname,
             },
         },
+
         plugins: {
             prettier: prettierPlugin,
             "simple-import-sort": simpleImportSort,

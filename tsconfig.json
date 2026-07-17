@@ -42,5 +42,5 @@
         "types": ["node"]
     },
     "include": ["src/**/*.ts"],
-    "exclude": ["node_modules", "dist", "scripts"]
+    "exclude": ["node_modules", "dist", "scripts", "**/*.test.ts"]
 }

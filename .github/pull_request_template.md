@@ -7,7 +7,7 @@ Describe brevemente qué cambia este Pull Request.
 ¿Por qué se hizo este cambio?
 
 Relacionado con:
-CVP-XXX
+NBE-XXX
 
 ## 🔧 Cambios realizados
 

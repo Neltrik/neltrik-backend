@@ -1,6 +1,7 @@
 {
-    "extends": "./tsconfig.json",
+    "extends": "./tsconfig.app.json",
     "compilerOptions": {
+        "composite": true,
         "module": "CommonJS",
         "moduleResolution": "Node",
         "types": ["node", "jest"],
@@ -9,6 +10,6 @@
         "emitDecoratorMetadata": false
     },
 
-    "include": ["src/**/*.test.ts"],
+    "include": ["src/**/*.ts"],
     "exclude": ["node_modules", "dist", "scripts"]
 }

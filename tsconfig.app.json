@@ -1,0 +1,48 @@
+{
+    "compilerOptions": {
+        "composite": true,
+
+        "rootDir": "./src",
+        "outDir": "./dist",
+
+        "target": "ES2023",
+
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+
+        "noUncheckedIndexedAccess": true,
+        "exactOptionalPropertyTypes": true,
+        "noImplicitOverride": true,
+        "noFallthroughCasesInSwitch": true,
+        "forceConsistentCasingInFileNames": true,
+
+        "isolatedModules": true,
+        "skipLibCheck": true,
+
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+
+        "sourceMap": true,
+        "removeComments": true,
+
+        "incremental": true,
+        "tsBuildInfoFile": "./dist/tsconfig.tsbuildinfo",
+
+        "baseUrl": ".",
+        "paths": {
+            "@/prisma/*": ["src/prisma/*"],
+            "@/shared/*": ["src/shared/*"]
+        },
+
+        "types": ["node"]
+    },
+    "include": ["src/**/*.ts"],
+    "exclude": ["node_modules", "dist", "scripts", "**/*.test.ts"]
+}

@@ -9,12 +9,12 @@ import { isValidModuleName } from "./utils/validation.utils";
 
 const moduleName = process.argv[2];
 
-console.log(CliMessages.creating(moduleName));
-
 if (!moduleName) {
     console.error(CliMessages.emptyName());
     process.exit(1);
 }
+
+console.log(CliMessages.creating(moduleName));
 
 if (!isValidModuleName(moduleName)) {
     console.error(CliMessages.invalidName());

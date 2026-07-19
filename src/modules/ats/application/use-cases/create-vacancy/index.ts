@@ -15,7 +15,7 @@ export class CreateVacancyUseCase {
     ) {}
 
     public async execute(input: CreateVacancyInput): Promise<CreateVacancyOutput> {
-        const vacancy = new Vacancy({
+        const vacancy = Vacancy.create({
             id: this.idGenerator.generate(),
             title: input.title,
             description: input.description,

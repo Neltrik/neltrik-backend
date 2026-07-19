@@ -1,5 +1,6 @@
-import { type Vacancy } from "../../../domain/entities/vacancy";
-import { MESSAGES } from "../message";
+import type { Vacancy as PrismaVacancy } from "@prisma/client";
+
+import { Vacancy } from "../../../domain/entities/vacancy";
 
 export class VacancyMapper {
     public static toPersistence(vacancy: Vacancy) {
@@ -21,7 +22,22 @@ export class VacancyMapper {
         };
     }
 
-    public static toDomain() {
-        throw new Error(MESSAGES.METHOD_NOT_IMPLEMENTED);
+    public static toDomain(vacancy: PrismaVacancy): Vacancy {
+        return Vacancy.restore({
+            id: vacancy.id,
+            title: vacancy.title,
+            description: vacancy.description,
+            tenantId: vacancy.tenantId,
+            recruiterId: vacancy.recruiterId,
+            employmentType: vacancy.employmentType,
+            workMode: vacancy.workMode,
+            closingDate: vacancy.closingDate,
+            status: vacancy.status,
+            salary: vacancy.salary?.toNumber() ?? null,
+            location: vacancy.location,
+            createdAt: vacancy.createdAt,
+            updatedAt: vacancy.updatedAt,
+            deletedAt: vacancy.deletedAt,
+        });
     }
 }

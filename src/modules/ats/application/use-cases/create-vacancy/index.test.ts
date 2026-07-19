@@ -23,6 +23,7 @@ describe("CreateVacancyUseCase", () => {
         const generateMock = jest.fn().mockReturnValue("vacancy-id");
 
         const vacancyRepository = {
+            list: jest.fn(),
             create: createMock,
         } satisfies VacancyRepository;
 

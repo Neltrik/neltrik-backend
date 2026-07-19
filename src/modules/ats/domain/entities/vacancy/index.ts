@@ -5,14 +5,22 @@ import { VACANCY_STATUS } from "../../types";
 export class Vacancy {
     private readonly props: VacancyState;
 
-    constructor(props: Omit<VacancyState, "status">) {
+    private constructor(props: VacancyState) {
         this.ensureValidSalary(props.salary);
         this.ensureTitleIsNotEmpty(props.title);
         this.ensureClosingDateIsAfterCreatedAt(props.closingDate, props.createdAt);
-        this.props = {
+        this.props = props;
+    }
+
+    public static create(props: Omit<VacancyState, "status">): Vacancy {
+        return new Vacancy({
             ...props,
             status: VACANCY_STATUS.DRAFT,
-        };
+        });
+    }
+
+    public static restore(props: VacancyState): Vacancy {
+        return new Vacancy(props);
     }
 
     private ensureValidSalary(salary: number | null): void {

@@ -14,9 +14,9 @@ export class CreateVacancyRequestDto {
     description!: string;
 
     @ApiProperty({
-        example: "company-123",
+        example: "tenant-123",
     })
-    companyId!: string;
+    tenantId!: string;
 
     @ApiProperty({
         example: "recruiter-123",

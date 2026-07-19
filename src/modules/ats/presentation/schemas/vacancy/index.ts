@@ -5,7 +5,7 @@ import { EMPLOYMENT_TYPE, WORK_MODE } from "../../../domain/types";
 export const createVacancySchema = z.object({
     title: z.string().trim().min(1).max(255),
     description: z.string().trim().min(1),
-    companyId: z.uuid(),
+    tenantId: z.uuid(),
     recruiterId: z.uuid(),
     employmentType: z.enum(EMPLOYMENT_TYPE),
     workMode: z.enum(WORK_MODE),

@@ -19,7 +19,7 @@ export class CreateVacancyUseCase {
             id: this.idGenerator.generate(),
             title: input.title,
             description: input.description,
-            companyId: input.companyId,
+            tenantId: input.tenantId,
             recruiterId: input.recruiterId,
             employmentType: input.employmentType,
             workMode: input.workMode,

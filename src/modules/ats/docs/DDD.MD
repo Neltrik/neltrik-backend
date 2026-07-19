@@ -30,7 +30,7 @@ Dentro del proceso participan diferentes actores como el reclutador, el candidat
 
 - Recruiter (Reclutador)
 - Candidate (Candidato)
-- Hiring Company (Empresa contratante)
+- Hiring Tenant (Empresa contratante)
 - Interviewer (Entrevistador)
 - Administrator (Administrador del sistema)
 
@@ -142,21 +142,21 @@ Attachment
 
 ## Diccionario del dominio
 
-| Español               | Inglés (Código)    | Tipo     | Descripción                                     |
-| --------------------- | ------------------ | -------- | ----------------------------------------------- |
-| Vacante               | Vacancy            | Entidad  | Oferta de empleo publicada por una empresa.     |
-| Candidato             | Candidate          | Entidad  | Persona que participa en procesos de selección. |
-| Postulación           | Application        | Entidad  | Participación de un candidato en una vacante.   |
-| Entrevista            | Interview          | Entidad  | Entrevista realizada dentro de una postulación. |
-| Archivo               | Attachment         | Entidad  | Documento asociado al candidato.                |
-| Reclutador            | Recruiter          | Actor    | Responsable del proceso de selección.           |
-| Empresa               | Company            | Actor    | Organización que publica vacantes.              |
-| Proceso de Selección  | RecruitmentProcess | Concepto | Flujo completo del proceso de contratación.     |
-| Etapa                 | Stage              | Concepto | Paso específico del proceso de selección.       |
-| Estado de Vacante     | VacancyStatus      | Enum     | Estados posibles de una vacante.                |
-| Estado de Postulación | ApplicationStatus  | Enum     | Estados posibles de una postulación.            |
-| Estado de Entrevista  | InterviewStatus    | Enum     | Estados posibles de una entrevista.             |
-| Tipo de Archivo       | AttachmentType     | Enum     | Clasificación lógica de un archivo.             |
+| Español               | Inglés (Código)    | Tipo     | Descripción                                                                                                                |
+| --------------------- | ------------------ | -------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Vacante               | Vacancy            | Entidad  | Oferta de empleo publicada por una empresa.                                                                                |
+| Candidato             | Candidate          | Entidad  | Persona que participa en procesos de selección.                                                                            |
+| Postulación           | Application        | Entidad  | Participación de un candidato en una vacante.                                                                              |
+| Entrevista            | Interview          | Entidad  | Entrevista realizada dentro de una postulación.                                                                            |
+| Archivo               | Attachment         | Entidad  | Documento asociado al candidato.                                                                                           |
+| Reclutador            | Recruiter          | Actor    | Responsable del proceso de selección.                                                                                      |
+| Tenant                | Tenant             | Actor    | Organización propietaria del espacio de trabajo dentro de Neltrik. Todas las entidades del sistema pertenecen a un Tenant. |
+| Proceso de Selección  | RecruitmentProcess | Concepto | Flujo completo del proceso de contratación.                                                                                |
+| Etapa                 | Stage              | Concepto | Paso específico del proceso de selección.                                                                                  |
+| Estado de Vacante     | VacancyStatus      | Enum     | Estados posibles de una vacante.                                                                                           |
+| Estado de Postulación | ApplicationStatus  | Enum     | Estados posibles de una postulación.                                                                                       |
+| Estado de Entrevista  | InterviewStatus    | Enum     | Estados posibles de una entrevista.                                                                                        |
+| Tipo de Archivo       | AttachmentType     | Enum     | Clasificación lógica de un archivo.                                                                                        |
 
 ---
 

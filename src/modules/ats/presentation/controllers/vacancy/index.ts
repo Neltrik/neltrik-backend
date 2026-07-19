@@ -46,7 +46,7 @@ export class VacancyController {
         const input: CreateVacancyInput = {
             title: body.title,
             description: body.description,
-            companyId: body.companyId,
+            tenantId: body.tenantId,
             recruiterId: body.recruiterId,
             employmentType: body.employmentType,
             workMode: body.workMode,

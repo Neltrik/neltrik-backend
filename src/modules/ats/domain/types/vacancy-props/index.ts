@@ -4,7 +4,7 @@ import type { WorkMode } from "../work-mode";
 
 interface VacancyProps {
     id: string;
-    companyId: string;
+    tenantId: string;
     recruiterId: string;
     title: string;
     description: string;

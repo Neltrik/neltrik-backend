@@ -4,7 +4,6 @@ import { Vacancy } from "./index";
 
 const createProps = (): Omit<VacancyState, "status"> => {
     const createdAt = new Date("2025-01-01T00:00:00.000Z");
-
     return {
         id: "vacancy-id",
         title: "Backend Developer",
@@ -22,59 +21,61 @@ const createProps = (): Omit<VacancyState, "status"> => {
     };
 };
 
-describe("Vacancy", () => {
-    it("should create a vacancy with draft status", () => {
-        const vacancy = new Vacancy(createProps());
+const restoreProps = (): VacancyState => ({
+    ...createProps(),
+    status: VACANCY_STATUS.PUBLISHED,
+});
 
+describe("Vacancy", () => {
+    it("should restore a vacancy preserving its persisted status", () => {
+        const vacancy = Vacancy.restore(restoreProps());
+        expect(vacancy.status).toBe(VACANCY_STATUS.PUBLISHED);
+    });
+
+    it("should create a vacancy with draft status", () => {
+        const vacancy = Vacancy.create(createProps());
         expect(vacancy.status).toBe(VACANCY_STATUS.DRAFT);
     });
 
     it("should throw InvalidSalaryError when salary is negative", () => {
         const props = createProps();
         props.salary = -1;
-
-        expect(() => new Vacancy(props)).toThrow(InvalidSalaryError);
+        expect(() => Vacancy.create(props)).toThrow(InvalidSalaryError);
     });
 
     it("should allow null salary", () => {
         const props = createProps();
         props.salary = null;
-
-        expect(() => new Vacancy(props)).not.toThrow();
+        expect(() => Vacancy.create(props)).not.toThrow();
     });
 
     it("should throw InvalidTitleError when title is empty", () => {
         const props = createProps();
         props.title = "";
-
-        expect(() => new Vacancy(props)).toThrow(InvalidTitleError);
+        expect(() => Vacancy.create(props)).toThrow(InvalidTitleError);
     });
 
     it("should throw InvalidTitleError when title contains only spaces", () => {
         const props = createProps();
         props.title = "   ";
-
-        expect(() => new Vacancy(props)).toThrow(InvalidTitleError);
+        expect(() => Vacancy.create(props)).toThrow(InvalidTitleError);
     });
 
     it("should throw InvalidClosingDateError when closing date is before created date", () => {
         const props = createProps();
         props.closingDate = new Date("2024-12-31T00:00:00.000Z");
-
-        expect(() => new Vacancy(props)).toThrow(InvalidClosingDateError);
+        expect(() => Vacancy.create(props)).toThrow(InvalidClosingDateError);
     });
 
     it("should throw InvalidClosingDateError when closing date equals created date", () => {
         const props = createProps();
         props.closingDate = props.createdAt;
-
-        expect(() => new Vacancy(props)).toThrow(InvalidClosingDateError);
+        expect(() => Vacancy.create(props)).toThrow(InvalidClosingDateError);
     });
 
     it("should expose all properties through getters", () => {
         const props = createProps();
-        const vacancy = new Vacancy(props);
-
+        const vacancy = Vacancy.create(props);
         expect(vacancy.id).toBe(props.id);
         expect(vacancy.title).toBe(props.title);
         expect(vacancy.description).toBe(props.description);

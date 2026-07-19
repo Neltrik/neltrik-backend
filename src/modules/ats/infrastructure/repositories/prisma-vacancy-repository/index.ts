@@ -16,4 +16,9 @@ export class PrismaVacancyRepository extends VacancyRepository {
             data: VacancyMapper.toPersistence(vacancy),
         });
     }
+
+    public async list(): Promise<Vacancy[]> {
+        const vacancies = await this.prisma.vacancy.findMany();
+        return vacancies.map((vacancy) => VacancyMapper.toDomain(vacancy));
+    }
 }

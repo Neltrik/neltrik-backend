@@ -9,7 +9,7 @@ const createProps = (): Omit<VacancyState, "status"> => {
         id: "vacancy-id",
         title: "Backend Developer",
         description: "Description",
-        companyId: "company-id",
+        tenantId: "tenant-id",
         recruiterId: "recruiter-id",
         employmentType: EMPLOYMENT_TYPE.FULL_TIME,
         workMode: WORK_MODE.REMOTE,
@@ -78,7 +78,7 @@ describe("Vacancy", () => {
         expect(vacancy.id).toBe(props.id);
         expect(vacancy.title).toBe(props.title);
         expect(vacancy.description).toBe(props.description);
-        expect(vacancy.companyId).toBe(props.companyId);
+        expect(vacancy.tenantId).toBe(props.tenantId);
         expect(vacancy.recruiterId).toBe(props.recruiterId);
         expect(vacancy.employmentType).toBe(props.employmentType);
         expect(vacancy.workMode).toBe(props.workMode);

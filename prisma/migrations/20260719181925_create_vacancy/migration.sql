@@ -12,7 +12,7 @@ CREATE TABLE "vacancies" (
     "id" UUID NOT NULL,
     "title" VARCHAR(255) NOT NULL,
     "description" TEXT NOT NULL,
-    "company_id" UUID NOT NULL,
+    "tenant_id" UUID NOT NULL,
     "recruiter_id" UUID NOT NULL,
     "employment_type" "EmploymentType" NOT NULL,
     "work_mode" "WorkMode" NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE "vacancies" (
 );
 
 -- CreateIndex
-CREATE INDEX "vacancies_company_id_idx" ON "vacancies"("company_id");
+CREATE INDEX "vacancies_tenant_id_idx" ON "vacancies"("tenant_id");
 
 -- CreateIndex
 CREATE INDEX "vacancies_recruiter_id_idx" ON "vacancies"("recruiter_id");

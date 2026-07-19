@@ -37,7 +37,7 @@ model Vacancy {
   id             String         @id @default(uuid()) @db.Uuid
   title          String         @db.VarChar(255)
   description    String         @db.Text
-  companyId      String         @map("company_id") @db.Uuid
+  tenantId      String          @map("tenant_id") @db.Uuid
   recruiterId    String         @map("recruiter_id") @db.Uuid
   employmentType EmploymentType @map("employment_type")
   workMode       WorkMode       @map("work_mode")
@@ -49,7 +49,7 @@ model Vacancy {
   updatedAt      DateTime       @updatedAt @map("updated_at")
   deletedAt      DateTime?      @map("deleted_at")
 
-  @@index([companyId])
+  @@index([tenantId])
   @@index([recruiterId])
   @@index([status])
   @@map("vacancies")

@@ -7,7 +7,7 @@ export class VacancyMapper {
             id: vacancy.id,
             title: vacancy.title,
             description: vacancy.description,
-            companyId: vacancy.companyId,
+            tenantId: vacancy.tenantId,
             recruiterId: vacancy.recruiterId,
             employmentType: vacancy.employmentType,
             workMode: vacancy.workMode,

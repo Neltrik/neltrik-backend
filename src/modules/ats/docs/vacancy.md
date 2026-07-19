@@ -11,7 +11,7 @@ La entidad **Vacancy** representa una oferta laboral publicada dentro del sistem
 | `id`             | Identificador único de la vacante                                  |
 | `title`          | Título de la oferta laboral                                        |
 | `description`    | Descripción detallada de la vacante                                |
-| `companyId`      | Identificador de la empresa asociada                               |
+| `tenantId`       | Identificador de la empresa asociada                               |
 | `recruiterId`    | Identificador del reclutador responsable                           |
 | `employmentType` | Tipo de contrato o modalidad laboral                               |
 | `workMode`       | Modalidad de trabajo (presencial, remoto, híbrido)                 |
@@ -34,7 +34,7 @@ Vacancy
 
 1 ─────── N Applications
 
-N ─────── 1 Company
+N ─────── 1 Tenant
 
 N ─────── 1 Recruiter
 ```
@@ -42,7 +42,7 @@ N ─────── 1 Recruiter
 ### Descripción
 
 - Una **Vacancy** puede tener múltiples **Applications**.
-- Una **Vacancy** pertenece a una única **Company**.
+- Una **Vacancy** pertenece a una única **Tenant**.
 - Una **Vacancy** pertenece a un único **Recruiter**.
 
 ---
@@ -108,7 +108,7 @@ vacancies
 | `id`              | UUID          | ❌   | `gen_random_uuid()` | PK          |
 | `title`           | VARCHAR(255)  | ❌   | —                   |             |
 | `description`     | TEXT          | ❌   | —                   |             |
-| `company_id`      | UUID          | ❌   | —                   | FK          |
+| `tenant_id`       | UUID          | ❌   | —                   | FK          |
 | `recruiter_id`    | UUID          | ❌   | —                   | FK          |
 | `employment_type` | ENUM          | ❌   | —                   |             |
 | `work_mode`       | ENUM          | ❌   | —                   |             |
@@ -125,7 +125,7 @@ vacancies
 ## 4.3 Restricciones
 
 - id es la clave primaria.
-- company_id referencia la entidad Company.
+- tenant_id referencia el Tenant propietario de la vacante.
 - recruiter_id referencia la entidad Recruiter.
 - status inicia con el valor DRAFT.
 - closing_date debe ser posterior a created_at.
@@ -136,6 +136,6 @@ vacancies
 ## 4.4 Índices
 
 - PK(id)
-- INDEX(company_id)
+- INDEX(tenant_id)
 - INDEX(recruiter_id)
 - INDEX(status)

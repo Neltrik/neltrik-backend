@@ -45,8 +45,8 @@ export class Vacancy {
         return this.props.description;
     }
 
-    public get companyId(): string {
-        return this.props.companyId;
+    public get tenantId(): string {
+        return this.props.tenantId;
     }
 
     public get recruiterId(): string {

@@ -8,7 +8,7 @@ import type { CreateVacancyInput } from "./input";
 const makeInput = (): CreateVacancyInput => ({
     title: "Backend Developer",
     description: "Description",
-    companyId: "company-id",
+    tenantId: "tenant-id",
     recruiterId: "recruiter-id",
     employmentType: "FULL_TIME",
     workMode: "REMOTE",

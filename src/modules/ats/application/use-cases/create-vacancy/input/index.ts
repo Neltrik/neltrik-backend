@@ -3,7 +3,7 @@ import type { EmploymentType, WorkMode } from "../../../../domain/types";
 export interface CreateVacancyInput {
     title: string;
     description: string;
-    companyId: string;
+    tenantId: string;
     recruiterId: string;
     employmentType: EmploymentType;
     workMode: WorkMode;

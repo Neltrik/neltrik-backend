@@ -4,7 +4,7 @@ describe("createVacancySchema", () => {
     const validPayload = {
         title: "Backend Developer",
         description: "Develop backend services.",
-        companyId: "550e8400-e29b-41d4-a716-446655440000",
+        tenantId: "550e8400-e29b-41d4-a716-446655440000",
         recruiterId: "550e8400-e29b-41d4-a716-446655440001",
         employmentType: "FULL_TIME",
         workMode: "REMOTE",
@@ -31,8 +31,8 @@ describe("createVacancySchema", () => {
         expect(result.success).toBe(false);
     });
 
-    it("should reject invalid company id", () => {
-        const result = createVacancySchema.safeParse({ ...validPayload, companyId: "invalid-id" });
+    it("should reject invalid tenant id", () => {
+        const result = createVacancySchema.safeParse({ ...validPayload, tenantId: "invalid-id" });
         expect(result.success).toBe(false);
     });
 

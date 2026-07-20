@@ -15,6 +15,7 @@ export const MODULE_FOLDERS = [
     "presentation/controllers",
     "presentation/dto",
 
+    "test-doubles",
     "tests",
     "docs",
 ];

@@ -1,17 +1,35 @@
-import { applyDecorators, type Type } from "@nestjs/common";
+import { applyDecorators, HttpStatus, type Type } from "@nestjs/common";
 import { ApiExtraModels, ApiResponse, getSchemaPath } from "@nestjs/swagger";
 
-export function ApiResponseContract<TModel extends Type<unknown>>(model: TModel): MethodDecorator {
+interface ApiResponseContractOptions {
+    responseType?: "object" | "array";
+    status?: HttpStatus;
+}
+
+export function ApiContract<TModel extends Type<unknown>>(
+    model: TModel,
+    { responseType = "object", status = HttpStatus.OK }: ApiResponseContractOptions = {},
+): MethodDecorator {
+    const data =
+        responseType === "array"
+            ? {
+                  type: "array",
+                  items: {
+                      $ref: getSchemaPath(model),
+                  },
+              }
+            : {
+                  $ref: getSchemaPath(model),
+              };
+
     return applyDecorators(
         ApiExtraModels(model),
         ApiResponse({
-            status: 201,
+            status,
             schema: {
                 type: "object",
                 properties: {
-                    data: {
-                        $ref: getSchemaPath(model),
-                    },
+                    data,
                     code: {
                         type: "string",
                     },

@@ -112,8 +112,7 @@ src/
         │   └── repositories/
         ├── presentation/
         │   ├── controllers/
-        │   ├── dto/
-        │   └── responses/
+        │   └── dto/
         ├── tests/
         └── auth.module.ts
 ```

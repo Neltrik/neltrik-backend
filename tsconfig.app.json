@@ -44,5 +44,5 @@
         "types": ["node"]
     },
     "include": ["src/**/*.ts"],
-    "exclude": ["node_modules", "dist", "scripts", "**/*.test.ts"]
+    "exclude": ["node_modules", "dist", "scripts", "**/*.test.ts", "**/test-doubles/**"]
 }

@@ -10,6 +10,6 @@
         "emitDecoratorMetadata": false
     },
 
-    "include": ["src/**/*.ts"],
+    "include": ["src/**/*.ts", "src/**/test-doubles/**/*"],
     "exclude": ["node_modules", "dist", "scripts"]
 }

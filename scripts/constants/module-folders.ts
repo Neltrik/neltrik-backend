@@ -14,7 +14,6 @@ export const MODULE_FOLDERS = [
 
     "presentation/controllers",
     "presentation/dto",
-    "presentation/responses",
 
     "tests",
     "docs",

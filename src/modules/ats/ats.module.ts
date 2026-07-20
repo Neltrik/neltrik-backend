@@ -1,6 +1,6 @@
 import { Module } from "@nestjs/common";
 
-import { CreateVacancyUseCase, ListVacanciesUseCase } from "./application/use-cases";
+import { CreateVacancyUseCase, GetVacancyUseCase, ListVacanciesUseCase } from "./application/use-cases";
 import { VacancyRepository } from "./domain/interfaces/vacancy-repository";
 import { PrismaVacancyRepository } from "./infrastructure/repositories/prisma-vacancy-repository";
 import { VacancyController } from "./presentation/controllers/vacancy";
@@ -9,6 +9,7 @@ import { VacancyController } from "./presentation/controllers/vacancy";
     controllers: [VacancyController],
     providers: [
         CreateVacancyUseCase,
+        GetVacancyUseCase,
         ListVacanciesUseCase,
         {
             provide: VacancyRepository,

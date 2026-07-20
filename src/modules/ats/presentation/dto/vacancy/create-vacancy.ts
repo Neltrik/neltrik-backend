@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-import type { EmploymentType, WorkMode } from "../../../domain/types";
+import { EMPLOYMENT_TYPE, type EmploymentType, WORK_MODE, type WorkMode } from "../../../domain/types";
 
 export class CreateVacancyRequestDto {
     @ApiProperty({
@@ -24,12 +24,14 @@ export class CreateVacancyRequestDto {
     recruiterId!: string;
 
     @ApiProperty({
-        example: "FULL_TIME",
+        enum: EMPLOYMENT_TYPE,
+        example: EMPLOYMENT_TYPE.FULL_TIME,
     })
     employmentType!: EmploymentType;
 
     @ApiProperty({
-        example: "REMOTE",
+        enum: WORK_MODE,
+        example: WORK_MODE.REMOTE,
     })
     workMode!: WorkMode;
 

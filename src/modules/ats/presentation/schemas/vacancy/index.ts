@@ -13,3 +13,7 @@ export const createVacancySchema = z.object({
     salary: z.number().min(0).nullable(),
     location: z.string().trim().max(255).nullable(),
 });
+
+export const getVacancySchema = z.object({
+    id: z.uuid(),
+});

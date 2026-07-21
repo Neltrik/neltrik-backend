@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { VacancyNotFoundError } from "../../../domain/errors";
 import { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
-import { UpdateVacancyInput } from "./input";
+import { type UpdateVacancyInput } from "./input";
 import { UpdateVacancyOutput } from "./output";
 
 @Injectable()
@@ -29,3 +29,5 @@ export class UpdateVacancyUseCase {
         };
     }
 }
+
+export { UpdateVacancyInput };

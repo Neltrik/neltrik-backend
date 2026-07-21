@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
@@ -17,16 +17,26 @@ import {
     CreateVacancyUseCase,
     GetVacancyUseCase,
     ListVacanciesUseCase,
+    UpdateVacancyInput,
+    UpdateVacancyUseCase,
 } from "../../../application/use-cases";
 import {
     CreateVacancyRequestDto,
     CreateVacancyResultDto,
     GetVacancyRequestDto,
     GetVacancyResultDto,
+    UpdateVacancyParamsDto,
+    UpdateVacancyRequestDto,
+    UpdateVacancyResultDto,
     VacancyDto,
 } from "../../dto/vacancy";
 import { VACANCY_MESSAGES } from "../../messages";
-import { createVacancySchema, getVacancySchema } from "../../schemas/vacancy";
+import {
+    createVacancySchema,
+    getVacancySchema,
+    updateVacancyParamsSchema,
+    updateVacancySchema,
+} from "../../schemas/vacancy";
 
 @ApiTags("Vacancies")
 @Controller("vacancies")
@@ -35,6 +45,7 @@ export class VacancyController {
         private readonly createVacancyUseCase: CreateVacancyUseCase,
         private readonly listVacanciesUseCase: ListVacanciesUseCase,
         private readonly getVacancyUseCase: GetVacancyUseCase,
+        private readonly updateVacancyUseCase: UpdateVacancyUseCase,
     ) {}
 
     @ApiOperation({
@@ -143,6 +154,47 @@ export class VacancyController {
             salary: vacancy.salary,
             closingDate: vacancy.closingDate,
             createdAt: vacancy.createdAt,
+        };
+    }
+
+    @ApiOperation({
+        summary: "Update vacancy",
+        description: "Updates an existing vacancy.",
+    })
+    @ApiContract(UpdateVacancyResultDto)
+    @ApiOkResponse({
+        description: "Resource updated.",
+    })
+    @ApiBadRequestResponse({
+        description: "Validation failed.",
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Internal server error.",
+    })
+    @Response({
+        code: RESPONSE_CODES.RESOURCE_UPDATED,
+        message: VACANCY_MESSAGES.UPDATED,
+    })
+    @Patch(":id")
+    public async update(
+        @Param(new ZodValidationPipe(updateVacancyParamsSchema))
+        params: UpdateVacancyParamsDto,
+        @Body(new ZodValidationPipe(updateVacancySchema))
+        body: UpdateVacancyRequestDto,
+    ): Promise<UpdateVacancyResultDto> {
+        const input: UpdateVacancyInput = {
+            id: params.id,
+            title: body.title,
+            description: body.description,
+            employmentType: body.employmentType,
+            workMode: body.workMode,
+            closingDate: new Date(body.closingDate),
+            salary: body.salary,
+            location: body.location,
+        };
+        const vacancy = await this.updateVacancyUseCase.execute(input);
+        return {
+            id: vacancy.id,
         };
     }
 }

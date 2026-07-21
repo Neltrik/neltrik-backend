@@ -17,3 +17,17 @@ export const createVacancySchema = z.object({
 export const getVacancySchema = z.object({
     id: z.uuid(),
 });
+
+export const updateVacancyParamsSchema = z.object({
+    id: z.uuid(),
+});
+
+export const updateVacancySchema = z.object({
+    title: z.string().trim().min(1),
+    description: z.string().trim().min(1),
+    employmentType: z.enum(EMPLOYMENT_TYPE),
+    workMode: z.enum(WORK_MODE),
+    closingDate: z.iso.datetime(),
+    salary: z.number().nonnegative().nullable(),
+    location: z.string().trim().min(1).nullable(),
+});

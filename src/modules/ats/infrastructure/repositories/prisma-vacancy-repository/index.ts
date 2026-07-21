@@ -33,9 +33,7 @@ export class PrismaVacancyRepository extends VacancyRepository {
     public async update(vacancy: Vacancy): Promise<void> {
         const persistence = VacancyMapper.toPersistence(vacancy);
         await this.prisma.vacancy.update({
-            where: {
-                id: vacancy.id,
-            },
+            where: { id: vacancy.id },
             data: {
                 title: persistence.title,
                 description: persistence.description,

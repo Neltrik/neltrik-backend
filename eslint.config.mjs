@@ -143,4 +143,10 @@ export default tseslint.config(
             "prettier/prettier": "warn",
         },
     },
+    {
+        files: ["**/*.test.ts"],
+        rules: {
+            "max-lines-per-function": "off",
+        },
+    },
 );

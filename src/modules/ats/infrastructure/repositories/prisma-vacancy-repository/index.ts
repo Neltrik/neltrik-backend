@@ -29,4 +29,11 @@ export class PrismaVacancyRepository extends VacancyRepository {
         }
         return VacancyMapper.toDomain(vacancy);
     }
+
+    public async update(vacancy: Vacancy): Promise<void> {
+        await this.prisma.vacancy.update({
+            where: { id: vacancy.id },
+            data: VacancyMapper.toPersistence(vacancy),
+        });
+    }
 }

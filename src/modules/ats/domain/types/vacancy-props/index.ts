@@ -21,3 +21,13 @@ interface VacancyProps {
 export type VacancyState = VacancyProps & {
     status: VacancyStatus;
 };
+
+export interface UpdateVacancyProps {
+    title: string;
+    description: string;
+    employmentType: EmploymentType;
+    workMode: WorkMode;
+    closingDate: Date;
+    salary: number | null;
+    location: string | null;
+}

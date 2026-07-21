@@ -89,9 +89,84 @@ Representa la modalidad en la que se desarrollará el trabajo.
 
 ---
 
-# 4. Modelo físico (Base de datos)
+# 4. Reglas de negocio
 
-## 4.1 Tabla
+## 4.1 Creación
+
+- El título de la vacante es obligatorio.
+- El salario no puede ser negativo.
+- La fecha de cierre debe ser posterior a la fecha de creación.
+- Toda vacante inicia con el estado `DRAFT`.
+
+---
+
+## 4.2 Actualización
+
+### Campos actualizables
+
+Los siguientes campos pueden ser modificados:
+
+- `title`
+- `description`
+- `employmentType`
+- `workMode`
+- `closingDate`
+- `salary`
+- `location`
+
+### Campos no actualizables
+
+Los siguientes campos no pueden ser modificados mediante el caso de uso de actualización:
+
+- `id`
+- `tenantId`
+- `recruiterId`
+- `status`
+- `createdAt`
+
+### Restricciones
+
+- Una vacante con estado `CLOSED` no puede actualizarse.
+- Una vacante con estado `ARCHIVED` no puede actualizarse.
+- La nueva fecha de cierre debe continuar siendo válida.
+- El salario no puede ser negativo.
+
+---
+
+## 4.3 Eliminación
+
+- La eliminación de una vacante es lógica (Soft Delete).
+- Al eliminar una vacante, el sistema registra la fecha en `deletedAt`.
+- Las vacantes eliminadas no deben ser retornadas por las consultas del sistema.
+
+---
+
+## 4.4 Publicación
+
+- Solo una vacante en estado `DRAFT` puede publicarse.
+- Una vacante publicada pasa al estado `PUBLISHED`.
+
+---
+
+## 4.5 Cierre
+
+- Una vacante en estado `PUBLISHED` puede cerrarse.
+- Una vacante cerrada pasa al estado `CLOSED`.
+- Una vacante en estado `CLOSED` deja de aceptar nuevas postulaciones.
+
+---
+
+## 4.6 Archivado
+
+- Una vacante en estado `CLOSED` puede archivarse.
+- Una vacante archivada pasa al estado `ARCHIVED`.
+- Una vacante archivada no puede modificarse ni volver a publicarse.
+
+---
+
+# 5. Modelo físico (Base de datos)
+
+## 5.1 Tabla
 
 Nombre sugerido:
 
@@ -101,7 +176,7 @@ vacancies
 
 ---
 
-## 4.2 Columnas
+## 5.2 Columnas
 
 | Columna           | Tipo          | Null | Default             | Observación |
 | ----------------- | ------------- | ---- | ------------------- | ----------- |
@@ -122,7 +197,7 @@ vacancies
 
 ---
 
-## 4.3 Restricciones
+## 5.3 Restricciones
 
 - id es la clave primaria.
 - tenant_id referencia el Tenant propietario de la vacante.
@@ -133,7 +208,7 @@ vacancies
 
 ---
 
-## 4.4 Índices
+## 5.4 Índices
 
 - PK(id)
 - INDEX(tenant_id)

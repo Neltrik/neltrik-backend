@@ -1,5 +1,5 @@
-import { InvalidClosingDateError, InvalidSalaryError, InvalidTitleError } from "../../errors";
-import type { EmploymentType, VacancyState, VacancyStatus, WorkMode } from "../../types";
+import { InvalidClosingDateError, InvalidSalaryError, InvalidTitleError, VacancyNotEditableError } from "../../errors";
+import type { EmploymentType, UpdateVacancyProps, VacancyState, VacancyStatus, WorkMode } from "../../types";
 import { VACANCY_STATUS } from "../../types";
 
 export class Vacancy {
@@ -21,6 +21,27 @@ export class Vacancy {
 
     public static restore(props: VacancyState): Vacancy {
         return new Vacancy(props);
+    }
+
+    public update(props: UpdateVacancyProps): void {
+        this.ensureCanBeUpdated();
+        this.ensureTitleIsNotEmpty(props.title);
+        this.ensureClosingDateIsAfterCreatedAt(props.closingDate, this.createdAt);
+        this.ensureValidSalary(props.salary);
+        this.props.title = props.title;
+        this.props.description = props.description;
+        this.props.employmentType = props.employmentType;
+        this.props.workMode = props.workMode;
+        this.props.closingDate = props.closingDate;
+        this.props.salary = props.salary;
+        this.props.location = props.location;
+        this.props.updatedAt = new Date();
+    }
+
+    private ensureCanBeUpdated(): void {
+        if (this.status === VACANCY_STATUS.CLOSED || this.status === VACANCY_STATUS.ARCHIVED) {
+            throw new VacancyNotEditableError();
+        }
     }
 
     private ensureValidSalary(salary: number | null): void {

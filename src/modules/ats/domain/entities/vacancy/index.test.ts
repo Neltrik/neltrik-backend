@@ -1,4 +1,4 @@
-import { InvalidClosingDateError, InvalidSalaryError, InvalidTitleError } from "../../errors";
+import { InvalidClosingDateError, InvalidSalaryError, InvalidTitleError, VacancyNotEditableError } from "../../errors";
 import { EMPLOYMENT_TYPE, VACANCY_STATUS, type VacancyState, WORK_MODE } from "../../types";
 import { Vacancy } from "./index";
 
@@ -90,5 +90,43 @@ describe("Vacancy", () => {
         expect(vacancy.updatedAt).toEqual(props.updatedAt);
         expect(vacancy.deletedAt).toBeNull();
         expect(vacancy.status).toBe(VACANCY_STATUS.DRAFT);
+    });
+
+    it("should update a vacancy successfully", () => {
+        const props = createProps();
+        const vacancy = Vacancy.create(props);
+        const updatedClosingDate = new Date("2025-03-31T00:00:00.000Z");
+        vacancy.update({
+            title: "Senior Backend Developer",
+            description: "Updated description",
+            employmentType: EMPLOYMENT_TYPE.PART_TIME,
+            workMode: WORK_MODE.HYBRID,
+            closingDate: updatedClosingDate,
+            salary: 8000,
+            location: "Medellín",
+        });
+        expect(vacancy.title).toBe("Senior Backend Developer");
+        expect(vacancy.description).toBe("Updated description");
+        expect(vacancy.employmentType).toBe(EMPLOYMENT_TYPE.PART_TIME);
+        expect(vacancy.workMode).toBe(WORK_MODE.HYBRID);
+        expect(vacancy.closingDate).toEqual(updatedClosingDate);
+        expect(vacancy.salary).toBe(8000);
+        expect(vacancy.location).toBe("Medellín");
+        expect(vacancy.updatedAt.getTime()).toBeGreaterThan(vacancy.createdAt.getTime());
+    });
+
+    it.each([VACANCY_STATUS.CLOSED, VACANCY_STATUS.ARCHIVED])("should not allow updating a %s vacancy", (status) => {
+        const vacancy = Vacancy.restore({ ...restoreProps(), status });
+        expect(() =>
+            vacancy.update({
+                title: "Senior Backend Developer",
+                description: "Updated description",
+                employmentType: EMPLOYMENT_TYPE.PART_TIME,
+                workMode: WORK_MODE.HYBRID,
+                closingDate: new Date("2025-03-31T00:00:00.000Z"),
+                salary: 8000,
+                location: "Medellín",
+            }),
+        ).toThrow(VacancyNotEditableError);
     });
 });

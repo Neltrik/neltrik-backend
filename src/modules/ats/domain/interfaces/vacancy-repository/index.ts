@@ -4,4 +4,5 @@ export abstract class VacancyRepository {
     public abstract create(vacancy: Vacancy): Promise<void>;
     public abstract list(): Promise<Vacancy[]>;
     public abstract get(id: string): Promise<Vacancy | null>;
+    abstract update(vacancy: Vacancy): Promise<void>;
 }

@@ -1,4 +1,6 @@
-import type { DomainHttpStatusStrategy } from "./";
+import { HttpStatus } from "@nestjs/common";
+
+import { DomainHttpStatusStrategy } from "./";
 import { HttpStatusResolver } from "./http-status-resolver";
 
 describe("HttpStatusResolver", () => {
@@ -35,5 +37,24 @@ describe("HttpStatusResolver", () => {
         expect(domainHttpStatusStrategy.supports).toHaveBeenCalledWith(exception);
         expect(domainHttpStatusStrategy.resolve).not.toHaveBeenCalled();
         expect(result).toBe(500);
+    });
+});
+
+describe("DomainHttpStatusStrategy", () => {
+    const makeSut = () => {
+        return new DomainHttpStatusStrategy();
+    };
+
+    it("should not support non domain errors", () => {
+        const strategy = makeSut();
+        const exception = new Error("Unexpected error");
+        const result = strategy.supports(exception);
+        expect(result).toBe(false);
+    });
+
+    it("should resolve bad request status", () => {
+        const strategy = makeSut();
+        const result = strategy.resolve();
+        expect(result).toBe(HttpStatus.BAD_REQUEST);
     });
 });

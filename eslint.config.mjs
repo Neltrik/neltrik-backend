@@ -147,6 +147,7 @@ export default tseslint.config(
         files: ["**/*.test.ts"],
         rules: {
             "max-lines-per-function": "off",
+            "@typescript-eslint/unbound-method": "off",
         },
     },
 );

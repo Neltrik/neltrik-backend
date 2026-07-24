@@ -37,8 +37,10 @@ Backend del sistema **Neltrik**, desarrollado con **NestJS**, **TypeScript** y *
 │
 ├── src/
 │   ├── config/
+│   ├── core/
 │   ├── prisma/
 │   ├── modules/
+│   ├── shared/
 │   ├── app.module.ts
 │   └── main.ts
 │
@@ -79,16 +81,17 @@ Crear un archivo `.env` tomando como referencia `.env.example`.
 
 ## Crear un módulo
 
-Genera automáticamente un módulo siguiendo la estructura de Clean Architecture definida para Neltrik.
+Genera automáticamente un módulo siguiendo la arquitectura modular basada en DDD (Domain-Driven Design) y Clean Architecture definida para Neltrik.
 
 ```bash
-pnpm module:create <module-name>
+pnpm module:create <module-name> --target=<core|modules>
 ```
 
-Ejemplo:
+Ejemplos:
 
 ```bash
-pnpm module:create auth
+pnpm module:create ats --target=modules
+pnpm module:create tenant --target=core
 ```
 
 Estructura generada:
@@ -117,6 +120,15 @@ src/
         ├── tests/
         └── auth.module.ts
 ```
+
+### Parámetro `--target`
+
+El parámetro `--target` indica el destino donde será creado el módulo.
+
+| Valor     | Destino                                                   |
+| --------- | --------------------------------------------------------- |
+| `modules` | Módulos funcionales de la aplicación.                     |
+| `core`    | Módulos transversales compartidos por toda la aplicación. |
 
 ### Convención para nombres de módulos
 

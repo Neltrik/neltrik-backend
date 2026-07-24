@@ -19,3 +19,6 @@ export const MODULE_FOLDERS = [
     "tests",
     "docs",
 ];
+
+export const MODULE_TARGETS = { core: "core", modules: "modules" } as const;
+export type ModuleTarget = keyof typeof MODULE_TARGETS;

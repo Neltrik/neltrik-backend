@@ -77,6 +77,24 @@ Crear un archivo `.env` tomando como referencia `.env.example`.
 
 ---
 
+# 📐 Convenciones de arquitectura
+
+Las siguientes convenciones forman parte de la arquitectura de Neltrik y deben respetarse durante el desarrollo de cualquier módulo.
+
+## Aislamiento por Tenant
+
+Neltrik implementa una arquitectura Multi-Tenant basada en aislamiento lógico.
+
+Para garantizar la seguridad, la escalabilidad y la consistencia de la plataforma, se establecen las siguientes reglas:
+
+- Toda entidad perteneciente a una organización debe almacenar explícitamente el campo tenantId.
+- El tenantId representa el propietario de la información y constituye el límite de aislamiento entre organizaciones.
+- Todas las consultas, actualizaciones y eliminaciones de datos deben realizarse dentro del contexto de un tenantId.
+- Ningún Tenant puede acceder, modificar o consultar información perteneciente a otro Tenant.
+- Las entidades globales de la plataforma (por ejemplo, Tenant) no almacenan tenantId, ya que no pertenecen a ninguna organización.
+
+Estas reglas aplican a todos los módulos funcionales de la plataforma (ATS, CRM, Inventory, etc.) y forman parte de la arquitectura base de Neltrik.
+
 # 🛠️ Herramientas de desarrollo
 
 ## Crear un módulo

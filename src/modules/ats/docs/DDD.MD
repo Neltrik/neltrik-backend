@@ -197,7 +197,7 @@ A partir de este punto, el desarrollo continuará utilizando **Spec-Driven Devel
 modules/
 └── ats/
     └── docs/
-        └── README.md
+        └── DDD.md
 ```
 
 Este documento debe mantenerse actualizado conforme evolucione el dominio y constituye la documentación oficial del módulo ATS.

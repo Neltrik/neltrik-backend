@@ -1,0 +1,68 @@
+import { InvalidTenantNameError, InvalidTenantSlugError } from "../../errors";
+import { TENANT_STATUS, type TenantState } from "../../types";
+import { Tenant } from "./index";
+
+const createProps = (): Omit<TenantState, "status"> => {
+    const createdAt = new Date("2025-01-01T00:00:00.000Z");
+    return {
+        id: "tenant-id",
+        name: "Neltrik",
+        slug: "neltrik",
+        createdAt,
+        updatedAt: createdAt,
+        suspendedAt: null,
+    };
+};
+
+const restoreProps = (): TenantState => ({
+    ...createProps(),
+    status: TENANT_STATUS.SUSPENDED,
+});
+
+describe("Tenant", () => {
+    it("should restore a tenant preserving its persisted status", () => {
+        const tenant = Tenant.restore(restoreProps());
+        expect(tenant.status).toBe(TENANT_STATUS.SUSPENDED);
+    });
+
+    it("should create a tenant with active status", () => {
+        const tenant = Tenant.create(createProps());
+        expect(tenant.status).toBe(TENANT_STATUS.ACTIVE);
+    });
+
+    it("should throw InvalidTenantNameError when name is empty", () => {
+        const props = createProps();
+        props.name = "";
+        expect(() => Tenant.create(props)).toThrow(InvalidTenantNameError);
+    });
+
+    it("should throw InvalidTenantNameError when name contains only spaces", () => {
+        const props = createProps();
+        props.name = "   ";
+        expect(() => Tenant.create(props)).toThrow(InvalidTenantNameError);
+    });
+
+    it("should throw InvalidTenantSlugError when slug is empty", () => {
+        const props = createProps();
+        props.slug = "";
+        expect(() => Tenant.create(props)).toThrow(InvalidTenantSlugError);
+    });
+
+    it("should throw InvalidTenantSlugError when slug contains only spaces", () => {
+        const props = createProps();
+        props.slug = "   ";
+        expect(() => Tenant.create(props)).toThrow(InvalidTenantSlugError);
+    });
+
+    it("should expose all properties through getters", () => {
+        const props = createProps();
+        const tenant = Tenant.create(props);
+        expect(tenant.id).toBe(props.id);
+        expect(tenant.name).toBe(props.name);
+        expect(tenant.slug).toBe(props.slug);
+        expect(tenant.createdAt).toEqual(props.createdAt);
+        expect(tenant.updatedAt).toEqual(props.updatedAt);
+        expect(tenant.suspendedAt).toBeNull();
+        expect(tenant.status).toBe(TENANT_STATUS.ACTIVE);
+    });
+});

@@ -1,4 +1,4 @@
-# Tenant Entity - README
+# Tenant Entity
 
 ## 1. Entidad
 

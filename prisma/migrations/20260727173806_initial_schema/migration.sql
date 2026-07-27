@@ -7,6 +7,9 @@ CREATE TYPE "EmploymentType" AS ENUM ('FULL_TIME', 'PART_TIME', 'CONTRACT', 'INT
 -- CreateEnum
 CREATE TYPE "WorkMode" AS ENUM ('ONSITE', 'REMOTE', 'HYBRID');
 
+-- CreateEnum
+CREATE TYPE "TenantStatus" AS ENUM ('ACTIVE', 'SUSPENDED');
+
 -- CreateTable
 CREATE TABLE "vacancies" (
     "id" UUID NOT NULL,
@@ -27,6 +30,19 @@ CREATE TABLE "vacancies" (
     CONSTRAINT "vacancies_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "tenants" (
+    "id" UUID NOT NULL,
+    "name" VARCHAR(255) NOT NULL,
+    "slug" VARCHAR(100) NOT NULL,
+    "status" "TenantStatus" NOT NULL DEFAULT 'ACTIVE',
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL,
+    "suspended_at" TIMESTAMP(3),
+
+    CONSTRAINT "tenants_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE INDEX "vacancies_tenant_id_idx" ON "vacancies"("tenant_id");
 
@@ -35,3 +51,12 @@ CREATE INDEX "vacancies_recruiter_id_idx" ON "vacancies"("recruiter_id");
 
 -- CreateIndex
 CREATE INDEX "vacancies_status_idx" ON "vacancies"("status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "tenants_slug_key" ON "tenants"("slug");
+
+-- CreateIndex
+CREATE INDEX "tenants_status_idx" ON "tenants"("status");
+
+-- AddForeignKey
+ALTER TABLE "vacancies" ADD CONSTRAINT "vacancies_tenant_id_fkey" FOREIGN KEY ("tenant_id") REFERENCES "tenants"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

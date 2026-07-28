@@ -65,4 +65,22 @@ describe("Tenant", () => {
         expect(tenant.suspendedAt).toBeNull();
         expect(tenant.status).toBe(TENANT_STATUS.ACTIVE);
     });
+
+    it("should update tenant name successfully", () => {
+        const tenant = Tenant.create(createProps());
+        tenant.update("Neltrik Updated");
+        expect(tenant.name).toBe("Neltrik Updated");
+    });
+
+    it("should update updatedAt when tenant is updated", () => {
+        const tenant = Tenant.create(createProps());
+        const previousUpdatedAt = tenant.updatedAt;
+        tenant.update("Neltrik Updated");
+        expect(tenant.updatedAt.getTime()).toBeGreaterThan(previousUpdatedAt.getTime());
+    });
+
+    it("should throw InvalidTenantNameError when updating with empty name", () => {
+        const tenant = Tenant.create(createProps());
+        expect(() => tenant.update("")).toThrow(InvalidTenantNameError);
+    });
 });

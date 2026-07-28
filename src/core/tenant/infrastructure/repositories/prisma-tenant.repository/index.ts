@@ -23,4 +23,12 @@ export class PrismaTenantRepository extends TenantRepository {
             data: TenantMapper.toPersistence(tenant),
         });
     }
+
+    public async get(id: string): Promise<Tenant | null> {
+        const tenant = await this.prisma.tenant.findUnique({ where: { id } });
+        if (!tenant) {
+            return null;
+        }
+        return TenantMapper.toDomain(tenant);
+    }
 }

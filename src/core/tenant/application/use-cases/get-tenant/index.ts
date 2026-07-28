@@ -1,0 +1,18 @@
+import { Injectable } from "@nestjs/common";
+
+import type { Tenant } from "../../../domain/entities/tenant";
+import { TenantNotFoundError } from "../../../domain/errors";
+import { TenantRepository } from "../../../domain/interfaces/tenant-repository";
+
+@Injectable()
+export class GetTenantUseCase {
+    constructor(private readonly tenantRepository: TenantRepository) {}
+
+    public async execute(id: string): Promise<Tenant> {
+        const tenant = await this.tenantRepository.get(id);
+        if (!tenant) {
+            throw new TenantNotFoundError();
+        }
+        return tenant;
+    }
+}

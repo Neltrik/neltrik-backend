@@ -19,6 +19,12 @@ export class Tenant {
         return new Tenant(props);
     }
 
+    public update(name: string): void {
+        this.ensureNameIsNotEmpty(name);
+        this.props.name = name;
+        this.props.updatedAt = new Date();
+    }
+
     private ensureNameIsNotEmpty(name: string): void {
         if (name.trim() === "") {
             throw new InvalidTenantNameError();

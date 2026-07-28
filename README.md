@@ -127,7 +127,6 @@ src/
         │   ├── types/
         │   └── value-objects/
         ├── infrastructure/
-        │   ├── database/
         │   ├── mappers/
         │   ├── providers/
         │   └── repositories/

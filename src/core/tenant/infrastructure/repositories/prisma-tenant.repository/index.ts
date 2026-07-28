@@ -16,4 +16,11 @@ export class PrismaTenantRepository extends TenantRepository {
             data: TenantMapper.toPersistence(tenant),
         });
     }
+
+    public async update(tenant: Tenant): Promise<void> {
+        await this.prisma.tenant.update({
+            where: { id: tenant.id },
+            data: TenantMapper.toPersistence(tenant),
+        });
+    }
 }

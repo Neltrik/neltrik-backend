@@ -1,4 +1,4 @@
-import { createTenantSchema } from "./";
+import { createTenantSchema, getTenantSchema, updateTenantParamsSchema, updateTenantSchema } from "./";
 
 describe("createTenantSchema", () => {
     const validPayload = {
@@ -28,5 +28,45 @@ describe("createTenantSchema", () => {
     it("should allow name with 255 characters", () => {
         const result = createTenantSchema.safeParse({ ...validPayload, name: "a".repeat(255) });
         expect(result.success).toBe(true);
+    });
+
+    it("should validate a valid id", () => {
+        const result = getTenantSchema.safeParse({ id: "550e8400-e29b-41d4-a716-446655440000" });
+        expect(result.success).toBe(true);
+    });
+
+    it("should reject an invalid id", () => {
+        const result = getTenantSchema.safeParse({ id: "invalid-id" });
+        expect(result.success).toBe(false);
+    });
+
+    it("should validate a valid id", () => {
+        const result = updateTenantParamsSchema.safeParse({ id: "550e8400-e29b-41d4-a716-446655440000" });
+        expect(result.success).toBe(true);
+    });
+
+    it("should reject an invalid id", () => {
+        const result = updateTenantParamsSchema.safeParse({ id: "invalid-id" });
+        expect(result.success).toBe(false);
+    });
+
+    it("should validate a correct payload", () => {
+        const result = updateTenantSchema.safeParse({ name: "Acme Corporation" });
+        expect(result.success).toBe(true);
+    });
+
+    it("should reject an empty name", () => {
+        const result = updateTenantSchema.safeParse({ name: "" });
+        expect(result.success).toBe(false);
+    });
+
+    it("should reject a name containing only spaces", () => {
+        const result = updateTenantSchema.safeParse({ name: "   " });
+        expect(result.success).toBe(false);
+    });
+
+    it("should reject a name longer than 255 characters", () => {
+        const result = updateTenantSchema.safeParse({ name: "a".repeat(256) });
+        expect(result.success).toBe(false);
     });
 });

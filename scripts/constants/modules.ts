@@ -7,7 +7,6 @@ export const MODULE_FOLDERS = [
     "domain/types",
     "domain/value-objects",
 
-    "infrastructure/database",
     "infrastructure/mappers",
     "infrastructure/providers",
     "infrastructure/repositories",

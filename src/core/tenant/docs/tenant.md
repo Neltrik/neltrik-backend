@@ -22,9 +22,7 @@ Cada Tenant constituye un espacio organizacional aislado donde operan los difere
 
 ### Consideraciones
 
-- El `slug` es generado automáticamente por la plataforma durante la creación del Tenant.
-- El `slug` debe ser único dentro de la plataforma.
-- El `slug` constituye el identificador público del Tenant y podrá utilizarse en URLs, subdominios u otros mecanismos de identificación.
+- El slug constituye el identificador público del Tenant y podrá utilizarse en URLs, subdominios u otros mecanismos de identificación.
 
 ## 2. Relaciones
 
@@ -62,13 +60,13 @@ Representa el estado actual del Tenant.
 ## 4.1 Creación
 
 - El nombre del Tenant es obligatorio.
-- El slug es generado automáticamente por la plataforma.
-- El slug es normalizado automáticamente a minúsculas antes de persistirse.
-- El slug debe ser único dentro de la plataforma.
+- El slug es generado automáticamente por la plataforma utilizando el nombre del Tenant y su identificador único.
+- El nombre utilizado para generar el slug es normalizado automáticamente a minúsculas antes de persistirse.
+- La plataforma garantiza la unicidad del slug mediante esta estrategia y la restricción UNIQUE de la base de datos.
 - Una vez generado, el slug no puede modificarse.
-- Todo Tenant inicia con el estado `ACTIVE`.
-- Todo Tenant debe finalizar su proceso de creación con un `OwnerTenantAdmin` asociado.
-- La creación de un Tenant solo puede ser realizada por un usuario con el rol `PlatformAdmin`.
+- Todo Tenant inicia con el estado ACTIVE.
+- Todo Tenant debe finalizar su proceso de creación con un OwnerTenantAdmin asociado.
+- La creación de un Tenant solo puede ser realizada por un usuario con el rol PlatformAdmin.
 
 ## 4.2 Actualización
 

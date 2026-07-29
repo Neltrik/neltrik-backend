@@ -3,4 +3,5 @@ export const TENANT_MESSAGES = {
     RETRIEVED: "Tenant retrieved successfully.",
     UPDATED: "Tenant updated successfully.",
     SUSPENDED: "Tenant suspended successfully.",
+    REACTIVATED: "Tenant reactivated successfully.",
 } as const;

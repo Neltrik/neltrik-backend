@@ -1,6 +1,7 @@
 import {
     createTenantSchema,
     getTenantSchema,
+    reactivateTenantParamsSchema,
     suspendTenantParamsSchema,
     updateTenantParamsSchema,
     updateTenantSchema,
@@ -86,5 +87,17 @@ describe("createTenantSchema", () => {
 
     it("should reject an invalid id", () => {
         expect(suspendTenantParamsSchema.safeParse({ id: "invalid-id" }).success).toBe(false);
+    });
+
+    it("should validate a valid id", () => {
+        const result = reactivateTenantParamsSchema.safeParse({
+            id: "550e8400-e29b-41d4-a716-446655440000",
+        });
+        expect(result.success).toBe(true);
+    });
+
+    it("should reject an invalid id", () => {
+        const result = reactivateTenantParamsSchema.safeParse({ id: "invalid-id" });
+        expect(result.success).toBe(false);
     });
 });

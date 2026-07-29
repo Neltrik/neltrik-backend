@@ -3,6 +3,7 @@ import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
     ApiInternalServerErrorResponse,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -16,6 +17,7 @@ import {
     CreateTenantInput,
     CreateTenantUseCase,
     GetTenantUseCase,
+    SuspendTenantUseCase,
     UpdateTenantInput,
     UpdateTenantUseCase,
 } from "../../../application/use-cases";
@@ -24,6 +26,7 @@ import {
     CreateTenantResultDto,
     GetTenantRequestDto,
     GetTenantResultDto,
+    SuspendTenantParamsDto,
     UpdateTenantParamsDto,
     UpdateTenantRequestDto,
     UpdateTenantResultDto,
@@ -32,6 +35,7 @@ import { TENANT_MESSAGES } from "../../messages";
 import {
     createTenantSchema,
     getTenantSchema,
+    suspendTenantParamsSchema,
     updateTenantParamsSchema,
     updateTenantSchema,
 } from "../../schemas/tenant";
@@ -43,6 +47,7 @@ export class TenantController {
         private readonly createTenantUseCase: CreateTenantUseCase,
         private readonly getTenantUseCase: GetTenantUseCase,
         private readonly updateTenantUseCase: UpdateTenantUseCase,
+        private readonly suspendTenantUseCase: SuspendTenantUseCase,
     ) {}
 
     @ApiOperation({
@@ -144,5 +149,33 @@ export class TenantController {
         const input: UpdateTenantInput = { id: params.id, name: body.name };
         const tenant = await this.updateTenantUseCase.execute(input);
         return { id: tenant.id };
+    }
+
+    @ApiOperation({
+        summary: "Suspend tenant",
+        description: "Suspends an existing tenant.",
+    })
+    @ApiNoContentResponse({
+        description: "Tenant suspended successfully.",
+    })
+    @ApiBadRequestResponse({
+        description: "Validation failed.",
+    })
+    @ApiNotFoundResponse({
+        description: "Tenant not found.",
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Internal server error.",
+    })
+    @Response({
+        code: RESPONSE_CODES.RESOURCE_UPDATED,
+        message: TENANT_MESSAGES.SUSPENDED,
+    })
+    @Patch(":id/suspend")
+    public async suspend(
+        @Param(new ZodValidationPipe(suspendTenantParamsSchema))
+        params: SuspendTenantParamsDto,
+    ): Promise<void> {
+        await this.suspendTenantUseCase.execute(params.id);
     }
 }

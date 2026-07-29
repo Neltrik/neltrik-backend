@@ -1,4 +1,4 @@
-import { InvalidTenantNameError, InvalidTenantSlugError } from "../../errors";
+import { InvalidTenantNameError, InvalidTenantSlugError, TenantAlreadySuspendedError } from "../../errors";
 import { TENANT_STATUS, type TenantState } from "../../types";
 import { Tenant } from "./index";
 
@@ -82,5 +82,18 @@ describe("Tenant", () => {
     it("should throw InvalidTenantNameError when updating with empty name", () => {
         const tenant = Tenant.create(createProps());
         expect(() => tenant.update("")).toThrow(InvalidTenantNameError);
+    });
+
+    it("should suspend an active tenant", () => {
+        const tenant = Tenant.create(createProps());
+        tenant.suspend();
+        expect(tenant.status).toBe(TENANT_STATUS.SUSPENDED);
+        expect(tenant.suspendedAt).not.toBeNull();
+        expect(tenant.updatedAt.getTime()).toBeGreaterThan(tenant.createdAt.getTime());
+    });
+
+    it("should throw TenantAlreadySuspendedError when tenant is already suspended", () => {
+        const tenant = Tenant.restore(restoreProps());
+        expect(() => tenant.suspend()).toThrow(TenantAlreadySuspendedError);
     });
 });

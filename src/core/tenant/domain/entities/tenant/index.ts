@@ -1,4 +1,4 @@
-import { InvalidTenantNameError, InvalidTenantSlugError } from "../../errors";
+import { InvalidTenantNameError, InvalidTenantSlugError, TenantAlreadySuspendedError } from "../../errors";
 import type { TenantState, TenantStatus } from "../../types";
 import { TENANT_STATUS } from "../../types";
 
@@ -25,6 +25,13 @@ export class Tenant {
         this.props.updatedAt = new Date();
     }
 
+    public suspend(): void {
+        this.ensureCanBeSuspended();
+        this.props.status = TENANT_STATUS.SUSPENDED;
+        this.props.suspendedAt = new Date();
+        this.props.updatedAt = new Date();
+    }
+
     private ensureNameIsNotEmpty(name: string): void {
         if (name.trim() === "") {
             throw new InvalidTenantNameError();
@@ -34,6 +41,12 @@ export class Tenant {
     private ensureSlugIsNotEmpty(slug: string): void {
         if (slug.trim() === "") {
             throw new InvalidTenantSlugError();
+        }
+    }
+
+    private ensureCanBeSuspended(): void {
+        if (this.props.status === TENANT_STATUS.SUSPENDED) {
+            throw new TenantAlreadySuspendedError();
         }
     }
 

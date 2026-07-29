@@ -4,6 +4,7 @@ import { SlugGenerator } from "./application/slug-generator";
 import {
     CreateTenantUseCase,
     GetTenantUseCase,
+    ReactivateTenantUseCase,
     SuspendTenantUseCase,
     UpdateTenantUseCase,
 } from "./application/use-cases";
@@ -16,6 +17,7 @@ import { TenantController } from "./presentation/controllers/tenant";
     providers: [
         CreateTenantUseCase,
         GetTenantUseCase,
+        ReactivateTenantUseCase,
         SuspendTenantUseCase,
         UpdateTenantUseCase,
         SlugGenerator,

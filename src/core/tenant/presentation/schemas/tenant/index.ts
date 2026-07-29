@@ -19,3 +19,7 @@ export const updateTenantSchema = z.object({
 export const suspendTenantParamsSchema = z.object({
     id: z.uuid(),
 });
+
+export const reactivateTenantParamsSchema = z.object({
+    id: z.uuid(),
+});

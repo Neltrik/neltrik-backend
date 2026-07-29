@@ -17,6 +17,7 @@ import {
     CreateTenantInput,
     CreateTenantUseCase,
     GetTenantUseCase,
+    ReactivateTenantUseCase,
     SuspendTenantUseCase,
     UpdateTenantInput,
     UpdateTenantUseCase,
@@ -26,6 +27,7 @@ import {
     CreateTenantResultDto,
     GetTenantRequestDto,
     GetTenantResultDto,
+    ReactivateTenantParamsDto,
     SuspendTenantParamsDto,
     UpdateTenantParamsDto,
     UpdateTenantRequestDto,
@@ -35,6 +37,7 @@ import { TENANT_MESSAGES } from "../../messages";
 import {
     createTenantSchema,
     getTenantSchema,
+    reactivateTenantParamsSchema,
     suspendTenantParamsSchema,
     updateTenantParamsSchema,
     updateTenantSchema,
@@ -48,6 +51,7 @@ export class TenantController {
         private readonly getTenantUseCase: GetTenantUseCase,
         private readonly updateTenantUseCase: UpdateTenantUseCase,
         private readonly suspendTenantUseCase: SuspendTenantUseCase,
+        private readonly reactivateTenantUseCase: ReactivateTenantUseCase,
     ) {}
 
     @ApiOperation({
@@ -177,5 +181,33 @@ export class TenantController {
         params: SuspendTenantParamsDto,
     ): Promise<void> {
         await this.suspendTenantUseCase.execute(params.id);
+    }
+
+    @ApiOperation({
+        summary: "Reactivate tenant",
+        description: "Reactivates a suspended tenant.",
+    })
+    @ApiNoContentResponse({
+        description: "Tenant reactivated successfully.",
+    })
+    @ApiBadRequestResponse({
+        description: "Validation failed.",
+    })
+    @ApiNotFoundResponse({
+        description: "Tenant not found.",
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Internal server error.",
+    })
+    @Response({
+        code: RESPONSE_CODES.RESOURCE_UPDATED,
+        message: TENANT_MESSAGES.REACTIVATED,
+    })
+    @Patch(":id/reactivate")
+    public async reactivate(
+        @Param(new ZodValidationPipe(reactivateTenantParamsSchema))
+        params: ReactivateTenantParamsDto,
+    ): Promise<void> {
+        await this.reactivateTenantUseCase.execute(params.id);
     }
 }

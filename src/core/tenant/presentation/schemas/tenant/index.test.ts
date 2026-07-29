@@ -1,4 +1,10 @@
-import { createTenantSchema, getTenantSchema, updateTenantParamsSchema, updateTenantSchema } from "./";
+import {
+    createTenantSchema,
+    getTenantSchema,
+    suspendTenantParamsSchema,
+    updateTenantParamsSchema,
+    updateTenantSchema,
+} from "./";
 
 describe("createTenantSchema", () => {
     const validPayload = {
@@ -68,5 +74,17 @@ describe("createTenantSchema", () => {
     it("should reject a name longer than 255 characters", () => {
         const result = updateTenantSchema.safeParse({ name: "a".repeat(256) });
         expect(result.success).toBe(false);
+    });
+
+    it("should validate a valid id", () => {
+        expect(
+            suspendTenantParamsSchema.safeParse({
+                id: "550e8400-e29b-41d4-a716-446655440000",
+            }).success,
+        ).toBe(true);
+    });
+
+    it("should reject an invalid id", () => {
+        expect(suspendTenantParamsSchema.safeParse({ id: "invalid-id" }).success).toBe(false);
     });
 });

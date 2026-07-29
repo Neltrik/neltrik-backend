@@ -1,3 +1,4 @@
-export * from "./create-tenant";
-export * from "./get-tenant";
-export * from "./update-tenant";
+export * from "./create";
+export * from "./get";
+export * from "./suspend";
+export * from "./update";

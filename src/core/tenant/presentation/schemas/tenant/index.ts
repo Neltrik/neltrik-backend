@@ -15,3 +15,7 @@ export const updateTenantParamsSchema = z.object({
 export const updateTenantSchema = z.object({
     name: z.string().trim().min(1).max(255),
 });
+
+export const suspendTenantParamsSchema = z.object({
+    id: z.uuid(),
+});

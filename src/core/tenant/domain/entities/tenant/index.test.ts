@@ -1,4 +1,9 @@
-import { InvalidTenantNameError, InvalidTenantSlugError, TenantAlreadySuspendedError } from "../../errors";
+import {
+    InvalidTenantNameError,
+    InvalidTenantSlugError,
+    TenantAlreadyActiveError,
+    TenantAlreadySuspendedError,
+} from "../../errors";
 import { TENANT_STATUS, type TenantState } from "../../types";
 import { Tenant } from "./index";
 
@@ -95,5 +100,18 @@ describe("Tenant", () => {
     it("should throw TenantAlreadySuspendedError when tenant is already suspended", () => {
         const tenant = Tenant.restore(restoreProps());
         expect(() => tenant.suspend()).toThrow(TenantAlreadySuspendedError);
+    });
+
+    it("should reactivate a suspended tenant", () => {
+        const tenant = Tenant.restore(restoreProps());
+        tenant.reactivate();
+        expect(tenant.status).toBe(TENANT_STATUS.ACTIVE);
+        expect(tenant.suspendedAt).toBeNull();
+        expect(tenant.updatedAt.getTime()).toBeGreaterThan(tenant.createdAt.getTime());
+    });
+
+    it("should throw TenantAlreadyActiveError when tenant is already active", () => {
+        const tenant = Tenant.create(createProps());
+        expect(() => tenant.reactivate()).toThrow(TenantAlreadyActiveError);
     });
 });

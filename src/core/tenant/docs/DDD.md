@@ -81,8 +81,6 @@ Los demás módulos pueden utilizar **Tenant** como contexto organizacional para
 
 # Paso 2 — Descubrir los conceptos del negocio
 
-# Paso 2 — Descubrir los conceptos del negocio
-
 ## 👤 Actores (¿Quién realiza acciones?)
 
 - Platform Administrator (Administrador de la plataforma)

@@ -1,7 +1,7 @@
 import type { Vacancy as PrismaVacancy } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 
-import type { Vacancy } from "../../../domain/entities/vacancy";
+import type { Vacancy } from "../../../domain/entities";
 import { VacancyMapper } from "./index";
 
 const makeVacancyEntity = (): Vacancy =>

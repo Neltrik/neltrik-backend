@@ -8,8 +8,8 @@ import {
     SuspendTenantUseCase,
     UpdateTenantUseCase,
 } from "./application/use-cases";
-import { TenantRepository } from "./domain/interfaces/tenant-repository";
-import { PrismaTenantRepository } from "./infrastructure/repositories/prisma-tenant.repository";
+import { TenantRepository } from "./domain/interfaces";
+import { PrismaTenantRepository } from "./infrastructure/repositories";
 import { TenantController } from "./presentation/controllers/tenant";
 
 @Module({

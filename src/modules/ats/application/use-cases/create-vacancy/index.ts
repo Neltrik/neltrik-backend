@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 
 import { IdGenerator } from "@/shared/id-generator";
 
-import { Vacancy } from "../../../domain/entities/vacancy";
-import { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
+import { Vacancy } from "../../../domain/entities";
+import { VacancyRepository } from "../../../domain/interfaces";
 import { type CreateVacancyInput } from "./input";
 import { type CreateVacancyOutput } from "./output";
 

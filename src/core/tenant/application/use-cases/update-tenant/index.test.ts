@@ -1,4 +1,4 @@
-import { Tenant } from "../../../domain/entities/tenant";
+import { Tenant } from "../../../domain/entities";
 import { InvalidTenantNameError, TenantNotFoundError } from "../../../domain/errors";
 import { TenantRepositorySpy } from "../../../test-doubles";
 import { UpdateTenantUseCase } from "./index";

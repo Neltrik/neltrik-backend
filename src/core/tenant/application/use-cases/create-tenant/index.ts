@@ -2,8 +2,8 @@ import { Injectable } from "@nestjs/common";
 
 import { IdGenerator } from "@/shared/id-generator";
 
-import { Tenant } from "../../../domain/entities/tenant";
-import { TenantRepository } from "../../../domain/interfaces/tenant-repository";
+import { Tenant } from "../../../domain/entities";
+import { TenantRepository } from "../../../domain/interfaces";
 import { SlugGenerator } from "../../slug-generator";
 import { type CreateTenantInput } from "./input";
 import { CreateTenantOutput } from "./output";

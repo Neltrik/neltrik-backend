@@ -6,8 +6,8 @@ import {
     ListVacanciesUseCase,
     UpdateVacancyUseCase,
 } from "./application/use-cases";
-import { VacancyRepository } from "./domain/interfaces/vacancy-repository";
-import { PrismaVacancyRepository } from "./infrastructure/repositories/prisma-vacancy-repository";
+import { VacancyRepository } from "./domain/interfaces";
+import { PrismaVacancyRepository } from "./infrastructure/repositories";
 import { VacancyController } from "./presentation/controllers/vacancy";
 
 @Module({

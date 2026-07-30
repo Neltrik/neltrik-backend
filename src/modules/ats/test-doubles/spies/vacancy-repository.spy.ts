@@ -1,5 +1,5 @@
-import { type Vacancy } from "../../domain/entities/vacancy";
-import { VacancyRepository } from "../../domain/interfaces/vacancy-repository";
+import { type Vacancy } from "../../domain/entities";
+import { VacancyRepository } from "../../domain/interfaces";
 
 export class VacancyRepositorySpy extends VacancyRepository {
     public create = jest.fn<Promise<void>, [Vacancy]>();

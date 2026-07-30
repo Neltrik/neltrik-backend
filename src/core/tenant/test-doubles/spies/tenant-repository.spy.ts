@@ -1,5 +1,5 @@
-import { type Tenant } from "../../domain/entities/tenant";
-import { TenantRepository } from "../../domain/interfaces/tenant-repository";
+import { type Tenant } from "../../domain/entities";
+import { TenantRepository } from "../../domain/interfaces";
 
 export class TenantRepositorySpy extends TenantRepository {
     public create = jest.fn<Promise<void>, [Tenant]>();

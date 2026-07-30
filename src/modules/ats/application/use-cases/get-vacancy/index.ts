@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 
-import type { Vacancy } from "../../../domain/entities/vacancy";
+import type { Vacancy } from "../../../domain/entities";
 import { VacancyNotFoundError } from "../../../domain/errors";
-import { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
+import { VacancyRepository } from "../../../domain/interfaces";
 
 @Injectable()
 export class GetVacancyUseCase {

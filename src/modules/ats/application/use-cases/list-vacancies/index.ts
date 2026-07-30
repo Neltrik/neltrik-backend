@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
-import type { Vacancy } from "../../../domain/entities/vacancy";
-import { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
+import type { Vacancy } from "../../../domain/entities";
+import { VacancyRepository } from "../../../domain/interfaces";
 
 @Injectable()
 export class ListVacanciesUseCase {

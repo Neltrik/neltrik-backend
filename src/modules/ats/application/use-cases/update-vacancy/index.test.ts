@@ -1,4 +1,4 @@
-import { Vacancy } from "../../../domain/entities/vacancy";
+import { Vacancy } from "../../../domain/entities";
 import { VacancyNotFoundError } from "../../../domain/errors";
 import { VacancyRepositorySpy } from "../../../test-doubles";
 import { UpdateVacancyUseCase } from "./index";

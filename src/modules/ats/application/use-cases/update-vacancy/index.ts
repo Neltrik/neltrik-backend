@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { VacancyNotFoundError } from "../../../domain/errors";
-import { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
+import { VacancyRepository } from "../../../domain/interfaces";
 import { type UpdateVacancyInput } from "./input";
 import { UpdateVacancyOutput } from "./output";
 

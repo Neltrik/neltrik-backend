@@ -33,4 +33,8 @@ export const CliMessages = {
         return ["❌ Destino de módulo inválido.", "Destinos soportados:", "", supportedTargets].join("\n");
     },
     success: (moduleName: string): string => `🎉 Módulo "${moduleName}" creado correctamente.`,
+    updated: (): string => "🎉 Módulos actualizados correctamente.",
+    updating: (target: string, moduleName: string): string => `🔄 Actualizando módulo "${target}/${moduleName}"...`,
+    createdFolder: (folder: string): string => `📁 Carpeta creada: ${folder}`,
+    createdFile: (file: string): string => `📄 Archivo creado: ${file}`,
 };

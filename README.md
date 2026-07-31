@@ -8,11 +8,11 @@
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-Private-red)
 
-Backend del sistema **Neltrik**, desarrollado con **NestJS**, **TypeScript** y **Prisma ORM**, siguiendo una arquitectura modular basada en principios de **Clean Architecture**.
+Backend del sistema **Neltrik**, desarrollado con **NestJS**, **TypeScript** y **Prisma ORM**, siguiendo una arquitectura modular basada en **DDD (Domain-Driven Design)** y **Clean Architecture**.
 
 ---
 
-# 🚀 Tecnologías
+# Tecnologías
 
 - NestJS
 - TypeScript
@@ -28,7 +28,7 @@ Backend del sistema **Neltrik**, desarrollado con **NestJS**, **TypeScript** y *
 
 ---
 
-# 📂 Estructura del proyecto
+# Estructura del proyecto
 
 ```text
 .
@@ -51,7 +51,7 @@ Backend del sistema **Neltrik**, desarrollado con **NestJS**, **TypeScript** y *
 
 ---
 
-# ⚙️ Requisitos
+# Requisitos
 
 Antes de ejecutar el proyecto asegúrate de tener instalado:
 
@@ -61,7 +61,7 @@ Antes de ejecutar el proyecto asegúrate de tener instalado:
 
 ---
 
-# 📦 Instalación
+# Instalación
 
 Instalar las dependencias del proyecto:
 
@@ -71,13 +71,17 @@ pnpm install
 
 ---
 
-# 🔧 Variables de entorno
+# Variables de entorno
 
 Crear un archivo `.env` tomando como referencia `.env.example`.
 
 ---
 
-# 📐 Convenciones de arquitectura
+# Convenciones de arquitectura
+
+Las siguientes convenciones forman parte de la arquitectura de Neltrik y deben respetarse durante el desarrollo de cualquier módulo.
+
+## Convenciones generales
 
 Las siguientes convenciones forman parte de la arquitectura de Neltrik y deben respetarse durante el desarrollo de cualquier módulo.
 
@@ -95,7 +99,55 @@ Para garantizar la seguridad, la escalabilidad y la consistencia de la plataform
 
 Estas reglas aplican a todos los módulos funcionales de la plataforma (ATS, CRM, Inventory, etc.) y forman parte de la arquitectura base de Neltrik.
 
-# 🛠️ Herramientas de desarrollo
+# Arquitectura por capas
+
+Todos los módulos del sistema, tanto los ubicados en `core` como en `modules`, siguen exactamente la misma estructura arquitectónica.
+
+## Diagrama de capas
+
+```text
+Presentation
+      │
+      ▼
+Application
+      │
+      ▼
+Domain
+      ▲
+      │
+Infrastructure
+```
+
+## Responsabilidad de cada capa
+
+| Capa               | Responsabilidad                                                                                                                                             |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Presentation**   | Expone la funcionalidad mediante interfaces de entrada (HTTP, Controllers, DTO, Swagger, etc.).                                                             |
+| **Application**    | Contiene los casos de uso del módulo y los Application Services encargados de orquestar procesos que involucren múltiples casos de uso o múltiples módulos. |
+| **Domain**         | Contiene el modelo de negocio, entidades, value objects, interfaces, eventos, errores y reglas del dominio.                                                 |
+| **Infrastructure** | Implementa los contratos definidos por el dominio utilizando tecnologías concretas como Prisma, almacenamiento o servicios externos.                        |
+
+## Reglas de dependencia
+
+Las dependencias entre capas deben respetar las siguientes reglas:
+
+- Presentation únicamente puede depender de Application.
+- Application puede depender únicamente de Domain y de las interfaces públicas de otros módulos.
+- Domain únicamente puede depender de componentes ubicados en Shared.
+- Infrastructure implementa las interfaces definidas por Domain.
+- Ninguna capa puede depender de una capa superior.
+
+## Comunicación entre módulos
+
+Los módulos del sistema permanecen desacoplados entre sí.
+
+Por esta razón:
+
+- Ningún módulo puede importar implementaciones internas pertenecientes a otro módulo.
+- La comunicación entre módulos debe realizarse mediante la API pública expuesta por la capa Application.
+- Las reglas de negocio permanecen encapsuladas dentro del dominio propietario.
+
+# Herramientas de desarrollo
 
 ## Crear un módulo
 
@@ -119,7 +171,9 @@ src/
 └── modules/
     └── auth/
         ├── application/
-        │   └── use-cases/
+        │   ├── application-services/
+        │   ├── use-cases/
+        │   └── index.ts
         ├── domain/
         │   ├── entities/
         │   ├── errors/
@@ -137,6 +191,8 @@ src/
         ├── tests/
         └── auth.module.ts
 ```
+
+La carpeta `application-services` se utiliza únicamente cuando un proceso del negocio requiere coordinar múltiples casos de uso o interactuar con otros módulos. En módulos simples puede permanecer vacía o no existir.
 
 ### Parámetro `--target`
 
@@ -187,7 +243,7 @@ candidate.profile
 
 ---
 
-# 🐳 Base de datos
+# Base de datos
 
 > **Importante**
 >
@@ -207,7 +263,7 @@ docker compose down
 
 ---
 
-# 🗄️ Prisma
+# Prisma
 
 Generar el cliente:
 
@@ -245,9 +301,15 @@ Formatear el esquema:
 pnpm prisma:format
 ```
 
+Validar el esquema:
+
+```bash
+pnpm prisma:validate
+```
+
 ---
 
-# ▶️ Ejecutar el proyecto
+# Ejecutar el proyecto
 
 Modo desarrollo:
 
@@ -269,7 +331,7 @@ pnpm start:prod
 
 ---
 
-# 🧪 Calidad de código
+# Calidad de código
 
 Formatear el proyecto:
 
@@ -288,6 +350,32 @@ Corregir automáticamente los problemas encontrados:
 ```bash
 pnpm lint:fix
 ```
+
+Correr test:
+
+```bash
+pnpm test
+```
+
+Correr coverage test:
+
+```bash
+pnpm test:coverage
+```
+
+---
+
+# 🤝 Contribución
+
+Todo cambio realizado sobre Neltrik debe respetar las convenciones definidas por la arquitectura del proyecto.
+
+Antes de abrir un Pull Request verifica que:
+
+- El proyecto compile correctamente.
+- Todas las pruebas pasen.
+- ESLint no reporte errores.
+- La cobertura mínima requerida se mantenga.
+- Las dependencias entre capas y entre módulos respeten la arquitectura definida en este documento.
 
 ---
 

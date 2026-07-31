@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma/index";
 
-import { Vacancy } from "../../../domain/entities/vacancy";
-import { VacancyRepository } from "../../../domain/interfaces/vacancy-repository";
+import { PrismaService } from "@/prisma/index";
+
+import { Vacancy } from "../../../domain/entities";
+import { VacancyRepository } from "../../../domain/interfaces";
 import { VacancyMapper } from "../../mappers";
 
 @Injectable()

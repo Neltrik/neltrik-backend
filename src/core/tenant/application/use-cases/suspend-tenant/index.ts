@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { TenantNotFoundError } from "../../../domain/errors";
-import { TenantRepository } from "../../../domain/interfaces/tenant-repository";
+import { TenantRepository } from "../../../domain/interfaces";
 
 @Injectable()
 export class SuspendTenantUseCase {

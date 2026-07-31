@@ -1,6 +1,6 @@
 import type { Tenant as PrismaTenant } from "@prisma/client";
 
-import { Tenant } from "../../../domain/entities/tenant";
+import { Tenant } from "../../../domain/entities";
 
 export class TenantMapper {
     public static toPersistence(tenant: Tenant) {

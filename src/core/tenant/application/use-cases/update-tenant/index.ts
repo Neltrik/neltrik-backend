@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { TenantNotFoundError } from "../../../domain/errors";
-import { TenantRepository } from "../../../domain/interfaces/tenant-repository";
+import { TenantRepository } from "../../../domain/interfaces";
 import { type UpdateTenantInput } from "./input";
 import { type UpdateTenantOutput } from "./output";
 

@@ -1,6 +1,6 @@
 import type { Vacancy as PrismaVacancy } from "@prisma/client";
 
-import { Vacancy } from "../../../domain/entities/vacancy";
+import { Vacancy } from "../../../domain/entities";
 
 export class VacancyMapper {
     public static toPersistence(vacancy: Vacancy) {

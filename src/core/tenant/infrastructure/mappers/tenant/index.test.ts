@@ -1,4 +1,4 @@
-import { Tenant } from "../../../domain/entities/tenant";
+import { Tenant } from "../../../domain/entities";
 import { TENANT_STATUS, type TenantState } from "../../../domain/types";
 import { TenantMapper } from "./index";
 

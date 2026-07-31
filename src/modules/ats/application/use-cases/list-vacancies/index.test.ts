@@ -1,4 +1,4 @@
-import type { Vacancy } from "../../../domain/entities/vacancy";
+import type { Vacancy } from "../../../domain/entities";
 import { VacancyRepositorySpy } from "../../../test-doubles";
 import { ListVacanciesUseCase } from "./index";
 

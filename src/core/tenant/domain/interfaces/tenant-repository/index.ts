@@ -1,4 +1,4 @@
-import { type Tenant } from "../entities/tenant";
+import { type Tenant } from "../../entities";
 
 export abstract class TenantRepository {
     abstract create(tenant: Tenant): Promise<void>;

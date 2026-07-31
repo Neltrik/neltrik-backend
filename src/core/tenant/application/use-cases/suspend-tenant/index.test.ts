@@ -1,4 +1,4 @@
-import { Tenant } from "../../../domain/entities/tenant";
+import { Tenant } from "../../../domain/entities";
 import { TenantAlreadySuspendedError, TenantNotFoundError } from "../../../domain/errors";
 import { TENANT_STATUS, type TenantState } from "../../../domain/types";
 import { TenantRepositorySpy } from "../../../test-doubles";

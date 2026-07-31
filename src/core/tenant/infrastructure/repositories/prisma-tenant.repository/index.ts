@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { PrismaService } from "src/prisma/index";
 
-import { Tenant } from "../../../domain/entities/tenant";
-import { TenantRepository } from "../../../domain/interfaces/tenant-repository";
+import { PrismaService } from "@/prisma/index";
+
+import { Tenant } from "../../../domain/entities";
+import { TenantRepository } from "../../../domain/interfaces";
 import { TenantMapper } from "../../mappers";
 
 @Injectable()

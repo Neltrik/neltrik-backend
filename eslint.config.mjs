@@ -9,7 +9,7 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 export default tseslint.config(
     {
-        ignores: ["dist/**", "node_modules/**", "coverage/**", "scripts/**", "jest.config.ts", "*.config.*"],
+        ignores: ["dist/**", "node_modules/**", "coverage/**", "jest.config.ts", "*.config.*"],
     },
 
     js.configs.recommended,
@@ -17,7 +17,7 @@ export default tseslint.config(
     prettierConfig,
 
     {
-        files: ["src/**/*.ts"],
+        files: ["src/**/*.ts", "scripts/**/*.ts"],
 
         languageOptions: {
             globals: {
@@ -148,6 +148,12 @@ export default tseslint.config(
         rules: {
             "max-lines-per-function": "off",
             "@typescript-eslint/unbound-method": "off",
+        },
+    },
+    {
+        files: ["scripts/**/*.ts"],
+        rules: {
+            "no-console": "off",
         },
     },
 );

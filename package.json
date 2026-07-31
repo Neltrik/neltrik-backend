@@ -27,6 +27,7 @@
         "prisma:format": "prisma format",
         "prisma:validate": "prisma validate",
         "module:create": "tsx scripts/create-module.ts",
+        "module:update": "tsx scripts/update-module.ts",
         "prepare": "husky"
     },
     "dependencies": {

@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 
+import { TenantApi, TenantApiImpl } from "./api";
 import { SlugGenerator } from "./application/slug-generator";
 import {
     CreateTenantUseCase,
@@ -22,9 +23,14 @@ import { TenantController } from "./presentation/controllers/tenant";
         UpdateTenantUseCase,
         SlugGenerator,
         {
+            provide: TenantApi,
+            useClass: TenantApiImpl,
+        },
+        {
             provide: TenantRepository,
             useClass: PrismaTenantRepository,
         },
     ],
+    exports: [TenantApi],
 })
 export class TenantModule {}

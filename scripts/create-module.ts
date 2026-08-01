@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { MODULE_FILES, MODULE_FOLDERS, MODULE_TARGETS } from "./constants/modules";
+import { MODULE_FOLDERS, MODULE_TARGETS } from "./constants/modules";
 import { CliMessages } from "./messages/cli.messages";
 import { buildModule } from "./templates/module.template";
 import { isValidModuleName } from "./utils/validation.utils";
@@ -43,10 +43,6 @@ for (const folder of MODULE_FOLDERS) {
     fs.mkdirSync(path.join(modulePath, folder), {
         recursive: true,
     });
-}
-for (const file of MODULE_FILES) {
-    const filePath = path.join(modulePath, file);
-    fs.writeFileSync(filePath, "");
 }
 fs.writeFileSync(moduleFilePath, buildModule(moduleName));
 console.log(CliMessages.success(moduleName));

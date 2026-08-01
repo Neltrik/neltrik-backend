@@ -8,7 +8,7 @@
 ![Docker](https://img.shields.io/badge/Docker-Enabled-2496ED?logo=docker&logoColor=white)
 ![License](https://img.shields.io/badge/License-Private-red)
 
-Backend del sistema **Neltrik**, desarrollado con **NestJS**, **TypeScript** y **Prisma ORM**, siguiendo una arquitectura modular basada en **DDD (Domain-Driven Design)** y **Clean Architecture**.
+Backend del sistema **Neltrik**, desarrollado con **NestJS**, **TypeScript** y **Prisma ORM**, siguiendo una arquitectura de **Monolito Modular** basada en **Domain-Driven Design (DDD)** y **Clean Architecture.**.
 
 ---
 
@@ -38,8 +38,8 @@ Backend del sistema **Neltrik**, desarrollado con **NestJS**, **TypeScript** y *
 ├── src/
 │   ├── config/
 │   ├── core/
-│   ├── prisma/
 │   ├── modules/
+│   ├── prisma/
 │   ├── shared/
 │   ├── app.module.ts
 │   └── main.ts
@@ -77,91 +77,34 @@ Crear un archivo `.env` tomando como referencia `.env.example`.
 
 ---
 
-# Convenciones de arquitectura
-
-Las siguientes convenciones forman parte de la arquitectura de Neltrik y deben respetarse durante el desarrollo de cualquier módulo.
-
-## Convenciones generales
-
-Las siguientes convenciones forman parte de la arquitectura de Neltrik y deben respetarse durante el desarrollo de cualquier módulo.
-
-## Aislamiento por Tenant
-
-Neltrik implementa una arquitectura Multi-Tenant basada en aislamiento lógico.
-
-Para garantizar la seguridad, la escalabilidad y la consistencia de la plataforma, se establecen las siguientes reglas:
-
-- Toda entidad perteneciente a una organización debe almacenar explícitamente el campo tenantId.
-- El tenantId representa el propietario de la información y constituye el límite de aislamiento entre organizaciones.
-- Todas las consultas, actualizaciones y eliminaciones de datos deben realizarse dentro del contexto de un tenantId.
-- Ningún Tenant puede acceder, modificar o consultar información perteneciente a otro Tenant.
-- Las entidades globales de la plataforma (por ejemplo, Tenant) no almacenan tenantId, ya que no pertenecen a ninguna organización.
-
-Estas reglas aplican a todos los módulos funcionales de la plataforma (ATS, CRM, Inventory, etc.) y forman parte de la arquitectura base de Neltrik.
-
-# Arquitectura por capas
-
-Todos los módulos del sistema, tanto los ubicados en `core` como en `modules`, siguen exactamente la misma estructura arquitectónica.
-
-## Diagrama de capas
-
-```text
-Presentation
-      │
-      ▼
-Application
-      │
-      ▼
-Domain
-      ▲
-      │
-Infrastructure
-```
-
-## Responsabilidad de cada capa
-
-| Capa               | Responsabilidad                                                                                                                                             |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Presentation**   | Expone la funcionalidad mediante interfaces de entrada (HTTP, Controllers, DTO, Swagger, etc.).                                                             |
-| **Application**    | Contiene los casos de uso del módulo y los Application Services encargados de orquestar procesos que involucren múltiples casos de uso o múltiples módulos. |
-| **Domain**         | Contiene el modelo de negocio, entidades, value objects, interfaces, eventos, errores y reglas del dominio.                                                 |
-| **Infrastructure** | Implementa los contratos definidos por el dominio utilizando tecnologías concretas como Prisma, almacenamiento o servicios externos.                        |
-
-## Reglas de dependencia
-
-Las dependencias entre capas deben respetar las siguientes reglas:
-
-- Presentation únicamente puede depender de Application.
-- Application puede depender únicamente de Domain y de las interfaces públicas de otros módulos.
-- Domain únicamente puede depender de componentes ubicados en Shared.
-- Infrastructure implementa las interfaces definidas por Domain.
-- Ninguna capa puede depender de una capa superior.
-
-## Comunicación entre módulos
-
-Los módulos del sistema permanecen desacoplados entre sí.
-
-Por esta razón:
-
-- Ningún módulo puede importar implementaciones internas pertenecientes a otro módulo.
-- La comunicación entre módulos debe realizarse mediante la API pública expuesta por la capa Application.
-- Las reglas de negocio permanecen encapsuladas dentro del dominio propietario.
-
 # Herramientas de desarrollo
 
 ## Crear un módulo
 
-Genera automáticamente un módulo siguiendo la arquitectura modular basada en DDD (Domain-Driven Design) y Clean Architecture definida para Neltrik.
+Genera automáticamente un módulo siguiendo la estructura de Clean Architecture definida para Neltrik.
 
 ```bash
-pnpm module:create <module-name> --target=<core|modules>
+pnpm module:create <module-name>
 ```
 
-Ejemplos:
+Ejemplo:
 
 ```bash
-pnpm module:create ats --target=modules
-pnpm module:create tenant --target=core
+pnpm module:create auth
+```
+
+## Actualizar un módulo
+
+Sincroniza la estructura de un módulo existente con la plantilla oficial del proyecto, agregando nuevos archivos o carpetas incorporados por la arquitectura sin sobrescribir la implementación existente.
+
+```bash
+pnpm module:update
+```
+
+Ejemplo:
+
+```bash
+pnpm module:update
 ```
 
 Estructura generada:
@@ -170,10 +113,11 @@ Estructura generada:
 src/
 └── modules/
     └── auth/
+        ├── api/
         ├── application/
-        │   ├── application-services/
-        │   ├── use-cases/
-        │   └── index.ts
+        │   └── use-cases/
+        ├── docs/
+        |
         ├── domain/
         │   ├── entities/
         │   ├── errors/
@@ -182,26 +126,16 @@ src/
         │   └── value-objects/
         ├── infrastructure/
         │   ├── mappers/
-        │   ├── providers/
         │   └── repositories/
         ├── presentation/
         │   ├── controllers/
-        │   └── dto/
+        │   ├── dto/
+        │   ├── messages/
+        │   └── schemas/
         ├── test-doubles/
         ├── tests/
         └── auth.module.ts
 ```
-
-La carpeta `application-services` se utiliza únicamente cuando un proceso del negocio requiere coordinar múltiples casos de uso o interactuar con otros módulos. En módulos simples puede permanecer vacía o no existir.
-
-### Parámetro `--target`
-
-El parámetro `--target` indica el destino donde será creado el módulo.
-
-| Valor     | Destino                                                   |
-| --------- | --------------------------------------------------------- |
-| `modules` | Módulos funcionales de la aplicación.                     |
-| `core`    | Módulos transversales compartidos por toda la aplicación. |
 
 ### Convención para nombres de módulos
 
@@ -240,6 +174,57 @@ candidate-
 candidate--profile
 candidate.profile
 ```
+
+---
+
+# Comunicación entre módulos
+
+Cada módulo expone una interfaz pública mediante la carpeta `api/`.
+
+Esta representa el único punto de entrada permitido para que otros módulos interactúen con sus capacidades.
+
+```text
+HTTP
+   │
+   ▼
+presentation
+   │
+   ▼
+application
+   │
+   ▼
+domain
+
+
+Otro módulo
+     │
+     ▼
+    api
+     │
+     ▼
+application
+     │
+     ▼
+domain
+```
+
+Los módulos nunca deben importar directamente elementos internos (`application`, `domain`, `infrastructure` o `presentation`) de otro módulo.
+
+Toda comunicación entre módulos debe realizarse exclusivamente mediante `api/`.
+
+---
+
+# Responsabilidad de `api`
+
+La carpeta `api/` representa la interfaz pública del módulo.
+
+Su responsabilidad es equivalente a la de `presentation`, pero destinada al consumo por otros módulos en lugar de clientes HTTP.
+
+Por definición arquitectónica:
+
+- no contiene lógica de negocio;
+- únicamente delega a los casos de uso correspondientes;
+- constituye el **Open Host Service (OHS)** del módulo, permitiendo la comunicación con otros Bounded Contexts sin exponer su implementación interna..
 
 ---
 
@@ -301,12 +286,6 @@ Formatear el esquema:
 pnpm prisma:format
 ```
 
-Validar el esquema:
-
-```bash
-pnpm prisma:validate
-```
-
 ---
 
 # Ejecutar el proyecto
@@ -331,7 +310,7 @@ pnpm start:prod
 
 ---
 
-# Calidad de código
+# 🧪 Calidad de código
 
 Formatear el proyecto:
 
@@ -351,31 +330,17 @@ Corregir automáticamente los problemas encontrados:
 pnpm lint:fix
 ```
 
-Correr test:
+Ejecutar las pruebas unitarias:
 
 ```bash
 pnpm test
 ```
 
-Correr coverage test:
+Generar el reporte de cobertura:
 
 ```bash
 pnpm test:coverage
 ```
-
----
-
-# 🤝 Contribución
-
-Todo cambio realizado sobre Neltrik debe respetar las convenciones definidas por la arquitectura del proyecto.
-
-Antes de abrir un Pull Request verifica que:
-
-- El proyecto compile correctamente.
-- Todas las pruebas pasen.
-- ESLint no reporte errores.
-- La cobertura mínima requerida se mantenga.
-- Las dependencias entre capas y entre módulos respeten la arquitectura definida en este documento.
 
 ---
 

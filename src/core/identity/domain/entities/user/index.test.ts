@@ -73,4 +73,28 @@ describe("User", () => {
         expect(user.suspendedAt).toBeNull();
         expect(user.status).toBe(USER_STATUS.ACTIVE);
     });
+
+    it("should update the user successfully", () => {
+        const props = createProps();
+        const user = User.create(props);
+        user.update("Jane", "Smith", "new-role-id");
+        expect(user.firstName).toBe("Jane");
+        expect(user.lastName).toBe("Smith");
+        expect(user.roleId).toBe("new-role-id");
+        expect(user.updatedAt).toBeInstanceOf(Date);
+    });
+
+    it("should throw InvalidFirstNameError when firstName is empty", () => {
+        const user = User.create(createProps());
+        expect(() => {
+            user.update("", "Smith", "new-role-id");
+        }).toThrow(InvalidFirstNameError);
+    });
+
+    it("should throw InvalidLastNameError when lastName is empty", () => {
+        const user = User.create(createProps());
+        expect(() => {
+            user.update("Jane", "", "new-role-id");
+        }).toThrow(InvalidLastNameError);
+    });
 });

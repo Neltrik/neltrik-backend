@@ -94,7 +94,6 @@ Los siguientes campos pueden modificarse según el caso de uso y el nivel de aut
 - `firstName`
 - `lastName`
 - `roleId`
-- `status`
 
 > **Nota:** La actualización del correo electrónico no forma parte del MVP.
 

@@ -1,6 +1,5 @@
 export const MODULE_FOLDERS = [
     "application/use-cases",
-    "application/application-services",
 
     "domain/entities",
     "domain/errors",
@@ -9,7 +8,6 @@ export const MODULE_FOLDERS = [
     "domain/value-objects",
 
     "infrastructure/mappers",
-    "infrastructure/providers",
     "infrastructure/repositories",
 
     "presentation/controllers",
@@ -17,11 +15,11 @@ export const MODULE_FOLDERS = [
     "presentation/messages",
     "presentation/schemas",
 
+    "api",
     "test-doubles",
     "tests",
     "docs",
 ];
-export const MODULE_FILES = ["application/index.ts"];
 
 export const MODULE_TARGETS = { core: "core", modules: "modules" } as const;
 export type ModuleTarget = keyof typeof MODULE_TARGETS;

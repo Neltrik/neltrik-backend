@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 
+import { IdentityModule } from "./core/identity/identity.module";
 import { TenantModule } from "./core/tenant/tenant.module";
 import { AtsModule } from "./modules/ats/ats.module";
 import { PrismaModule } from "./prisma";
@@ -17,6 +18,7 @@ import { SanitizationModule } from "./shared/sanitization";
         ErrorsModule,
         IdGeneratorModule,
         SanitizationModule,
+        IdentityModule,
         TenantModule,
         AtsModule,
     ],

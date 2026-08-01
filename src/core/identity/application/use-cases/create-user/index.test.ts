@@ -6,7 +6,6 @@ import { RegisterUserUseCase } from "./index";
 import type { RegisterUserInput } from "./input";
 
 const makeInput = (): RegisterUserInput => ({
-    id: "tenant-id",
     firstName: "John",
     lastName: "Doe",
     email: "john@company.com",

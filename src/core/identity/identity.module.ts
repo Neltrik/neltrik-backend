@@ -5,8 +5,10 @@ import { TenantModule } from "@/core/tenant/tenant.module";
 import { RegisterUserUseCase } from "./application/use-cases";
 import { UserRepository } from "./domain/interfaces";
 import { PrismaUserRepository } from "./infrastructure/repositories";
+import { UserController } from "./presentation/controllers/user";
 
 @Module({
+    controllers: [UserController],
     providers: [
         RegisterUserUseCase,
         {

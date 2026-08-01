@@ -23,6 +23,15 @@ export class User {
         return new User(props);
     }
 
+    public update(firstName: string, lastName: string, roleId: string): void {
+        this.ensureFirstNameIsNotEmpty(firstName);
+        this.ensureLastNameIsNotEmpty(lastName);
+        this.props.firstName = firstName;
+        this.props.lastName = lastName;
+        this.props.roleId = roleId;
+        this.props.updatedAt = new Date();
+    }
+
     private ensureFirstNameIsNotEmpty(firstName: string): void {
         if (firstName.trim() === "") {
             throw new InvalidFirstNameError();

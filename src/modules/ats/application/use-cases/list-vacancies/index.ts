@@ -7,7 +7,7 @@ import { VacancyRepository } from "../../../domain/interfaces";
 export class ListVacanciesUseCase {
     constructor(private readonly vacancyRepository: VacancyRepository) {}
 
-    public async execute(): Promise<Vacancy[]> {
+    public execute(): Promise<Vacancy[]> {
         return this.vacancyRepository.list();
     }
 }

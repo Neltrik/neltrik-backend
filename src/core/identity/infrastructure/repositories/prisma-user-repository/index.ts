@@ -32,6 +32,11 @@ export class PrismaUserRepository extends UserRepository {
         return UserMapper.toDomain(user);
     }
 
+    public async list(tenantId: string): Promise<User[]> {
+        const users = await this.prisma.user.findMany({ where: { tenantId } });
+        return users.map((user) => UserMapper.toDomain(user));
+    }
+
     public async existsByEmail(email: Email): Promise<boolean> {
         const user = await this.prisma.user.findUnique({
             where: { email: email.value },

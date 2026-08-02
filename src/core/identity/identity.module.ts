@@ -2,7 +2,13 @@ import { Module } from "@nestjs/common";
 
 import { TenantModule } from "@/core/tenant/tenant.module";
 
-import { GetUsersUseCase, RegisterUserUseCase, SuspendUserUseCase, UpdateUserUseCase } from "./application/use-cases";
+import {
+    GetUsersUseCase,
+    ReactivateUserUseCase,
+    RegisterUserUseCase,
+    SuspendUserUseCase,
+    UpdateUserUseCase,
+} from "./application/use-cases";
 import { UserRepository } from "./domain/interfaces";
 import { PrismaUserRepository } from "./infrastructure/repositories";
 import { UserController } from "./presentation/controllers/user";
@@ -11,6 +17,7 @@ import { UserController } from "./presentation/controllers/user";
     controllers: [UserController],
     providers: [
         GetUsersUseCase,
+        ReactivateUserUseCase,
         RegisterUserUseCase,
         SuspendUserUseCase,
         UpdateUserUseCase,

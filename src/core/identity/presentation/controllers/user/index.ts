@@ -15,6 +15,7 @@ import { ZodValidationPipe } from "@/shared/pipes/zod-validation";
 
 import {
     GetUsersUseCase,
+    ReactivateUserUseCase,
     RegisterUserInput,
     RegisterUserUseCase,
     SuspendUserUseCase,
@@ -24,6 +25,7 @@ import {
 import {
     GetUsersParamsDto,
     GetUsersResultDto,
+    ReactivateUserParamsDto,
     RegisterUserRequestDto,
     RegisterUserResultDto,
     SuspendUserParamsDto,
@@ -34,6 +36,7 @@ import {
 import { USER_MESSAGES } from "../../messages";
 import {
     getUsersParamsSchema,
+    reactivateUserParamsSchema,
     registerUserSchema,
     suspendUserParamsSchema,
     updateUserParamsSchema,
@@ -45,6 +48,7 @@ import {
 export class UserController {
     constructor(
         private readonly getUsersUseCase: GetUsersUseCase,
+        private readonly reactivateUserUseCase: ReactivateUserUseCase,
         private readonly registerUserUseCase: RegisterUserUseCase,
         private readonly suspendUserUseCase: SuspendUserUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
@@ -187,5 +191,33 @@ export class UserController {
         params: SuspendUserParamsDto,
     ): Promise<void> {
         await this.suspendUserUseCase.execute(params.id);
+    }
+
+    @ApiOperation({
+        summary: "Reactivate user",
+        description: "Reactivates a suspended user.",
+    })
+    @ApiNoContentResponse({
+        description: "Resource reactivated.",
+    })
+    @ApiBadRequestResponse({
+        description: "Validation failed.",
+    })
+    @ApiNotFoundResponse({
+        description: "User not found.",
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Internal server error.",
+    })
+    @Response({
+        code: RESPONSE_CODES.RESOURCE_UPDATED,
+        message: USER_MESSAGES.REACTIVATED,
+    })
+    @Patch("users/:id/reactivate")
+    public async reactivate(
+        @Param(new ZodValidationPipe(reactivateUserParamsSchema))
+        params: ReactivateUserParamsDto,
+    ): Promise<void> {
+        await this.reactivateUserUseCase.execute(params.id);
     }
 }

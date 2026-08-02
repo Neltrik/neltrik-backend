@@ -29,3 +29,7 @@ export const getUsersParamsSchema = z.object({
 export const suspendUserParamsSchema = z.object({
     id: z.uuid(),
 });
+
+export const reactivateUserParamsSchema = z.object({
+    id: z.uuid(),
+});

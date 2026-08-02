@@ -23,12 +23,18 @@ export class User {
         return new User(props);
     }
 
-    public update(firstName: string, lastName: string, roleId: string): void {
-        this.ensureFirstNameIsNotEmpty(firstName);
-        this.ensureLastNameIsNotEmpty(lastName);
-        this.props.firstName = firstName;
-        this.props.lastName = lastName;
-        this.props.roleId = roleId;
+    public update(props: { firstName?: string; lastName?: string; roleId?: string }): void {
+        if (props.firstName !== undefined) {
+            this.ensureFirstNameIsNotEmpty(props.firstName);
+            this.props.firstName = props.firstName;
+        }
+        if (props.lastName !== undefined) {
+            this.ensureLastNameIsNotEmpty(props.lastName);
+            this.props.lastName = props.lastName;
+        }
+        if (props.roleId !== undefined) {
+            this.props.roleId = props.roleId;
+        }
         this.props.updatedAt = new Date();
     }
 

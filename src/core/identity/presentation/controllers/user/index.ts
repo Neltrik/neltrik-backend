@@ -3,6 +3,7 @@ import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
     ApiInternalServerErrorResponse,
+    ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
@@ -16,6 +17,7 @@ import {
     GetUsersUseCase,
     RegisterUserInput,
     RegisterUserUseCase,
+    SuspendUserUseCase,
     UpdateUserInput,
     UpdateUserUseCase,
 } from "../../../application/use-cases";
@@ -24,12 +26,19 @@ import {
     GetUsersResultDto,
     RegisterUserRequestDto,
     RegisterUserResultDto,
+    SuspendUserParamsDto,
     UpdateUserParamsDto,
     UpdateUserRequestDto,
     UpdateUserResultDto,
 } from "../../dto/user";
 import { USER_MESSAGES } from "../../messages";
-import { getUsersParamsSchema, registerUserSchema, updateUserParamsSchema, updateUserSchema } from "../../schemas";
+import {
+    getUsersParamsSchema,
+    registerUserSchema,
+    suspendUserParamsSchema,
+    updateUserParamsSchema,
+    updateUserSchema,
+} from "../../schemas";
 
 @ApiTags("Users")
 @Controller()
@@ -37,6 +46,7 @@ export class UserController {
     constructor(
         private readonly getUsersUseCase: GetUsersUseCase,
         private readonly registerUserUseCase: RegisterUserUseCase,
+        private readonly suspendUserUseCase: SuspendUserUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
     ) {}
 
@@ -149,5 +159,33 @@ export class UserController {
             roleId: user.roleId,
             status: user.status,
         }));
+    }
+
+    @ApiOperation({
+        summary: "Suspend user",
+        description: "Suspends a user.",
+    })
+    @ApiNoContentResponse({
+        description: "Resource suspended.",
+    })
+    @ApiBadRequestResponse({
+        description: "Validation failed.",
+    })
+    @ApiNotFoundResponse({
+        description: "User not found.",
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Internal server error.",
+    })
+    @Response({
+        code: RESPONSE_CODES.RESOURCE_UPDATED,
+        message: USER_MESSAGES.SUSPENDED,
+    })
+    @Patch("users/:id/suspend")
+    public async suspend(
+        @Param(new ZodValidationPipe(suspendUserParamsSchema))
+        params: SuspendUserParamsDto,
+    ): Promise<void> {
+        await this.suspendUserUseCase.execute(params.id);
     }
 }

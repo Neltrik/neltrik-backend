@@ -25,3 +25,7 @@ export const updateUserSchema = z
 export const getUsersParamsSchema = z.object({
     tenantId: z.uuid(),
 });
+
+export const suspendUserParamsSchema = z.object({
+    id: z.uuid(),
+});

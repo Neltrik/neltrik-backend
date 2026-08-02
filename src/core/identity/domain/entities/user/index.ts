@@ -1,4 +1,9 @@
-import { InvalidFirstNameError, InvalidLastNameError } from "../../errors";
+import {
+    InvalidFirstNameError,
+    InvalidLastNameError,
+    UserAlreadyActiveError,
+    UserAlreadySuspendedError,
+} from "../../errors";
 import type { UserState, UserStatus } from "../../types";
 import { USER_STATUS } from "../../types";
 import type { Email } from "../../value-objects/email";
@@ -38,6 +43,20 @@ export class User {
         this.props.updatedAt = new Date();
     }
 
+    public suspend(): void {
+        this.ensureCanBeSuspended();
+        this.props.status = USER_STATUS.SUSPENDED;
+        this.props.suspendedAt = new Date();
+        this.props.updatedAt = new Date();
+    }
+
+    public reactivate(): void {
+        this.ensureCanBeReactivated();
+        this.props.status = USER_STATUS.ACTIVE;
+        this.props.suspendedAt = null;
+        this.props.updatedAt = new Date();
+    }
+
     private ensureFirstNameIsNotEmpty(firstName: string): void {
         if (firstName.trim() === "") {
             throw new InvalidFirstNameError();
@@ -47,6 +66,18 @@ export class User {
     private ensureLastNameIsNotEmpty(lastName: string): void {
         if (lastName.trim() === "") {
             throw new InvalidLastNameError();
+        }
+    }
+
+    private ensureCanBeSuspended(): void {
+        if (this.props.status === USER_STATUS.SUSPENDED) {
+            throw new UserAlreadySuspendedError();
+        }
+    }
+
+    private ensureCanBeReactivated(): void {
+        if (this.props.status === USER_STATUS.ACTIVE) {
+            throw new UserAlreadyActiveError();
         }
     }
 

@@ -74,27 +74,50 @@ describe("User", () => {
         expect(user.status).toBe(USER_STATUS.ACTIVE);
     });
 
-    it("should update the user successfully", () => {
-        const props = createProps();
-        const user = User.create(props);
-        user.update("Jane", "Smith", "new-role-id");
+    it("should update the provided fields successfully", () => {
+        const user = User.create(createProps());
+        user.update({ firstName: "Jane", lastName: "Smith", roleId: "new-role-id" });
         expect(user.firstName).toBe("Jane");
         expect(user.lastName).toBe("Smith");
         expect(user.roleId).toBe("new-role-id");
         expect(user.updatedAt).toBeInstanceOf(Date);
     });
 
-    it("should throw InvalidFirstNameError when firstName is empty", () => {
+    it("should update only first name", () => {
+        const user = User.create(createProps());
+        user.update({ firstName: "Jane" });
+        expect(user.firstName).toBe("Jane");
+        expect(user.lastName).toBe("Vargas");
+        expect(user.roleId).toBe("role-id");
+    });
+
+    it("should update only last name", () => {
+        const user = User.create(createProps());
+        user.update({ lastName: "Smith" });
+        expect(user.firstName).toBe("Omar");
+        expect(user.lastName).toBe("Smith");
+        expect(user.roleId).toBe("role-id");
+    });
+
+    it("should update only role", () => {
+        const user = User.create(createProps());
+        user.update({ roleId: "new-role-id" });
+        expect(user.firstName).toBe("Omar");
+        expect(user.lastName).toBe("Vargas");
+        expect(user.roleId).toBe("new-role-id");
+    });
+
+    it("should throw InvalidFirstNameError when updating first name with an empty value", () => {
         const user = User.create(createProps());
         expect(() => {
-            user.update("", "Smith", "new-role-id");
+            user.update({ firstName: "" });
         }).toThrow(InvalidFirstNameError);
     });
 
-    it("should throw InvalidLastNameError when lastName is empty", () => {
+    it("should throw InvalidLastNameError when updating last name with an empty value", () => {
         const user = User.create(createProps());
         expect(() => {
-            user.update("Jane", "", "new-role-id");
+            user.update({ lastName: "" });
         }).toThrow(InvalidLastNameError);
     });
 });

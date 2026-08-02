@@ -1,4 +1,4 @@
-import { registerUserSchema } from "./";
+import { registerUserSchema, updateUserSchema } from "./";
 
 describe("registerUserSchema", () => {
     const makeInput = () => ({
@@ -33,17 +33,12 @@ describe("registerUserSchema", () => {
         expect(() => registerUserSchema.parse({ ...makeInput(), roleId: "invalid-id" })).toThrow();
     });
 
-    // it("should validate valid id", () => {
-    //     const result = getUserSchema.safeParse({
-    //         id: "550e8400-e29b-41d4-a716-446655440000",
-    //     });
-    //     expect(result.success).toBe(true);
-    // });
-
-    // it("should reject invalid id", () => {
-    //     const result = getUserSchema.safeParse({
-    //         id: "invalid-id",
-    //     });
-    //     expect(result.success).toBe(false);
-    // });
+    it("should reject when no fields are provided", () => {
+        const result = updateUserSchema.safeParse({});
+        expect(result.success).toBe(false);
+        if (!result.success) {
+            expect(result.error.issues).toHaveLength(1);
+            expect(result.error.issues[0]?.message).toBe("At least one field must be provided.");
+        }
+    });
 });

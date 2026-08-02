@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
@@ -13,12 +13,15 @@ import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/pipes/zod-validation";
 
 import {
+    GetUsersUseCase,
     RegisterUserInput,
     RegisterUserUseCase,
     UpdateUserInput,
     UpdateUserUseCase,
 } from "../../../application/use-cases";
 import {
+    GetUsersParamsDto,
+    GetUsersResultDto,
     RegisterUserRequestDto,
     RegisterUserResultDto,
     UpdateUserParamsDto,
@@ -26,12 +29,13 @@ import {
     UpdateUserResultDto,
 } from "../../dto/user";
 import { USER_MESSAGES } from "../../messages";
-import { registerUserSchema, updateUserParamsSchema, updateUserSchema } from "../../schemas";
+import { getUsersParamsSchema, registerUserSchema, updateUserParamsSchema, updateUserSchema } from "../../schemas";
 
 @ApiTags("Users")
-@Controller("users")
+@Controller()
 export class UserController {
     constructor(
+        private readonly getUsersUseCase: GetUsersUseCase,
         private readonly registerUserUseCase: RegisterUserUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
     ) {}
@@ -56,7 +60,7 @@ export class UserController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: USER_MESSAGES.CREATED,
     })
-    @Post()
+    @Post("users")
     public async create(
         @Body(new ZodValidationPipe(registerUserSchema))
         body: RegisterUserRequestDto,
@@ -93,7 +97,7 @@ export class UserController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: USER_MESSAGES.UPDATED,
     })
-    @Patch(":id")
+    @Patch("users/:id")
     public async update(
         @Param(new ZodValidationPipe(updateUserParamsSchema))
         params: UpdateUserParamsDto,
@@ -102,11 +106,48 @@ export class UserController {
     ): Promise<UpdateUserResultDto> {
         const input: UpdateUserInput = {
             id: params.id,
-            firstName: body.firstName,
-            lastName: body.lastName,
-            roleId: body.roleId,
         };
+        if (body.firstName !== undefined) {
+            input.firstName = body.firstName;
+        }
+        if (body.lastName !== undefined) {
+            input.lastName = body.lastName;
+        }
+        if (body.roleId !== undefined) {
+            input.roleId = body.roleId;
+        }
         const user = await this.updateUserUseCase.execute(input);
         return { id: user.id };
+    }
+
+    @ApiOperation({
+        summary: "List users",
+        description: "Returns the list of users belonging to a tenant.",
+    })
+    @ApiContract(GetUsersResultDto, { responseType: "array" })
+    @ApiOkResponse({
+        description: "Resources retrieved successfully.",
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Internal server error.",
+    })
+    @Response({
+        code: RESPONSE_CODES.RESOURCE_LISTED,
+        message: USER_MESSAGES.LISTED,
+    })
+    @Get("tenants/:tenantId/users")
+    public async list(
+        @Param(new ZodValidationPipe(getUsersParamsSchema))
+        params: GetUsersParamsDto,
+    ): Promise<GetUsersResultDto[]> {
+        const users = await this.getUsersUseCase.execute({ tenantId: params.tenantId });
+        return users.map((user) => ({
+            id: user.id,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            email: user.email.value,
+            roleId: user.roleId,
+            status: user.status,
+        }));
     }
 }

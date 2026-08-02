@@ -11,10 +11,24 @@ export class UpdateUserUseCase {
 
     public async execute(input: UpdateUserInput): Promise<UpdateUserOutput> {
         const user = await this.userRepository.get(input.id);
+        const update: {
+            firstName?: string;
+            lastName?: string;
+            roleId?: string;
+        } = {};
         if (!user) {
             throw new UserNotFoundError();
         }
-        user.update(input.firstName, input.lastName, input.roleId);
+        if (input.firstName !== undefined) {
+            update.firstName = input.firstName;
+        }
+        if (input.lastName !== undefined) {
+            update.lastName = input.lastName;
+        }
+        if (input.roleId !== undefined) {
+            update.roleId = input.roleId;
+        }
+        user.update(update);
         await this.userRepository.update(user);
         return { id: user.id };
     }

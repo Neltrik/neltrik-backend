@@ -11,17 +11,17 @@ export class UpdateUserRequestDto {
     @ApiProperty({
         example: "John",
     })
-    firstName!: string;
+    firstName?: string;
 
     @ApiProperty({
         example: "Doe",
     })
-    lastName!: string;
+    lastName?: string;
 
     @ApiProperty({
         example: "550e8400-e29b-41d4-a716-446655440111",
     })
-    roleId!: string;
+    roleId?: string;
 }
 
 export class UpdateUserResultDto {

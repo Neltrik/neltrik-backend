@@ -4,6 +4,8 @@ export const ERROR_MESSAGES = {
     INVALID_LAST_NAME: "The last name is invalid.",
     EMAIL_ALREADY_EXISTS: "The email already exists.",
     USER_NOT_FOUND: "User not found.",
+    USER_ALREADY_SUSPENDED: "The user is already suspended.",
+    USER_ALREADY_ACTIVE: "The user is already active.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -12,4 +14,6 @@ export const DOMAIN_ERROR_CODES = {
     INVALID_LAST_NAME: "INVALID_LAST_NAME",
     EMAIL_ALREADY_EXISTS: "EMAIL_ALREADY_EXISTS",
     USER_NOT_FOUND: "USER_NOT_FOUND",
+    USER_ALREADY_SUSPENDED: "USER_ALREADY_SUSPENDED",
+    USER_ALREADY_ACTIVE: "USER_ALREADY_ACTIVE",
 } as const;

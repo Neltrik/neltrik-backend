@@ -1,4 +1,9 @@
-import { InvalidFirstNameError, InvalidLastNameError } from "../../errors";
+import {
+    InvalidFirstNameError,
+    InvalidLastNameError,
+    UserAlreadyActiveError,
+    UserAlreadySuspendedError,
+} from "../../errors";
 import type { UserState } from "../../types";
 import { USER_STATUS } from "../../types";
 import { Email } from "../../value-objects/email";
@@ -119,5 +124,31 @@ describe("User", () => {
         expect(() => {
             user.update({ lastName: "" });
         }).toThrow(InvalidLastNameError);
+    });
+
+    it("should suspend an active user", () => {
+        const user = User.create(createProps());
+        user.suspend();
+        expect(user.status).toBe(USER_STATUS.SUSPENDED);
+        expect(user.suspendedAt).not.toBeNull();
+        expect(user.updatedAt.getTime()).toBeGreaterThan(user.createdAt.getTime());
+    });
+
+    it("should throw UserAlreadySuspendedError when user is already suspended", () => {
+        const user = User.restore(restoreProps());
+        expect(() => user.suspend()).toThrow(UserAlreadySuspendedError);
+    });
+
+    it("should reactivate a suspended user", () => {
+        const user = User.restore(restoreProps());
+        user.reactivate();
+        expect(user.status).toBe(USER_STATUS.ACTIVE);
+        expect(user.suspendedAt).toBeNull();
+        expect(user.updatedAt.getTime()).toBeGreaterThan(user.createdAt.getTime());
+    });
+
+    it("should throw UserAlreadyActiveError when user is already active", () => {
+        const user = User.create(createProps());
+        expect(() => user.reactivate()).toThrow(UserAlreadyActiveError);
     });
 });

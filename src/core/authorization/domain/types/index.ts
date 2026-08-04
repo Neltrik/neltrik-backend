@@ -1,1 +1,1 @@
-export * from "./authorization-props";
+export * from "./role-props";

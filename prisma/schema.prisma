@@ -107,3 +107,15 @@ model User {
   @@index([status])
   @@map("users")
 }
+
+model Role {
+  id                 String @id @default(uuid()) @db.Uuid
+  code               String @unique @db.VarChar(100)
+  defaultDisplayName String @map("default_display_name") @db.VarChar(100)
+  description        String @db.Text
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("roles")
+}

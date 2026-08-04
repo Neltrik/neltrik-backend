@@ -1,0 +1,45 @@
+import { Injectable } from "@nestjs/common";
+
+import { PrismaService } from "@/prisma/index";
+
+import { Role } from "../../../domain/entities";
+import { RoleRepository } from "../../../domain/interfaces";
+import { RoleMapper } from "../../mappers";
+
+@Injectable()
+export class PrismaRoleRepository extends RoleRepository {
+    constructor(private readonly prisma: PrismaService) {
+        super();
+    }
+
+    public async create(role: Role): Promise<void> {
+        await this.prisma.role.create({
+            data: RoleMapper.toPersistence(role),
+        });
+    }
+
+    public async update(role: Role): Promise<void> {
+        await this.prisma.role.update({
+            where: { id: role.id },
+            data: RoleMapper.toPersistence(role),
+        });
+    }
+
+    public async get(id: string): Promise<Role | null> {
+        const role = await this.prisma.role.findUnique({ where: { id } });
+        if (!role) {
+            return null;
+        }
+        return RoleMapper.toDomain(role);
+    }
+
+    public async list(): Promise<Role[]> {
+        const roles = await this.prisma.role.findMany();
+        return roles.map((role) => RoleMapper.toDomain(role));
+    }
+
+    public async existsByCode(code: string): Promise<boolean> {
+        const role = await this.prisma.role.findUnique({ where: { code }, select: { id: true } });
+        return role !== null;
+    }
+}

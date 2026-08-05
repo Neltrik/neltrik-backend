@@ -1,10 +1,15 @@
 import { Module } from "@nestjs/common";
 
+import { CreateRoleUseCase, GetRolesUseCase, GetRoleUseCase, UpdateRoleUseCase } from "./application/use-cases";
 import { RoleRepository } from "./domain/interfaces";
 import { PrismaRoleRepository } from "./infrastructure/repositories";
 
 @Module({
     providers: [
+        CreateRoleUseCase,
+        GetRolesUseCase,
+        GetRoleUseCase,
+        UpdateRoleUseCase,
         {
             provide: RoleRepository,
             useClass: PrismaRoleRepository,

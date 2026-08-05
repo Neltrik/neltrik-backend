@@ -3,7 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { IdGenerator } from "@/shared/id-generator";
 
 import { Role } from "../../../../domain/entities";
-import { RoleCodeAlreadyExistsError } from "../../../../domain/errors";
+import { CodeAlreadyExistsError } from "../../../../domain/errors";
 import { RoleRepository } from "../../../../domain/interfaces";
 import { CreateRoleInput } from "./input";
 import { CreateRoleOutput } from "./output";
@@ -18,7 +18,7 @@ export class CreateRoleUseCase {
     public async execute(input: CreateRoleInput): Promise<CreateRoleOutput> {
         const exists = await this.roleRepository.existsByCode(input.code);
         if (exists) {
-            throw new RoleCodeAlreadyExistsError();
+            throw new CodeAlreadyExistsError();
         }
         const now = new Date();
         const role = Role.create({

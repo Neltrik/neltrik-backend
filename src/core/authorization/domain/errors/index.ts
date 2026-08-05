@@ -1,3 +1,5 @@
+export * from "./invalid-permission-code";
+export * from "./invalid-permission-description";
 export * from "./invalid-role-code";
 export * from "./invalid-role-description";
 export * from "./invalid-role-display-name";

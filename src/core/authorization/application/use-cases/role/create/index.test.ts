@@ -1,6 +1,6 @@
 import type { IdGenerator } from "@/shared/id-generator";
 
-import { RoleCodeAlreadyExistsError } from "../../../../domain/errors";
+import { CodeAlreadyExistsError } from "../../../../domain/errors";
 import { RoleRepositorySpy } from "../../../../test-doubles";
 import { CreateRoleUseCase } from "./index";
 import type { CreateRoleInput } from "./input";
@@ -33,10 +33,10 @@ describe("CreateRoleUseCase", () => {
         expect(result).toEqual({ id: "role-id" });
     });
 
-    it("should throw RoleCodeAlreadyExistsError when code already exists", async () => {
+    it("should throw CodeAlreadyExistsError when code already exists", async () => {
         const { useCase, roleRepository } = makeSut();
         roleRepository.existsByCode.mockResolvedValue(true);
-        await expect(useCase.execute(makeInput())).rejects.toThrow(RoleCodeAlreadyExistsError);
+        await expect(useCase.execute(makeInput())).rejects.toThrow(CodeAlreadyExistsError);
         expect(roleRepository.create).not.toHaveBeenCalled();
     });
 

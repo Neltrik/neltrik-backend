@@ -8,8 +8,12 @@ import {
     UpdatePermissionUseCase,
     UpdateRoleUseCase,
 } from "./application/use-cases";
-import { PermissionRepository, RoleRepository } from "./domain/interfaces";
-import { PrismaPermissionRepository, PrismaRoleRepository } from "./infrastructure/repositories";
+import { PermissionRepository, RoleRepository, TenantRoleConfigurationRepository } from "./domain/interfaces";
+import {
+    PrismaPermissionRepository,
+    PrismaRoleRepository,
+    PrismaTenantRoleConfigurationRepository,
+} from "./infrastructure/repositories";
 import { PermissionController, RoleController } from "./presentation/controllers";
 
 @Module({
@@ -28,6 +32,10 @@ import { PermissionController, RoleController } from "./presentation/controllers
         {
             provide: PermissionRepository,
             useClass: PrismaPermissionRepository,
+        },
+        {
+            provide: TenantRoleConfigurationRepository,
+            useClass: PrismaTenantRoleConfigurationRepository,
         },
     ],
 })

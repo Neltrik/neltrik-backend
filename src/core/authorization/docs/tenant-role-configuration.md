@@ -65,6 +65,7 @@ Todas las reglas de negocio relacionadas con la configuración de Roles se encue
 - Todo `TenantRoleConfiguration` debe tener un `displayName`.
 - Solo puede existir una configuración por cada combinación (`tenantId`, `roleId`).
 - Un `TenantRoleConfiguration` únicamente puede crearse para un `Role` habilitado para el `Tenant`.
+- displayName es obligatorio y no puede estar vacío.
 
 ---
 

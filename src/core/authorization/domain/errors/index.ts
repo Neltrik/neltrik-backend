@@ -1,4 +1,6 @@
 export * from "./code-already-exists";
+export * from "./display-name-too-long";
+export * from "./empty-display-name";
 export * from "./invalid-permission-code";
 export * from "./invalid-permission-description";
 export * from "./invalid-role-code";

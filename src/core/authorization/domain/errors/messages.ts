@@ -7,6 +7,8 @@ export const ERROR_MESSAGES = {
     INVALID_PERMISSION_DESCRIPTION: "The permission description is invalid.",
     INVALID_PERMISSION_CODE: "The permission code is invalid.",
     PERMISSION_NOT_FOUND: "Permission not found.",
+    DISPLAY_NAME_TOO_LONG: "The display name is too long.",
+    EMPTY_DISPLAY_NAME: "The display name cannot be empty.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -18,4 +20,6 @@ export const DOMAIN_ERROR_CODES = {
     INVALID_PERMISSION_DESCRIPTION: "INVALID_PERMISSION_DESCRIPTION",
     INVALID_PERMISSION_CODE: "INVALID_PERMISSION_CODE",
     PERMISSION_NOT_FOUND: "PERMISSION_NOT_FOUND",
+    DISPLAY_NAME_TOO_LONG: "DISPLAY_NAME_TOO_LONG",
+    EMPTY_DISPLAY_NAME: "EMPTY_DISPLAY_NAME",
 } as const;

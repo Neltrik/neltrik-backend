@@ -1,2 +1,3 @@
-export * from "./permission-props";
-export * from "./role-props";
+export * from "./permission";
+export * from "./role";
+export * from "./tenant-role-configuration";

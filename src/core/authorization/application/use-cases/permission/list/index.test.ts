@@ -1,6 +1,6 @@
 import { Permission } from "../../../../domain/entities";
 import { PermissionRepositorySpy } from "../../../../test-doubles";
-import { GetPermissionsUseCase } from "./index";
+import { ListPermissionsUseCase } from "./index";
 
 const makePermission = () =>
     Permission.create({
@@ -11,11 +11,11 @@ const makePermission = () =>
         updatedAt: new Date("2025-01-01T00:00:00.000Z"),
     });
 
-describe("GetPermissionsUseCase", () => {
+describe("ListPermissionsUseCase", () => {
     const makeSut = () => {
         const permissionRepository = new PermissionRepositorySpy();
         permissionRepository.list.mockResolvedValue([makePermission()]);
-        const useCase = new GetPermissionsUseCase(permissionRepository);
+        const useCase = new ListPermissionsUseCase(permissionRepository);
         return { useCase, permissionRepository };
     };
 

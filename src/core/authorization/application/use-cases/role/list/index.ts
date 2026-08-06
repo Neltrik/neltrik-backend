@@ -4,7 +4,7 @@ import type { Role } from "../../../../domain/entities";
 import { RoleRepository } from "../../../../domain/interfaces";
 
 @Injectable()
-export class GetRolesUseCase {
+export class ListRolesUseCase {
     constructor(private readonly roleRepository: RoleRepository) {}
 
     public execute(): Promise<Role[]> {

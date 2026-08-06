@@ -3,23 +3,23 @@ import { Module } from "@nestjs/common";
 import {
     CreatePermissionUseCase,
     CreateRoleUseCase,
-    GetPermissionsUseCase,
-    GetRolesUseCase,
+    ListPermissionsUseCase,
+    ListRolesUseCase,
     UpdatePermissionUseCase,
     UpdateRoleUseCase,
 } from "./application/use-cases";
 import { PermissionRepository, RoleRepository } from "./domain/interfaces";
 import { PrismaPermissionRepository, PrismaRoleRepository } from "./infrastructure/repositories";
-import { RoleController } from "./presentation/controllers/role";
+import { PermissionController, RoleController } from "./presentation/controllers";
 
 @Module({
-    controllers: [RoleController],
+    controllers: [PermissionController, RoleController],
     providers: [
         CreateRoleUseCase,
-        GetRolesUseCase,
+        ListRolesUseCase,
         UpdateRoleUseCase,
         CreatePermissionUseCase,
-        GetPermissionsUseCase,
+        ListPermissionsUseCase,
         UpdatePermissionUseCase,
         {
             provide: RoleRepository,

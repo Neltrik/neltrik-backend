@@ -4,7 +4,7 @@ import type { Permission } from "../../../../domain/entities";
 import { PermissionRepository } from "../../../../domain/interfaces";
 
 @Injectable()
-export class GetPermissionsUseCase {
+export class ListPermissionsUseCase {
     constructor(private readonly permissionRepository: PermissionRepository) {}
 
     public execute(): Promise<Permission[]> {

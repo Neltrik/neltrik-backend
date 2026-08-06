@@ -1,6 +1,6 @@
 import { Role } from "../../../../domain/entities";
 import { RoleRepositorySpy } from "../../../../test-doubles";
-import { GetRolesUseCase } from "./index";
+import { ListRolesUseCase } from "./index";
 
 const makeRole = () =>
     Role.create({
@@ -12,11 +12,11 @@ const makeRole = () =>
         updatedAt: new Date("2025-01-01T00:00:00.000Z"),
     });
 
-describe("GetRolesUseCase", () => {
+describe("ListRolesUseCase", () => {
     const makeSut = () => {
         const roleRepository = new RoleRepositorySpy();
         roleRepository.list.mockResolvedValue([makeRole()]);
-        const useCase = new GetRolesUseCase(roleRepository);
+        const useCase = new ListRolesUseCase(roleRepository);
         return { useCase, roleRepository };
     };
 

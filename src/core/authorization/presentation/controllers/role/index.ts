@@ -15,15 +15,15 @@ import { ZodValidationPipe } from "@/shared/pipes/zod-validation";
 import {
     CreateRoleInput,
     CreateRoleUseCase,
-    GetRolesUseCase,
+    ListRolesUseCase,
     UpdateRoleInput,
     UpdateRoleUseCase,
 } from "../../../application/use-cases";
 import {
     CreateRoleRequestDto,
     CreateRoleResultDto,
-    RoleParamsDto,
     RoleResultDto,
+    UpdateRoleParamsDto,
     UpdateRoleRequestDto,
     UpdateRoleResultDto,
 } from "../../dto/role";
@@ -36,7 +36,7 @@ export class RoleController {
     constructor(
         private readonly createRoleUseCase: CreateRoleUseCase,
         private readonly updateRoleUseCase: UpdateRoleUseCase,
-        private readonly getRolesUseCase: GetRolesUseCase,
+        private readonly listRolesUseCase: ListRolesUseCase,
     ) {}
 
     @ApiOperation({
@@ -97,7 +97,7 @@ export class RoleController {
     @Patch(":id")
     public async update(
         @Param(new ZodValidationPipe(roleParamsSchema))
-        params: RoleParamsDto,
+        params: UpdateRoleParamsDto,
         @Body(new ZodValidationPipe(updateRoleSchema))
         body: UpdateRoleRequestDto,
     ): Promise<UpdateRoleResultDto> {
@@ -131,7 +131,7 @@ export class RoleController {
     })
     @Get()
     public async list(): Promise<RoleResultDto[]> {
-        const roles = await this.getRolesUseCase.execute();
+        const roles = await this.listRolesUseCase.execute();
         return roles.map((role) => ({
             id: role.id,
             code: role.code,

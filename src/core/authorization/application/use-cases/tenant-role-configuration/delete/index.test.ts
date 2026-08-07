@@ -4,7 +4,6 @@ import type { TenantRoleConfigurationProps } from "../../../../domain/types";
 import { DisplayName } from "../../../../domain/value-objects";
 import { TenantRoleConfigurationRepositorySpy } from "../../../../test-doubles";
 import { DeleteTenantRoleConfigurationUseCase } from "./index";
-import type { DeleteTenantRoleConfigurationInput } from "./input";
 
 const createProps = (): TenantRoleConfigurationProps => {
     const createdAt = new Date("2025-01-01T00:00:00.000Z");
@@ -18,9 +17,7 @@ const createProps = (): TenantRoleConfigurationProps => {
     };
 };
 
-const makeInput = (): DeleteTenantRoleConfigurationInput => ({
-    id: "configuration-id",
-});
+const makeInput = (): string => "configuration-id";
 
 describe("DeleteTenantRoleConfigurationUseCase", () => {
     const makeSut = () => {

@@ -33,6 +33,14 @@ export class PrismaTenantRoleConfigurationRepository extends TenantRoleConfigura
         });
     }
 
+    public async get(id: string): Promise<TenantRoleConfiguration | null> {
+        const configuration = await this.prisma.tenantRoleConfiguration.findUnique({ where: { id } });
+        if (!configuration) {
+            return null;
+        }
+        return TenantRoleConfigurationMapper.toDomain(configuration);
+    }
+
     public async findByTenantAndRole(tenantId: string, roleId: string): Promise<TenantRoleConfiguration | null> {
         const configuration = await this.prisma.tenantRoleConfiguration.findUnique({
             where: { tenantId_roleId: { tenantId, roleId } },

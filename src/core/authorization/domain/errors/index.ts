@@ -8,3 +8,5 @@ export * from "./invalid-role-description";
 export * from "./invalid-role-display-name";
 export * from "./permission-not-found";
 export * from "./role-not-found";
+export * from "./tenant-role-configuration-already-exists";
+export * from "./tenant-role-configuration-found";

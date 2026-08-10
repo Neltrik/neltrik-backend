@@ -42,4 +42,17 @@ export class PrismaRoleRepository extends RoleRepository {
         const role = await this.prisma.role.findUnique({ where: { code }, select: { id: true } });
         return role !== null;
     }
+
+    public async assignPermissions(roleId: string, permissionIds: string[]): Promise<void> {
+        await this.prisma.rolePermission.createMany({
+            data: permissionIds.map((permissionId) => ({ roleId, permissionId })),
+            skipDuplicates: true,
+        });
+    }
+
+    public async removePermissions(roleId: string, permissionIds: string[]): Promise<void> {
+        await this.prisma.rolePermission.deleteMany({
+            where: { roleId, permissionId: { in: permissionIds } },
+        });
+    }
 }

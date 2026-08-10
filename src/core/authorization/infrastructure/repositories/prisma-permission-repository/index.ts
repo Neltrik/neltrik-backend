@@ -38,6 +38,13 @@ export class PrismaPermissionRepository extends PermissionRepository {
         return permissions.map((permission) => PermissionMapper.toDomain(permission));
     }
 
+    public async getByIds(ids: string[]): Promise<Permission[]> {
+        const permissions = await this.prisma.permission.findMany({
+            where: { id: { in: ids } },
+        });
+        return permissions.map((permission) => PermissionMapper.toDomain(permission));
+    }
+
     public async existsByCode(code: string): Promise<boolean> {
         const permission = await this.prisma.permission.findUnique({
             where: { code },

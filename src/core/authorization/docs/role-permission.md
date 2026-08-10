@@ -162,14 +162,6 @@ role_permissions
 - `updated_at` registra la última modificación de la asociación.
 - Las asociaciones no pueden existir si el `Role` o el `Permission` correspondiente no existe.
 
-### Clave primaria
-
-La combinación de ambas columnas constituye la clave primaria:
-
-```text
-PRIMARY KEY (role_id, permission_id)
-```
-
 ---
 
 ## 5.4 Índices

@@ -31,6 +31,17 @@ export class Role {
         this.props.updatedAt = new Date();
     }
 
+    public assignPermissions(permissionIds: string[]): void {
+        this.props.permissionIds = [...new Set([...this.props.permissionIds, ...permissionIds])];
+    }
+
+    public removePermissions(permissionIds: string[]): void {
+        const permissionsToRemove = new Set(permissionIds);
+        this.props.permissionIds = this.props.permissionIds.filter(
+            (permissionId) => !permissionsToRemove.has(permissionId),
+        );
+    }
+
     private ensureCodeIsNotEmpty(code: string): void {
         if (code.trim() === "") {
             throw new InvalidRoleCodeError();
@@ -63,6 +74,10 @@ export class Role {
 
     public get description(): string {
         return this.props.description;
+    }
+
+    public get permissionIds(): string[] {
+        return [...this.props.permissionIds];
     }
 
     public get createdAt(): Date {

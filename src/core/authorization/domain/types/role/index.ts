@@ -3,6 +3,7 @@ export type RoleProps = {
     code: string;
     defaultDisplayName: string;
     description: string;
+    permissionIds: string[];
     createdAt: Date;
     updatedAt: Date;
 };

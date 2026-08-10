@@ -26,6 +26,7 @@ export class CreateRoleUseCase {
             code: input.code,
             defaultDisplayName: input.defaultDisplayName,
             description: input.description,
+            permissionIds: [],
             createdAt: now,
             updatedAt: now,
         });

@@ -6,4 +6,5 @@ export abstract class PermissionRepository {
     abstract get(id: string): Promise<Permission | null>;
     abstract list(): Promise<Permission[]>;
     abstract existsByCode(code: string): Promise<boolean>;
+    abstract getByIds(ids: string[]): Promise<Permission[]>;
 }

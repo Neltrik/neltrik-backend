@@ -9,6 +9,7 @@ const createProps = (): RoleProps => {
         code: "TENANT_ADMIN",
         defaultDisplayName: "Tenant Admin",
         description: "Administrator of a tenant.",
+        permissionIds: [],
         createdAt,
         updatedAt: createdAt,
     };
@@ -68,6 +69,7 @@ describe("Role", () => {
         expect(role.code).toBe(props.code);
         expect(role.defaultDisplayName).toBe(props.defaultDisplayName);
         expect(role.description).toBe(props.description);
+        expect(role.permissionIds).toEqual(props.permissionIds);
         expect(role.createdAt).toEqual(props.createdAt);
         expect(role.updatedAt).toEqual(props.updatedAt);
     });
@@ -106,5 +108,58 @@ describe("Role", () => {
         expect(() => {
             role.update({ description: "" });
         }).toThrow(InvalidRoleDescriptionError);
+    });
+
+    it("should assign multiple permissions", () => {
+        const role = Role.create(createProps());
+        role.assignPermissions(["permission-1", "permission-2"]);
+        expect(role.permissionIds).toEqual(["permission-1", "permission-2"]);
+    });
+
+    it("should not duplicate already assigned permissions", () => {
+        const role = Role.create({ ...createProps(), permissionIds: ["permission-1"] });
+        role.assignPermissions(["permission-1", "permission-2"]);
+        expect(role.permissionIds).toEqual(["permission-1", "permission-2"]);
+    });
+
+    it("should be idempotent when assigning the same permissions again", () => {
+        const role = Role.create(createProps());
+        role.assignPermissions(["permission-1", "permission-2"]);
+        role.assignPermissions(["permission-1", "permission-2"]);
+        expect(role.permissionIds).toEqual(["permission-1", "permission-2"]);
+    });
+
+    it("should remove multiple permissions", () => {
+        const role = Role.create({ ...createProps(), permissionIds: ["permission-1", "permission-2", "permission-3"] });
+        role.removePermissions(["permission-1", "permission-3"]);
+        expect(role.permissionIds).toEqual(["permission-2"]);
+    });
+
+    it("should be idempotent when removing a permission that is not assigned", () => {
+        const role = Role.create({ ...createProps(), permissionIds: ["permission-1"] });
+        role.removePermissions(["permission-2"]);
+        expect(role.permissionIds).toEqual(["permission-1"]);
+    });
+
+    it("should not modify role attributes when assigning permissions", () => {
+        const role = Role.create(createProps());
+        const originalUpdatedAt = role.updatedAt;
+        role.assignPermissions(["permission-1"]);
+        expect(role.id).toBe("role-id");
+        expect(role.code).toBe("TENANT_ADMIN");
+        expect(role.defaultDisplayName).toBe("Tenant Admin");
+        expect(role.description).toBe("Administrator of a tenant.");
+        expect(role.updatedAt).toBe(originalUpdatedAt);
+    });
+
+    it("should not modify role attributes when removing permissions", () => {
+        const role = Role.create({ ...createProps(), permissionIds: ["permission-1"] });
+        const originalUpdatedAt = role.updatedAt;
+        role.removePermissions(["permission-1"]);
+        expect(role.id).toBe("role-id");
+        expect(role.code).toBe("TENANT_ADMIN");
+        expect(role.defaultDisplayName).toBe("Tenant Admin");
+        expect(role.description).toBe("Administrator of a tenant.");
+        expect(role.updatedAt).toBe(originalUpdatedAt);
     });
 });

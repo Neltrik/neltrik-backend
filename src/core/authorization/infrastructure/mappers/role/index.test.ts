@@ -11,6 +11,7 @@ const createProps = (): RoleProps => {
         code: "TENANT_ADMIN",
         defaultDisplayName: "Tenant Admin",
         description: "Administrator of a tenant.",
+        permissionIds: [],
         createdAt,
         updatedAt: createdAt,
     };

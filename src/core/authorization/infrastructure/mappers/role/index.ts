@@ -20,6 +20,7 @@ export class RoleMapper {
             code: role.code,
             defaultDisplayName: role.defaultDisplayName,
             description: role.description,
+            permissionIds: [],
             createdAt: role.createdAt,
             updatedAt: role.updatedAt,
         });

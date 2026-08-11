@@ -74,6 +74,7 @@ model Tenant {
   vacancies          Vacancy[]
   users              User[]
   roleConfigurations TenantRoleConfiguration[]
+  roleTenants        RoleTenant[]
 
   @@index([status])
   @@map("tenants")
@@ -126,6 +127,7 @@ model Role {
   permissions          Permission[]
   tenantConfigurations TenantRoleConfiguration[]
   rolePermissions      RolePermission[]
+  roleTenants          RoleTenant[]
 
   @@map("roles")
 }
@@ -157,6 +159,22 @@ model RolePermission {
   @@index([roleId])
   @@index([permissionId])
   @@map("role_permissions")
+}
+
+model RoleTenant {
+  id        String   @id @default(uuid()) @db.Uuid
+  roleId    String   @map("role_id") @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  role   Role   @relation(fields: [roleId], references: [id])
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@unique([roleId, tenantId])
+  @@index([roleId])
+  @@index([tenantId])
+  @@map("role_tenants")
 }
 
 model TenantRoleConfiguration {

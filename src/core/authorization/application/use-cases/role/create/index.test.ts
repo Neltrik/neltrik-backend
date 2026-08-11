@@ -9,6 +9,7 @@ const makeInput = (): CreateRoleInput => ({
     code: "TENANT_ADMIN",
     defaultDisplayName: "Tenant Admin",
     description: "Administrator of a tenant.",
+    scope: "PLATFORM",
 });
 
 describe("CreateRoleUseCase", () => {

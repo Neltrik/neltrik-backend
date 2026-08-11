@@ -109,13 +109,19 @@ model User {
   @@map("users")
 }
 
+enum RoleScope {
+  PLATFORM
+  TENANT
+}
+
 model Role {
-  id                 String   @id @default(uuid()) @db.Uuid
-  code               String   @unique @db.VarChar(100)
-  defaultDisplayName String   @map("default_display_name") @db.VarChar(100)
-  description        String   @db.Text
-  createdAt          DateTime @default(now()) @map("created_at")
-  updatedAt          DateTime @updatedAt @map("updated_at")
+  id                 String    @id @default(uuid()) @db.Uuid
+  code               String    @unique @db.VarChar(100)
+  defaultDisplayName String    @map("default_display_name") @db.VarChar(100)
+  description        String    @db.Text
+  scope              RoleScope
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
 
   permissions          Permission[]
   tenantConfigurations TenantRoleConfiguration[]

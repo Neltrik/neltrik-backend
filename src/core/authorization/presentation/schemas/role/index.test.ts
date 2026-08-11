@@ -12,6 +12,7 @@ describe("createRoleSchema", () => {
         code: "TENANT_ADMIN",
         defaultDisplayName: "Tenant Administrator",
         description: "Tenant administrator role.",
+        scope: "PLATFORM",
     });
 
     it("should validate a valid request", () => {

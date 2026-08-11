@@ -131,7 +131,7 @@ roles
 | `code`                 | VARCHAR(100) | ❌   | —                   | UNIQUE            |
 | `default_display_name` | VARCHAR(100) | ❌   | —                   |                   |
 | `description`          | TEXT         | ❌   | —                   |                   |
-| `scope`                | VARCHAR(20)  | ❌   | —                   | PLATFORM / TENANT |
+| `scope`                | RoleScope    | ❌   | —                   | PLATFORM / TENANT |
 | `created_at`           | TIMESTAMP    | ❌   | `NOW()`             |                   |
 | `updated_at`           | TIMESTAMP    | ❌   | `NOW()`             |                   |
 

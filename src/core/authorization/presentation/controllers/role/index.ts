@@ -88,6 +88,7 @@ export class RoleController {
             code: body.code,
             defaultDisplayName: body.defaultDisplayName,
             description: body.description,
+            scope: body.scope,
         };
         const role = await this.createRoleUseCase.execute(input);
         return { id: role.id };
@@ -157,6 +158,7 @@ export class RoleController {
             code: role.code,
             defaultDisplayName: role.defaultDisplayName,
             description: role.description,
+            scope: role.scope,
         }));
     }
 

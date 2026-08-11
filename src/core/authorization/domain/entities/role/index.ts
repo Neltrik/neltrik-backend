@@ -1,5 +1,5 @@
 import { InvalidRoleCodeError, InvalidRoleDescriptionError, InvalidRoleDisplayNameError } from "../../errors";
-import type { RoleProps } from "../../types";
+import type { RoleProps, RoleScope } from "../../types";
 
 export class Role {
     private readonly props: RoleProps;
@@ -78,6 +78,10 @@ export class Role {
 
     public get permissionIds(): string[] {
         return [...this.props.permissionIds];
+    }
+
+    public get scope(): RoleScope {
+        return this.props.scope;
     }
 
     public get createdAt(): Date {

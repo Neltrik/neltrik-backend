@@ -9,6 +9,7 @@ export class RoleMapper {
             code: role.code,
             defaultDisplayName: role.defaultDisplayName,
             description: role.description,
+            scope: role.scope,
             createdAt: role.createdAt,
             updatedAt: role.updatedAt,
         };
@@ -21,6 +22,7 @@ export class RoleMapper {
             defaultDisplayName: role.defaultDisplayName,
             description: role.description,
             permissionIds: [],
+            scope: role.scope,
             createdAt: role.createdAt,
             updatedAt: role.updatedAt,
         });

@@ -10,6 +10,7 @@ const makeRole = (permissionIds: string[] = []) =>
         defaultDisplayName: "Tenant Admin",
         description: "Tenant administrator.",
         permissionIds,
+        scope: "PLATFORM",
         createdAt: new Date("2025-01-01T00:00:00.000Z"),
         updatedAt: new Date("2025-01-01T00:00:00.000Z"),
     });

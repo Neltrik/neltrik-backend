@@ -1,6 +1,6 @@
 import type { TransactionContext } from "@/shared/transaction";
 
-import type { Role } from "../../entities";
+import type { Permission, Role } from "../../entities";
 
 export abstract class RoleRepository {
     abstract create(role: Role): Promise<void>;
@@ -10,4 +10,5 @@ export abstract class RoleRepository {
     abstract existsByCode(code: string): Promise<boolean>;
     abstract assignPermissions(roleId: string, permissionIds: string[], context: TransactionContext): Promise<void>;
     abstract removePermissions(roleId: string, permissionIds: string[], context: TransactionContext): Promise<void>;
+    abstract getPermissionsByRole(roleId: string): Promise<Permission[]>;
 }

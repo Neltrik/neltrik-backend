@@ -1,13 +1,16 @@
 import { Module } from "@nestjs/common";
 
 import {
+    AssignPermissionsToRoleUseCase,
     CreatePermissionUseCase,
     CreateRoleUseCase,
     CreateTenantRoleConfigurationUseCase,
     DeleteTenantRoleConfigurationUseCase,
+    GetPermissionsByRoleUseCase,
     ListPermissionsUseCase,
     ListRolesUseCase,
     ListTenantRoleConfigurationUseCase,
+    RemovePermissionsFromRoleUseCase,
     UpdatePermissionUseCase,
     UpdateRoleUseCase,
     UpdateTenantRoleConfigurationUseCase,
@@ -23,13 +26,16 @@ import { PermissionController, RoleController, TenantRoleConfigurationController
 @Module({
     controllers: [PermissionController, RoleController, TenantRoleConfigurationController],
     providers: [
+        AssignPermissionsToRoleUseCase,
         CreatePermissionUseCase,
         CreateRoleUseCase,
         CreateTenantRoleConfigurationUseCase,
         DeleteTenantRoleConfigurationUseCase,
+        GetPermissionsByRoleUseCase,
         ListPermissionsUseCase,
         ListRolesUseCase,
         ListTenantRoleConfigurationUseCase,
+        RemovePermissionsFromRoleUseCase,
         UpdatePermissionUseCase,
         UpdateRoleUseCase,
         UpdateTenantRoleConfigurationUseCase,

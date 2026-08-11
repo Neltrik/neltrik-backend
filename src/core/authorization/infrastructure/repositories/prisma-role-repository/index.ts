@@ -2,9 +2,9 @@ import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "@/prisma/index";
 
-import { Role } from "../../../domain/entities";
+import { Permission, Role } from "../../../domain/entities";
 import { RoleRepository } from "../../../domain/interfaces";
-import { RoleMapper } from "../../mappers";
+import { PermissionMapper, RoleMapper } from "../../mappers";
 
 @Injectable()
 export class PrismaRoleRepository extends RoleRepository {
@@ -54,5 +54,13 @@ export class PrismaRoleRepository extends RoleRepository {
         await this.prisma.rolePermission.deleteMany({
             where: { roleId, permissionId: { in: permissionIds } },
         });
+    }
+
+    public async getPermissionsByRole(roleId: string): Promise<Permission[]> {
+        const rolePermissions = await this.prisma.rolePermission.findMany({
+            where: { roleId },
+            include: { permission: true },
+        });
+        return rolePermissions.map(({ permission }) => PermissionMapper.toDomain(permission));
     }
 }

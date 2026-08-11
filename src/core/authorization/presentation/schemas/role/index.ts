@@ -18,3 +18,15 @@ export const updateRoleSchema = z
 export const roleParamsSchema = z.object({
     id: z.uuid(),
 });
+
+export const assignPermissionsToRoleSchema = z.object({
+    permissionIds: z.array(z.uuid()).min(1).max(100),
+});
+
+export const removePermissionsFromRoleSchema = z.object({
+    permissionIds: z.array(z.uuid()).min(1).max(100),
+});
+
+export const rolePermissionParamsSchema = z.object({
+    id: z.uuid(),
+});

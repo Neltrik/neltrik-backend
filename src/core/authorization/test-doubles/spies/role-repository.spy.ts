@@ -1,6 +1,6 @@
 import { type TransactionContext } from "@/shared/transaction";
 
-import { type Role } from "../../domain/entities";
+import type { Permission, Role } from "../../domain/entities";
 import { RoleRepository } from "../../domain/interfaces";
 
 export class RoleRepositorySpy extends RoleRepository {
@@ -11,4 +11,5 @@ export class RoleRepositorySpy extends RoleRepository {
     public existsByCode = jest.fn<Promise<boolean>, [string]>();
     public assignPermissions = jest.fn<Promise<void>, [string, string[], TransactionContext]>();
     public removePermissions = jest.fn<Promise<void>, [string, string[], TransactionContext]>();
+    public getPermissionsByRole = jest.fn<Promise<Permission[]>, [string]>();
 }

@@ -16,3 +16,17 @@ export class PermissionResultDto {
     })
     description!: string;
 }
+
+export class GetPermissionsByRoleResultDto {
+    @ApiProperty({
+        type: [PermissionResultDto],
+    })
+    permissions!: PermissionResultDto[];
+}
+
+export class GetPermissionsByRoleParamsDto {
+    @ApiProperty({
+        example: "550e8400-e29b-41d4-a716-446655440000",
+    })
+    id!: string;
+}

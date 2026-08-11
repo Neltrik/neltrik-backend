@@ -10,14 +10,15 @@ Los Roles pertenecen exclusivamente al catálogo oficial de **Neltrik** y consti
 
 ### Role
 
-| Campo         | Descripción                                          |
-| ------------- | ---------------------------------------------------- |
-| `id`          | Identificador único del Rol.                         |
-| `code`        | Código único e inmutable del Rol dentro de Neltrik.  |
-| `displayName` | Nombre visible oficial del Rol definido por Neltrik. |
-| `description` | Descripción funcional del Rol.                       |
-| `createdAt`   | Fecha de creación del Rol.                           |
-| `updatedAt`   | Fecha de la última actualización del Rol.            |
+| Campo         | Descripción                                              |
+| ------------- | -------------------------------------------------------- |
+| `id`          | Identificador único del Rol.                             |
+| `code`        | Código único e inmutable del Rol dentro de Neltrik.      |
+| `displayName` | Nombre visible oficial del Rol definido por Neltrik.     |
+| `scope`       | Define el ámbito en el que el Role puede ser habilitado. |
+| `description` | Descripción funcional del Rol.                           |
+| `createdAt`   | Fecha de creación del Rol.                               |
+| `updatedAt`   | Fecha de la última actualización del Rol.                |
 
 ---
 
@@ -54,12 +55,22 @@ Role
 
 ## 3. Enums
 
-La entidad **Role** no utiliza tipos enumerados (**Enums**) para el MVP.
+### RoleScope
+
+| Valor      | Descripción                                                                                                                   |
+| ---------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `PLATFORM` | Role perteneciente al ámbito de la plataforma Neltrik. Solo puede ser habilitado para el Tenant propietario de la plataforma. |
+| `TENANT`   | Role disponible para ser habilitado para los Tenants de la plataforma.                                                        |
 
 # 4. Reglas de negocio
 
 ## 4.1 Creación
 
+## 4.1 Creación
+
+- Todo `Role` debe poseer un scope.
+- Un `Role` con scope PLATFORM únicamente puede ser habilitado para el Tenant propietario de Neltrik.
+- Un `Role` con scope TENANT puede ser habilitado para los Tenants permitidos por las reglas de autorización.
 - Todo `Role` debe poseer un `code` único dentro de la plataforma.
 - Todo `Role` debe tener un `defaultDisplayName`.
 - Todo `Role` debe tener una `description`.
@@ -114,19 +125,24 @@ roles
 
 ## 5.2 Columnas
 
-| Columna                | Tipo         | Null | Default             | Observación |
-| ---------------------- | ------------ | ---- | ------------------- | ----------- |
-| `id`                   | UUID         | ❌   | `gen_random_uuid()` | PK          |
-| `code`                 | VARCHAR(100) | ❌   | —                   | UNIQUE      |
-| `default_display_name` | VARCHAR(100) | ❌   | —                   |             |
-| `description`          | TEXT         | ❌   | —                   |             |
-| `created_at`           | TIMESTAMP    | ❌   | `NOW()`             |             |
-| `updated_at`           | TIMESTAMP    | ❌   | `NOW()`             |             |
+| Columna                | Tipo         | Null | Default             | Observación       |
+| ---------------------- | ------------ | ---- | ------------------- | ----------------- |
+| `id`                   | UUID         | ❌   | `gen_random_uuid()` | PK                |
+| `code`                 | VARCHAR(100) | ❌   | —                   | UNIQUE            |
+| `default_display_name` | VARCHAR(100) | ❌   | —                   |                   |
+| `description`          | TEXT         | ❌   | —                   |                   |
+| `scope`                | VARCHAR(20)  | ❌   | —                   | PLATFORM / TENANT |
+| `created_at`           | TIMESTAMP    | ❌   | `NOW()`             |                   |
+| `updated_at`           | TIMESTAMP    | ❌   | `NOW()`             |                   |
 
 ---
 
 ## 5.3 Restricciones
 
+- scope es obligatorio.
+- scope únicamente puede contener valores definidos por RoleScope.
+- Un Role con scope = PLATFORM únicamente puede habilitarse para el Tenant propietario de Neltrik.
+- Un Role con scope = TENANT puede habilitarse para los Tenants permitidos.
 - `id` es la clave primaria.
 - `code` debe ser único dentro de la plataforma.
 - `code` es inmutable una vez creado.

@@ -1,9 +1,12 @@
 import { z } from "zod";
 
+import { ROLE_SCOPE } from "../../../domain/types";
+
 export const createRoleSchema = z.object({
     code: z.string().trim().min(1).max(100),
     defaultDisplayName: z.string().trim().min(1).max(100),
     description: z.string().trim().min(1),
+    scope: z.enum(ROLE_SCOPE),
 });
 
 export const updateRoleSchema = z

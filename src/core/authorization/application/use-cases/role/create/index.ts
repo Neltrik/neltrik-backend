@@ -27,6 +27,7 @@ export class CreateRoleUseCase {
             defaultDisplayName: input.defaultDisplayName,
             description: input.description,
             permissionIds: [],
+            scope: input.scope,
             createdAt: now,
             updatedAt: now,
         });

@@ -15,10 +15,16 @@ import {
     UpdateRoleUseCase,
     UpdateTenantRoleConfigurationUseCase,
 } from "./application/use-cases";
-import { PermissionRepository, RoleRepository, TenantRoleConfigurationRepository } from "./domain/interfaces";
+import {
+    PermissionRepository,
+    RoleRepository,
+    RoleTenantRepository,
+    TenantRoleConfigurationRepository,
+} from "./domain/interfaces";
 import {
     PrismaPermissionRepository,
     PrismaRoleRepository,
+    PrismaRoleTenantRepository,
     PrismaTenantRoleConfigurationRepository,
 } from "./infrastructure/repositories";
 import { PermissionController, RoleController, TenantRoleConfigurationController } from "./presentation/controllers";
@@ -46,6 +52,10 @@ import { PermissionController, RoleController, TenantRoleConfigurationController
         {
             provide: PermissionRepository,
             useClass: PrismaPermissionRepository,
+        },
+        {
+            provide: RoleTenantRepository,
+            useClass: PrismaRoleTenantRepository,
         },
         {
             provide: TenantRoleConfigurationRepository,

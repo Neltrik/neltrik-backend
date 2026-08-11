@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/prisma/index";
+import { TransactionContext } from "@/shared/transaction";
 
 import { Permission, Role } from "../../../domain/entities";
 import { RoleRepository } from "../../../domain/interfaces";
@@ -43,15 +45,25 @@ export class PrismaRoleRepository extends RoleRepository {
         return role !== null;
     }
 
-    public async assignPermissions(roleId: string, permissionIds: string[]): Promise<void> {
-        await this.prisma.rolePermission.createMany({
+    public async assignPermissions(
+        roleId: string,
+        permissionIds: string[],
+        context: TransactionContext,
+    ): Promise<void> {
+        const prisma = context.get<Prisma.TransactionClient>();
+        await prisma.rolePermission.createMany({
             data: permissionIds.map((permissionId) => ({ roleId, permissionId })),
             skipDuplicates: true,
         });
     }
 
-    public async removePermissions(roleId: string, permissionIds: string[]): Promise<void> {
-        await this.prisma.rolePermission.deleteMany({
+    public async removePermissions(
+        roleId: string,
+        permissionIds: string[],
+        context: TransactionContext,
+    ): Promise<void> {
+        const prisma = context.get<Prisma.TransactionClient>();
+        await prisma.rolePermission.deleteMany({
             where: { roleId, permissionId: { in: permissionIds } },
         });
     }

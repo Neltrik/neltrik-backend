@@ -32,4 +32,9 @@ export class PrismaTenantRepository extends TenantRepository {
         }
         return TenantMapper.toDomain(tenant);
     }
+
+    public async list(): Promise<Tenant[]> {
+        const tenants = await this.prisma.tenant.findMany();
+        return tenants.map((tenant) => TenantMapper.toDomain(tenant));
+    }
 }

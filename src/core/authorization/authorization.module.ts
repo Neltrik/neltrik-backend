@@ -32,10 +32,15 @@ import {
     PrismaRoleTenantRepository,
     PrismaTenantRoleConfigurationRepository,
 } from "./infrastructure/repositories";
-import { PermissionController, RoleController, TenantRoleConfigurationController } from "./presentation/controllers";
+import {
+    PermissionController,
+    RoleController,
+    RoleTenantController,
+    TenantRoleConfigurationController,
+} from "./presentation/controllers";
 
 @Module({
-    controllers: [PermissionController, RoleController, TenantRoleConfigurationController],
+    controllers: [PermissionController, RoleController, RoleTenantController, TenantRoleConfigurationController],
     providers: [
         AssignPermissionsToRoleUseCase,
         AssociateRolesToTenantUseCase,

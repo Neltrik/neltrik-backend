@@ -16,6 +16,7 @@ const config: Config = {
     coverageDirectory: "coverage",
     clearMocks: true,
     moduleNameMapper: {
+        "^@/core/(.*)$": "<rootDir>/src/core/$1",
         "^@/shared/(.*)$": "<rootDir>/src/shared/$1",
         "^(\\.{1,2}/.*)\\.js$": "$1",
     },

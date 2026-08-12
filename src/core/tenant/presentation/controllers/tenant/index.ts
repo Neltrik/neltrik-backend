@@ -17,6 +17,7 @@ import {
     CreateTenantInput,
     CreateTenantUseCase,
     GetTenantUseCase,
+    ListTenantsUseCase,
     ReactivateTenantUseCase,
     SuspendTenantUseCase,
     UpdateTenantInput,
@@ -49,6 +50,7 @@ export class TenantController {
     constructor(
         private readonly createTenantUseCase: CreateTenantUseCase,
         private readonly getTenantUseCase: GetTenantUseCase,
+        private readonly listTenantsUseCase: ListTenantsUseCase,
         private readonly updateTenantUseCase: UpdateTenantUseCase,
         private readonly suspendTenantUseCase: SuspendTenantUseCase,
         private readonly reactivateTenantUseCase: ReactivateTenantUseCase,
@@ -120,6 +122,38 @@ export class TenantController {
             updatedAt: tenant.updatedAt,
             suspendedAt: tenant.suspendedAt,
         };
+    }
+
+    @ApiOperation({
+        summary: "List tenants",
+        description: "Gets all tenants.",
+    })
+    @ApiContract(GetTenantResultDto, { responseType: "array" })
+    @ApiOkResponse({
+        description: "Resources found.",
+    })
+    @ApiBadRequestResponse({
+        description: "Validation failed.",
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Internal server error.",
+    })
+    @Response({
+        code: RESPONSE_CODES.RESOURCE_FOUND,
+        message: TENANT_MESSAGES.RETRIEVED,
+    })
+    @Get()
+    public async list(): Promise<GetTenantResultDto[]> {
+        const tenants = await this.listTenantsUseCase.execute();
+        return tenants.map((tenant) => ({
+            id: tenant.id,
+            name: tenant.name,
+            slug: tenant.slug,
+            status: tenant.status,
+            createdAt: tenant.createdAt,
+            updatedAt: tenant.updatedAt,
+            suspendedAt: tenant.suspendedAt,
+        }));
     }
 
     @ApiOperation({

@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-import { TENANT_STATUS, type TenantStatus } from "../../../domain/types";
+import { TENANT_STATUS, TENANT_TYPE, type TenantStatus, type TenantType } from "../../../domain/types";
 
 export class GetTenantRequestDto {
     @ApiProperty({
@@ -24,6 +24,12 @@ export class GetTenantResultDto {
         example: "acme-corp-550e8400",
     })
     slug!: string;
+
+    @ApiProperty({
+        enum: TENANT_TYPE,
+        example: TENANT_TYPE.CUSTOMER,
+    })
+    type!: TenantType;
 
     @ApiProperty({
         enum: TENANT_STATUS,

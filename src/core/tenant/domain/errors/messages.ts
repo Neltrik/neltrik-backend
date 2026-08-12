@@ -1,5 +1,6 @@
 export const ERROR_MESSAGES = {
     INVALID_TENANT_NAME: "The tenant name is invalid.",
+    INVALID_TENANT_TYPE: "The tenant type is invalid.",
     INVALID_TENANT_SLUG: "The tenant slug is invalid.",
     TENANT_NOT_FOUND: "Tenant not found.",
     TENANT_ALREADY_SUSPENDED: "The tenant is already suspended.",
@@ -12,4 +13,5 @@ export const DOMAIN_ERROR_CODES = {
     TENANT_NOT_FOUND: "TENANT_NOT_FOUND",
     TENANT_ALREADY_SUSPENDED: "TENANT_ALREADY_SUSPENDED",
     TENANT_ALREADY_ACTIVE: "TENANT_ALREADY_ACTIVE",
+    INVALID_TENANT_TYPE: "INVALID_TENANT_TYPE",
 } as const;

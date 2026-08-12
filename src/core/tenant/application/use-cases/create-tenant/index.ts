@@ -24,6 +24,7 @@ export class CreateTenantUseCase {
             id,
             name: input.name,
             slug,
+            type: input.type,
             createdAt: now,
             updatedAt: now,
             suspendedAt: null,

@@ -5,7 +5,7 @@ import { type SlugGenerator } from "../../slug-generator";
 import { CreateTenantUseCase } from "./index";
 import type { CreateTenantInput } from "./input";
 
-const makeInput = (): CreateTenantInput => ({ name: "Acme Corp" });
+const makeInput = (): CreateTenantInput => ({ name: "Acme Corp", type: "CUSTOMER" });
 
 describe("CreateTenantUseCase", () => {
     const makeSut = () => {

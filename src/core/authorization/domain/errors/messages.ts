@@ -1,7 +1,8 @@
 export const ERROR_MESSAGES = {
     INVALID_ROLE_CODE: "The role code is invalid.",
-    INVALID_ROLE_DISPLAY_NAME: "he role display name is invalid.",
+    INVALID_ROLE_DISPLAY_NAME: "The role display name is invalid",
     INVALID_ROLE_DESCRIPTION: "The role description is invalid.",
+    INVALID_ROLE_SCOPE: "The role scope is invalid.",
     ROLE_NOT_FOUND: "Role not found.",
     CODE_ALREADY_EXISTS: "Code already exists.",
     INVALID_PERMISSION_DESCRIPTION: "The permission description is invalid.",
@@ -17,6 +18,7 @@ export const DOMAIN_ERROR_CODES = {
     INVALID_ROLE_CODE: "INVALID_ROLE_CODE",
     INVALID_ROLE_DISPLAY_NAME: "INVALID_ROLE_DISPLAY_NAME",
     INVALID_ROLE_DESCRIPTION: "INVALID_ROLE_DESCRIPTION",
+    INVALID_ROLE_SCOPE: "INVALID_ROLE_SCOPE",
     ROLE_NOT_FOUND: "ROLE_NOT_FOUND",
     CODE_ALREADY_EXISTS: "CODE_ALREADY_EXISTS",
     INVALID_PERMISSION_DESCRIPTION: "INVALID_PERMISSION_DESCRIPTION",

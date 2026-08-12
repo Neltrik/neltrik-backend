@@ -6,6 +6,7 @@ export * from "./invalid-permission-description";
 export * from "./invalid-role-code";
 export * from "./invalid-role-description";
 export * from "./invalid-role-display-name";
+export * from "./invalid-role-scope";
 export * from "./permission-not-found";
 export * from "./role-not-found";
 export * from "./tenant-role-configuration-already-exists";

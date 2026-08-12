@@ -8,6 +8,7 @@ const createProps = (): TenantState => {
         id: "tenant-id",
         name: "Neltrik",
         slug: "neltrik",
+        type: "PLATFORM",
         status: TENANT_STATUS.ACTIVE,
         createdAt,
         updatedAt: createdAt,
@@ -25,6 +26,7 @@ describe("TenantMapper", () => {
             slug: tenant.slug,
             status: tenant.status,
             createdAt: tenant.createdAt,
+            type: "PLATFORM",
             updatedAt: tenant.updatedAt,
             suspendedAt: tenant.suspendedAt,
         });

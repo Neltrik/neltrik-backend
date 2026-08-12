@@ -4,7 +4,7 @@ import {
     TenantAlreadyActiveError,
     TenantAlreadySuspendedError,
 } from "../../errors";
-import type { TenantState, TenantStatus } from "../../types";
+import type { TenantState, TenantStatus, TenantType } from "../../types";
 import { TENANT_STATUS } from "../../types";
 
 export class Tenant {
@@ -78,6 +78,10 @@ export class Tenant {
 
     public get slug(): string {
         return this.props.slug;
+    }
+
+    public get type(): TenantType {
+        return this.props.type;
     }
 
     public get status(): TenantStatus {

@@ -1,7 +1,10 @@
 import { z } from "zod";
 
+import { TENANT_TYPE } from "../../../domain/types";
+
 export const createTenantSchema = z.object({
     name: z.string().trim().min(1).max(255),
+    type: z.enum(TENANT_TYPE),
 });
 
 export const getTenantSchema = z.object({

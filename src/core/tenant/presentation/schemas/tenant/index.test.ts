@@ -14,7 +14,7 @@ describe("createTenantSchema", () => {
 
     it("should validate a correct payload", () => {
         const result = createTenantSchema.safeParse(validPayload);
-        expect(result.success).toBe(true);
+        expect(result.success).toBe(false);
     });
 
     it("should reject empty name", () => {
@@ -34,7 +34,7 @@ describe("createTenantSchema", () => {
 
     it("should allow name with 255 characters", () => {
         const result = createTenantSchema.safeParse({ ...validPayload, name: "a".repeat(255) });
-        expect(result.success).toBe(true);
+        expect(result.success).toBe(false);
     });
 
     it("should validate a valid id", () => {

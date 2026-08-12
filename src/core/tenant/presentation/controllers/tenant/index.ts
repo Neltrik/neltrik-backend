@@ -81,6 +81,7 @@ export class TenantController {
     ): Promise<CreateTenantResultDto> {
         const input: CreateTenantInput = {
             name: body.name,
+            type: body.type,
         };
         const tenant = await this.createTenantUseCase.execute(input);
         return { id: tenant.id };
@@ -117,6 +118,7 @@ export class TenantController {
             id: tenant.id,
             name: tenant.name,
             slug: tenant.slug,
+            type: tenant.type,
             status: tenant.status,
             createdAt: tenant.createdAt,
             updatedAt: tenant.updatedAt,
@@ -149,6 +151,7 @@ export class TenantController {
             id: tenant.id,
             name: tenant.name,
             slug: tenant.slug,
+            type: tenant.type,
             status: tenant.status,
             createdAt: tenant.createdAt,
             updatedAt: tenant.updatedAt,

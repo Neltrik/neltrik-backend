@@ -18,3 +18,9 @@ export const TENANT_ROLE_CONFIGURATION_MESSAGES = {
     LISTED: "Permission listed successfully.",
     DELETED: "Permission deleted successfully.",
 } as const;
+
+export const ROLE_TENANT_MESSAGES = {
+    ASSOCIATED: "Role associated with tenant successfully.",
+    DISASSOCIATED: "Role disassociated from tenant successfully.",
+    LISTED: "Tenant roles listed successfully.",
+} as const;

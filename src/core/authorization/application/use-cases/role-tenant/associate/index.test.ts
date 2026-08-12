@@ -116,11 +116,14 @@ describe("AssociateRolesToTenantUseCase", () => {
 
     it("should propagate tenant api errors", async () => {
         const { useCase, tenantApi, roleRepository, roleTenantRepository } = makeSut();
+        roleRepository.getByIds.mockResolvedValue([makeRole("role-1", "TENANT")]);
         tenantApi.isPlatformTenant.mockRejectedValue(new Error("Tenant validation error"));
         await expect(useCase.execute({ tenantId: "tenant-id", roleIds: ["role-1"] })).rejects.toThrow(
             "Tenant validation error",
         );
-        expect(roleRepository.getByIds).not.toHaveBeenCalled();
+        expect(tenantApi.validate).toHaveBeenCalledWith("tenant-id");
+        expect(roleRepository.getByIds).toHaveBeenCalledWith(["role-1"]);
+        expect(tenantApi.isPlatformTenant).toHaveBeenCalledWith("tenant-id");
         expect(roleTenantRepository.associateRoles).not.toHaveBeenCalled();
     });
 

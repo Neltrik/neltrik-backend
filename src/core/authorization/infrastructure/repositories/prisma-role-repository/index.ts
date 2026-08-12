@@ -35,6 +35,11 @@ export class PrismaRoleRepository extends RoleRepository {
         return RoleMapper.toDomain(role);
     }
 
+    public async getByIds(ids: string[]): Promise<Role[]> {
+        const roles = await this.prisma.role.findMany({ where: { id: { in: ids } } });
+        return roles.map((role) => RoleMapper.toDomain(role));
+    }
+
     public async list(): Promise<Role[]> {
         const roles = await this.prisma.role.findMany();
         return roles.map((role) => RoleMapper.toDomain(role));

@@ -1,12 +1,17 @@
 import { Module } from "@nestjs/common";
 
+import { TenantModule } from "@/core/tenant/tenant.module";
+
 import {
     AssignPermissionsToRoleUseCase,
+    AssociateRolesToTenantUseCase,
     CreatePermissionUseCase,
     CreateRoleUseCase,
     CreateTenantRoleConfigurationUseCase,
     DeleteTenantRoleConfigurationUseCase,
+    DisassociateRolesFromTenantUseCase,
     GetPermissionsByRoleUseCase,
+    GetRolesByTenantUseCase,
     ListPermissionsUseCase,
     ListRolesUseCase,
     ListTenantRoleConfigurationUseCase,
@@ -33,11 +38,14 @@ import { PermissionController, RoleController, TenantRoleConfigurationController
     controllers: [PermissionController, RoleController, TenantRoleConfigurationController],
     providers: [
         AssignPermissionsToRoleUseCase,
+        AssociateRolesToTenantUseCase,
         CreatePermissionUseCase,
         CreateRoleUseCase,
         CreateTenantRoleConfigurationUseCase,
         DeleteTenantRoleConfigurationUseCase,
+        DisassociateRolesFromTenantUseCase,
         GetPermissionsByRoleUseCase,
+        GetRolesByTenantUseCase,
         ListPermissionsUseCase,
         ListRolesUseCase,
         ListTenantRoleConfigurationUseCase,
@@ -62,5 +70,6 @@ import { PermissionController, RoleController, TenantRoleConfigurationController
             useClass: PrismaTenantRoleConfigurationRepository,
         },
     ],
+    imports: [TenantModule],
 })
 export class AuthorizationModule {}

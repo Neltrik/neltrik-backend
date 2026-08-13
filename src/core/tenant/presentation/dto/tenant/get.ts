@@ -9,6 +9,33 @@ export class GetTenantRequestDto {
     id!: string;
 }
 
+export class GetTenantRoleResultDto {
+    @ApiProperty({
+        example: "71d68d14-a235-4553-bc43-41c7c6aaf762",
+    })
+    id!: string;
+
+    @ApiProperty({
+        example: "PLATFORM_ADMIN",
+    })
+    code!: string;
+
+    @ApiProperty({
+        example: "Administrador de Plataforma",
+    })
+    defaultDisplayName!: string;
+
+    @ApiProperty({
+        example: "Responsable de administrar la configuración global de Neltrik.",
+    })
+    description!: string;
+
+    @ApiProperty({
+        example: "PLATFORM",
+    })
+    scope!: string;
+}
+
 export class GetTenantResultDto {
     @ApiProperty({
         example: "550e8400-e29b-41d4-a716-446655440000",
@@ -52,4 +79,18 @@ export class GetTenantResultDto {
         example: null,
     })
     suspendedAt!: Date | null;
+
+    @ApiProperty({
+        type: [GetTenantRoleResultDto],
+        example: [
+            {
+                id: "71d68d14-a235-4553-bc43-41c7c6aaf762",
+                code: "PLATFORM_ADMIN",
+                defaultDisplayName: "Administrador de Plataforma",
+                description: "Responsable de administrar la configuración global de Neltrik.",
+                scope: "PLATFORM",
+            },
+        ],
+    })
+    roles!: GetTenantRoleResultDto[];
 }

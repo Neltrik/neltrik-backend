@@ -1,6 +1,6 @@
-import { GetTenantUseCase } from "../../application/use-cases";
+import { GetTenantOhsUseCase } from "../../application/use-cases-ohs";
 
-export class GetTenantUseCaseSpy extends GetTenantUseCase {
+export class GetTenantOhsUseCaseSpy extends GetTenantOhsUseCase {
     public override execute = jest.fn();
 
     constructor() {

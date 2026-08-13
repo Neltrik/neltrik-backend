@@ -28,6 +28,7 @@ import {
     CreateTenantResultDto,
     GetTenantRequestDto,
     GetTenantResultDto,
+    ListTenantsResultDto,
     ReactivateTenantParamsDto,
     SuspendTenantParamsDto,
     UpdateTenantParamsDto,
@@ -113,7 +114,7 @@ export class TenantController {
         @Param(new ZodValidationPipe(getTenantSchema))
         params: GetTenantRequestDto,
     ): Promise<GetTenantResultDto> {
-        const tenant = await this.getTenantUseCase.execute(params.id);
+        const { roles, tenant } = await this.getTenantUseCase.execute(params.id);
         return {
             id: tenant.id,
             name: tenant.name,
@@ -123,6 +124,13 @@ export class TenantController {
             createdAt: tenant.createdAt,
             updatedAt: tenant.updatedAt,
             suspendedAt: tenant.suspendedAt,
+            roles: roles.map((role) => ({
+                id: role.id,
+                code: role.code,
+                defaultDisplayName: role.defaultDisplayName,
+                description: role.description,
+                scope: role.scope,
+            })),
         };
     }
 
@@ -130,7 +138,7 @@ export class TenantController {
         summary: "List tenants",
         description: "Gets all tenants.",
     })
-    @ApiContract(GetTenantResultDto, { responseType: "array" })
+    @ApiContract(ListTenantsResultDto, { responseType: "array" })
     @ApiOkResponse({
         description: "Resources found.",
     })
@@ -145,7 +153,7 @@ export class TenantController {
         message: TENANT_MESSAGES.RETRIEVED,
     })
     @Get()
-    public async list(): Promise<GetTenantResultDto[]> {
+    public async list(): Promise<ListTenantsResultDto[]> {
         const tenants = await this.listTenantsUseCase.execute();
         return tenants.map((tenant) => ({
             id: tenant.id,

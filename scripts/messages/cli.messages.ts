@@ -7,7 +7,7 @@ export const CliMessages = {
         dedent(`
         ❌ Debes indicar el destino del módulo.
         Uso:
-        pnpm module:create auth --target=module
+        pnpm module:create auth --target=modules
         pnpm module:create ats --target=core
     `),
     alreadyExists: (moduleName: string, modulePath: string): string =>

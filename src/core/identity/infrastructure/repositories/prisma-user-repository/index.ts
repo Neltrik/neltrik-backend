@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 
-import { Email } from "@/core/identity/domain/value-objects";
 import { PrismaService } from "@/prisma/index";
 
 import { User } from "../../../domain/entities";
 import { UserRepository } from "../../../domain/interfaces";
+import { Email } from "../../../domain/value-objects";
 import { UserMapper } from "../../mappers";
 
 @Injectable()

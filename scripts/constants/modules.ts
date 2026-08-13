@@ -1,5 +1,6 @@
 export const MODULE_FOLDERS = [
     "application/use-cases",
+    "application/use-cases-ohs",
 
     "domain/entities",
     "domain/errors",

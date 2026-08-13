@@ -115,7 +115,8 @@ src/
     └── auth/
         ├── api/
         ├── application/
-        │   └── use-cases/
+        │   ├── use-cases/
+        │   └── use-cases-ohs/
         ├── docs/
         |
         ├── domain/
@@ -211,6 +212,40 @@ domain
 Los módulos nunca deben importar directamente elementos internos (`application`, `domain`, `infrastructure` o `presentation`) de otro módulo.
 
 Toda comunicación entre módulos debe realizarse exclusivamente mediante `api/`.
+
+## Casos de uso para comunicación intermodular
+
+Los casos de uso destinados a Presentation y los casos de uso destinados al consumo mediante `api/` (OHS) tienen responsabilidades diferenciadas.
+
+La carpeta `application/use-cases/` contiene los casos de uso utilizados por la capa de Presentation.
+
+La carpeta `application/use-cases-ohs/` contiene exclusivamente los casos de uso utilizados por la capa `api/` para exponer capacidades del módulo a otros módulos.
+
+Un `UseCaseOhs` no debe depender de otro `OhsApi`. La comunicación intermodular debe realizarse a través del `api/` correspondiente, evitando cadenas de dependencias entre casos de uso OHS.
+
+### Reutilización de casos de uso
+
+Un `api/` debe utilizar preferentemente un caso de uso existente de `application/use-cases/`.
+
+No debe crearse un `UseCaseOhs` cuando el caso de uso de Presentation pueda reutilizarse directamente.
+
+Debe crearse un `UseCaseOhs` únicamente cuando el caso de uso de Presentation que se pretende reutilizar tenga una dependencia hacia otro `OhsApi`.
+
+En ese caso, el `UseCaseOhs` debe implementar únicamente el flujo necesario para satisfacer el contrato expuesto por `api/`, sin depender del caso de uso de Presentation que genera la recursividad.
+
+## Dependencias circulares
+
+Las dependencias circulares entre módulos mediante OHS son válidas cuando corresponden a una necesidad real del dominio.
+
+Cuando una dependencia circular entre módulos sea requerida por NestJS, debe utilizarse `forwardRef` para resolver la referencia durante la inicialización del contenedor de dependencias.
+
+Por ejemplo:
+
+```text
+TenantApi
+    ↕
+AuthorizationApi
+```
 
 ---
 

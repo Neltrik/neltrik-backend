@@ -10,6 +10,7 @@ const createProps = (): PermissionProps => {
         id: "permission-id",
         code: "USER_CREATE",
         description: "Allows creating users.",
+        scope: "PLATFORM",
         createdAt,
         updatedAt: createdAt,
     };
@@ -24,6 +25,7 @@ describe("PermissionMapper", () => {
             code: permission.code,
             description: permission.description,
             createdAt: permission.createdAt,
+            scope: "PLATFORM",
             updatedAt: permission.updatedAt,
         });
     });

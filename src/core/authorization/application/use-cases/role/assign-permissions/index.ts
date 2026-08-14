@@ -2,8 +2,13 @@ import { Injectable } from "@nestjs/common";
 
 import { TransactionManager } from "@/shared/transaction";
 
-import { PermissionNotFoundError, RoleNotFoundError } from "../../../../domain/errors";
+import {
+    IncompatiblePermissionScopeError,
+    PermissionNotFoundError,
+    RoleNotFoundError,
+} from "../../../../domain/errors";
 import { PermissionRepository, RoleRepository } from "../../../../domain/interfaces";
+import { PERMISSION_SCOPE, ROLE_SCOPE } from "../../../../domain/types";
 import { AssignPermissionsToRoleInput } from "./input";
 import { AssignPermissionsToRoleOutput } from "./output";
 
@@ -25,6 +30,12 @@ export class AssignPermissionsToRoleUseCase {
             const permissions = await this.permissionRepository.getByIds(permissionIds);
             if (permissions.length !== permissionIds.length) {
                 throw new PermissionNotFoundError();
+            }
+            const hasIncompatibleScope = permissions.some(
+                (permission) => permission.scope === PERMISSION_SCOPE.PLATFORM && role.scope !== ROLE_SCOPE.PLATFORM,
+            );
+            if (hasIncompatibleScope) {
+                throw new IncompatiblePermissionScopeError();
             }
             role.assignPermissions(permissionIds);
             await this.roleRepository.assignPermissions(input.roleId, permissionIds, context);

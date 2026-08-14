@@ -1,4 +1,4 @@
-import { DisplayNameTooLongError, EmptyDisplayNameError } from "../../errors";
+import { DisplayNameTooLongError, EmptyDisplayNameError } from "../../../errors";
 
 export class DisplayName {
     private constructor(private readonly displayName: string) {}

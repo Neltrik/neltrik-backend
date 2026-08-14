@@ -1,4 +1,4 @@
-import { DisplayNameTooLongError, EmptyDisplayNameError } from "../../errors";
+import { DisplayNameTooLongError, EmptyDisplayNameError } from "../../../errors";
 import { DisplayName } from "./index";
 
 describe("DisplayName", () => {

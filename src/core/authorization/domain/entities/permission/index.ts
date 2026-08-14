@@ -1,5 +1,5 @@
 import { InvalidPermissionCodeError, InvalidPermissionDescriptionError } from "../../errors";
-import type { PermissionProps } from "../../types";
+import type { PermissionProps, PermissionScope } from "../../types";
 
 export class Permission {
     private readonly props: PermissionProps;
@@ -48,6 +48,10 @@ export class Permission {
 
     public get description(): string {
         return this.props.description;
+    }
+
+    public get scope(): PermissionScope {
+        return this.props.scope;
     }
 
     public get createdAt(): Date {

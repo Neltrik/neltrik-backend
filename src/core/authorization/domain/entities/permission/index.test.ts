@@ -8,6 +8,7 @@ const createProps = (): PermissionProps => {
         id: "permission-id",
         code: "USER_CREATE",
         description: "Allows creating users.",
+        scope: "PLATFORM",
         createdAt,
         updatedAt: createdAt,
     };

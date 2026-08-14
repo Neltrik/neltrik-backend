@@ -138,12 +138,18 @@ model Role {
   @@map("roles")
 }
 
+enum PermissionScope {
+  PLATFORM
+  TENANT
+}
+
 model Permission {
-  id          String   @id @default(uuid()) @db.Uuid
-  code        String   @unique @db.VarChar(150)
-  description String   @db.Text
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id          String          @id @default(uuid()) @db.Uuid
+  code        String          @unique @db.VarChar(150)
+  description String          @db.Text
+  scope       PermissionScope
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
 
   roles           Role[]
   rolePermissions RolePermission[]

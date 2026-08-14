@@ -21,6 +21,9 @@ La asociación no constituye una entidad independiente del dominio. Su propósit
 
 - La asociación **Role-Permission** únicamente puede relacionar un `Role` oficial con un `Permission` oficial.
 - Un `Role` puede estar asociado a múltiples `Permissions`.
+- Un `Permission` con `scope = PLATFORM` únicamente puede asociarse a un `Role` con `scope = PLATFORM`.
+- Un `Permission` con `scope = TENANT` puede asociarse a Roles con `scope = TENANT` o `scope = PLATFORM`.
+- Un `Role` con `scope = TENANT` nunca puede asociarse a un `Permission` con `scope = PLATFORM`.
 - Un `Permission` puede estar asociado a múltiples `Roles`.
 - La combinación `roleId` + `permissionId` identifica de forma única una asociación.
 - Una misma asociación **Role-Permission** no puede existir más de una vez.
@@ -67,6 +70,10 @@ La relación se encuentra determinada exclusivamente por los identificadores `ro
 - El `Role` debe existir dentro del catálogo oficial de Neltrik.
 - Cada `Permission` debe existir dentro del catálogo oficial de Neltrik.
 - Un `Permission` no puede asociarse dos veces al mismo `Role`.
+- El `scope` del `Role` y el `scope` del `Permission` deben cumplir las reglas de compatibilidad definidas por Authorization.
+- Un `Permission` con `scope = PLATFORM` únicamente puede asignarse a un `Role` con `scope = PLATFORM`.
+- Un `Permission` con `scope = TENANT` puede asignarse a un `Role` con `scope = TENANT` o `scope = PLATFORM`.
+- Si el `scope` del `Permission` no es compatible con el `scope` del `Role`, la asociación debe ser rechazada.
 - La asignación puede incluir uno o múltiples `Permissions` en una misma operación.
 - Cuando se asignen múltiples `Permissions`, todas las asociaciones deben procesarse como una única operación.
 - Si una operación contiene un `Permission` inexistente, la operación completa debe rechazarse.
@@ -98,11 +105,13 @@ La relación se encuentra determinada exclusivamente por los identificadores `ro
 
 ---
 
-## 4.3 Integridad de las asociaciones
+### 4.3 Integridad de las asociaciones
 
 - La combinación `roleId` + `permissionId` debe ser única.
 - No pueden existir asociaciones duplicadas entre un `Role` y un `Permission`.
 - Una asociación solo puede existir mientras existan el `Role` y el `Permission` correspondientes.
+- Una asociación solo puede existir si el `scope` del `Role` y el `scope` del `Permission` son compatibles.
+- La integridad de scope debe validarse antes de persistir la asociación.
 - Las asociaciones pertenecen exclusivamente al modelo oficial de autorización administrado por Neltrik.
 - Los Tenants no pueden modificar las asociaciones entre Roles y Permissions.
 

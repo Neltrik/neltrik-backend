@@ -1,5 +1,10 @@
+import { PERMISSION_SCOPE, ROLE_SCOPE } from "../../../..//domain/types";
 import { Role } from "../../../../domain/entities";
-import { PermissionNotFoundError, RoleNotFoundError } from "../../../../domain/errors";
+import {
+    IncompatiblePermissionScopeError,
+    PermissionNotFoundError,
+    RoleNotFoundError,
+} from "../../../../domain/errors";
 import { PermissionRepositorySpy, RoleRepositorySpy, TransactionManagerSpy } from "../../../../test-doubles";
 import { AssignPermissionsToRoleUseCase } from "./index";
 
@@ -82,5 +87,27 @@ describe("AssignPermissionsToRoleUseCase", () => {
         await expect(useCase.execute({ roleId: "role-id", permissionIds: ["permission-1"] })).rejects.toThrow(
             "Database error",
         );
+    });
+
+    it("should reject the operation when a platform permission is assigned to a tenant role", async () => {
+        const { useCase, permissionRepository, roleRepository } = makeSut();
+        const tenantRole = Role.create({
+            id: "role-id",
+            code: "TENANT_ADMIN",
+            defaultDisplayName: "Tenant Admin",
+            description: "Tenant administrator.",
+            permissionIds: [],
+            scope: ROLE_SCOPE.TENANT,
+            createdAt: new Date("2025-01-01T00:00:00.000Z"),
+            updatedAt: new Date("2025-01-01T00:00:00.000Z"),
+        });
+        roleRepository.get.mockResolvedValue(tenantRole);
+        permissionRepository.getByIds.mockResolvedValue([
+            { id: "permission-1", scope: PERMISSION_SCOPE.PLATFORM } as never,
+        ]);
+        await expect(useCase.execute({ roleId: "role-id", permissionIds: ["permission-1"] })).rejects.toThrow(
+            IncompatiblePermissionScopeError,
+        );
+        expect(roleRepository.assignPermissions).not.toHaveBeenCalled();
     });
 });

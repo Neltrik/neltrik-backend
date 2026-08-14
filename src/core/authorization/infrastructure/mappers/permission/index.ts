@@ -8,6 +8,7 @@ export class PermissionMapper {
             id: permission.id,
             code: permission.code,
             description: permission.description,
+            scope: permission.scope,
             createdAt: permission.createdAt,
             updatedAt: permission.updatedAt,
         };
@@ -18,6 +19,7 @@ export class PermissionMapper {
             id: permission.id,
             code: permission.code,
             description: permission.description,
+            scope: permission.scope,
             createdAt: permission.createdAt,
             updatedAt: permission.updatedAt,
         });

@@ -12,6 +12,7 @@ export const ERROR_MESSAGES = {
     EMPTY_DISPLAY_NAME: "The display name cannot be empty.",
     TENANT_ROLE_CONFIGURATION_ALREADY_EXISTS: "Tenant role configuration already exists.",
     TENANT_ROLE_CONFIGURATION_NOT_FOUND: "Tenant role configuration not found.",
+    INCOMPATIBLE_PERMISSION_SCOPE: "The permission scope is incompatible with the role scope.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -28,4 +29,5 @@ export const DOMAIN_ERROR_CODES = {
     EMPTY_DISPLAY_NAME: "EMPTY_DISPLAY_NAME",
     TENANT_ROLE_CONFIGURATION_ALREADY_EXISTS: "TENANT_ROLE_CONFIGURATION_ALREADY_EXISTS",
     TENANT_ROLE_CONFIGURATION_NOT_FOUND: "TENANT_ROLE_CONFIGURATION_NOT_FOUND",
+    INCOMPATIBLE_PERMISSION_SCOPE: "INCOMPATIBLE_PERMISSION_SCOPE",
 } as const;

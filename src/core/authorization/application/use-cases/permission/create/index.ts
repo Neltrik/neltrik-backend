@@ -25,6 +25,7 @@ export class CreatePermissionUseCase {
             id: this.idGenerator.generate(),
             code: input.code,
             description: input.description,
+            scope: input.scope,
             createdAt: now,
             updatedAt: now,
         });

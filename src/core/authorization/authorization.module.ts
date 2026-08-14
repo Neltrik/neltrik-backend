@@ -13,6 +13,7 @@ import {
     DisassociateRolesFromTenantUseCase,
     GetPermissionsByRoleUseCase,
     GetRolesByTenantUseCase,
+    GetRoleUseCase,
     ListPermissionsUseCase,
     ListRolesUseCase,
     ListTenantRoleConfigurationUseCase,
@@ -37,12 +38,19 @@ import {
 import {
     PermissionController,
     RoleController,
+    RolePermissionsController,
     RoleTenantController,
     TenantRoleConfigurationController,
 } from "./presentation/controllers";
 
 @Module({
-    controllers: [PermissionController, RoleController, RoleTenantController, TenantRoleConfigurationController],
+    controllers: [
+        PermissionController,
+        RoleController,
+        RolePermissionsController,
+        RoleTenantController,
+        TenantRoleConfigurationController,
+    ],
     providers: [
         AssignPermissionsToRoleUseCase,
         AssociateRolesToTenantUseCase,
@@ -53,6 +61,7 @@ import {
         DisassociateRolesFromTenantUseCase,
         GetPermissionsByRoleUseCase,
         GetRolesByTenantUseCase,
+        GetRoleUseCase,
         ListPermissionsUseCase,
         ListRolesUseCase,
         ListTenantRoleConfigurationUseCase,

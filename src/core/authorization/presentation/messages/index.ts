@@ -4,6 +4,7 @@ export const ROLE_MESSAGES = {
     LISTED: "Role listed successfully.",
     ASSIGNED: "Permissions assigned to role successfully.",
     REMOVED: "Permissions removed from role successfully.",
+    RETRIEVED: "Permissions retrieved successfully.",
 } as const;
 
 export const PERMISSION_MESSAGES = {

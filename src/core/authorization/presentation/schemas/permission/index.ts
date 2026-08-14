@@ -1,8 +1,11 @@
 import { z } from "zod";
 
+import { PERMISSION_SCOPE } from "../../../domain/types";
+
 export const createPermissionSchema = z.object({
     code: z.string().trim().min(1).max(150),
     description: z.string().trim().min(1),
+    scope: z.enum(PERMISSION_SCOPE),
 });
 
 export const updatePermissionSchema = z

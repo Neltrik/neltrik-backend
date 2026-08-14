@@ -1,1 +1,1 @@
-export * from "./display-name";
+export * from "./tenant-role-configuration";

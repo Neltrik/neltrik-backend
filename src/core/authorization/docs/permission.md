@@ -15,6 +15,7 @@ Los **Permissions** pertenecen exclusivamente al catálogo oficial definido por 
 | `id`          | Identificador único del Permiso.                                                     |
 | `code`        | Código único e inmutable que identifica funcionalmente al Permiso dentro de Neltrik. |
 | `description` | Descripción oficial del propósito del Permiso dentro de la plataforma.               |
+| `scope`       | Alcance que determina el contexto de autorización al que pertenece el Permiso.       |
 | `createdAt`   | Fecha de creación del Permiso.                                                       |
 | `updatedAt`   | Fecha de la última actualización del Permiso.                                        |
 
@@ -25,6 +26,9 @@ Los **Permissions** pertenecen exclusivamente al catálogo oficial definido por 
 - El atributo `code` constituye la identidad funcional del **Permission** y nunca puede modificarse una vez creado.
 - Todo **Permission** pertenece exclusivamente al catálogo oficial definido por **Neltrik**.
 - Un **Permission** representa una única capacidad dentro de la plataforma.
+- Todo **Permission** debe definir un `scope`.
+- El `scope` determina el contexto de autorización al que pertenece el **Permission**.
+- El `scope` de un **Permission** es inmutable una vez creado.
 - Los **Permissions** únicamente pueden ser administrados por **Neltrik**.
 
 ## 2. Relaciones
@@ -45,9 +49,16 @@ N ─────── N Role
 
 ## 3. Enums
 
-La entidad **Permission** no utiliza tipos enumerados (**Enums**) para el MVP.
+### PermissionScope
 
-Todas las reglas de negocio relacionadas con los Permisos se encuentran definidas mediante sus atributos y relaciones con los Roles oficiales administrados por **Neltrik**.
+El `Permission` utiliza el enum `PermissionScope` para determinar el contexto de autorización al que pertenece.
+
+Valores:
+
+```text
+PLATFORM
+TENANT
+```
 
 # 4. Reglas de negocio
 
@@ -55,6 +66,8 @@ Todas las reglas de negocio relacionadas con los Permisos se encuentran definida
 
 - Todo `Permission` debe poseer un `code` único dentro de la plataforma.
 - Todo `Permission` debe tener una `description`.
+- Todo `Permission` debe poseer un `scope`.
+- El `scope` debe corresponder a un valor válido de `PermissionScope`.
 - El `code` de un `Permission` únicamente puede ser definido por **Neltrik**.
 - Los Tenants no pueden crear Permissions.
 
@@ -76,6 +89,7 @@ Los siguientes campos nunca pueden modificarse:
 
 - `id`
 - `code`
+- `scope`
 - `createdAt`
 
 ### Restricciones
@@ -105,13 +119,14 @@ permissions
 
 ## 5.2 Columnas
 
-| Columna       | Tipo         | Null | Default             | Observación |
-| ------------- | ------------ | ---- | ------------------- | ----------- |
-| `id`          | UUID         | ❌   | `gen_random_uuid()` | PK          |
-| `code`        | VARCHAR(150) | ❌   | —                   | UNIQUE      |
-| `description` | TEXT         | ❌   | —                   |             |
-| `created_at`  | TIMESTAMP    | ❌   | `NOW()`             |             |
-| `updated_at`  | TIMESTAMP    | ❌   | `NOW()`             |             |
+| Columna       | Tipo            | Null | Default             | Observación       |
+| ------------- | --------------- | ---- | ------------------- | ----------------- |
+| `id`          | UUID            | ❌   | `gen_random_uuid()` | PK                |
+| `code`        | VARCHAR(150)    | ❌   | —                   | UNIQUE            |
+| `description` | TEXT            | ❌   | —                   |                   |
+| `scope`       | PermissionScope | ❌   | —                   | PLATFORM / TENANT |
+| `created_at`  | TIMESTAMP       | ❌   | `NOW()`             |                   |
+| `updated_at`  | TIMESTAMP       | ❌   | `NOW()`             |                   |
 
 ---
 
@@ -121,6 +136,9 @@ permissions
 - `code` debe ser único dentro de la plataforma.
 - `code` es inmutable una vez creado.
 - Todo `Permission` debe tener una `description`.
+- `scope` es obligatorio.
+- `scope` debe corresponder a un valor válido de `PermissionScope`.
+- `scope` es inmutable una vez creado.
 
 ---
 

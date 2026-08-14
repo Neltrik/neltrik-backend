@@ -1,5 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 
+import { PERMISSION_SCOPE, type PermissionScope } from "../../../domain/types";
+
 export class CreatePermissionDto {
     @ApiProperty({
         example: "USER_CREATE",
@@ -10,6 +12,12 @@ export class CreatePermissionDto {
         example: "Allows creating users.",
     })
     description!: string;
+
+    @ApiProperty({
+        enum: PERMISSION_SCOPE,
+        example: PERMISSION_SCOPE.TENANT,
+    })
+    scope!: PermissionScope;
 }
 
 export class CreatePermissionResultDto {

@@ -64,7 +64,7 @@ export class PermissionController {
         @Body(new ZodValidationPipe(createPermissionSchema))
         body: CreatePermissionDto,
     ): Promise<CreatePermissionResultDto> {
-        const input: CreatePermissionInput = { code: body.code, description: body.description };
+        const input: CreatePermissionInput = { code: body.code, description: body.description, scope: body.scope };
         const permission = await this.createPermissionUseCase.execute(input);
         return { id: permission.id };
     }
@@ -129,6 +129,7 @@ export class PermissionController {
             id: permission.id,
             code: permission.code,
             description: permission.description,
+            scope: permission.scope,
         }));
     }
 }

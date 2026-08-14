@@ -270,6 +270,7 @@ export class RoleController {
                 id: permission.id,
                 code: permission.code,
                 description: permission.description,
+                scope: permission.scope,
             })),
         };
     }

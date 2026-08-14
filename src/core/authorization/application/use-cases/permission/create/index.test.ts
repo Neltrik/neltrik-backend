@@ -8,6 +8,7 @@ import type { CreatePermissionInput } from "./input";
 const makeInput = (): CreatePermissionInput => ({
     code: "USER_CREATE",
     description: "Allows creating users.",
+    scope: "PLATFORM",
 });
 
 describe("CreatePermissionUseCase", () => {

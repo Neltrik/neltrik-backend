@@ -115,6 +115,7 @@ El `TENANT_OWNER` y el `TENANT_ADMIN` administran únicamente la asignación de 
 - Authorization
 - Role
 - Permission
+- Permission Scope
 - Role Permission Association
 - Tenant Role Availability
 - Role Display Name
@@ -179,6 +180,7 @@ Después del análisis del dominio se definieron las siguientes entidades para e
 - Todo **Permission** posee un código (`code`) único dentro de la plataforma.
 - Todo **Permission** pertenece al catálogo oficial definido por **Neltrik**.
 - Todo **Permission** representa una única capacidad dentro de la plataforma.
+- Todo **Permission** posee un alcance (`scope`) que determina el contexto al que pertenece dentro del modelo de autorización.
 - Un **Permission** puede asociarse a múltiples **Roles**.
 - Un **Permission** nunca puede ser creado por un Tenant.
 - Un **Permission** nunca puede ser eliminado por un Tenant.
@@ -200,6 +202,7 @@ Después del análisis del dominio se definieron las siguientes entidades para e
 | ------------------------------- | ----------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Rol                             | Role                    | Entidad      | Representa una responsabilidad dentro de la plataforma y determina las capacidades que puede ejecutar un usuario mediante los Permissions asociados. |
 | Permiso                         | Permission              | Entidad      | Representa una capacidad específica que puede ejecutarse dentro de la plataforma.                                                                    |
+| Alcance del Permiso             | PermissionScope         | Value Object | Determina el contexto de autorización al que pertenece un Permission.                                                                                |
 | Configuración de Rol del Tenant | TenantRoleConfiguration | Entidad      | Permite personalizar el nombre visible (`displayName`) de un Rol dentro de un Tenant.                                                                |
 | Nombre Visible                  | DisplayName             | Value Object | Nombre utilizado por un Tenant para representar visualmente un Rol.                                                                                  |
 

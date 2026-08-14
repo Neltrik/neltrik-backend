@@ -9,6 +9,7 @@ const makePermission = () =>
         id: "permission-id",
         code: "USER_CREATE",
         description: "Allows creating users.",
+        scope: "PLATFORM",
         createdAt: new Date("2025-01-01T00:00:00.000Z"),
         updatedAt: new Date("2025-01-01T00:00:00.000Z"),
     });

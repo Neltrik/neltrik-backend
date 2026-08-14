@@ -4,6 +4,7 @@ describe("createPermissionSchema", () => {
     const makeInput = () => ({
         code: "USER_CREATE",
         description: "Allows creating users.",
+        scope: "PLATFORM",
     });
 
     it("should validate a valid request", () => {

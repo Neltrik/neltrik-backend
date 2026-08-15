@@ -14,6 +14,7 @@ export const ERROR_MESSAGES = {
     TENANT_ROLE_CONFIGURATION_NOT_FOUND: "Tenant role configuration not found.",
     INCOMPATIBLE_PERMISSION_SCOPE: "The permission scope is incompatible with the role scope.",
     CANNOT_SUSPEND_HIGHER_ROLE: "Cannot suspend a higher role.",
+    CANNOT_MANAGE_ROLE_TENANT: "Cannot manage the tenant role.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -32,4 +33,5 @@ export const DOMAIN_ERROR_CODES = {
     TENANT_ROLE_CONFIGURATION_NOT_FOUND: "TENANT_ROLE_CONFIGURATION_NOT_FOUND",
     INCOMPATIBLE_PERMISSION_SCOPE: "INCOMPATIBLE_PERMISSION_SCOPE",
     CANNOT_SUSPEND_HIGHER_ROLE: "CANNOT_SUSPEND_HIGHER_ROLE",
+    CANNOT_MANAGE_ROLE_TENANT: "CANNOT_MANAGE_ROLE_TENANT",
 } as const;

@@ -1,3 +1,4 @@
+export * from "./cannot-manage-role-tenant";
 export * from "./cannot-suspend-higher-role";
 export * from "./code-already-exists";
 export * from "./display-name-too-long";

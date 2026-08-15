@@ -1,4 +1,5 @@
 export interface AssociateRolesToTenantInput {
-    tenantId: string;
+    actorTenantId: string;
+    targetTenantId: string;
     roleIds: string[];
 }

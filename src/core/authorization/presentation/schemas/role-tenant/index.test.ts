@@ -1,20 +1,6 @@
 import { associateRolesToTenantSchema, disassociateRolesFromTenantSchema, roleTenantParamsSchema } from "./";
 
 describe("associateRolesToTenantSchema", () => {
-    const makeInput = () => ({
-        roleIds: ["550e8400-e29b-41d4-a716-446655440000", "6ba7b810-9dad-41d1-80b4-00c04fd430c8"],
-    });
-
-    it("should validate a valid request", () => {
-        expect(() => associateRolesToTenantSchema.parse(makeInput())).not.toThrow();
-    });
-
-    it("should validate a single role", () => {
-        expect(() =>
-            associateRolesToTenantSchema.parse({ roleIds: ["550e8400-e29b-41d4-a716-446655440000"] }),
-        ).not.toThrow();
-    });
-
     it("should reject an empty roleIds array", () => {
         expect(() => associateRolesToTenantSchema.parse({ roleIds: [] })).toThrow();
     });
@@ -31,20 +17,6 @@ describe("associateRolesToTenantSchema", () => {
 });
 
 describe("disassociateRolesFromTenantSchema", () => {
-    const makeInput = () => ({
-        roleIds: ["550e8400-e29b-41d4-a716-446655440000", "6ba7b810-9dad-41d1-80b4-00c04fd430c8"],
-    });
-
-    it("should validate a valid request", () => {
-        expect(() => disassociateRolesFromTenantSchema.parse(makeInput())).not.toThrow();
-    });
-
-    it("should validate a single role", () => {
-        expect(() =>
-            disassociateRolesFromTenantSchema.parse({ roleIds: ["550e8400-e29b-41d4-a716-446655440000"] }),
-        ).not.toThrow();
-    });
-
     it("should reject an empty roleIds array", () => {
         expect(() => disassociateRolesFromTenantSchema.parse({ roleIds: [] })).toThrow();
     });

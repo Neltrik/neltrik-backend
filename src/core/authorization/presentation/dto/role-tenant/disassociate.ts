@@ -11,4 +11,9 @@ export class DisassociateRolesFromTenantRequestDto {
     @ArrayMaxSize(100)
     @IsUUID("4", { each: true })
     roleIds!: string[];
+
+    @ApiProperty({
+        example: "550e8400-e29b-41d4-a716-446655440000",
+    })
+    tenantId!: string;
 }

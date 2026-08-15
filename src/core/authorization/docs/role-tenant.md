@@ -25,7 +25,7 @@ La asociación no constituye una entidad independiente del dominio. Su propósit
 - La combinación roleId + tenantId identifica de forma única una asociación.
 - Una misma asociación Role-Tenant no puede existir más de una vez.
 - Los Tenants no pueden crear Roles; únicamente pueden utilizar los Roles habilitados para su organización.
-- La administración de las asociaciones Role-Tenant corresponde a Neltrik, según las reglas de autorización definidas para la plataforma.
+- La administración de las asociaciones Role-Tenant corresponde exclusivamente al Tenant de tipo PLATFORM, correspondiente al Tenant propietario de Neltrik.
 - La habilitación de un Role no modifica los atributos del Role.
 - La habilitación de un Role no modifica los Permissions asociados al Role.
 - La habilitación de un Role únicamente establece que dicho Role puede ser utilizado dentro del Tenant correspondiente.
@@ -52,7 +52,7 @@ N ─────── N Tenant
 - La habilitación de un Role para un Tenant no modifica los Permissions asociados al Role.
 - Un mismo Role no puede estar habilitado más de una vez para el mismo Tenant.
 - La combinación roleId + tenantId identifica de forma única una habilitación.
-- La relación Role-Tenant es administrada por Neltrik.
+- La relación Role-Tenant es administrada exclusivamente por el Tenant de tipo **PLATFORM**.
 - La existencia de una habilitación Role-Tenant permite que posteriormente Identity valide si un Role puede ser asignado a un User dentro de un determinado Tenant.
 
 > **Nota:** La asociación **Role-Tenant** pertenece al modelo de autorización de Neltrik. El módulo Authorization administra la disponibilidad de los Roles para cada Tenant, pero no administra los Tenants ni la asignación de Roles a los Users.
@@ -71,20 +71,20 @@ Las reglas relacionadas con los tipos de Roles, incluyendo su alcance (`scope`),
 
 ## 4.1 Habilitación de Roles
 
-- Solo **Neltrik** puede crear asociaciones entre `Role` y `Tenant`.
+- Solo el Tenant de tipo **PLATFORM** correspondiente al Tenant propietario de Neltrik, puede crear asociaciones entre `Role` y `Tenant`.
 - El `Role` debe existir dentro del catálogo oficial de Neltrik.
 - El `Tenant` debe existir dentro de la plataforma.
 - Un `Role` no puede habilitarse dos veces para el mismo `Tenant`.
 - La habilitación únicamente crea la asociación entre el `Role` y el `Tenant`.
 - La habilitación de un `Role` no modifica los atributos del `Role`.
 - La habilitación de un `Role` no modifica los `Permissions` asociados al `Role`.
-- Un `Tenant` únicamente puede utilizar los Roles que hayan sido habilitados para su organización.
+- Un `Tenant` CUSTOMER únicamente puede utilizar los Roles que hayan sido habilitados para su organización.
 - Un `Role` puede habilitarse para uno o múltiples `Tenants`.
 - Un `Tenant` puede tener uno o múltiples `Roles` habilitados.
 
 ### Roles con alcance restringido
 
-- Los Roles cuyo `scope` sea `NELTRIK` únicamente pueden habilitarse para el Tenant propietario de la plataforma (**Neltrik**).
+- Los Roles cuyo `scope` sea `PLATFORM`únicamente pueden habilitarse para el Tenant de tipo (**PLATFORM**).
 - Los Roles cuyo `scope` sea `TENANT` pueden habilitarse para los Tenants permitidos por las reglas de la plataforma.
 - La validación del `scope` del Role debe realizarse antes de crear la asociación.
 - Una asociación que viole el `scope` del Role debe ser rechazada.
@@ -96,7 +96,7 @@ Las reglas relacionadas con los tipos de Roles, incluyendo su alcance (`scope`),
 
 ## 4.2 Eliminación de Roles
 
-- Solo **Neltrik** puede eliminar asociaciones entre `Role` y `Tenant`.
+- Solo el **Tenant** de tipo **PLATFORM**, correspondiente al Tenant propietario de **Neltrik**, puede eliminar asociaciones entre **Role** y **Tenant**.
 - El `Role` debe existir dentro del catálogo oficial de Neltrik.
 - El `Tenant` debe existir dentro de la plataforma.
 - La eliminación únicamente elimina la asociación entre el `Role` y el `Tenant`.
@@ -118,7 +118,14 @@ Las reglas relacionadas con los tipos de Roles, incluyendo su alcance (`scope`),
 - La asociación no modifica los `Permissions` asociados al `Role`.
 - Los Roles habilitados para un Tenant constituyen el conjunto de Roles que posteriormente puede utilizar Identity para asignar Roles a los Users de dicho Tenant.
 
-## 4.4 Procesamiento masivo
+## 4.4 Administración de las asociaciones
+
+- Solo el Tenant de tipo `PLATFORM`, correspondiente al Tenant propietario de Neltrik, puede administrar las asociaciones Role-Tenant.
+- Los Tenants `CUSTOMER` no pueden crear asociaciones Role-Tenant.
+- Los Tenants `CUSTOMER` no pueden eliminar asociaciones Role-Tenant.
+- Los Tenants `CUSTOMER` no pueden administrar la disponibilidad de Roles para otros Tenants.
+
+## 4.5 Procesamiento masivo
 
 - La habilitación y eliminación de Roles debe permitir procesar múltiples `Roles` en una misma solicitud.
 - El sistema no debe requerir una petición independiente por cada `Role`.
@@ -126,7 +133,7 @@ Las reglas relacionadas con los tipos de Roles, incluyendo su alcance (`scope`),
 - Este límite técnico no modifica las reglas del dominio ni limita conceptualmente la cantidad de `Roles` que puede tener habilitados un `Tenant`.
 - La implementación debe evitar operaciones innecesarias que puedan provocar degradación del rendimiento cuando se procesen múltiples asociaciones.
 
-## 4.5 Atomicidad
+## 4.6 Atomicidad
 
 - Una operación masiva de habilitación debe ser atómica.
 - Una operación masiva de eliminación debe ser atómica.

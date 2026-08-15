@@ -67,7 +67,8 @@ export class RoleTenantController {
         body: AssociateRolesToTenantRequestDto,
     ): Promise<AssociateRolesToTenantResultDto> {
         const input: AssociateRolesToTenantInput = {
-            tenantId: params.tenantId,
+            actorTenantId: body.tenantId,
+            targetTenantId: params.tenantId,
             roleIds: body.roleIds,
         };
         return this.associateRolesToTenantUseCase.execute(input);
@@ -101,7 +102,8 @@ export class RoleTenantController {
         body: DisassociateRolesFromTenantRequestDto,
     ): Promise<void> {
         await this.disassociateRolesFromTenantUseCase.execute({
-            tenantId: params.tenantId,
+            actorTenantId: body.tenantId,
+            targetTenantId: params.tenantId,
             roleIds: body.roleIds,
         });
     }

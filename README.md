@@ -223,16 +223,6 @@ La carpeta `application/use-cases-ohs/` contiene exclusivamente los casos de uso
 
 Un `UseCaseOhs` no debe depender de otro `OhsApi`. La comunicación intermodular debe realizarse a través del `api/` correspondiente, evitando cadenas de dependencias entre casos de uso OHS.
 
-### Reutilización de casos de uso
-
-Un `api/` debe utilizar preferentemente un caso de uso existente de `application/use-cases/`.
-
-No debe crearse un `UseCaseOhs` cuando el caso de uso de Presentation pueda reutilizarse directamente.
-
-Debe crearse un `UseCaseOhs` únicamente cuando el caso de uso de Presentation que se pretende reutilizar tenga una dependencia hacia otro `OhsApi`.
-
-En ese caso, el `UseCaseOhs` debe implementar únicamente el flujo necesario para satisfacer el contrato expuesto por `api/`, sin depender del caso de uso de Presentation que genera la recursividad.
-
 ## Dependencias circulares
 
 Las dependencias circulares entre módulos mediante OHS son válidas cuando corresponden a una necesidad real del dominio.
@@ -244,7 +234,7 @@ Por ejemplo:
 ```text
 TenantApi
     ↕
-AuthorizationApi
+AuthorizationRoleApi
 ```
 
 ---

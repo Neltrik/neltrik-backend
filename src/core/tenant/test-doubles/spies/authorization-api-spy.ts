@@ -1,5 +1,5 @@
-import { AuthorizationApi } from "@/core/authorization/api";
+import { AuthorizationRoleApi } from "@/core/authorization/api";
 
-export class AuthorizationApiSpy extends AuthorizationApi {
+export class AuthorizationRoleApiSpy extends AuthorizationRoleApi {
     public getRolesByTenantId = jest.fn();
 }

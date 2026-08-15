@@ -2,7 +2,12 @@ import { Module } from "@nestjs/common";
 
 import { TenantModule } from "@/core/tenant/tenant.module";
 
-import { AuthorizationApi, AuthorizationApiImpl } from "./api";
+import {
+    AuthorizationPolicyApi,
+    AuthorizationPolicyApiImpl,
+    AuthorizationRoleApi,
+    AuthorizationRoleApiImpl,
+} from "./api";
 import {
     AssignPermissionsToRoleUseCase,
     AssociateRolesToTenantUseCase,
@@ -22,7 +27,7 @@ import {
     UpdateRoleUseCase,
     UpdateTenantRoleConfigurationUseCase,
 } from "./application/use-cases";
-import { GetRolesByTenantOhsUseCase } from "./application/use-cases-ohs";
+import { CanSuspendUserPolicyOhsUseCase, GetRolesByTenantOhsUseCase } from "./application/use-cases-ohs";
 import {
     PermissionRepository,
     RoleRepository,
@@ -69,10 +74,15 @@ import {
         UpdatePermissionUseCase,
         UpdateRoleUseCase,
         UpdateTenantRoleConfigurationUseCase,
+        CanSuspendUserPolicyOhsUseCase,
         GetRolesByTenantOhsUseCase,
         {
-            provide: AuthorizationApi,
-            useClass: AuthorizationApiImpl,
+            provide: AuthorizationRoleApi,
+            useClass: AuthorizationRoleApiImpl,
+        },
+        {
+            provide: AuthorizationPolicyApi,
+            useClass: AuthorizationPolicyApiImpl,
         },
         {
             provide: RoleRepository,
@@ -92,6 +102,6 @@ import {
         },
     ],
     imports: [TenantModule],
-    exports: [AuthorizationApi],
+    exports: [AuthorizationRoleApi, AuthorizationPolicyApi],
 })
 export class AuthorizationModule {}

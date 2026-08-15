@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-import { AuthorizationApi } from "@/core/authorization/api";
+import { AuthorizationRoleApi } from "@/core/authorization/api";
 
 import { TenantNotFoundError } from "../../../domain/errors";
 import { TenantRepository } from "../../../domain/interfaces";
@@ -10,7 +10,7 @@ import { GetTenantOutput } from "./output";
 export class GetTenantUseCase {
     constructor(
         private readonly tenantRepository: TenantRepository,
-        private readonly authorizationApi: AuthorizationApi,
+        private readonly authorizationRoleApi: AuthorizationRoleApi,
     ) {}
 
     public async execute(id: string): Promise<GetTenantOutput> {
@@ -18,7 +18,7 @@ export class GetTenantUseCase {
         if (!tenant) {
             throw new TenantNotFoundError();
         }
-        const roles = await this.authorizationApi.getRolesByTenantId(id);
+        const roles = await this.authorizationRoleApi.getRolesByTenantId(id);
         return { tenant, roles };
     }
 }

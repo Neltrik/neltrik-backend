@@ -1,6 +1,6 @@
 import { ROLE_SCOPE } from "../../domain/types";
 import { GetRolesByTenantOhsUseCaseSpy } from "../../test-doubles";
-import { AuthorizationApiImpl, RoleResultDto } from "./index";
+import { AuthorizationRoleApiImpl, RoleResultDto } from "./index";
 
 const makeRole = (id = "role-id") => ({
     id,
@@ -10,18 +10,18 @@ const makeRole = (id = "role-id") => ({
     scope: ROLE_SCOPE.TENANT,
 });
 
-describe("AuthorizationApiImpl", () => {
+describe("AuthorizationRoleApiImpl", () => {
     const makeSut = () => {
         const getRolesByTenantOhsUseCase = new GetRolesByTenantOhsUseCaseSpy();
-        const authorizationApi = new AuthorizationApiImpl(getRolesByTenantOhsUseCase);
-        return { authorizationApi, getRolesByTenantOhsUseCase };
+        const authorizationRoleApi = new AuthorizationRoleApiImpl(getRolesByTenantOhsUseCase);
+        return { authorizationRoleApi, getRolesByTenantOhsUseCase };
     };
 
     describe("getRolesByTenantId", () => {
         it("should return the roles enabled for the tenant", async () => {
-            const { authorizationApi, getRolesByTenantOhsUseCase } = makeSut();
+            const { authorizationRoleApi, getRolesByTenantOhsUseCase } = makeSut();
             getRolesByTenantOhsUseCase.execute.mockResolvedValue([makeRole("role-1"), makeRole("role-2")]);
-            await expect(authorizationApi.getRolesByTenantId("tenant-id")).resolves.toEqual([
+            await expect(authorizationRoleApi.getRolesByTenantId("tenant-id")).resolves.toEqual([
                 {
                     id: "role-1",
                     code: "RECRUITER",
@@ -42,17 +42,17 @@ describe("AuthorizationApiImpl", () => {
         });
 
         it("should return an empty array when the tenant has no roles enabled", async () => {
-            const { authorizationApi, getRolesByTenantOhsUseCase } = makeSut();
+            const { authorizationRoleApi, getRolesByTenantOhsUseCase } = makeSut();
             getRolesByTenantOhsUseCase.execute.mockResolvedValue([]);
-            await expect(authorizationApi.getRolesByTenantId("tenant-id")).resolves.toEqual([]);
+            await expect(authorizationRoleApi.getRolesByTenantId("tenant-id")).resolves.toEqual([]);
             expect(getRolesByTenantOhsUseCase.execute).toHaveBeenCalledTimes(1);
             expect(getRolesByTenantOhsUseCase.execute).toHaveBeenCalledWith("tenant-id");
         });
 
         it("should propagate role retrieval errors", async () => {
-            const { authorizationApi, getRolesByTenantOhsUseCase } = makeSut();
+            const { authorizationRoleApi, getRolesByTenantOhsUseCase } = makeSut();
             getRolesByTenantOhsUseCase.execute.mockRejectedValue(new Error("Tenant not found"));
-            await expect(authorizationApi.getRolesByTenantId("tenant-id")).rejects.toThrow("Tenant not found");
+            await expect(authorizationRoleApi.getRolesByTenantId("tenant-id")).rejects.toThrow("Tenant not found");
             expect(getRolesByTenantOhsUseCase.execute).toHaveBeenCalledTimes(1);
             expect(getRolesByTenantOhsUseCase.execute).toHaveBeenCalledWith("tenant-id");
         });

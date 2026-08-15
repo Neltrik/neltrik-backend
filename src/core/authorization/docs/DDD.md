@@ -17,6 +17,7 @@ El módulo **Authorization** es responsable de:
 - Administrar el catálogo oficial de Roles de Neltrik.
 - Administrar el catálogo oficial de Permisos de Neltrik.
 - Definir los Permisos asociados a cada Rol.
+- Definir y aplicar Policies de autorización para las capacidades que requieran restricciones adicionales.
 - Mantener las relaciones entre Roles y Permisos.
 - Proporcionar el modelo de autorización utilizado por toda la plataforma.
 - Determinar los Roles disponibles para cada Tenant.
@@ -52,10 +53,13 @@ Su responsabilidad consiste en definir qué acciones puede realizar un usuario d
 - Permisos.
 - Relaciones entre Roles y Permisos.
 - Capacidades asociadas a cada Rol.
+- Policies de autorización.
 
 Los Roles y Permisos pertenecen al producto (**Neltrik**) y representan la forma oficial en que la plataforma modela las responsabilidades y capacidades disponibles dentro del sistema.
 
 Los Tenants utilizan únicamente los Roles habilitados por Neltrik y pueden personalizar la representación visual de estos mediante un nombre visible (`displayName`) sin modificar su identidad funcional.
+
+Las Policies representan reglas adicionales que determinan si una capacidad puede ejecutarse en un contexto específico, cuando el Permission por sí solo no es suficiente para expresar la restricción de autorización.
 
 ---
 
@@ -67,6 +71,7 @@ Authorization
         │        Role         │
         │    Permission       │
         │  Role Permissions   │
+        │       Policy        │
         └──────────┬──────────┘
                    │
                    ▼
@@ -117,6 +122,7 @@ El `TENANT_OWNER` y el `TENANT_ADMIN` administran únicamente la asignación de 
 - Permission
 - Permission Scope
 - Role Permission Association
+- Policy
 - Tenant Role Availability
 - Role Display Name
 - Role Capabilities
@@ -141,17 +147,21 @@ Después del análisis del dominio se definieron las siguientes entidades para e
 ## Parte A — Relaciones
 
 ```text
-                Role
-                  │
-                  ├──────────────┐
-                  │              │
-                  ▼              ▼
-            Permission   TenantRoleConfiguration
+                  Role
+                    │
+          ┌─────────┴─────────┐
+          ▼                   ▼
+     Permission      TenantRoleConfiguration
+          │
+          ▼
+        Policy
 ```
 
 > **Nota:** Un **Role** puede agrupar múltiples **Permissions** y una **Permission** puede pertenecer a múltiples **Roles**, conformando el modelo oficial de autorización definido por Neltrik.
 
 > **Nota:** La entidad **TenantRoleConfiguration** permite personalizar la representación de un **Role** dentro de un Tenant sin modificar su identidad funcional ni las reglas oficiales definidas por la plataforma.
+
+> **Nota:** Un **Permission** puede estar sujeto a una o múltiples Policies cuando la autorización de dicha capacidad requiera restricciones adicionales.
 
 ## Parte B — Reglas de negocio
 
@@ -194,17 +204,30 @@ Después del análisis del dominio se definieron las siguientes entidades para e
 - Solo puede existir una configuración por cada combinación **Tenant–Role**.
 - Un **TenantRoleConfiguration** únicamente puede existir para Roles habilitados para ese **Tenant**.
 
+### Policy
+
+- Una Policy representa una regla adicional de autorización aplicable a un Permission cuando su ejecución requiere restricciones que no pueden expresarse únicamente mediante el Permission.
+- No todo Permission requiere una Policy.
+- Una Policy únicamente puede aplicarse a Permissions definidos por Neltrik.
+- Una Policy no modifica la identidad, el código ni el scope del Permission.
+- Una Policy determina las condiciones bajo las cuales un Permission puede ser ejecutado.
+- Las reglas de una Policy deben evaluarse además de las reglas generales de autorización.
+- La ausencia de una Policy implica que el Permission no está sujeto a restricciones adicionales definidas mediante Policy.
+- Las Policies son administradas exclusivamente por Neltrik.
+- Las Policies deben evaluarse en el contexto de autorización correspondiente antes de permitir la ejecución de una capacidad restringida.
+
 # Paso 5 — Definir el Lenguaje Ubicuo
 
 ## Diccionario del dominio
 
-| Español                         | Inglés (Código)         | Tipo         | Descripción                                                                                                                                          |
-| ------------------------------- | ----------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Rol                             | Role                    | Entidad      | Representa una responsabilidad dentro de la plataforma y determina las capacidades que puede ejecutar un usuario mediante los Permissions asociados. |
-| Permiso                         | Permission              | Entidad      | Representa una capacidad específica que puede ejecutarse dentro de la plataforma.                                                                    |
-| Alcance del Permiso             | PermissionScope         | Value Object | Determina el contexto de autorización al que pertenece un Permission.                                                                                |
-| Configuración de Rol del Tenant | TenantRoleConfiguration | Entidad      | Permite personalizar el nombre visible (`displayName`) de un Rol dentro de un Tenant.                                                                |
-| Nombre Visible                  | DisplayName             | Value Object | Nombre utilizado por un Tenant para representar visualmente un Rol.                                                                                  |
+| Español                         | Inglés (Código)         | Tipo           | Descripción                                                                                                                                          |
+| ------------------------------- | ----------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Rol                             | Role                    | Entidad        | Representa una responsabilidad dentro de la plataforma y determina las capacidades que puede ejecutar un usuario mediante los Permissions asociados. |
+| Permiso                         | Permission              | Entidad        | Representa una capacidad específica que puede ejecutarse dentro de la plataforma.                                                                    |
+| Alcance del Permiso             | PermissionScope         | Value Object   | Determina el contexto de autorización al que pertenece un Permission.                                                                                |
+| Política de Autorización        | Policy                  | Domain Concept | Representa una regla adicional que restringe la ejecución de un Permission cuando su autorización depende de condiciones adicionales.                |
+| Configuración de Rol del Tenant | TenantRoleConfiguration | Entidad        | Permite personalizar el nombre visible (`displayName`) de un Rol dentro de un Tenant.                                                                |
+| Nombre Visible                  | DisplayName             | Value Object   | Nombre utilizado por un Tenant para representar visualmente un Rol.                                                                                  |
 
 ---
 
@@ -232,11 +255,12 @@ Después del análisis del dominio se definieron las siguientes entidades para e
 - Los Roles oficiales únicamente pueden ser administrados por **Neltrik**.
 - Los Permisos oficiales únicamente pueden ser administrados por **Neltrik**.
 - Los Tenants únicamente pueden personalizar el `displayName` de los Roles habilitados para su organización.
+- Las Policies forman parte del modelo de autorización y únicamente pueden ser definidas y administradas por Neltrik.
 - Cada Role posee un conjunto de Permissions definido exclusivamente por Neltrik.
 
 # Resultado
 
-Con este documento se da por finalizado el modelado inicial del dominio **Authorization** para el MVP de Neltrik.
+Con este documento se establece el modelado inicial del dominio **Authorization** para el MVP.
 
 A partir de este punto, el desarrollo continuará utilizando **Spec-Driven Development (SDD)**, tomando este documento como la fuente de verdad del dominio.
 
@@ -258,3 +282,17 @@ El dominio **Authorization** no depende de otros dominios del Core.
 Los demás dominios podrán utilizar **Authorization** para determinar las capacidades asociadas a los Roles definidos por la plataforma.
 
 El dominio **Authorization** únicamente puede depender de componentes ubicados en `shared`.
+
+# Paso 5 — Implementación de Policies
+
+Las Policies forman parte del dominio de Authorization y representan reglas de autorización que restringen la ejecución de determinados Permissions.
+
+Las Policies no constituyen entidades por definición y no requieren persistencia mientras su comportamiento pueda determinarse exclusivamente a partir del contexto de autorización.
+
+Cada Policy debe encapsular una regla de autorización específica y mantenerse independiente de infraestructura.
+
+Las Policies pueden ser utilizadas directamente por los casos de uso que requieran evaluar dichas reglas.
+
+Cuando una Policy requiera información externa para su evaluación, deberá depender de abstracciones del dominio en lugar de componentes concretos de infraestructura.
+
+Las nuevas Policies deben incorporarse de forma independiente, evitando concentrar múltiples reglas no relacionadas en una única Policy.

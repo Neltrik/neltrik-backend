@@ -29,6 +29,7 @@ import {
     RegisterUserRequestDto,
     RegisterUserResultDto,
     SuspendUserParamsDto,
+    SuspendUserRequestDto,
     UpdateUserParamsDto,
     UpdateUserRequestDto,
     UpdateUserResultDto,
@@ -189,8 +190,12 @@ export class UserController {
     public async suspend(
         @Param(new ZodValidationPipe(suspendUserParamsSchema))
         params: SuspendUserParamsDto,
+        @Body() body: SuspendUserRequestDto,
     ): Promise<void> {
-        await this.suspendUserUseCase.execute(params.id);
+        await this.suspendUserUseCase.execute({
+            actorUserId: body.actorUserId,
+            targetUserId: params.id,
+        });
     }
 
     @ApiOperation({

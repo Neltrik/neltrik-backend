@@ -24,7 +24,7 @@ export class GetRoleResultDto {
     scope!: RoleScope;
 
     @ApiProperty({
-        type: [PermissionResultDto],
+        type: PermissionResultDto,
         isArray: true,
         description: "Permissions assigned to the role.",
     })

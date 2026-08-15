@@ -1,11 +1,11 @@
 import { Injectable } from "@nestjs/common";
 
 import { GetRolesByTenantOhsUseCase } from "../../application/use-cases-ohs";
-import { AuthorizationApi } from "./contract";
+import { AuthorizationRoleApi } from "./contract";
 import type { RoleResultDto } from "./result.dto";
 
 @Injectable()
-export class AuthorizationApiImpl extends AuthorizationApi {
+export class AuthorizationRoleApiImpl extends AuthorizationRoleApi {
     constructor(private readonly getRolesByTenantOhsUseCase: GetRolesByTenantOhsUseCase) {
         super();
     }

@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 
+import { AuthorizationModule } from "@/core/authorization/authorization.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
 
 import {
@@ -26,6 +27,6 @@ import { UserController } from "./presentation/controllers/user";
             useClass: PrismaUserRepository,
         },
     ],
-    imports: [TenantModule],
+    imports: [TenantModule, AuthorizationModule],
 })
 export class IdentityModule {}

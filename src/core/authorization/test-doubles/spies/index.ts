@@ -1,4 +1,4 @@
-export * from "./get-tenant-use-case-spy";
+export * from "./ohs-use-case-spy";
 export * from "./permission-repository.spy";
 export * from "./role-repository.spy";
 export * from "./role-tenant-repository.spy";

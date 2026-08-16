@@ -1,12 +1,21 @@
 import { Injectable } from "@nestjs/common";
 
-import { GetRolesByTenantOhsUseCase } from "../../application/use-cases-ohs";
+import {
+    CanAssignRoleToTenantOhsUseCase,
+    CanAssignRoleToTenantOhsUseCaseInput,
+    GetRoleOhsUseCase,
+    GetRolesByTenantOhsUseCase,
+} from "../../application/use-cases-ohs";
 import { AuthorizationRoleApi } from "./contract";
 import type { RoleResultDto } from "./result.dto";
 
 @Injectable()
 export class AuthorizationRoleApiImpl extends AuthorizationRoleApi {
-    constructor(private readonly getRolesByTenantOhsUseCase: GetRolesByTenantOhsUseCase) {
+    constructor(
+        private readonly canAssignRoleToTenantOhsUseCase: CanAssignRoleToTenantOhsUseCase,
+        private readonly getRoleOhsUseCase: GetRoleOhsUseCase,
+        private readonly getRolesByTenantOhsUseCase: GetRolesByTenantOhsUseCase,
+    ) {
         super();
     }
 
@@ -19,5 +28,18 @@ export class AuthorizationRoleApiImpl extends AuthorizationRoleApi {
             description: role.description,
             scope: role.scope,
         }));
+    }
+
+    public async validate(id: string): Promise<void> {
+        await this.getRoleOhsUseCase.execute(id);
+    }
+
+    public async validateForTenant(input: CanAssignRoleToTenantOhsUseCaseInput): Promise<void> {
+        await this.canAssignRoleToTenantOhsUseCase.execute(input);
+    }
+
+    public async getRoleById(roleId: string): Promise<Omit<RoleResultDto, "defaultDisplayName" | "description">> {
+        const role = await this.getRoleOhsUseCase.execute(roleId);
+        return { id: role.id, code: role.code, scope: role.scope };
     }
 }

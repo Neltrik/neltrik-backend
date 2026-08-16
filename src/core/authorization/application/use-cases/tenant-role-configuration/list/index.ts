@@ -1,12 +1,18 @@
 import { Injectable } from "@nestjs/common";
 
+import { TenantApi } from "@/core/tenant/api";
+
 import { TenantRoleConfigurationRepository } from "../../../../domain/interfaces";
 
 @Injectable()
 export class ListTenantRoleConfigurationUseCase {
-    constructor(private readonly tenantRoleConfigurationRepository: TenantRoleConfigurationRepository) {}
+    constructor(
+        private readonly tenantRoleConfigurationRepository: TenantRoleConfigurationRepository,
+        private readonly tenantApi: TenantApi,
+    ) {}
 
-    public async execute(id: string) {
-        return this.tenantRoleConfigurationRepository.list(id);
+    public async execute(tenantId: string) {
+        await this.tenantApi.validate(tenantId);
+        return this.tenantRoleConfigurationRepository.list(tenantId);
     }
 }

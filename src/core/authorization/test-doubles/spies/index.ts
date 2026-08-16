@@ -1,3 +1,4 @@
+export * from "./authorization-api.spy";
 export * from "./ohs-use-case-spy";
 export * from "./permission-repository.spy";
 export * from "./role-repository.spy";

@@ -1,7 +1,7 @@
 import type { IdGenerator } from "@/shared/id-generator";
 
 import { TenantRoleConfigurationAlreadyExistsError } from "../../../../domain/errors";
-import { TenantRoleConfigurationRepositorySpy } from "../../../../test-doubles";
+import { AuthorizationRoleApiSpy, TenantApiSpy, TenantRoleConfigurationRepositorySpy } from "../../../../test-doubles";
 import { CreateTenantRoleConfigurationUseCase } from "./index";
 import type { CreateTenantRoleConfigurationInput } from "./input";
 
@@ -14,13 +14,20 @@ const makeInput = (): CreateTenantRoleConfigurationInput => ({
 describe("CreateTenantRoleConfigurationUseCase", () => {
     const makeSut = () => {
         const repository = new TenantRoleConfigurationRepositorySpy();
+        const authorizationRoleApi = new AuthorizationRoleApiSpy();
+        const tenantApi = new TenantApiSpy();
         repository.create.mockImplementation((configuration) => Promise.resolve(configuration));
         repository.findByTenantAndRole.mockResolvedValue(null);
         const generateMock = jest.fn().mockReturnValue("configuration-id");
         const idGenerator = {
             generate: generateMock,
         } satisfies IdGenerator;
-        const useCase = new CreateTenantRoleConfigurationUseCase(repository, idGenerator);
+        const useCase = new CreateTenantRoleConfigurationUseCase(
+            repository,
+            idGenerator,
+            authorizationRoleApi,
+            tenantApi,
+        );
         return { useCase, repository, generateMock };
     };
 

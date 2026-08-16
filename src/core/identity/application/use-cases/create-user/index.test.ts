@@ -1,7 +1,7 @@
 import type { IdGenerator } from "@/shared/id-generator";
 
 import { EmailAlreadyExistsError } from "../../../domain/errors";
-import { TenantApiSpy, UserRepositorySpy } from "../../../test-doubles";
+import { AuthorizationRoleApiSpy, TenantApiSpy, UserRepositorySpy } from "../../../test-doubles";
 import { RegisterUserUseCase } from "./index";
 import type { RegisterUserInput } from "./input";
 
@@ -18,20 +18,26 @@ describe("RegisterUserUseCase", () => {
         const userRepository = new UserRepositorySpy();
         userRepository.create.mockResolvedValue(undefined);
         userRepository.existsByEmail.mockResolvedValue(false);
+        const authorizationRoleApi = new AuthorizationRoleApiSpy();
         const tenantApi = new TenantApiSpy();
         tenantApi.validate.mockResolvedValue(undefined);
         const generateMock = jest.fn().mockReturnValue("user-id");
         const idGenerator = {
             generate: generateMock,
         } satisfies IdGenerator;
-        const useCase = new RegisterUserUseCase(userRepository, tenantApi, idGenerator);
-        return { useCase, userRepository, tenantApi, generateMock };
+        const useCase = new RegisterUserUseCase(userRepository, authorizationRoleApi, tenantApi, idGenerator);
+        return { useCase, userRepository, authorizationRoleApi, tenantApi, generateMock };
     };
 
     it("should register a user successfully", async () => {
-        const { useCase, userRepository, tenantApi, generateMock } = makeSut();
+        const { useCase, userRepository, authorizationRoleApi, tenantApi, generateMock } = makeSut();
         const result = await useCase.execute(makeInput());
         expect(tenantApi.validate).toHaveBeenCalledWith("tenant-id");
+        expect(authorizationRoleApi.validate).toHaveBeenCalledWith("role-id");
+        expect(authorizationRoleApi.validateForTenant).toHaveBeenCalledWith({
+            roleId: "role-id",
+            tenantId: "tenant-id",
+        });
         expect(generateMock).toHaveBeenCalledTimes(1);
         expect(userRepository.existsByEmail).toHaveBeenCalledTimes(1);
         expect(userRepository.create).toHaveBeenCalledTimes(1);
@@ -49,6 +55,20 @@ describe("RegisterUserUseCase", () => {
         const { useCase, tenantApi } = makeSut();
         tenantApi.validate.mockRejectedValue(new Error("Tenant not found"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("Tenant not found");
+    });
+
+    it("should propagate role validation errors", async () => {
+        const { useCase, authorizationRoleApi, userRepository } = makeSut();
+        authorizationRoleApi.validate.mockRejectedValue(new Error("Role not found"));
+        await expect(useCase.execute(makeInput())).rejects.toThrow("Role not found");
+        expect(userRepository.create).not.toHaveBeenCalled();
+    });
+
+    it("should propagate role-tenant validation errors", async () => {
+        const { useCase, authorizationRoleApi, userRepository } = makeSut();
+        authorizationRoleApi.validateForTenant.mockRejectedValue(new Error("Role is not enabled for tenant"));
+        await expect(useCase.execute(makeInput())).rejects.toThrow("Role is not enabled for tenant");
+        expect(userRepository.create).not.toHaveBeenCalled();
     });
 
     it("should propagate repository errors", async () => {

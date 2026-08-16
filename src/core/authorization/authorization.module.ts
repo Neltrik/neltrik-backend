@@ -27,7 +27,12 @@ import {
     UpdateRoleUseCase,
     UpdateTenantRoleConfigurationUseCase,
 } from "./application/use-cases";
-import { CanSuspendUserPolicyOhsUseCase, GetRolesByTenantOhsUseCase } from "./application/use-cases-ohs";
+import {
+    CanAssignRoleToTenantOhsUseCase,
+    CanSuspendUserPolicyOhsUseCase,
+    GetRoleOhsUseCase,
+    GetRolesByTenantOhsUseCase,
+} from "./application/use-cases-ohs";
 import {
     PermissionRepository,
     RoleRepository,
@@ -74,7 +79,9 @@ import {
         UpdatePermissionUseCase,
         UpdateRoleUseCase,
         UpdateTenantRoleConfigurationUseCase,
+        CanAssignRoleToTenantOhsUseCase,
         CanSuspendUserPolicyOhsUseCase,
+        GetRoleOhsUseCase,
         GetRolesByTenantOhsUseCase,
         {
             provide: AuthorizationRoleApi,

@@ -9,6 +9,23 @@ export class GetUsersParamsDto {
     tenantId!: string;
 }
 
+class GetUsersRoleResultDto {
+    @ApiProperty({
+        example: "550e8400-e29b-41d4-a716-446655440001",
+    })
+    id!: string;
+
+    @ApiProperty({
+        example: "RECRUITER",
+    })
+    code!: string;
+
+    @ApiProperty({
+        example: "TENANT",
+    })
+    scope!: string;
+}
+
 export class GetUsersResultDto {
     @ApiProperty({
         example: "550e8400-e29b-41d4-a716-446655440000",
@@ -31,9 +48,9 @@ export class GetUsersResultDto {
     email!: string;
 
     @ApiProperty({
-        example: "550e8400-e29b-41d4-a716-446655440001",
+        type: GetUsersRoleResultDto,
     })
-    roleId!: string;
+    role!: GetUsersRoleResultDto;
 
     @ApiProperty({
         enum: USER_STATUS,

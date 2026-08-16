@@ -1,5 +1,9 @@
 import { ROLE_SCOPE } from "../../domain/types";
-import { GetRolesByTenantOhsUseCaseSpy } from "../../test-doubles";
+import {
+    CanAssignRoleToTenantOhsUseCaseSpy,
+    GetRoleOhsUseCaseSpy,
+    GetRolesByTenantOhsUseCaseSpy,
+} from "../../test-doubles";
 import { AuthorizationRoleApiImpl, RoleResultDto } from "./index";
 
 const makeRole = (id = "role-id") => ({
@@ -10,13 +14,24 @@ const makeRole = (id = "role-id") => ({
     scope: ROLE_SCOPE.TENANT,
 });
 
-describe("AuthorizationRoleApiImpl", () => {
-    const makeSut = () => {
-        const getRolesByTenantOhsUseCase = new GetRolesByTenantOhsUseCaseSpy();
-        const authorizationRoleApi = new AuthorizationRoleApiImpl(getRolesByTenantOhsUseCase);
-        return { authorizationRoleApi, getRolesByTenantOhsUseCase };
+const makeSut = () => {
+    const canAssignRoleToTenantOhsUseCase = new CanAssignRoleToTenantOhsUseCaseSpy();
+    const getRoleOhsUseCase = new GetRoleOhsUseCaseSpy();
+    const getRolesByTenantOhsUseCase = new GetRolesByTenantOhsUseCaseSpy();
+    const authorizationRoleApi = new AuthorizationRoleApiImpl(
+        canAssignRoleToTenantOhsUseCase,
+        getRoleOhsUseCase,
+        getRolesByTenantOhsUseCase,
+    );
+    return {
+        authorizationRoleApi,
+        canAssignRoleToTenantOhsUseCase,
+        getRoleOhsUseCase,
+        getRolesByTenantOhsUseCase,
     };
+};
 
+describe("AuthorizationRoleApiImpl", () => {
     describe("getRolesByTenantId", () => {
         it("should return the roles enabled for the tenant", async () => {
             const { authorizationRoleApi, getRolesByTenantOhsUseCase } = makeSut();
@@ -57,22 +72,52 @@ describe("AuthorizationRoleApiImpl", () => {
             expect(getRolesByTenantOhsUseCase.execute).toHaveBeenCalledWith("tenant-id");
         });
     });
-});
 
-describe("RoleResultDto", () => {
-    it("should create a role result dto", () => {
-        const dto = new RoleResultDto();
-        dto.id = "role-id";
-        dto.code = "RECRUITER";
-        dto.defaultDisplayName = "Recruiter";
-        dto.description = "Role for recruiters";
-        dto.scope = ROLE_SCOPE.TENANT;
-        expect(dto).toEqual({
-            id: "role-id",
-            code: "RECRUITER",
-            defaultDisplayName: "Recruiter",
-            description: "Role for recruiters",
-            scope: ROLE_SCOPE.TENANT,
+    describe("validate", () => {
+        it("should validate that the role exists", async () => {
+            const { authorizationRoleApi, getRoleOhsUseCase } = makeSut();
+            await authorizationRoleApi.validate("role-id");
+            expect(getRoleOhsUseCase.execute).toHaveBeenCalledWith("role-id");
+        });
+    });
+
+    describe("validateForTenant", () => {
+        it("should validate that the role can be assigned to the tenant", async () => {
+            const { authorizationRoleApi, canAssignRoleToTenantOhsUseCase } = makeSut();
+            const input = { roleId: "role-id", tenantId: "tenant-id" };
+            await authorizationRoleApi.validateForTenant(input);
+            expect(canAssignRoleToTenantOhsUseCase.execute).toHaveBeenCalledWith(input);
+        });
+    });
+
+    describe("getRoleById", () => {
+        it("should return the role summary", async () => {
+            const { authorizationRoleApi, getRoleOhsUseCase } = makeSut();
+            getRoleOhsUseCase.execute.mockResolvedValue(makeRole());
+            await expect(authorizationRoleApi.getRoleById("role-id")).resolves.toEqual({
+                id: "role-id",
+                code: "RECRUITER",
+                scope: ROLE_SCOPE.TENANT,
+            });
+            expect(getRoleOhsUseCase.execute).toHaveBeenCalledWith("role-id");
+        });
+    });
+
+    describe("RoleResultDto", () => {
+        it("should create a role result dto", () => {
+            const dto = new RoleResultDto();
+            dto.id = "role-id";
+            dto.code = "RECRUITER";
+            dto.defaultDisplayName = "Recruiter";
+            dto.description = "Role for recruiters";
+            dto.scope = ROLE_SCOPE.TENANT;
+            expect(dto).toEqual({
+                id: "role-id",
+                code: "RECRUITER",
+                defaultDisplayName: "Recruiter",
+                description: "Role for recruiters",
+                scope: ROLE_SCOPE.TENANT,
+            });
         });
     });
 });

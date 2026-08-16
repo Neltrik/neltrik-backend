@@ -161,7 +161,11 @@ export class UserController {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email.value,
-            roleId: user.roleId,
+            role: {
+                id: user.role.id,
+                code: user.role.code,
+                scope: user.role.scope,
+            },
             status: user.status,
         }));
     }

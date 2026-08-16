@@ -1,5 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
+import { AuthorizationRoleApi } from "@/core/authorization/api";
+import { TenantApi } from "@/core/tenant/api";
 import { IdGenerator } from "@/shared/id-generator";
 
 import { TenantRoleConfiguration } from "../../../../domain/entities";
@@ -14,9 +16,13 @@ export class CreateTenantRoleConfigurationUseCase {
     constructor(
         private readonly tenantRoleConfigurationRepository: TenantRoleConfigurationRepository,
         private readonly idGenerator: IdGenerator,
+        private readonly authorizationRoleApi: AuthorizationRoleApi,
+        private readonly tenantApi: TenantApi,
     ) {}
 
     public async execute(input: CreateTenantRoleConfigurationInput): Promise<CreateTenantRoleConfigurationOutput> {
+        await this.tenantApi.validate(input.tenantId);
+        await this.authorizationRoleApi.validate(input.roleId);
         const exists = await this.tenantRoleConfigurationRepository.findByTenantAndRole(input.tenantId, input.roleId);
         if (exists) {
             throw new TenantRoleConfigurationAlreadyExistsError();

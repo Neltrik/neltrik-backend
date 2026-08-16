@@ -1,7 +1,7 @@
 import { TenantRoleConfiguration } from "../../../../domain/entities";
 import type { TenantRoleConfigurationProps } from "../../../../domain/types";
 import { DisplayName } from "../../../../domain/value-objects";
-import { TenantRoleConfigurationRepositorySpy } from "../../../../test-doubles";
+import { TenantApiSpy, TenantRoleConfigurationRepositorySpy } from "../../../../test-doubles";
 import { ListTenantRoleConfigurationUseCase } from "./index";
 
 const createProps = (): TenantRoleConfigurationProps => {
@@ -21,8 +21,9 @@ const makeInput = (): string => "tenant-id";
 describe("ListTenantRoleConfigurationUseCase", () => {
     const makeSut = () => {
         const repository = new TenantRoleConfigurationRepositorySpy();
+        const tenantApi = new TenantApiSpy();
         repository.list.mockResolvedValue([TenantRoleConfiguration.restore(createProps())]);
-        const useCase = new ListTenantRoleConfigurationUseCase(repository);
+        const useCase = new ListTenantRoleConfigurationUseCase(repository, tenantApi);
         return { useCase, repository };
     };
 

@@ -283,7 +283,7 @@ Los demás dominios podrán utilizar **Authorization** para determinar las capac
 
 El dominio **Authorization** únicamente puede depender de componentes ubicados en `shared`.
 
-# Paso 5 — Implementación de Policies
+# Paso 6 — Implementación de Policies
 
 Las Policies forman parte del dominio de Authorization y representan reglas de autorización que restringen la ejecución de determinados Permissions.
 

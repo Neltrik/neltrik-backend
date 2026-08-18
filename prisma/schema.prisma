@@ -205,3 +205,18 @@ model TenantRoleConfiguration {
   @@index([roleId])
   @@map("tenant_role_configurations")
 }
+
+model AuthenticationAccount {
+  id            String   @id @default(uuid()) @db.Uuid
+  userId        String   @unique @map("user_id") @db.Uuid
+  provider      String   @db.VarChar(100)
+  email         String   @db.VarChar(255)
+  emailVerified Boolean  @default(false) @map("email_verified")
+  passwordHash  String   @map("password_hash") @db.Text
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([email])
+  @@index([provider])
+  @@map("authentication_accounts")
+}

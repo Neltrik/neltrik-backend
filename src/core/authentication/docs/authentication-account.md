@@ -85,6 +85,23 @@ La entidad Authentication Account no utiliza tipos enumerados (Enums) para el MV
 - El `userId` debe corresponder a un `User` válido administrado por `Identity`.
 - El `provider` utilizado durante la creación de la `Authentication Account` determina el mecanismo mediante el cual podrá autenticarse.
 
+### Password
+
+Password representa la contraseña original proporcionada durante los procesos
+de creación o modificación de credenciales.
+
+- La contraseña no forma parte del estado persistido de AuthenticationAccount.
+- La contraseña debe tener una longitud entre 15 y 64 caracteres.
+- No se requieren combinaciones obligatorias de mayúsculas, minúsculas, números
+  ni caracteres especiales.
+- Los espacios pueden formar parte de la contraseña.
+- No debe aplicarse trim ni transformación de mayúsculas/minúsculas.
+- La contraseña no debe ser almacenada directamente.
+- La contraseña debe ser transformada mediante el mecanismo de hashing definido
+  por Authentication antes de ser persistida.
+- Las contraseñas comprometidas o incluidas en listas de contraseñas prohibidas
+  no deben aceptarse cuando el mecanismo correspondiente forme parte del flujo.
+
 ---
 
 ## 4.2 Actualización

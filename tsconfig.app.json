@@ -45,6 +45,6 @@
 
         "types": ["node"]
     },
-    "include": ["src/**/*.ts"],
+    "include": ["src/**/*.ts", "src/core/authentication/domain/interfaces/password-hasher"],
     "exclude": ["node_modules", "dist", "scripts", "**/*.test.ts", "**/test-doubles/**"]
 }

@@ -11,7 +11,7 @@ import {
     SuspendUserUseCase,
     UpdateUserUseCase,
 } from "./application/use-cases";
-import { GetUserByIdOhsUseCase, ValidateUserByEmailOhsUseCase } from "./application/use-cases-ohs";
+import { GetUserByIdOhsUseCase, RegisterUserOhsUseCase } from "./application/use-cases-ohs";
 import { UserRepository } from "./domain/interfaces";
 import { PrismaUserRepository } from "./infrastructure/repositories";
 import { UserController } from "./presentation/controllers/user";
@@ -25,7 +25,7 @@ import { UserController } from "./presentation/controllers/user";
         SuspendUserUseCase,
         UpdateUserUseCase,
         GetUserByIdOhsUseCase,
-        ValidateUserByEmailOhsUseCase,
+        RegisterUserOhsUseCase,
         {
             provide: UserApi,
             useClass: UserApiImpl,

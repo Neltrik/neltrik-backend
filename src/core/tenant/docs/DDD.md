@@ -17,6 +17,7 @@ El módulo **Tenant** es responsable de:
 - Proporcionar el contexto organizacional utilizado por los demás módulos del sistema.
 - Garantizar la identificación única de cada Tenant.
 - Mantener el estado del Tenant durante su ciclo de vida.
+- Gestionar las invitaciones para que nuevos usuarios puedan unirse a la organización.
 
 ---
 
@@ -77,6 +78,8 @@ El módulo **Tenant** no depende de ningún otro módulo del Core.
 
 Los demás módulos pueden utilizar **Tenant** como contexto organizacional para garantizar el aislamiento y la pertenencia de la información a cada organización.
 
+Los demás módulos pueden consumir la interfaz pública de Tenant para validar invitaciones.
+
 ---
 
 # Paso 2 — Descubrir los conceptos del negocio
@@ -93,6 +96,7 @@ Los demás módulos pueden utilizar **Tenant** como contexto organizacional para
 ## 📦 Entidades (¿Qué información administra el dominio?)
 
 - Tenant _(se valida en el Paso 3)_
+- Invitation _(se valida en el Paso 3)_
 
 ---
 
@@ -106,14 +110,18 @@ Los demás módulos pueden utilizar **Tenant** como contexto organizacional para
 - Tenant Isolation
 - Tenant Ownership
 - Organizational Context
+- Invitation
+- Invitation Mechanism
+- Invitation Lifecycle
 
 # Paso 3 — Identificar entidades
 
 Después del análisis del dominio se definió la siguiente entidad para el MVP.
 
-| Concepto | Estado        |
-| -------- | ------------- |
-| Tenant   | ✅ Confirmada |
+| Concepto   | Estado        |
+| ---------- | ------------- |
+| Tenant     | ✅ Confirmada |
+| Invitation | ✅ Confirmada |
 
 > **Nota:** Durante el proceso de modelado no se identificaron otras entidades pertenecientes al dominio Tenant. Conceptos como `User`, `Role`, `Permission`, `Subscription`, `Branding` o `Company` pertenecen a otros dominios del Core y serán modelados en sus respectivos módulos.
 
@@ -122,10 +130,15 @@ Después del análisis del dominio se definió la siguiente entidad para el MVP.
 ## Parte A — Relaciones
 
 ```text
-Tenant
-    │
-    └── ATS (MVP)
+Tenant (1) ──── (N) Invitation
+Tenant (1) ──── (N) ATS (MVP)
 ```
+
+- Un **Tenant** puede generar múltiples Invitaciones.
+- Toda Invitación pertenece a un único **Tenant**.
+- En el MVP, el módulo **Tenant** se relaciona con el dominio ATS como contexto organizacional.
+
+La incorporación de nuevos módulos (Identity, Authorization, CRM, Inventory, etc.) se realizará conforme evolucione la plataforma.
 
 > **Nota:** En el MVP, el módulo **Tenant** únicamente se relaciona con el dominio **ATS** como contexto organizacional. La incorporación de nuevos módulos (Identity, Authorization, CRM, Inventory, etc.) se realizará conforme evolucione la plataforma.
 
@@ -176,21 +189,54 @@ Tenant
 - Un **Tenant** nunca puede acceder a recursos pertenecientes a otro **Tenant**.
 - El **Tenant** proporciona el contexto organizacional utilizado por los demás módulos de la plataforma para garantizar el aislamiento de la información.
 
+### Invitation
+
+- Toda Invitación pertenece a un único **Tenant**.
+
+- Toda Invitación está dirigida a un único destinatario.
+
+- Toda Invitación está asociada a un rol dentro del **Tenant**.
+
+- Toda Invitación posee un token único.
+
+- Toda Invitación tiene una fecha de expiración.
+
+- Toda Invitación tiene un mecanismo de entrega.
+
+- Una Invitación solo puede utilizarse una vez.
+
+- Una Invitación expirada no puede utilizarse.
+
+- Una Invitación utilizada no puede reutilizarse.
+
+- Una Invitación puede ser revocada antes de ser utilizada.
+
+- Una Invitación revocada no puede utilizarse.
+
+- Solo un usuario con rol `TenantAdmin` o superior puede crear invitaciones.
+
+- Solo un usuario con rol `TenantAdmin` o superior puede revocar invitaciones.
+
 # Paso 5 — Definir el Lenguaje Ubicuo
 
 ## Diccionario del dominio
 
-| Español                     | Inglés (Código)  | Tipo     | Descripción                                                                 |
-| --------------------------- | ---------------- | -------- | --------------------------------------------------------------------------- |
-| Tenant                      | Tenant           | Entidad  | Organización cliente que utiliza Neltrik como plataforma SaaS.              |
-| Administrador de Plataforma | PlatformAdmin    | Actor    | Responsable de administrar la plataforma y el ciclo de vida de los Tenants. |
-| Propietario del Tenant      | OwnerTenantAdmin | Actor    | Responsable principal de administrar una organización dentro de Neltrik.    |
-| Administrador del Tenant    | TenantAdmin      | Actor    | Usuario con privilegios administrativos dentro de un Tenant.                |
-| Organización                | Organization     | Concepto | Empresa o institución representada por un Tenant.                           |
-| Espacio de Trabajo          | Workspace        | Concepto | Contexto lógico donde opera un Tenant dentro de la plataforma.              |
-| Contexto Organizacional     | TenantContext    | Concepto | Contexto utilizado por los módulos para aislar la información de un Tenant. |
-| Aislamiento de Tenant       | TenantIsolation  | Concepto | Garantiza que la información de un Tenant nunca sea accesible por otro.     |
-| Estado del Tenant           | TenantStatus     | Enum     | Estados posibles durante el ciclo de vida de un Tenant.                     |
+| Español                     | Inglés (Código)     | Tipo     | Descripción                                                                     |
+| --------------------------- | ------------------- | -------- | ------------------------------------------------------------------------------- |
+| Tenant                      | Tenant              | Entidad  | Organización cliente que utiliza Neltrik como plataforma SaaS.                  |
+| Invitación                  | Invitation          | Entidad  | Mecanismo mediante el cual un Tenant invita a un usuario a unirse.              |
+| Administrador de Plataforma | PlatformAdmin       | Actor    | Responsable de administrar la plataforma y el ciclo de vida de los Tenants.     |
+| Propietario del Tenant      | OwnerTenantAdmin    | Actor    | Responsable principal de administrar una organización dentro de Neltrik.        |
+| Administrador del Tenant    | TenantAdmin         | Actor    | Usuario con privilegios administrativos dentro de un Tenant.                    |
+| Organización                | Organization        | Concepto | Empresa o institución representada por un Tenant.                               |
+| Espacio de Trabajo          | Workspace           | Concepto | Contexto lógico donde opera un Tenant dentro de la plataforma.                  |
+| Contexto Organizacional     | TenantContext       | Concepto | Contexto utilizado por los módulos para aislar la información de un Tenant.     |
+| Aislamiento de Tenant       | TenantIsolation     | Concepto | Garantiza que la información de un Tenant nunca sea accesible por otro.         |
+| Estado del Tenant           | TenantStatus        | Enum     | Estados posibles durante el ciclo de vida de un Tenant.                         |
+| Destinatario                | Recipient           | Atributo | Identificador del contacto al que se envía la invitación.                       |
+| Mecanismo de Entrega        | Mechanism           | Atributo | Medio utilizado para entregar la invitación (email, código, mensaje, etc.).     |
+| Token                       | Token               | Atributo | Identificador único de la invitación.                                           |
+| Ciclo de Vida de Invitación | InvitationLifecycle | Concepto | Etapas por las que pasa una invitación (creación, expiración, uso, revocación). |
 
 ---
 
@@ -214,6 +260,9 @@ Tenant
 - Cada concepto tendrá un único nombre; no se utilizarán sinónimos.
 - Si aparece un nuevo concepto durante el desarrollo, primero deberá incorporarse al Lenguaje Ubicuo antes de implementarse.
 - Conceptos como `User`, `Role`, `Permission`, `Session`, `AccessToken`, `Subscription` o `Branding` pertenecen a otros dominios del Core y no forman parte del lenguaje del dominio Tenant.
+- El destinatario de una invitación se denomina recipient en el código y su tipo puede variar según el mecanismo de entrega.
+- El mecanismo de entrega se denomina mechanism en el código y es extensible.
+- El token de invitación se denomina token en el código y debe ser único.
 
 # Resultado
 

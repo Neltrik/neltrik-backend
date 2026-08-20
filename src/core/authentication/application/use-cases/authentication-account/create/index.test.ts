@@ -1,7 +1,7 @@
-import { AuthorizationRoleApiSpy, TenantApiSpy } from "@/core/authorization/test-doubles";
 import type { IdGenerator } from "@/shared/id-generator";
 
 import { Password, PasswordHash } from "../../../../domain/value-objects";
+import { AuthorizationRoleApiSpy, TenantApiSpy } from "../../../../test-doubles";
 import { AuthenticationAccountRepositorySpy, PasswordHasherSpy, UserApiSpy } from "../../../../test-doubles";
 import { CreateAuthenticationAccountUseCase } from "./index";
 import type { CreateAuthenticationAccountInput } from "./input";

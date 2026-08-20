@@ -181,7 +181,7 @@ invitations
 | `mechanism`  | VARCHAR(50)  | ❌   | —                   | manual, email, sms, whatsapp, etc. |
 | `token`      | VARCHAR(255) | ❌   | —                   | Token único                        |
 | `expires_at` | TIMESTAMP    | ❌   | —                   | Fecha de expiración                |
-| `status`     | VARCHAR(20)  | ❌   | `'PENDING'`         | pending, used, revoked, expired    |
+| `status`     | ENUM         | ❌   | `'PENDING'`         | pending, used, revoked, expired    |
 | `used_at`    | TIMESTAMP    | ✅   | `NULL`              | Fecha de uso                       |
 | `revoked_at` | TIMESTAMP    | ✅   | `NULL`              | Fecha de revocación                |
 | `created_at` | TIMESTAMP    | ❌   | `NOW()`             |                                    |

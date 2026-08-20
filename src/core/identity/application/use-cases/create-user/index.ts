@@ -7,7 +7,7 @@ import { IdGenerator } from "@/shared/id-generator";
 import { User } from "../../../domain/entities";
 import { EmailAlreadyExistsError } from "../../../domain/errors";
 import { UserRepository } from "../../../domain/interfaces";
-import { Email } from "../../../domain/value-objects/email";
+import { Email } from "../../../domain/value-objects";
 import { RegisterUserInput } from "./input";
 import { RegisterUserOutput } from "./output";
 

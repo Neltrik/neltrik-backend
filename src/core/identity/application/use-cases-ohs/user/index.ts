@@ -1,2 +1,2 @@
-export * from "./get-by-email";
+export * from "./create";
 export * from "./get-by-id";

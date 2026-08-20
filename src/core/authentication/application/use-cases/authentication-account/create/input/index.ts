@@ -1,8 +1,11 @@
 import type { Password } from "../../../../../domain/value-objects";
 
 export type CreateAuthenticationAccountInput = {
-    userId: string;
-    provider: string;
+    firstName: string;
+    lastName: string;
     email: string;
+    tenantId: string;
+    roleId: string;
+    provider: string;
     password: Password;
 };

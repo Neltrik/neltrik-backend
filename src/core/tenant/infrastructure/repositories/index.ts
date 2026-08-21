@@ -1,1 +1,2 @@
-export * from "./prisma-tenant.repository";
+export * from "./prisma-invitation-repository";
+export * from "./prisma-tenant-repository";

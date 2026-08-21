@@ -4,11 +4,11 @@ import {
     InvitationAlreadyUsedError,
     InvitationExpiredError,
 } from "../../errors";
-import { INVITATION_STATUS, type InvitationProps } from "../../types";
+import { INVITATION_STATUS, type InvitationState } from "../../types";
 import { ExpirationDate, Recipient, Token } from "../../value-objects";
 import { Invitation } from "./";
 
-const createProps = (): Omit<InvitationProps, "status"> => {
+const createProps = (): Omit<InvitationState, "status"> => {
     const now = new Date();
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 7);
@@ -16,6 +16,7 @@ const createProps = (): Omit<InvitationProps, "status"> => {
         id: "invitation-id",
         tenantId: "tenant-id",
         roleId: "role-id",
+        mechanism: "",
         recipient: Recipient.create("test@example.com"),
         token: Token.create("123e4567-e89b-12d3-a456-426614174000"),
         expirationDate: ExpirationDate.create(futureDate),
@@ -26,12 +27,12 @@ const createProps = (): Omit<InvitationProps, "status"> => {
     };
 };
 
-const restoreProps = (): InvitationProps => ({
+const restoreProps = (): InvitationState => ({
     ...createProps(),
     status: INVITATION_STATUS.PENDING,
 });
 
-const restoreExpiredProps = (): InvitationProps => {
+const restoreExpiredProps = (): InvitationState => {
     const expirationDate = new Date();
     expirationDate.setDate(expirationDate.getDate() + 7);
     return {
@@ -168,7 +169,7 @@ describe("Invitation", () => {
     it("should throw InvalidInvitationStatusError when restoring an invitation with an invalid status", () => {
         const props = {
             ...restoreProps(),
-            status: "INVALID_STATUS" as InvitationProps["status"],
+            status: "INVALID_STATUS" as InvitationState["status"],
         };
         expect(() => Invitation.restore(props)).toThrow(InvalidInvitationStatusError);
     });

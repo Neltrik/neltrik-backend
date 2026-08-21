@@ -1,6 +1,6 @@
 import { DomainError } from "@/shared/errors";
 
-import { DOMAIN_ERROR_CODES, ERROR_MESSAGES } from "../messages";
+import { DOMAIN_ERROR_CODES, ERROR_MESSAGES } from "../../messages";
 
 export class InvalidTenantSlugError extends DomainError {
     constructor() {

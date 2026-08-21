@@ -36,6 +36,7 @@ La Invitation es extensible por diseño: el mecanismo de entrega puede variar (m
 - Una invitación **usada** o **revocada** no puede ser utilizada nuevamente.
 - Una invitación **expirada** no puede ser utilizada, incluso si no ha sido usada ni revocada.
 - El enlace mágico siempre contiene el `token`. La validación del `recipient` ocurre durante el registro, cuando el usuario proporciona su identificador de contacto.
+- **La invitación es inmutable una vez creada.** Si se necesita un cambio (ej: `recipient` incorrecto), se debe revocar y crear una nueva.
 
 ---
 
@@ -47,14 +48,14 @@ La entidad **Invitation** mantiene las siguientes relaciones:
 Tenant (1) ──── (N) Invitation
 ```
 
-### Descripción
+## Descripción
 
-- Una Invitación pertenece a un único **Tenant**.
-- Un **Tenant** puede generar múltiples Invitaciones.
+- Una **Invitación** pertenece a un único **Tenant**.
+- Un **Tenant** puede generar múltiples **Invitaciones**.
 - La relación se establece mediante `tenantId`.
 - La invitación está asociada a un rol (`roleId`) que se asignará al usuario cuando se registre.
 
-> **Nota:** La relación con `Role` es referencial. La validación de que el roleId exista y sea válido dentro del `Tenant` es responsabilidad del caso de uso que crea la invitación.
+> **Nota:** La relación con `Role` es referencial. La validación de que el `roleId` exista y sea válido dentro del Tenant es responsabilidad del caso de uso que crea la invitación.
 
 ## 3. Enums
 
@@ -84,67 +85,52 @@ Representa el estado actual de la invitación.
 
 # 4. Reglas de negocio
 
-### 4.1 Creación
+## 4.1 Creación
 
-- Toda Invitación debe pertenecer a un Tenant existente.
-- Toda Invitación debe tener un `recipient` válido (email o número de teléfono).
-- Toda Invitación debe tener un `roleId` que corresponda a un rol válido dentro del Tenant.
-- Toda Invitación debe tener un `mechanism` válido.
+- Toda **Invitación** debe pertenecer a un **Tenant** existente.
+- Toda **Invitación** debe tener un `recipient` válido (email o número de teléfono).
+- Toda **Invitación** debe tener un `roleId` que corresponda a un rol válido dentro del Tenant.
+- Toda **Invitación** debe tener un `mechanism` válido.
 - El `token` debe ser generado automáticamente por el sistema y ser único.
 - El `token` no puede ser modificado después de su creación.
 - La invitación debe tener una fecha de expiración (`expiresAt`) calculada al momento de la creación.
-- La fecha de expiración por defecto es 7 días después de la creación.
-- Toda Invitación se crea con `status = PENDING`.
+- La fecha de expiración por defecto es **7 días después de la creación**.
+- Toda **Invitación** se crea con `status = PENDING`.
 - `usedAt` debe ser `NULL` al momento de la creación.
 - `revokedAt` debe ser `NULL` al momento de la creación.
 
-### 4.2 Actualización
+## 4.2 Actualización
 
-#### Campos actualizables (solo si el `status = PENDING`)
+- No hay campos actualizables.
+- Una vez creada, la invitación es **inmutable**.
+- Si se necesita realizar un cambio, se debe revocar la invitación y crear una nueva.
 
-| Campo       | ¿Se puede modificar? | Condición adicional                                                              |
-| ----------- | -------------------- | -------------------------------------------------------------------------------- |
-| `recipient` | ✅ Sí                | Solo si `status = PENDING`.                                                      |
-| `mechanism` | ✅ Sí                | Solo si `status = PENDING`.                                                      |
-| `expiresAt` | ✅ Sí                | Solo si `status = PENDING`. La nueva fecha debe ser posterior a la fecha actual. |
+## 4.3 Uso (Consumo)
 
-#### Campos no actualizables
-
-Los siguientes campos no pueden modificarse bajo ninguna circunstancia:
-
-- `id`
-- `tenantId`
-- `roleId`
-- `token`
-- `createdAt`
-
-### 4.3 Uso (Consumo)
-
-- Una Invitación solo puede ser utilizada por el destinatario al que fue dirigida.
+- Una **Invitación** solo puede ser utilizada por el destinatario al que fue dirigida.
 - Para usar una invitación, el sistema debe validar que el identificador de contacto proporcionado coincida exactamente con el `recipient`.
-- Una Invitación solo puede ser utilizada si `status = PENDING`.
+- Una **Invitación** solo puede ser utilizada si `status = PENDING`.
 - Al utilizar una invitación exitosamente, el sistema debe:
     - Cambiar `status` a `USED`.
     - Registrar la fecha y hora en `usedAt`.
 - Una vez utilizada, la invitación no puede ser reutilizada.
 
-### 4.4 Revocación
+## 4.4 Revocación
 
-- Solo un usuario con rol `TenantAdmin` o superior puede revocar invitaciones.
-- Un `TenantAdmin` solo puede revocar invitaciones de su propio Tenant.
-- Un `PlatformAdmin` puede revocar invitaciones de cualquier Tenant.
+- Solo un usuario con rol **TenantAdmin** o superior puede revocar invitaciones.
+- Un **TenantAdmin** solo puede revocar invitaciones de su propio Tenant.
+- Un **PlatformAdmin** puede revocar invitaciones de cualquier Tenant.
 - Solo una invitación con `status = PENDING` puede ser revocada.
 - Al revocar una invitación, el sistema debe:
     - Cambiar `status` a `REVOKED`.
     - Registrar la fecha y hora en `revokedAt`.
 - Una vez revocada, la invitación no puede ser utilizada.
 
-### 4.5 Expiración
+## 4.5 Expiración
 
 - La fecha de expiración (`expiresAt`) se establece al momento de la creación.
-- La fecha de expiración por defecto es 7 días después de la creación.
-- La fecha de expiración puede ser modificada solo si `status = PENDING`.
-- La nueva fecha de expiración debe ser posterior a la fecha y hora actual.
+- La fecha de expiración por defecto es **7 días después de la creación**.
+- La fecha de expiración no se puede modificar.
 - Cuando `expiresAt` es menor a la fecha actual y `status = PENDING`, el sistema debe considerar la invitación como `EXPIRED`.
 - Una invitación expirada no puede ser utilizada.
 - La expiración no elimina la invitación de la base de datos.
@@ -153,7 +139,7 @@ Los siguientes campos no pueden modificarse bajo ninguna circunstancia:
 
 | Estado      | ¿Puede usarse? | ¿Se puede actualizar? | ¿Se puede revocar? | ¿Se puede modificar expiresAt? |
 | ----------- | -------------- | --------------------- | ------------------ | ------------------------------ |
-| **PENDING** | ✅ Sí          | ✅ Sí                 | ✅ Sí              | ✅ Sí                          |
+| **PENDING** | ✅ Sí          | ✅ Sí                 | ❌ No              | ✅ Sí                          |
 | **USED**    | ❌ No          | ❌ No                 | ❌ No              | ❌ No                          |
 | **REVOKED** | ❌ No          | ❌ No                 | ❌ No              | ❌ No                          |
 | **EXPIRED** | ❌ No          | ❌ No                 | ❌ No              | ❌ No                          |

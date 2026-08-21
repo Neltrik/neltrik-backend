@@ -1,4 +1,4 @@
-import type { TenantStatus, TenantType } from "../";
+import type { TenantStatus, TenantType } from "..";
 
 interface TenantProps {
     id: string;

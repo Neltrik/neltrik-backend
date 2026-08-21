@@ -11,6 +11,11 @@ export const ERROR_MESSAGES = {
     INVALID_TOKEN_FORMAT: "The token format is invalid.",
     EXPIRATION_DATE_IN_PAST: "The expiration date cannot be in the past.",
     INVALID_EXPIRATION_DATE: "The expiration date is invalid.",
+    CANNOT_REVOKE_EXPIRED_INVITATION: "An expired invitation cannot be revoked.",
+    INVALID_INVITATION_STATUS: "The invitation status is invalid.",
+    INVITATION_ALREADY_REVOKED: "The invitation has already been revoked.",
+    INVITATION_ALREADY_USED: "The invitation has already been used.",
+    INVITATION_EXPIRED: "The invitation has expired.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -26,4 +31,9 @@ export const DOMAIN_ERROR_CODES = {
     INVALID_TOKEN_FORMAT: "INVALID_TOKEN_FORMAT",
     EXPIRATION_DATE_IN_PAST: "EXPIRATION_DATE_IN_PAST",
     INVALID_EXPIRATION_DATE: "INVALID_EXPIRATION_DATE",
+    CANNOT_REVOKE_EXPIRED_INVITATION: "CANNOT_REVOKE_EXPIRED_INVITATION",
+    INVALID_INVITATION_STATUS: "INVALID_INVITATION_STATUS",
+    INVITATION_ALREADY_REVOKED: "INVITATION_ALREADY_REVOKED",
+    INVITATION_ALREADY_USED: "INVITATION_ALREADY_USED",
+    INVITATION_EXPIRED: "INVITATION_EXPIRED",
 } as const;

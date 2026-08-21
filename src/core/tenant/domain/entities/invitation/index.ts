@@ -4,23 +4,23 @@ import {
     InvitationAlreadyUsedError,
     InvitationExpiredError,
 } from "../../errors";
-import { INVITATION_STATUS, type InvitationProps, type InvitationStatus } from "../../types";
+import { INVITATION_STATUS, type InvitationState, type InvitationStatus } from "../../types";
 import type { ExpirationDate, Recipient, Token } from "../../value-objects";
 
 export class Invitation {
-    private readonly props: InvitationProps;
+    private readonly props: InvitationState;
 
-    private constructor(props: InvitationProps) {
+    private constructor(props: InvitationState) {
         this.ensureStatusIsValid(props.status);
         this.props = props;
         this.updateExpiredStatusIfNeeded(props);
     }
 
-    public static create(props: Omit<InvitationProps, "status">): Invitation {
+    public static create(props: Omit<InvitationState, "status">): Invitation {
         return new Invitation({ ...props, status: INVITATION_STATUS.PENDING });
     }
 
-    public static restore(props: InvitationProps): Invitation {
+    public static restore(props: InvitationState): Invitation {
         return new Invitation(props);
     }
 
@@ -88,7 +88,7 @@ export class Invitation {
         }
     }
 
-    private updateExpiredStatusIfNeeded(props: InvitationProps): void {
+    private updateExpiredStatusIfNeeded(props: InvitationState): void {
         if (props.expirationDate.isExpired() && props.status === INVITATION_STATUS.PENDING) {
             props.status = INVITATION_STATUS.EXPIRED;
         }
@@ -116,6 +116,10 @@ export class Invitation {
 
     public get expirationDate(): ExpirationDate {
         return this.props.expirationDate;
+    }
+
+    public get mechanism(): string {
+        return this.props.mechanism;
     }
 
     public get status(): InvitationStatus {

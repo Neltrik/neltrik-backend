@@ -1,6 +1,6 @@
-import { Tenant } from "../../../domain/entities";
-import { TenantNotFoundError } from "../../../domain/errors";
-import { TenantRepositorySpy } from "../../../test-doubles";
+import { Tenant } from "../../../../domain/entities";
+import { TenantNotFoundError } from "../../../../domain/errors";
+import { TenantRepositorySpy } from "../../../../test-doubles";
 import { GetTenantOhsUseCase } from "./index";
 
 const makeTenant = () =>

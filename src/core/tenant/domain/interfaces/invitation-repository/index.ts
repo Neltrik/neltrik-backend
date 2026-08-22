@@ -5,4 +5,5 @@ export abstract class InvitationRepository {
     abstract update(invitation: Invitation): Promise<void>;
     abstract getByToken(token: string): Promise<Invitation | null>;
     abstract listByTenant(tenantId: string): Promise<Invitation[]>;
+    abstract findPendingByTenantAndRecipient(tenantId: string, recipient: string): Promise<Invitation | null>;
 }

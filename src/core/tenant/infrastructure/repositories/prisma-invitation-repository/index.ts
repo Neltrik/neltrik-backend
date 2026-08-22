@@ -41,4 +41,14 @@ export class PrismaInvitationRepository extends InvitationRepository {
         });
         return invitations.map((invitation) => InvitationMapper.toDomain(invitation));
     }
+
+    public async findPendingByTenantAndRecipient(tenantId: string, recipient: string): Promise<Invitation | null> {
+        const invitation = await this.prisma.invitation.findFirst({
+            where: { tenantId, recipient, status: "PENDING" },
+        });
+        if (!invitation) {
+            return null;
+        }
+        return InvitationMapper.toDomain(invitation);
+    }
 }

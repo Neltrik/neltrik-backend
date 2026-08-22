@@ -17,6 +17,8 @@ export const ERROR_MESSAGES = {
     INVITATION_ALREADY_USED: "The invitation has already been used.",
     INVITATION_EXPIRED: "The invitation has expired.",
     UNSUPPORTED_DELIVERY_MECHANISM: "The delivery mechanism is not supported.",
+    INVITATION_ALREADY_EXISTS: "The invitation already exists.",
+    INVITATION_NOT_FOUND: "Invitation not found.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -38,4 +40,6 @@ export const DOMAIN_ERROR_CODES = {
     INVITATION_ALREADY_USED: "INVITATION_ALREADY_USED",
     INVITATION_EXPIRED: "INVITATION_EXPIRED",
     UNSUPPORTED_DELIVERY_MECHANISM: "UNSUPPORTED_DELIVERY_MECHANISM",
+    INVITATION_ALREADY_EXISTS: "INVITATION_ALREADY_EXISTS",
+    INVITATION_NOT_FOUND: "INVITATION_NOT_FOUND",
 } as const;

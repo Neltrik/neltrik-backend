@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 
-import type { Tenant } from "../../../domain/entities";
-import { TenantNotFoundError } from "../../../domain/errors";
-import { TenantRepository } from "../../../domain/interfaces";
+import type { Tenant } from "../../../../domain/entities";
+import { TenantNotFoundError } from "../../../../domain/errors";
+import { TenantRepository } from "../../../../domain/interfaces";
 
 @Injectable()
 export class GetTenantOhsUseCase {

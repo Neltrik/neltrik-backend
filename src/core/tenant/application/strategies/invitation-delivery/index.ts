@@ -1,5 +1,5 @@
 export interface InvitationDeliveryResult {
-    magicLink?: string;
+    magicLink: string;
 }
 
 export abstract class SyncInvitationDeliveryStrategy {

@@ -6,4 +6,5 @@ export class InvitationRepositorySpy extends InvitationRepository {
     public update = jest.fn<Promise<void>, [Invitation]>();
     public getByToken = jest.fn<Promise<Invitation | null>, [string]>();
     public listByTenant = jest.fn<Promise<Invitation[]>, [string]>();
+    public findPendingByTenantAndRecipient = jest.fn<Promise<Invitation | null>, [string, string]>();
 }

@@ -16,6 +16,7 @@ export const ERROR_MESSAGES = {
     INVITATION_ALREADY_REVOKED: "The invitation has already been revoked.",
     INVITATION_ALREADY_USED: "The invitation has already been used.",
     INVITATION_EXPIRED: "The invitation has expired.",
+    UNSUPPORTED_DELIVERY_MECHANISM: "The delivery mechanism is not supported.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -36,4 +37,5 @@ export const DOMAIN_ERROR_CODES = {
     INVITATION_ALREADY_REVOKED: "INVITATION_ALREADY_REVOKED",
     INVITATION_ALREADY_USED: "INVITATION_ALREADY_USED",
     INVITATION_EXPIRED: "INVITATION_EXPIRED",
+    UNSUPPORTED_DELIVERY_MECHANISM: "UNSUPPORTED_DELIVERY_MECHANISM",
 } as const;

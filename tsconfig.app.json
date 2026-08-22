@@ -38,8 +38,9 @@
         "baseUrl": ".",
         "paths": {
             "@/prisma/*": ["src/prisma/*"],
-            "@/shared/*": ["src/shared/*"],
+            "@/config/*": ["src/config/*"],
             "@/core/*": ["src/core/*"],
+            "@/shared/*": ["src/shared/*"],
             "@/modules/*": ["src/modules/*"]
         },
 

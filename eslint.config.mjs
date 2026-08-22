@@ -9,7 +9,7 @@ import simpleImportSort from "eslint-plugin-simple-import-sort";
 
 export default tseslint.config(
     {
-        ignores: ["dist/**", "node_modules/**", "coverage/**", "jest.config.ts", "*.config.*"],
+        ignores: ["dist/**", "node_modules/**", "coverage/**", "jest.config.ts", "*.config.*", "jest.setup.ts"],
     },
 
     js.configs.recommended,

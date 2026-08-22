@@ -8,3 +8,4 @@ export * from "./invalid-token";
 export * from "./invitation-already-revoked";
 export * from "./invitation-already-used";
 export * from "./invitation-expired";
+export * from "./unsupported-delivery-mechanism";

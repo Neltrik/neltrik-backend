@@ -15,7 +15,9 @@ const config: Config = {
     moduleFileExtensions: ["ts", "js", "json"],
     coverageDirectory: "coverage",
     clearMocks: true,
+    setupFiles: ["<rootDir>/jest.setup.ts"],
     moduleNameMapper: {
+        "^@/config/(.*)$": "<rootDir>/src/config/$1",
         "^@/core/(.*)$": "<rootDir>/src/core/$1",
         "^@/shared/(.*)$": "<rootDir>/src/shared/$1",
         "^(\\.{1,2}/.*)\\.js$": "$1",

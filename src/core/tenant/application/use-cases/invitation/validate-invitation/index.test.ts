@@ -1,5 +1,10 @@
 import { Invitation } from "../../../../domain/entities";
-import { InvitationAlreadyUsedError, InvitationExpiredError, InvitationNotFoundError } from "../../../../domain/errors";
+import {
+    InvitationAlreadyRevokedError,
+    InvitationAlreadyUsedError,
+    InvitationExpiredError,
+    InvitationNotFoundError,
+} from "../../../../domain/errors";
 import { ExpirationDate, Recipient, Token } from "../../../../domain/value-objects";
 import { InvitationRepositorySpy } from "../../../../test-doubles";
 import { ValidateInvitationUseCase } from "./index";
@@ -64,6 +69,15 @@ describe("ValidateInvitationUseCase", () => {
         jest.spyOn(invitation.expirationDate, "isExpired").mockReturnValue(true);
         invitationRepository.getByToken.mockResolvedValue(invitation);
         await expect(useCase.execute(VALID_TOKEN)).rejects.toThrow(InvitationExpiredError);
+    });
+
+    it("should throw when invitation has already been revoked", async () => {
+        const { useCase, invitationRepository } = makeSut();
+        const invitation = makeInvitation();
+        invitation.revoke();
+        invitationRepository.getByToken.mockResolvedValue(invitation);
+
+        await expect(useCase.execute(VALID_TOKEN)).rejects.toThrow(InvitationAlreadyRevokedError);
     });
 
     it("should propagate repository errors", async () => {

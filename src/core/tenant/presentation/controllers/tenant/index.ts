@@ -34,7 +34,7 @@ import {
     UpdateTenantParamsDto,
     UpdateTenantRequestDto,
     UpdateTenantResultDto,
-} from "../../dto/tenant";
+} from "../../dto";
 import { TENANT_MESSAGES } from "../../messages";
 import {
     createTenantSchema,
@@ -43,7 +43,7 @@ import {
     suspendTenantParamsSchema,
     updateTenantParamsSchema,
     updateTenantSchema,
-} from "../../schemas/tenant";
+} from "../../schemas";
 
 @ApiTags("Tenants")
 @Controller("tenants")

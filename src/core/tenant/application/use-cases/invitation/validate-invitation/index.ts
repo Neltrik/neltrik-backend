@@ -1,6 +1,11 @@
 import { Injectable } from "@nestjs/common";
 
-import { InvitationAlreadyUsedError, InvitationExpiredError, InvitationNotFoundError } from "../../../../domain/errors";
+import {
+    InvitationAlreadyRevokedError,
+    InvitationAlreadyUsedError,
+    InvitationExpiredError,
+    InvitationNotFoundError,
+} from "../../../../domain/errors";
 import { InvitationRepository } from "../../../../domain/interfaces";
 import type { ValidateInvitationOutput } from "./output";
 
@@ -13,11 +18,14 @@ export class ValidateInvitationUseCase {
         if (!invitation) {
             throw new InvitationNotFoundError();
         }
-        if (!invitation.isPending()) {
-            throw new InvitationAlreadyUsedError();
+        if (invitation.isRevoked()) {
+            throw new InvitationAlreadyRevokedError();
         }
         if (invitation.isExpired()) {
             throw new InvitationExpiredError();
+        }
+        if (!invitation.isPending()) {
+            throw new InvitationAlreadyUsedError();
         }
         return {
             invitationId: invitation.id,

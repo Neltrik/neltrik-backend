@@ -24,10 +24,10 @@ import {
     MagicLinkGeneratorService,
     ManualStrategy,
 } from "./infrastructure/strategies";
-import { TenantController } from "./presentation/controllers/tenant";
+import { InvitationController, TenantController } from "./presentation/controllers";
 
 @Module({
-    controllers: [TenantController],
+    controllers: [InvitationController, TenantController],
     providers: [
         CreateInvitationUseCase,
         CreateTenantUseCase,

@@ -243,7 +243,7 @@ model AuthenticationAccount {
   provider      String   @db.VarChar(100)
   email         String   @db.VarChar(255)
   emailVerified Boolean  @default(false) @map("email_verified")
-  passwordHash  String   @map("password_hash") @db.Text
+  passwordHash  String?   @map("password_hash") @db.Text
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
 

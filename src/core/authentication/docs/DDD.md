@@ -118,12 +118,15 @@ Registration
 
 Registration Context
   │
-  ├── tenantId
-  ├── roleId
-  └── provider
+  ├── invitationToken
+  ├── provider
+  └── ... (datos del usuario)
           │
           ▼
     Authentication
+          │
+          ├── valida invitación con Tenant (OHS)
+          │   └── obtiene: tenantId, roleId, email
           │
           ├── solicita creación de User
           │        │
@@ -132,7 +135,9 @@ Registration Context
           │
           ├── crea cuenta de autenticación
           │
-          └── ejecuta verificación requerida
+          ├── consume invitación (marca USED en Tenant)
+          │
+          └── ejecuta verificación requerida (si aplica)
 ```
 
 ```text
@@ -218,7 +223,6 @@ interfaces públicas del módulo.
 - Token Rotation
 - Token Expiration
 - Email Verification
-- Provider Verification
 - Password Reset
 - Authentication Attempt
 - Logout

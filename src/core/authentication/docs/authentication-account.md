@@ -155,7 +155,7 @@ authentication_accounts
 | `provider`       | VARCHAR(100) | ❌   | —                   | Provider de autenticación                     |
 | `email`          | VARCHAR(255) | ❌   | —                   | Email utilizado por la Authentication Account |
 | `email_verified` | BOOLEAN      | ❌   | `FALSE`             | Indica si el email ha sido verificado         |
-| `password_hash`  | TEXT         | ❌   | —                   | Hash de contraseña para `email-password`      |
+| `password_hash`  | TEXT         | ✅   | `NULL`              | Hash de contraseña para `email-password`      |
 | `created_at`     | TIMESTAMP    | ❌   | `NOW()`             |                                               |
 | `updated_at`     | TIMESTAMP    | ❌   | `NOW()`             |                                               |
 

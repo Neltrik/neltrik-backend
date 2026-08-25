@@ -9,13 +9,7 @@ export interface UserProfile {
 
 export abstract class ProviderAuthenticationStrategy {
     public abstract authenticate(account: AuthenticationAccount, credentials: unknown): Promise<UserProfile | null>;
-    public abstract register(
-        userId: string,
-        email: string,
-        credentials: unknown,
-    ): Promise<{
+    public abstract register(credentials: unknown): Promise<{
         passwordHash: string | null;
-        emailVerified: boolean;
-        profile: UserProfile;
     }>;
 }

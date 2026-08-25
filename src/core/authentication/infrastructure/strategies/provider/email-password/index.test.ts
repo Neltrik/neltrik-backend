@@ -1,4 +1,5 @@
 import { AuthenticationAccount } from "../../../../domain/entities";
+import { InvalidCredentialsError } from "../../../../domain/errors";
 import { PasswordHash } from "../../../../domain/value-objects";
 import { EmailPasswordProviderStrategy } from "./index";
 
@@ -41,6 +42,7 @@ describe("EmailPasswordProviderStrategy", () => {
             compareMock.mockResolvedValue(true);
             const result = await strategy.authenticate(account, { email: "omar@gmail.com", password: "Password123" });
             expect(result).toEqual({ id: account.userId, email: account.email });
+            expect(compareMock).toHaveBeenCalledTimes(1);
             expect(compareMock).toHaveBeenCalledWith("Password123", account.passwordHash?.value);
         });
 
@@ -55,10 +57,7 @@ describe("EmailPasswordProviderStrategy", () => {
         it("should return null when account has no password hash", async () => {
             const { strategy } = makeSut();
             const account = createAccount(null);
-            const result = await strategy.authenticate(account, {
-                email: "omar@gmail.com",
-                password: "Password123",
-            });
+            const result = await strategy.authenticate(account, { email: "omar@gmail.com", password: "Password123" });
             expect(result).toBeNull();
             expect(compareMock).not.toHaveBeenCalled();
         });
@@ -69,7 +68,18 @@ describe("EmailPasswordProviderStrategy", () => {
             compareMock.mockResolvedValue(false);
             const result = await strategy.authenticate(account, { email: "omar@gmail.com", password: "WrongPassword" });
             expect(result).toBeNull();
+            expect(compareMock).toHaveBeenCalledTimes(1);
             expect(compareMock).toHaveBeenCalledWith("WrongPassword", account.passwordHash?.value);
+        });
+
+        it("should propagate password comparison errors", async () => {
+            const { strategy } = makeSut();
+            const account = createAccount();
+            compareMock.mockRejectedValue(new Error("Bcrypt error"));
+            await expect(
+                strategy.authenticate(account, { email: "omar@gmail.com", password: "Password123" }),
+            ).rejects.toThrow("Bcrypt error");
+            expect(compareMock).toHaveBeenCalledTimes(1);
         });
     });
 
@@ -77,44 +87,32 @@ describe("EmailPasswordProviderStrategy", () => {
         it("should register an account with valid credentials", async () => {
             const { strategy } = makeSut();
             hashMock.mockResolvedValue("hashed-password");
-            const result = await strategy.register("user-id", "omar@gmail.com", {
-                email: "omar@gmail.com",
-                password: "Password123",
-            });
-            expect(result).toEqual({
-                passwordHash: "hashed-password",
-                emailVerified: false,
-                profile: { id: "user-id", email: "omar@gmail.com" },
-            });
+            const result = await strategy.register({ email: "omar@gmail.com", password: "Password123" });
+            expect(result).toEqual({ passwordHash: "hashed-password" });
+            expect(hashMock).toHaveBeenCalledTimes(1);
             expect(hashMock).toHaveBeenCalledWith("Password123", 10);
         });
 
-        it("should throw an error when credentials are invalid", async () => {
+        it("should throw InvalidCredentialsError when credentials are invalid", async () => {
             const { strategy } = makeSut();
-            await expect(strategy.register("user-id", "omar@gmail.com", { email: "omar@gmail.com" })).rejects.toThrow(
-                "Invalid credentials",
-            );
+            await expect(strategy.register({ email: "omar@gmail.com" })).rejects.toThrow(InvalidCredentialsError);
             expect(hashMock).not.toHaveBeenCalled();
         });
 
-        it("should mark the email as unverified when registering", async () => {
+        it("should not hash the password when credentials are invalid", async () => {
             const { strategy } = makeSut();
-            hashMock.mockResolvedValue("hashed-password");
-            const result = await strategy.register("user-id", "omar@gmail.com", {
-                email: "omar@gmail.com",
-                password: "Password123",
-            });
-            expect(result.emailVerified).toBe(false);
+            await expect(strategy.register({ email: "omar@gmail.com" })).rejects.toThrow("Invalid credentials");
+            expect(hashMock).not.toHaveBeenCalled();
         });
 
-        it("should return the user profile when registering", async () => {
+        it("should propagate password hashing errors", async () => {
             const { strategy } = makeSut();
-            hashMock.mockResolvedValue("hashed-password");
-            const result = await strategy.register("user-id", "omar@gmail.com", {
-                email: "omar@gmail.com",
-                password: "Password123",
-            });
-            expect(result.profile).toEqual({ id: "user-id", email: "omar@gmail.com" });
+            hashMock.mockRejectedValue(new Error("Bcrypt error"));
+            await expect(strategy.register({ email: "omar@gmail.com", password: "Password123" })).rejects.toThrow(
+                "Bcrypt error",
+            );
+            expect(hashMock).toHaveBeenCalledTimes(1);
+            expect(hashMock).toHaveBeenCalledWith("Password123", 10);
         });
     });
 });

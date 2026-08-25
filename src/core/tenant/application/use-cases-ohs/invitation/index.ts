@@ -1,1 +1,2 @@
-export * from "./consume-invitation";
+export * from "./consume";
+export * from "./validate";

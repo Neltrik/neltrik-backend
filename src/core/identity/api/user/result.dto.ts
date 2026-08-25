@@ -9,3 +9,7 @@ export class RegisterUserRequestDto {
 export class RegisterUserResultDto {
     id!: string;
 }
+
+export class DeleteUserResultDto {
+    id!: string;
+}

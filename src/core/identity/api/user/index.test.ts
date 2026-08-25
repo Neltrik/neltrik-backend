@@ -1,12 +1,13 @@
-import { GetUserByIdOhsUseCaseSpy, RegisterUserOhsUseCaseSpy } from "../../test-doubles";
+import { DeleteUserOhsUseCaseSpy, GetUserByIdOhsUseCaseSpy, RegisterUserOhsUseCaseSpy } from "../../test-doubles";
 import { UserApiImpl } from "./index";
-import { RegisterUserRequestDto, RegisterUserResultDto } from "./result.dto";
+import { DeleteUserResultDto, RegisterUserRequestDto, RegisterUserResultDto } from "./result.dto";
 
 const makeSut = () => {
+    const deleteUserOhsUseCase = new DeleteUserOhsUseCaseSpy();
     const registerUserOhsUseCase = new RegisterUserOhsUseCaseSpy();
     const getUserByIdOhsUseCase = new GetUserByIdOhsUseCaseSpy();
-    const userApi = new UserApiImpl(registerUserOhsUseCase, getUserByIdOhsUseCase);
-    return { userApi, registerUserOhsUseCase, getUserByIdOhsUseCase };
+    const userApi = new UserApiImpl(deleteUserOhsUseCase, registerUserOhsUseCase, getUserByIdOhsUseCase);
+    return { userApi, deleteUserOhsUseCase, registerUserOhsUseCase, getUserByIdOhsUseCase };
 };
 
 describe("UserApiImpl", () => {
@@ -39,6 +40,7 @@ describe("UserApiImpl", () => {
             };
             registerUserOhsUseCase.execute.mockRejectedValue(new Error("Email already exists"));
             await expect(userApi.create(input)).rejects.toThrow("Email already exists");
+            expect(registerUserOhsUseCase.execute).toHaveBeenCalledTimes(1);
             expect(registerUserOhsUseCase.execute).toHaveBeenCalledWith(input);
         });
     });
@@ -55,7 +57,28 @@ describe("UserApiImpl", () => {
             const { userApi, getUserByIdOhsUseCase } = makeSut();
             getUserByIdOhsUseCase.execute.mockRejectedValue(new Error("User not found"));
             await expect(userApi.validateUserById("user-id")).rejects.toThrow("User not found");
+            expect(getUserByIdOhsUseCase.execute).toHaveBeenCalledTimes(1);
             expect(getUserByIdOhsUseCase.execute).toHaveBeenCalledWith("user-id");
+        });
+    });
+
+    describe("delete", () => {
+        it("should delete a user successfully", async () => {
+            const { userApi, deleteUserOhsUseCase } = makeSut();
+            const output: DeleteUserResultDto = { id: "user-id" };
+            deleteUserOhsUseCase.execute.mockResolvedValue(output);
+            const result = await userApi.delete("user-id");
+            expect(deleteUserOhsUseCase.execute).toHaveBeenCalledTimes(1);
+            expect(deleteUserOhsUseCase.execute).toHaveBeenCalledWith("user-id");
+            expect(result).toEqual(output);
+        });
+
+        it("should propagate user deletion errors", async () => {
+            const { userApi, deleteUserOhsUseCase } = makeSut();
+            deleteUserOhsUseCase.execute.mockRejectedValue(new Error("User not found"));
+            await expect(userApi.delete("user-id")).rejects.toThrow("User not found");
+            expect(deleteUserOhsUseCase.execute).toHaveBeenCalledTimes(1);
+            expect(deleteUserOhsUseCase.execute).toHaveBeenCalledWith("user-id");
         });
     });
 
@@ -78,6 +101,12 @@ describe("UserApiImpl", () => {
 
         it("should create a register user result dto", () => {
             const dto = new RegisterUserResultDto();
+            dto.id = "user-id";
+            expect(dto).toEqual({ id: "user-id" });
+        });
+
+        it("should create a delete user result dto", () => {
+            const dto = new DeleteUserResultDto();
             dto.id = "user-id";
             expect(dto).toEqual({ id: "user-id" });
         });

@@ -2,7 +2,7 @@ import { forwardRef, Module } from "@nestjs/common";
 
 import { AuthorizationModule } from "@/core/authorization/authorization.module";
 
-import { TenantApi, TenantApiImpl } from "./api";
+import { InvitationApi, InvitationApiImpl, TenantApi, TenantApiImpl } from "./api";
 import { SlugGenerator } from "./application/slug-generator";
 import {
     CreateInvitationUseCase,
@@ -16,7 +16,11 @@ import {
     UpdateTenantUseCase,
     ValidateInvitationUseCase,
 } from "./application/use-cases";
-import { ConsumeInvitationOhsUseCase, GetTenantOhsUseCase } from "./application/use-cases-ohs";
+import {
+    ConsumeInvitationOhsUseCase,
+    GetTenantOhsUseCase,
+    ValidateInvitationOhsUseCase,
+} from "./application/use-cases-ohs";
 import { InvitationRepository, TenantRepository } from "./domain/interfaces";
 import { PrismaInvitationRepository, PrismaTenantRepository } from "./infrastructure/repositories";
 import {
@@ -41,10 +45,15 @@ import { InvitationController, TenantController } from "./presentation/controlle
         ValidateInvitationUseCase,
         ConsumeInvitationOhsUseCase,
         GetTenantOhsUseCase,
+        ValidateInvitationOhsUseCase,
         SlugGenerator,
         InvitationDeliveryStrategyFactory,
         MagicLinkGeneratorService,
         ManualStrategy,
+        {
+            provide: InvitationApi,
+            useClass: InvitationApiImpl,
+        },
         {
             provide: TenantApi,
             useClass: TenantApiImpl,
@@ -59,6 +68,6 @@ import { InvitationController, TenantController } from "./presentation/controlle
         },
     ],
     imports: [forwardRef(() => AuthorizationModule)],
-    exports: [TenantApi],
+    exports: [TenantApi, InvitationApi],
 })
 export class TenantModule {}

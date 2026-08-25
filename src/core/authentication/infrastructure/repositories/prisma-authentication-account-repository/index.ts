@@ -44,4 +44,8 @@ export class PrismaAuthenticationAccountRepository extends AuthenticationAccount
         }
         return AuthenticationAccountMapper.toDomain(account);
     }
+
+    public async delete(id: string): Promise<void> {
+        await this.prisma.authenticationAccount.delete({ where: { id } });
+    }
 }

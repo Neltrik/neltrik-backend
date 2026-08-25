@@ -25,20 +25,14 @@ export class EmailPasswordProviderStrategy extends ProviderAuthenticationStrateg
         return { id: account.userId, email: account.email };
     }
 
-    public async register(
-        userId: string,
-        email: string,
-        credentials: unknown,
-    ): Promise<{
+    public async register(credentials: unknown): Promise<{
         passwordHash: string | null;
-        emailVerified: boolean;
-        profile: UserProfile;
     }> {
         if (!isEmailPasswordCredentials(credentials)) {
             throw new InvalidCredentialsError();
         }
         const { password } = credentials;
         const passwordHash = await bcrypt.hash(password, this.saltRounds);
-        return { passwordHash, emailVerified: false, profile: { id: userId, email } };
+        return { passwordHash };
     }
 }

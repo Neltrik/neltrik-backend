@@ -9,6 +9,7 @@ export const ERROR_MESSAGES = {
     MISSING_PASSWORD_HASH: "The password hash is missing.",
     INVALID_CREDENTIALS: "Invalid credentials.",
     UNSUPPORTED_PROVIDER: "The provider is not supported.",
+    EMAIL_MISMATCH: "The email does not match.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -22,4 +23,5 @@ export const DOMAIN_ERROR_CODES = {
     MISSING_PASSWORD_HASH: "MISSING_PASSWORD_HASH",
     INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
     UNSUPPORTED_PROVIDER: "UNSUPPORTED_PROVIDER",
+    EMAIL_MISMATCH: "EMAIL_MISMATCH",
 } as const;

@@ -8,4 +8,5 @@ export class UserRepositorySpy extends UserRepository {
     public get = jest.fn<Promise<User | null>, [string]>();
     public list = jest.fn<Promise<User[]>, [string]>();
     public existsByEmail = jest.fn<Promise<boolean>, [Email]>();
+    public delete = jest.fn<Promise<void>, [string]>();
 }

@@ -7,4 +7,5 @@ export abstract class UserRepository {
     abstract get(id: string): Promise<User | null>;
     abstract list(tenantId: string): Promise<User[]>;
     abstract existsByEmail(email: Email): Promise<boolean>;
+    abstract delete(userId: string): Promise<void>;
 }

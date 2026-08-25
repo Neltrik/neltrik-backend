@@ -7,6 +7,8 @@ export const ERROR_MESSAGES = {
     EMPTY_PROVIDER: "The provider cannot be empty.",
     EMPTY_USER_ID: "The user ID cannot be empty.",
     MISSING_PASSWORD_HASH: "The password hash is missing.",
+    INVALID_CREDENTIALS: "Invalid credentials.",
+    UNSUPPORTED_PROVIDER: "The provider is not supported.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -18,4 +20,6 @@ export const DOMAIN_ERROR_CODES = {
     EMPTY_PROVIDER: "EMPTY_PROVIDER",
     EMPTY_USER_ID: "EMPTY_USER_ID",
     MISSING_PASSWORD_HASH: "MISSING_PASSWORD_HASH",
+    INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
+    UNSUPPORTED_PROVIDER: "UNSUPPORTED_PROVIDER",
 } as const;

@@ -1,5 +1,3 @@
-// src/modules/authentication/infrastructure/repositories/prisma-authentication-account.repository.ts
-
 import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "@/prisma/index";
@@ -20,7 +18,14 @@ export class PrismaAuthenticationAccountRepository extends AuthenticationAccount
         });
     }
 
-    public async getByUserId(userId: string): Promise<AuthenticationAccount | null> {
+    public async update(account: AuthenticationAccount): Promise<void> {
+        await this.prisma.authenticationAccount.update({
+            where: { id: account.id },
+            data: AuthenticationAccountMapper.toPersistence(account),
+        });
+    }
+
+    public async findByUserId(userId: string): Promise<AuthenticationAccount | null> {
         const account = await this.prisma.authenticationAccount.findUnique({
             where: { userId },
         });
@@ -30,7 +35,7 @@ export class PrismaAuthenticationAccountRepository extends AuthenticationAccount
         return AuthenticationAccountMapper.toDomain(account);
     }
 
-    public async getByEmail(email: string): Promise<AuthenticationAccount | null> {
+    public async findByEmail(email: string): Promise<AuthenticationAccount | null> {
         const account = await this.prisma.authenticationAccount.findFirst({
             where: { email },
         });
@@ -38,12 +43,5 @@ export class PrismaAuthenticationAccountRepository extends AuthenticationAccount
             return null;
         }
         return AuthenticationAccountMapper.toDomain(account);
-    }
-
-    public async update(account: AuthenticationAccount): Promise<void> {
-        await this.prisma.authenticationAccount.update({
-            where: { id: account.id },
-            data: AuthenticationAccountMapper.toPersistence(account),
-        });
     }
 }

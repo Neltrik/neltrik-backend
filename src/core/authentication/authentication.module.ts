@@ -7,8 +7,10 @@ import { GetAccountByEmailUseCase, GetAccountByUserIdUseCase, RegisterUseCase } 
 import { AuthenticationAccountRepository } from "./domain/interfaces";
 import { PrismaAuthenticationAccountRepository } from "./infrastructure/repositories";
 import { EmailPasswordProviderStrategy, ProviderAuthenticationStrategyFactory } from "./infrastructure/strategies";
+import { AccountController } from "./presentation/controllers";
 
 @Module({
+    controllers: [AccountController],
     providers: [
         GetAccountByEmailUseCase,
         GetAccountByUserIdUseCase,

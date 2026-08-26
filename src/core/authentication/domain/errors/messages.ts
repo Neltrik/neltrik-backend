@@ -10,6 +10,7 @@ export const ERROR_MESSAGES = {
     INVALID_CREDENTIALS: "Invalid credentials.",
     UNSUPPORTED_PROVIDER: "The provider is not supported.",
     EMAIL_MISMATCH: "The email does not match.",
+    AUTHENTICATION_ACCOUNT_NOT_FOUND: "The authentication account was not found.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -24,4 +25,5 @@ export const DOMAIN_ERROR_CODES = {
     INVALID_CREDENTIALS: "INVALID_CREDENTIALS",
     UNSUPPORTED_PROVIDER: "UNSUPPORTED_PROVIDER",
     EMAIL_MISMATCH: "EMAIL_MISMATCH",
+    AUTHENTICATION_ACCOUNT_NOT_FOUND: "AUTHENTICATION_ACCOUNT_NOT_FOUND",
 } as const;

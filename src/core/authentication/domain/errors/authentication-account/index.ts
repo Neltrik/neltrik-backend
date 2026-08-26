@@ -1,3 +1,4 @@
+export * from "./authentication-account-not-found";
 export * from "./email-already-verified";
 export * from "./email-mismatch";
 export * from "./empty-email";

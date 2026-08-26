@@ -243,11 +243,34 @@ model AuthenticationAccount {
   provider      String   @db.VarChar(100)
   email         String   @db.VarChar(255)
   emailVerified Boolean  @default(false) @map("email_verified")
-  passwordHash  String?   @map("password_hash") @db.Text
+  passwordHash  String?  @map("password_hash") @db.Text
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
+
+  sessions AuthenticationSession[]
 
   @@index([email])
   @@index([provider])
   @@map("authentication_accounts")
+}
+
+model AuthenticationSession {
+  id                      String    @id @default(uuid()) @db.Uuid
+  authenticationAccountId String    @map("authentication_account_id") @db.Uuid
+  refreshTokenHash        String    @map("refresh_token_hash") @db.Text
+  expiresAt               DateTime  @map("expires_at")
+  refreshTokenExpiresAt   DateTime  @map("refresh_token_expires_at")
+  revokedAt               DateTime? @map("revoked_at")
+  lastUsedAt              DateTime? @map("last_used_at")
+  ipAddress               String?   @map("ip_address") @db.VarChar(45)
+  userAgent               String?   @map("user_agent") @db.Text
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  authenticationAccount AuthenticationAccount @relation(fields: [authenticationAccountId], references: [id])
+
+  @@index([authenticationAccountId])
+  @@index([expiresAt])
+  @@index([refreshTokenHash])
+  @@map("authentication_sessions")
 }

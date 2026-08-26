@@ -17,6 +17,9 @@ La Authentication Session pertenece exclusivamente al contexto de **Authenticati
 | `id`                      | Identificador único de la Authentication Session.                         |
 | `authenticationAccountId` | Identificador de la Authentication Account asociada a la sesión.          |
 | `refreshTokenHash`        | Representación segura del Refresh Token utilizado para renovar la sesión. |
+| `ipAddress`               | Dirección IP desde la que se creó la sesión (para auditoría y seguridad). |
+| `userAgent`               | User-Agent del dispositivo desde el que se creó la sesión.                |
+| `lastUsedAt`              | Fecha y hora del último uso de la sesión (para detectar inactividad).     |
 | `expiresAt`               | Fecha y hora en la que la sesión deja de ser válida.                      |
 | `refreshTokenExpiresAt`   | Fecha y hora en la que el Refresh Token deja de ser válido.               |
 | `revokedAt`               | Fecha y hora en la que la sesión fue revocada, si corresponde.            |
@@ -102,6 +105,10 @@ No se almacena un campo `status` como Enum.
 - `refreshTokenHash` puede actualizarse durante la renovación de la sesión.
 - `refreshTokenExpiresAt` puede actualizarse durante la renovación cuando corresponda.
 - `updatedAt` debe actualizarse cuando se modifique la Authentication Session.
+- Cuando se aplique Token Rotation, el Refresh Token utilizado debe quedar invalidado y debe generarse un nuevo Refresh Token.
+- El nuevo Refresh Token debe almacenarse mediante su correspondiente `refreshTokenHash`.
+- El Refresh Token original nunca debe quedar almacenado en texto plano.
+- Al renovar la sesión, debe actualizarse lastUsedAt con la fecha y hora actual.
 
 > **Nota:** La renovación debe realizarse mediante el proceso correspondiente de Authentication y nunca mediante una modificación directa de la entidad.
 
@@ -173,6 +180,9 @@ authentication_sessions
 | `expires_at`                | TIMESTAMP | ❌   | —                   | Expiración de la Authentication Session |
 | `refresh_token_expires_at`  | TIMESTAMP | ❌   | —                   | Expiración del Refresh Token            |
 | `revoked_at`                | TIMESTAMP | ✅   | `NULL`              | Momento de revocación                   |
+| `last_used_at`              | TIMESTAMP | ✅   | `NULL`              | Último uso de la sesión                 |
+| `ip_address`                | VARCHAR   | ✅   | `NULL`              | Dirección IP desde la que se conectó    |
+| `user_agent`                | TEXT      | ✅   | `NULL`              | User-Agent del dispositivo              |
 | `created_at`                | TIMESTAMP | ❌   | `NOW()`             |                                         |
 | `updated_at`                | TIMESTAMP | ❌   | `NOW()`             |                                         |
 
@@ -203,3 +213,5 @@ authentication_sessions
 
 - PK(`id`)
 - INDEX(`authentication_account_id`)
+- INDEX(`expires_at`)
+- INDEX(`refresh_token_hash`)

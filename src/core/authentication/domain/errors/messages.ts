@@ -15,6 +15,8 @@ export const ERROR_MESSAGES = {
     INVALID_REFRESH_TOKEN: "The refresh token is invalid.",
     SESSION_EXPIRED: "The session has expired.",
     SESSION_REVOKED: "The session has been revoked.",
+    SESSION_NOT_FOUND: "The session was not found.",
+    UNAUTHORIZED_SESSION: "The session is not authorized.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -34,4 +36,6 @@ export const DOMAIN_ERROR_CODES = {
     INVALID_REFRESH_TOKEN: "INVALID_REFRESH_TOKEN",
     SESSION_EXPIRED: "SESSION_EXPIRED",
     SESSION_REVOKED: "SESSION_REVOKED",
+    SESSION_NOT_FOUND: "SESSION_NOT_FOUND",
+    UNAUTHORIZED_SESSION: "UNAUTHORIZED_SESSION",
 } as const;

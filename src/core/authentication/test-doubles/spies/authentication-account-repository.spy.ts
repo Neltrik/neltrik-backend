@@ -7,6 +7,7 @@ export class AuthenticationAccountRepositorySpy extends AuthenticationAccountRep
     public findByEmail = jest.fn<Promise<AuthenticationAccount | null>, [string]>();
     public update = jest.fn<Promise<void>, [AuthenticationAccount]>();
     public delete = jest.fn<Promise<void>, [string]>();
+    public findById = jest.fn<Promise<AuthenticationAccount | null>, [string]>();
 }
 
 export class AuthenticationSessionRepositorySpy extends AuthenticationSessionRepository {

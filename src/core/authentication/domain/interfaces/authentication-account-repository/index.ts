@@ -6,4 +6,5 @@ export abstract class AuthenticationAccountRepository {
     abstract findByEmail(email: string): Promise<AuthenticationAccount | null>;
     abstract update(account: AuthenticationAccount): Promise<void>;
     abstract delete(id: string): Promise<void>;
+    abstract findById(id: string): Promise<AuthenticationAccount | null>;
 }

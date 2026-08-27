@@ -48,4 +48,12 @@ export class PrismaAuthenticationAccountRepository extends AuthenticationAccount
     public async delete(id: string): Promise<void> {
         await this.prisma.authenticationAccount.delete({ where: { id } });
     }
+
+    public async findById(id: string): Promise<AuthenticationAccount | null> {
+        const account = await this.prisma.authenticationAccount.findUnique({ where: { id } });
+        if (!account) {
+            return null;
+        }
+        return AuthenticationAccountMapper.toDomain(account);
+    }
 }

@@ -1,6 +1,6 @@
 import { DeleteUserOhsUseCaseSpy, GetUserByIdOhsUseCaseSpy, RegisterUserOhsUseCaseSpy } from "../../test-doubles";
 import { UserApiImpl } from "./index";
-import { DeleteUserResultDto, RegisterUserRequestDto, RegisterUserResultDto } from "./result.dto";
+import { DeleteUserResultDto, GetUserRequestDto, RegisterUserRequestDto, RegisterUserResultDto } from "./result.dto";
 
 const makeSut = () => {
     const deleteUserOhsUseCase = new DeleteUserOhsUseCaseSpy();
@@ -82,6 +82,40 @@ describe("UserApiImpl", () => {
         });
     });
 
+    describe("getUserById", () => {
+        it("should get a user successfully and map the email value", async () => {
+            const { userApi, getUserByIdOhsUseCase } = makeSut();
+            const user = {
+                id: "user-id",
+                firstName: "John",
+                lastName: "Doe",
+                email: { value: "john.doe@example.com" },
+                tenantId: "tenant-id",
+                roleId: "role-id",
+            };
+            getUserByIdOhsUseCase.execute.mockResolvedValue(user);
+            const result = await userApi.getUserById("user-id");
+            expect(getUserByIdOhsUseCase.execute).toHaveBeenCalledTimes(1);
+            expect(getUserByIdOhsUseCase.execute).toHaveBeenCalledWith("user-id");
+            expect(result).toEqual({
+                id: "user-id",
+                firstName: "John",
+                lastName: "Doe",
+                email: "john.doe@example.com",
+                tenantId: "tenant-id",
+                roleId: "role-id",
+            });
+        });
+
+        it("should propagate user retrieval errors", async () => {
+            const { userApi, getUserByIdOhsUseCase } = makeSut();
+            getUserByIdOhsUseCase.execute.mockRejectedValue(new Error("User not found"));
+            await expect(userApi.getUserById("user-id")).rejects.toThrow("User not found");
+            expect(getUserByIdOhsUseCase.execute).toHaveBeenCalledTimes(1);
+            expect(getUserByIdOhsUseCase.execute).toHaveBeenCalledWith("user-id");
+        });
+    });
+
     describe("DTO", () => {
         it("should create a register user request dto", () => {
             const dto = new RegisterUserRequestDto();
@@ -109,6 +143,32 @@ describe("UserApiImpl", () => {
             const dto = new DeleteUserResultDto();
             dto.id = "user-id";
             expect(dto).toEqual({ id: "user-id" });
+        });
+
+        it("should create a get user request dto", () => {
+            const dto = new GetUserRequestDto();
+            dto.id = "user-id";
+            dto.firstName = "John";
+            dto.lastName = "Doe";
+            dto.email = "john.doe@example.com";
+            dto.tenantId = "tenant-id";
+            dto.roleId = "role-id";
+            dto.status = "ACTIVE";
+            dto.createdAt = new Date("2026-01-01T00:00:00.000Z");
+            dto.updatedAt = new Date("2026-01-02T00:00:00.000Z");
+            dto.suspendedAt = null;
+            expect(dto).toEqual({
+                id: "user-id",
+                firstName: "John",
+                lastName: "Doe",
+                email: "john.doe@example.com",
+                tenantId: "tenant-id",
+                roleId: "role-id",
+                status: "ACTIVE",
+                createdAt: new Date("2026-01-01T00:00:00.000Z"),
+                updatedAt: new Date("2026-01-02T00:00:00.000Z"),
+                suspendedAt: null,
+            });
         });
     });
 });

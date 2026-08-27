@@ -7,6 +7,7 @@ const envSchema = z.object({
     PORT: z.coerce.number().int().positive(),
     FRONTEND_URL: z.url(),
     MAGIC_LINK_BASE_URL: z.url(),
+    JWT_REFRESH_TOKEN_EXPIRES_IN: z.coerce.number().int().positive().default(604800),
 });
 
 export const env = Object.freeze(envSchema.parse(process.env));

@@ -1,5 +1,6 @@
 import { Module } from "@nestjs/common";
 
+import { AuthorizationModule } from "@/core/authorization/authorization.module";
 import { IdentityModule } from "@/core/identity/identity.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
 
@@ -29,6 +30,6 @@ import { AccountController } from "./presentation/controllers";
             useClass: PrismaAuthenticationSessionRepository,
         },
     ],
-    imports: [IdentityModule, TenantModule],
+    imports: [AuthorizationModule, IdentityModule, TenantModule],
 })
 export class AuthenticationModule {}

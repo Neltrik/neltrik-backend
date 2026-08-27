@@ -2,7 +2,12 @@ import { Injectable } from "@nestjs/common";
 
 import { DeleteUserOhsUseCase, GetUserByIdOhsUseCase, RegisterUserOhsUseCase } from "../../application/use-cases-ohs";
 import { UserApi } from "./contract";
-import type { DeleteUserResultDto, RegisterUserRequestDto, RegisterUserResultDto } from "./result.dto";
+import type {
+    DeleteUserResultDto,
+    GetUserRequestDto,
+    RegisterUserRequestDto,
+    RegisterUserResultDto,
+} from "./result.dto";
 
 @Injectable()
 export class UserApiImpl extends UserApi {
@@ -25,5 +30,10 @@ export class UserApiImpl extends UserApi {
 
     public async delete(userId: string): Promise<DeleteUserResultDto> {
         return await this.deleteUserOhsUseCase.execute(userId);
+    }
+
+    public async getUserById(userId: string): Promise<GetUserRequestDto> {
+        const user = await this.getUserByIdOhsUseCase.execute(userId);
+        return { ...user, email: user.email.value };
     }
 }

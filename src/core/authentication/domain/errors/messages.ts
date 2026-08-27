@@ -11,6 +11,10 @@ export const ERROR_MESSAGES = {
     UNSUPPORTED_PROVIDER: "The provider is not supported.",
     EMAIL_MISMATCH: "The email does not match.",
     AUTHENTICATION_ACCOUNT_NOT_FOUND: "The authentication account was not found.",
+    EXPIRATION_DATE_IN_PAST: "The expiration date cannot be in the past.",
+    INVALID_REFRESH_TOKEN: "The refresh token is invalid.",
+    SESSION_EXPIRED: "The session has expired.",
+    SESSION_REVOKED: "The session has been revoked.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -26,4 +30,8 @@ export const DOMAIN_ERROR_CODES = {
     UNSUPPORTED_PROVIDER: "UNSUPPORTED_PROVIDER",
     EMAIL_MISMATCH: "EMAIL_MISMATCH",
     AUTHENTICATION_ACCOUNT_NOT_FOUND: "AUTHENTICATION_ACCOUNT_NOT_FOUND",
+    EXPIRATION_DATE_IN_PAST: "EXPIRATION_DATE_IN_PAST",
+    INVALID_REFRESH_TOKEN: "INVALID_REFRESH_TOKEN",
+    SESSION_EXPIRED: "SESSION_EXPIRED",
+    SESSION_REVOKED: "SESSION_REVOKED",
 } as const;

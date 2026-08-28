@@ -1,6 +1,7 @@
 import { Logger, VersioningType } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import compression from "compression";
+import cookieParser from "cookie-parser";
 import helmet from "helmet";
 
 import { AppModule } from "./app.module";
@@ -17,6 +18,7 @@ async function bootstrap(): Promise<void> {
     app.useGlobalFilters(app.get(GlobalExceptionFilter));
     app.use(helmet());
     app.use(compression());
+    app.use(cookieParser());
     app.enableCors({
         origin: env.FRONTEND_URL,
         credentials: true,

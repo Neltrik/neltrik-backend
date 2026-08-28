@@ -1,0 +1,17 @@
+import { ApiProperty } from "@nestjs/swagger";
+
+export class RevokeSessionParamsDto {
+    @ApiProperty({
+        example: "550e8400-e29b-41d4-a716-446655440000",
+        description: "ID de la sesión a revocar",
+    })
+    id!: string;
+}
+
+export class RevokeSessionRequestDto {
+    @ApiProperty({
+        example: "user-123",
+        description: "ID del usuario (para validar propiedad)",
+    })
+    userId!: string;
+}

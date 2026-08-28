@@ -8,7 +8,7 @@ import { AuthenticationSession } from "../../../../domain/entities";
 import { AuthenticationAccountNotFoundError, InvalidCredentialsError } from "../../../../domain/errors";
 import { AuthenticationAccountRepository, AuthenticationSessionRepository } from "../../../../domain/interfaces";
 import { ExpirationDate } from "../../../../domain/value-objects";
-import { TokenProvider } from "../../../../infrastructure/providers";
+import { Sha256Hasher, TokenProvider } from "../../../../infrastructure/providers";
 import { ProviderAuthenticationStrategyFactory } from "../../../../infrastructure/strategies";
 import { type LoginInput } from "./input";
 import { type LoginOutput } from "./output";
@@ -21,8 +21,9 @@ export class LoginUseCase {
         private readonly idGenerator: IdGenerator,
         private readonly accountRepository: AuthenticationAccountRepository,
         private readonly sessionRepository: AuthenticationSessionRepository,
-        private readonly strategyFactory: ProviderAuthenticationStrategyFactory,
+        private readonly sha256Hasher: Sha256Hasher,
         private readonly tokenProvider: TokenProvider,
+        private readonly strategyFactory: ProviderAuthenticationStrategyFactory,
     ) {}
 
     public async execute(input: LoginInput): Promise<LoginOutput> {
@@ -44,7 +45,7 @@ export class LoginUseCase {
             tenantId: identityUser.tenantId,
         });
         const refreshToken = this.tokenProvider.generateRefreshToken();
-        const refreshTokenHash = await this.tokenProvider.hashRefreshToken(refreshToken);
+        const refreshTokenHash = this.sha256Hasher.hash(refreshToken);
         const now = new Date();
         const refreshTokenExpiresAt = this.tokenProvider.calculateRefreshTokenExpiration();
         const session = AuthenticationSession.create({
@@ -62,3 +63,5 @@ export class LoginUseCase {
         return { sessionId: session.id, accessToken, refreshToken };
     }
 }
+
+export { LoginInput };

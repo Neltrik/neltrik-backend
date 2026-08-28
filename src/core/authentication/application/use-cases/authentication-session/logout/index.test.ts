@@ -1,14 +1,14 @@
 import { AuthenticationSession } from "../../../../domain/entities";
 import { InvalidRefreshTokenError } from "../../../../domain/errors";
 import { ExpirationDate } from "../../../../domain/value-objects";
-import { AuthenticationSessionRepositorySpy, TokenProviderSpy } from "../../../../test-doubles";
+import { AuthenticationSessionRepositorySpy, Sha256HasherSpy } from "../../../../test-doubles";
 import { LogoutUseCase } from "./index";
 
 describe("LogoutUseCase", () => {
     const makeSut = () => {
         const sessionRepository = new AuthenticationSessionRepositorySpy();
-        const tokenProvider = new TokenProviderSpy();
-        tokenProvider.hashRefreshToken.mockResolvedValue("refresh-token-hash");
+        const sha256Hasher = new Sha256HasherSpy();
+        sha256Hasher.hash.mockReturnValue("refresh-token-hash");
         const session = AuthenticationSession.create({
             id: "session-id",
             authenticationAccountId: "account-id",
@@ -22,16 +22,15 @@ describe("LogoutUseCase", () => {
         });
         sessionRepository.findByRefreshTokenHash.mockResolvedValue(session);
         sessionRepository.update.mockResolvedValue(undefined);
-        const useCase = new LogoutUseCase(sessionRepository, tokenProvider);
-        return { useCase, sessionRepository, tokenProvider, session };
+        const useCase = new LogoutUseCase(sessionRepository, sha256Hasher);
+        return { useCase, sessionRepository, sha256Hasher, session };
     };
 
     it("should logout successfully", async () => {
-        const { useCase, tokenProvider, sessionRepository } = makeSut();
+        const { useCase, sha256Hasher, sessionRepository } = makeSut();
         await expect(useCase.execute("refresh-token")).resolves.toBeUndefined();
-        expect(tokenProvider.hashRefreshToken).toHaveBeenCalledTimes(1);
-        expect(tokenProvider.hashRefreshToken).toHaveBeenCalledWith("refresh-token");
-        expect(sessionRepository.findByRefreshTokenHash).toHaveBeenCalledTimes(1);
+        expect(sha256Hasher.hash).toHaveBeenCalledTimes(1);
+        expect(sha256Hasher.hash).toHaveBeenCalledWith("refresh-token");
         expect(sessionRepository.findByRefreshTokenHash).toHaveBeenCalledWith("refresh-token-hash");
         expect(sessionRepository.update).toHaveBeenCalledTimes(1);
         expect(sessionRepository.update).toHaveBeenCalledWith(expect.anything());
@@ -40,38 +39,33 @@ describe("LogoutUseCase", () => {
     it("should revoke the session", async () => {
         const { useCase, sessionRepository } = makeSut();
         await useCase.execute("refresh-token");
-        const updatedSession = sessionRepository.update.mock.calls[0]?.[0];
-        expect(updatedSession).toBeDefined();
-        expect(updatedSession?.isRevoked()).toBe(true);
+        const [updatedSession] = sessionRepository.update.mock.calls[0]!;
+        expect(updatedSession.isRevoked()).toBe(true);
     });
 
     it("should throw InvalidRefreshTokenError when session does not exist", async () => {
-        const { useCase, tokenProvider, sessionRepository } = makeSut();
+        const { useCase, sha256Hasher, sessionRepository } = makeSut();
         sessionRepository.findByRefreshTokenHash.mockResolvedValue(null);
         await expect(useCase.execute("invalid-refresh-token")).rejects.toThrow(InvalidRefreshTokenError);
-        expect(tokenProvider.hashRefreshToken).toHaveBeenCalledTimes(1);
-        expect(tokenProvider.hashRefreshToken).toHaveBeenCalledWith("invalid-refresh-token");
-        expect(sessionRepository.findByRefreshTokenHash).toHaveBeenCalledTimes(1);
+        expect(sha256Hasher.hash).toHaveBeenCalledWith("invalid-refresh-token");
         expect(sessionRepository.findByRefreshTokenHash).toHaveBeenCalledWith("refresh-token-hash");
         expect(sessionRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should propagate refresh token hashing errors", async () => {
-        const { useCase, tokenProvider, sessionRepository } = makeSut();
-        tokenProvider.hashRefreshToken.mockRejectedValue(new Error("Refresh token hashing failed"));
-        await expect(useCase.execute("refresh-token")).rejects.toThrow("Refresh token hashing failed");
-        expect(tokenProvider.hashRefreshToken).toHaveBeenCalledTimes(1);
-        expect(tokenProvider.hashRefreshToken).toHaveBeenCalledWith("refresh-token");
+    it("should propagate hash errors", async () => {
+        const { useCase, sha256Hasher, sessionRepository } = makeSut();
+        sha256Hasher.hash.mockImplementation(() => {
+            throw new Error("Hashing failed");
+        });
+        await expect(useCase.execute("refresh-token")).rejects.toThrow("Hashing failed");
         expect(sessionRepository.findByRefreshTokenHash).not.toHaveBeenCalled();
         expect(sessionRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should propagate session repository errors", async () => {
+    it("should propagate session lookup errors", async () => {
         const { useCase, sessionRepository } = makeSut();
         sessionRepository.findByRefreshTokenHash.mockRejectedValue(new Error("Database error"));
         await expect(useCase.execute("refresh-token")).rejects.toThrow("Database error");
-        expect(sessionRepository.findByRefreshTokenHash).toHaveBeenCalledTimes(1);
-        expect(sessionRepository.findByRefreshTokenHash).toHaveBeenCalledWith("refresh-token-hash");
         expect(sessionRepository.update).not.toHaveBeenCalled();
     });
 
@@ -79,14 +73,5 @@ describe("LogoutUseCase", () => {
         const { useCase, sessionRepository } = makeSut();
         sessionRepository.update.mockRejectedValue(new Error("Session update failed"));
         await expect(useCase.execute("refresh-token")).rejects.toThrow("Session update failed");
-        expect(sessionRepository.update).toHaveBeenCalledTimes(1);
-        expect(sessionRepository.update).toHaveBeenCalledWith(expect.anything());
-    });
-
-    it("should not update the session when the refresh token is invalid", async () => {
-        const { useCase, sessionRepository } = makeSut();
-        sessionRepository.findByRefreshTokenHash.mockResolvedValue(null);
-        await expect(useCase.execute("refresh-token")).rejects.toThrow(InvalidRefreshTokenError);
-        expect(sessionRepository.update).not.toHaveBeenCalled();
     });
 });

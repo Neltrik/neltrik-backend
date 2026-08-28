@@ -11,7 +11,7 @@ import {
 } from "../../../../domain/errors";
 import { AuthenticationAccountRepository, AuthenticationSessionRepository } from "../../../../domain/interfaces";
 import { ExpirationDate } from "../../../../domain/value-objects";
-import { TokenProvider } from "../../../../infrastructure/providers";
+import { Sha256Hasher, TokenProvider } from "../../../../infrastructure/providers";
 import { type RefreshTokenOutput } from "./output";
 
 @Injectable()
@@ -21,11 +21,15 @@ export class RefreshTokenUseCase {
         private readonly userApi: UserApi,
         private readonly accountRepository: AuthenticationAccountRepository,
         private readonly sessionRepository: AuthenticationSessionRepository,
+        private readonly sha256Hasher: Sha256Hasher,
         private readonly tokenProvider: TokenProvider,
     ) {}
 
-    public async execute(refreshToken: string): Promise<RefreshTokenOutput> {
-        const refreshTokenHash = await this.tokenProvider.hashRefreshToken(refreshToken);
+    public async execute(refreshToken: string | undefined): Promise<RefreshTokenOutput> {
+        if (!refreshToken) {
+            throw new InvalidRefreshTokenError();
+        }
+        const refreshTokenHash = this.sha256Hasher.hash(refreshToken);
         const session = await this.sessionRepository.findByRefreshTokenHash(refreshTokenHash);
         if (!session) {
             throw new InvalidRefreshTokenError();
@@ -52,7 +56,7 @@ export class RefreshTokenUseCase {
             roleCode: role.code,
         });
         const newRefreshToken = this.tokenProvider.generateRefreshToken();
-        const newRefreshTokenHash = await this.tokenProvider.hashRefreshToken(newRefreshToken);
+        const newRefreshTokenHash = this.sha256Hasher.hash(newRefreshToken);
         const newRefreshTokenExpiresAt = this.tokenProvider.calculateRefreshTokenExpiration();
         session.renew(newRefreshTokenHash, session.expiresAt, ExpirationDate.create(newRefreshTokenExpiresAt));
         await this.sessionRepository.update(session);

@@ -1,4 +1,4 @@
-import { TokenProvider } from "../../infrastructure/providers";
+import { Sha256Hasher, TokenProvider } from "../../infrastructure/providers";
 
 export class TokenProviderSpy extends TokenProvider {
     constructor() {
@@ -11,4 +11,12 @@ export class TokenProviderSpy extends TokenProvider {
     public override compareRefreshToken = jest.fn();
     public override calculateRefreshTokenExpiration = jest.fn();
     public override calculateAccessTokenExpiration = jest.fn();
+}
+
+export class Sha256HasherSpy extends Sha256Hasher {
+    constructor() {
+        super();
+    }
+
+    public override hash = jest.fn();
 }

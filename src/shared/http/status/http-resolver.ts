@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
-import { DomainHttpStatusStrategy } from "./domain-http-status-strategy";
-import { HttpStatusStrategy } from "./http-status-strategy";
+import { HttpStatusStrategy } from "./contracts";
+import { DomainHttpStatusStrategy } from "./strategies/domain-http-status-strategy";
 
 @Injectable()
 export class HttpStatusResolver {

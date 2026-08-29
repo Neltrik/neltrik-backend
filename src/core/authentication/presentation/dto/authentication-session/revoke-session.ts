@@ -7,11 +7,3 @@ export class RevokeSessionParamsDto {
     })
     id!: string;
 }
-
-export class RevokeSessionRequestDto {
-    @ApiProperty({
-        example: "user-123",
-        description: "ID del usuario (para validar propiedad)",
-    })
-    userId!: string;
-}

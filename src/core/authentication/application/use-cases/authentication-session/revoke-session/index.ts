@@ -17,6 +17,9 @@ export class RevokeSessionUseCase {
     ) {}
 
     public async execute(input: RevokeSessionInput): Promise<void> {
+        if (!input.userId) {
+            throw new UnauthorizedSessionError();
+        }
         const session = await this.sessionRepository.findById(input.sessionId);
         if (!session) {
             throw new SessionNotFoundError();

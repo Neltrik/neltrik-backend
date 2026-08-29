@@ -7,6 +7,7 @@ import { IdentityModule } from "./core/identity/identity.module";
 import { TenantModule } from "./core/tenant/tenant.module";
 import { AtsModule } from "./modules/ats/ats.module";
 import { PrismaModule } from "./prisma";
+import { AuthModule } from "./shared/auth/auth.module";
 import { ErrorsModule } from "./shared/errors";
 import { HttpModule } from "./shared/http";
 import { IdGeneratorModule } from "./shared/id-generator";
@@ -17,6 +18,7 @@ import { SanitizationModule } from "./shared/sanitization";
         ConfigModule.forRoot({ isGlobal: true }),
         PrismaModule,
         HttpModule,
+        AuthModule,
         ErrorsModule,
         IdGeneratorModule,
         SanitizationModule,

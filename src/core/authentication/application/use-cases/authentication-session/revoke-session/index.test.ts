@@ -10,10 +10,7 @@ import { AuthenticationAccountRepositorySpy, AuthenticationSessionRepositorySpy 
 import { RevokeSessionUseCase } from "./index";
 import type { RevokeSessionInput } from "./input";
 
-const makeInput = (): RevokeSessionInput => ({
-    sessionId: "session-id",
-    userId: "user-id",
-});
+const makeInput = (): RevokeSessionInput => ({ sessionId: "session-id", userId: "user-id" });
 
 describe("RevokeSessionUseCase", () => {
     const makeSut = () => {
@@ -45,6 +42,16 @@ describe("RevokeSessionUseCase", () => {
         const useCase = new RevokeSessionUseCase(sessionRepository, accountRepository);
         return { useCase, sessionRepository, accountRepository, session, account };
     };
+
+    it("should throw UnauthorizedSessionError when userId is not provided", async () => {
+        const { useCase, sessionRepository, accountRepository } = makeSut();
+        await expect(useCase.execute({ sessionId: "session-id", userId: undefined })).rejects.toThrow(
+            UnauthorizedSessionError,
+        );
+        expect(sessionRepository.findById).not.toHaveBeenCalled();
+        expect(accountRepository.findById).not.toHaveBeenCalled();
+        expect(sessionRepository.update).not.toHaveBeenCalled();
+    });
 
     it("should revoke the session successfully", async () => {
         const { useCase, sessionRepository, accountRepository } = makeSut();

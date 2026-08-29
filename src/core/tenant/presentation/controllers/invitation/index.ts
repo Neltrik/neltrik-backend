@@ -9,6 +9,7 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 
+import { Public } from "@/shared/auth";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/pipes/zod-validation";
 
@@ -99,6 +100,7 @@ export class InvitationController {
         code: RESPONSE_CODES.RESOURCE_FOUND,
         message: INVITATION_MESSAGES.VALIDATED,
     })
+    @Public()
     @Get("validate")
     public async validate(
         @Query(new ZodValidationPipe(validateInvitationQuerySchema))

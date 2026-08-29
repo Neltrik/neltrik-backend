@@ -9,6 +9,7 @@ import {
     ApiTags,
 } from "@nestjs/swagger";
 
+import { Public } from "@/shared/auth";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -52,6 +53,7 @@ export class AccountController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: ACCOUNT_MESSAGES.CREATED,
     })
+    @Public()
     @Post()
     public async register(
         @Body(new ZodValidationPipe(registerAccountSchema))

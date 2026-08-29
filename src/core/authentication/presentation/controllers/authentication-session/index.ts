@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuards } from "@nestjs/common";
+import { Body, Controller, HttpCode, HttpStatus, Param, Post, Req, Res } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
@@ -11,7 +11,7 @@ import {
 } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
-import { AuthenticationGuard } from "@/shared/auth";
+import { Public } from "@/shared/auth";
 import { ApiContract, CookieHelper, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -59,6 +59,7 @@ export class AuthController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: AUTH_MESSAGES.LOGIN_SUCCESS,
     })
+    @Public()
     @Post("login")
     public async login(
         @Body(new ZodValidationPipe(loginSchema))
@@ -112,6 +113,7 @@ export class AuthController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: AUTH_MESSAGES.REFRESH_SUCCESS,
     })
+    @Public()
     @Post("refresh")
     public async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
         const refreshToken = CookieHelper.get(req, "refreshToken");
@@ -194,7 +196,6 @@ export class AuthController {
         message: AUTH_MESSAGES.SESSION_REVOKED,
     })
     @Post("sessions/:id/revoke")
-    @UseGuards(AuthenticationGuard)
     public async revokeSession(
         @Req() req: Request,
         @Param(new ZodValidationPipe(revokeSessionParamsSchema))

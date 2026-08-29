@@ -26,6 +26,14 @@ describe("LogoutUseCase", () => {
         return { useCase, sessionRepository, sha256Hasher, session };
     };
 
+    it("should throw InvalidRefreshTokenError when refresh token is not provided", async () => {
+        const { useCase, sha256Hasher, sessionRepository } = makeSut();
+        await expect(useCase.execute(undefined)).rejects.toThrow(InvalidRefreshTokenError);
+        expect(sha256Hasher.hash).not.toHaveBeenCalled();
+        expect(sessionRepository.findByRefreshTokenHash).not.toHaveBeenCalled();
+        expect(sessionRepository.update).not.toHaveBeenCalled();
+    });
+
     it("should logout successfully", async () => {
         const { useCase, sha256Hasher, sessionRepository } = makeSut();
         await expect(useCase.execute("refresh-token")).resolves.toBeUndefined();

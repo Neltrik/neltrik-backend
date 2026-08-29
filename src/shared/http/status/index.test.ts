@@ -106,3 +106,19 @@ describe("DomainHttpStatusStrategy", () => {
         expect(result).toBe(HttpStatus.BAD_REQUEST);
     });
 });
+
+describe("DomainStatusRegistry", () => {
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
+    it("should return undefined when the domain error code is not registered", () => {
+        expect(DomainStatusRegistry.getStatus("UNKNOWN_DOMAIN_ERROR")).toBeUndefined();
+    });
+
+    it("should update the status when the domain error code is registered again", () => {
+        DomainStatusRegistry.register("TEST_DOMAIN_ERROR", HttpStatus.BAD_REQUEST);
+        DomainStatusRegistry.register("TEST_DOMAIN_ERROR", HttpStatus.NOT_FOUND);
+        expect(DomainStatusRegistry.getStatus("TEST_DOMAIN_ERROR")).toBe(HttpStatus.NOT_FOUND);
+    });
+});

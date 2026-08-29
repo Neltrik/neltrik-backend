@@ -14,6 +14,7 @@ const config: Config = {
     },
     moduleFileExtensions: ["ts", "js", "json"],
     coverageDirectory: "coverage",
+    coveragePathIgnorePatterns: ["/node_modules/", "/src/config/"],
     clearMocks: true,
     setupFiles: ["<rootDir>/jest.setup.ts"],
     moduleNameMapper: {

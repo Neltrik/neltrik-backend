@@ -1,4 +1,4 @@
 export interface RevokeSessionInput {
     sessionId: string;
-    userId: string;
+    userId: string | undefined;
 }

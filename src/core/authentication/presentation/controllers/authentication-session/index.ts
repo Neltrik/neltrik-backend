@@ -1,4 +1,4 @@
-import { Body, Controller, HttpStatus, Param, Post, Req, Res } from "@nestjs/common";
+import { Body, Controller, HttpCode, HttpStatus, Param, Post, Req, Res, UseGuards } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
@@ -11,7 +11,8 @@ import {
 } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
-import { ApiContract, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
+import { AuthenticationGuard } from "@/shared/auth";
+import { ApiContract, CookieHelper, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
 import {
@@ -21,19 +22,9 @@ import {
     RefreshTokenUseCase,
     RevokeSessionUseCase,
 } from "../../../application/use-cases";
-import {
-    LoginRequestDto,
-    LoginResponseDto,
-    LogoutRequestDto,
-    RevokeSessionParamsDto,
-    RevokeSessionRequestDto,
-} from "../../dto";
+import { LoginRequestDto, LoginResponseDto, RevokeSessionParamsDto } from "../../dto";
 import { AUTH_MESSAGES } from "../../messages";
-import { loginSchema, logoutSchema, revokeSessionBodySchema, revokeSessionParamsSchema } from "../../schemas";
-
-interface RequestWithCookies extends Request {
-    cookies: { accessToken?: string; refreshToken?: string };
-}
+import { loginSchema, revokeSessionParamsSchema } from "../../schemas";
 
 const MAX_AGE_REFRESH_TOKEN = 7 * 24 * 60 * 60 * 1000;
 const MAX_AGE_ACCESS_TOKEN = 15 * 60 * 1000;
@@ -101,6 +92,10 @@ export class AuthController {
         summary: "Refresh token",
         description: "Renews an access token using a refresh token.",
     })
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({
+        description: "Logout successful.",
+    })
     @ApiOkResponse({
         description: "Token refreshed successfully.",
     })
@@ -114,12 +109,13 @@ export class AuthController {
         description: "Internal server error.",
     })
     @ResponseDecorator({
-        code: RESPONSE_CODES.RESOURCE_UPDATED,
+        code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: AUTH_MESSAGES.REFRESH_SUCCESS,
     })
     @Post("refresh")
-    public async refresh(@Req() req: RequestWithCookies, @Res({ passthrough: true }) res: Response): Promise<void> {
-        const result = await this.refreshTokenUseCase.execute(req.cookies.refreshToken);
+    public async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
+        const refreshToken = CookieHelper.get(req, "refreshToken");
+        const result = await this.refreshTokenUseCase.execute(refreshToken);
         res.cookie("accessToken", result.accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -138,6 +134,7 @@ export class AuthController {
         summary: "Logout",
         description: "Logs out the current session.",
     })
+    @HttpCode(HttpStatus.NO_CONTENT)
     @ApiNoContentResponse({
         description: "Logout successful.",
     })
@@ -151,16 +148,13 @@ export class AuthController {
         description: "Internal server error.",
     })
     @ResponseDecorator({
-        code: RESPONSE_CODES.RESOURCE_UPDATED,
+        code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: AUTH_MESSAGES.LOGOUT_SUCCESS,
     })
     @Post("logout")
-    public async logout(
-        @Body(new ZodValidationPipe(logoutSchema))
-        body: LogoutRequestDto,
-        @Res({ passthrough: true }) res: Response,
-    ): Promise<void> {
-        await this.logoutUseCase.execute(body.refreshToken);
+    public async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
+        const refreshToken = CookieHelper.get(req, "refreshToken");
+        await this.logoutUseCase.execute(refreshToken);
         res.cookie("accessToken", "", {
             maxAge: 0,
             httpOnly: true,
@@ -179,8 +173,9 @@ export class AuthController {
         summary: "Revoke session",
         description: "Revokes a specific session by its ID.",
     })
+    @HttpCode(HttpStatus.NO_CONTENT)
     @ApiNoContentResponse({
-        description: "Logout successful.",
+        description: "Revokes successful.",
     })
     @ApiOkResponse({
         description: "Session revoked successfully.",
@@ -195,19 +190,19 @@ export class AuthController {
         description: "Internal server error.",
     })
     @ResponseDecorator({
-        code: RESPONSE_CODES.RESOURCE_UPDATED,
+        code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: AUTH_MESSAGES.SESSION_REVOKED,
     })
     @Post("sessions/:id/revoke")
+    @UseGuards(AuthenticationGuard)
     public async revokeSession(
+        @Req() req: Request,
         @Param(new ZodValidationPipe(revokeSessionParamsSchema))
         params: RevokeSessionParamsDto,
-        @Body(new ZodValidationPipe(revokeSessionBodySchema))
-        body: RevokeSessionRequestDto,
     ): Promise<void> {
         await this.revokeSessionUseCase.execute({
             sessionId: params.id,
-            userId: body.userId,
+            userId: req.user?.userId,
         });
     }
 }

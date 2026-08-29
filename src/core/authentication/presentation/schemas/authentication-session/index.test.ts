@@ -1,4 +1,4 @@
-import { loginSchema, logoutSchema, revokeSessionBodySchema, revokeSessionParamsSchema } from "./";
+import { loginSchema, revokeSessionParamsSchema } from "./";
 
 describe("loginSchema", () => {
     const makeInput = () => ({
@@ -58,26 +58,6 @@ describe("loginSchema", () => {
     });
 });
 
-describe("logoutSchema", () => {
-    const makeInput = () => ({
-        refreshToken: "550e8400-e29b-41d4-a716-446655440000",
-    });
-
-    it("should validate a valid request", () => {
-        expect(() => logoutSchema.parse(makeInput())).not.toThrow();
-    });
-
-    it("should reject an invalid refresh token", () => {
-        expect(() => logoutSchema.parse({ refreshToken: "invalid-refresh-token" })).toThrow(
-            "Invalid refresh token format",
-        );
-    });
-
-    it("should reject an empty refresh token", () => {
-        expect(() => logoutSchema.parse({ refreshToken: "" })).toThrow("Invalid refresh token format");
-    });
-});
-
 describe("revokeSessionParamsSchema", () => {
     const makeInput = () => ({
         id: "550e8400-e29b-41d4-a716-446655440000",
@@ -95,23 +75,5 @@ describe("revokeSessionParamsSchema", () => {
 
     it("should reject an empty session ID", () => {
         expect(() => revokeSessionParamsSchema.parse({ id: "" })).toThrow("Invalid session ID format");
-    });
-});
-
-describe("revokeSessionBodySchema", () => {
-    const makeInput = () => ({
-        userId: "550e8400-e29b-41d4-a716-446655440000",
-    });
-
-    it("should validate a valid user ID", () => {
-        expect(() => revokeSessionBodySchema.parse(makeInput())).not.toThrow();
-    });
-
-    it("should reject an invalid user ID", () => {
-        expect(() => revokeSessionBodySchema.parse({ userId: "invalid-user-id" })).toThrow("Invalid user ID format");
-    });
-
-    it("should reject an empty user ID", () => {
-        expect(() => revokeSessionBodySchema.parse({ userId: "" })).toThrow("Invalid user ID format");
     });
 });

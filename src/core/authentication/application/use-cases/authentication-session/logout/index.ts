@@ -11,7 +11,10 @@ export class LogoutUseCase {
         private readonly sha256Hasher: Sha256Hasher,
     ) {}
 
-    public async execute(refreshToken: string): Promise<void> {
+    public async execute(refreshToken: string | undefined): Promise<void> {
+        if (!refreshToken) {
+            throw new InvalidRefreshTokenError();
+        }
         const refreshTokenHash = this.sha256Hasher.hash(refreshToken);
         const session = await this.sessionRepository.findByRefreshTokenHash(refreshTokenHash);
         if (!session) {

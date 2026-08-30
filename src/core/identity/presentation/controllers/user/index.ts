@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Patch, Post, Req } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
@@ -9,6 +9,7 @@ import {
     ApiOperation,
     ApiTags,
 } from "@nestjs/swagger";
+import type { Request } from "express";
 
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/pipes/zod-validation";
@@ -29,7 +30,6 @@ import {
     RegisterUserRequestDto,
     RegisterUserResultDto,
     SuspendUserParamsDto,
-    SuspendUserRequestDto,
     UpdateUserParamsDto,
     UpdateUserRequestDto,
     UpdateUserResultDto,
@@ -77,6 +77,7 @@ export class UserController {
     })
     @Post("users")
     public async create(
+        @Req() req: Request,
         @Body(new ZodValidationPipe(registerUserSchema))
         body: RegisterUserRequestDto,
     ): Promise<RegisterUserResultDto> {
@@ -84,7 +85,7 @@ export class UserController {
             firstName: body.firstName,
             lastName: body.lastName,
             email: body.email,
-            tenantId: body.tenantId,
+            tenantId: req.user?.tenantId,
             roleId: body.roleId,
         };
         const user = await this.registerUserUseCase.execute(input);
@@ -192,12 +193,12 @@ export class UserController {
     })
     @Patch("users/:id/suspend")
     public async suspend(
+        @Req() req: Request,
         @Param(new ZodValidationPipe(suspendUserParamsSchema))
         params: SuspendUserParamsDto,
-        @Body() body: SuspendUserRequestDto,
     ): Promise<void> {
         await this.suspendUserUseCase.execute({
-            actorUserId: body.actorUserId,
+            actorUserId: req.user?.tenantId,
             targetUserId: params.id,
         });
     }

@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { AuthorizationPolicyApi } from "@/core/authorization/api";
+import { UnauthorizedError } from "@/shared/errors";
 
 import { UserNotFoundError } from "../../../domain/errors";
 import { UserRepository } from "../../../domain/interfaces";
@@ -14,6 +15,9 @@ export class SuspendUserUseCase {
     ) {}
 
     public async execute(input: SuspendUserInput): Promise<void> {
+        if (!input.actorUserId) {
+            throw new UnauthorizedError();
+        }
         const actor = await this.userRepository.get(input.actorUserId);
         if (!actor) {
             throw new UserNotFoundError();

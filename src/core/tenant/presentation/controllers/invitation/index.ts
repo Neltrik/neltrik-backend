@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Post, Query } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
@@ -8,6 +8,7 @@ import {
     ApiOperation,
     ApiTags,
 } from "@nestjs/swagger";
+import type { Request } from "express";
 
 import { Public } from "@/shared/auth";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
@@ -67,11 +68,12 @@ export class InvitationController {
     })
     @Post()
     public async create(
+        @Req() req: Request,
         @Body(new ZodValidationPipe(createInvitationSchema))
         body: CreateInvitationRequestDto,
     ): Promise<CreateInvitationResultDto> {
         const result = await this.createInvitationUseCase.execute({
-            tenantId: body.tenantId,
+            tenantId: req.user?.tenantId,
             roleId: body.roleId,
             recipient: body.recipient,
             mechanism: body.mechanism,

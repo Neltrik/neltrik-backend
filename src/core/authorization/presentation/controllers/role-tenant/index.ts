@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Req } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiInternalServerErrorResponse,
@@ -8,6 +8,7 @@ import {
     ApiOperation,
     ApiTags,
 } from "@nestjs/swagger";
+import type { Request } from "express";
 
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -61,13 +62,14 @@ export class RoleTenantController {
     })
     @Post()
     public async associate(
+        @Req() req: Request,
         @Param(new ZodValidationPipe(roleTenantParamsSchema))
         params: { tenantId: string },
         @Body(new ZodValidationPipe(associateRolesToTenantSchema))
         body: AssociateRolesToTenantRequestDto,
     ): Promise<AssociateRolesToTenantResultDto> {
         const input: AssociateRolesToTenantInput = {
-            actorTenantId: body.tenantId,
+            actorTenantId: req.user?.tenantId,
             targetTenantId: params.tenantId,
             roleIds: body.roleIds,
         };
@@ -96,13 +98,14 @@ export class RoleTenantController {
     })
     @Delete()
     public async disassociate(
+        @Req() req: Request,
         @Param(new ZodValidationPipe(roleTenantParamsSchema))
         params: { tenantId: string },
         @Body(new ZodValidationPipe(disassociateRolesFromTenantSchema))
         body: DisassociateRolesFromTenantRequestDto,
     ): Promise<void> {
         await this.disassociateRolesFromTenantUseCase.execute({
-            actorTenantId: body.tenantId,
+            actorTenantId: req.user?.tenantId,
             targetTenantId: params.tenantId,
             roleIds: body.roleIds,
         });

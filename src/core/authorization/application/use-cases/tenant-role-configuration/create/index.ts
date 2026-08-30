@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { AuthorizationRoleApi } from "@/core/authorization/api";
 import { TenantApi } from "@/core/tenant/api";
+import { UnauthorizedError } from "@/shared/errors";
 import { IdGenerator } from "@/shared/id-generator";
 
 import { TenantRoleConfiguration } from "../../../../domain/entities";
@@ -21,6 +22,9 @@ export class CreateTenantRoleConfigurationUseCase {
     ) {}
 
     public async execute(input: CreateTenantRoleConfigurationInput): Promise<CreateTenantRoleConfigurationOutput> {
+        if (!input.tenantId) {
+            throw new UnauthorizedError();
+        }
         await this.tenantApi.validate(input.tenantId);
         await this.authorizationRoleApi.validate(input.roleId);
         const exists = await this.tenantRoleConfigurationRepository.findByTenantAndRole(input.tenantId, input.roleId);

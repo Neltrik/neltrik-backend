@@ -1,5 +1,5 @@
 export interface CreateInvitationInput {
-    tenantId: string;
+    tenantId: string | undefined;
     roleId: string;
     recipient: string;
     mechanism: string;

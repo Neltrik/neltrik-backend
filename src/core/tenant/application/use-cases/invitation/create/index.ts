@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { AuthorizationRoleApi } from "@/core/authorization/api";
+import { UnauthorizedError } from "@/shared/errors";
 import { IdGenerator } from "@/shared/id-generator";
 
 import { Invitation } from "../../../../domain/entities";
@@ -22,6 +23,9 @@ export class CreateInvitationUseCase {
     ) {}
 
     public async execute(input: CreateInvitationInput): Promise<CreateInvitationOutput> {
+        if (!input.tenantId) {
+            throw new UnauthorizedError();
+        }
         const tenant = await this.tenantRepository.get(input.tenantId);
         if (!tenant) {
             throw new TenantNotFoundError();

@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const createTenantRoleConfigurationSchema = z.object({
-    tenantId: z.uuid(),
     roleId: z.uuid(),
     displayName: z.string().trim().min(1).max(100),
 });

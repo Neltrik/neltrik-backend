@@ -1,3 +1,4 @@
+import { UnauthorizedError } from "@/shared/errors";
 import type { IdGenerator } from "@/shared/id-generator";
 
 import { TenantRoleConfigurationAlreadyExistsError } from "../../../../domain/errors";
@@ -30,6 +31,13 @@ describe("CreateTenantRoleConfigurationUseCase", () => {
         );
         return { useCase, repository, generateMock };
     };
+
+    it("should reject the operation when tenantId is not provided", async () => {
+        const { useCase, repository } = makeSut();
+        await expect(useCase.execute({ ...makeInput(), tenantId: "" })).rejects.toThrow(UnauthorizedError);
+        expect(repository.findByTenantAndRole).not.toHaveBeenCalled();
+        expect(repository.create).not.toHaveBeenCalled();
+    });
 
     it("should create a tenant role configuration successfully", async () => {
         const { useCase, repository, generateMock } = makeSut();

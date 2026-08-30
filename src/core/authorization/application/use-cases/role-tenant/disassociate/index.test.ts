@@ -1,3 +1,5 @@
+import { UnauthorizedError } from "@/shared/errors";
+
 import { CannotManageRoleTenantError } from "../../../../domain/errors";
 import { RoleTenantRepositorySpy, TenantApiSpy, TransactionManagerSpy } from "../../../../test-doubles";
 import { DisassociateRolesFromTenantUseCase } from "./index";
@@ -10,6 +12,17 @@ describe("DisassociateRolesFromTenantUseCase", () => {
         const useCase = new DisassociateRolesFromTenantUseCase(roleTenantRepository, tenantApi, transactionManager);
         return { useCase, roleTenantRepository, tenantApi, transactionManager };
     };
+
+    it("should reject the operation when actorTenantId is not provided", async () => {
+        const { useCase, roleTenantRepository, tenantApi, transactionManager } = makeSut();
+        await expect(
+            useCase.execute({ actorTenantId: "", targetTenantId: "tenant-id", roleIds: ["role-1"] }),
+        ).rejects.toThrow(UnauthorizedError);
+        expect(transactionManager.execute).not.toHaveBeenCalled();
+        expect(tenantApi.isPlatformTenant).not.toHaveBeenCalled();
+        expect(tenantApi.validate).not.toHaveBeenCalled();
+        expect(roleTenantRepository.disassociateRoles).not.toHaveBeenCalled();
+    });
 
     it("should disassociate multiple roles successfully when the actor is the platform tenant", async () => {
         const { useCase, roleTenantRepository, tenantApi, transactionManager } = makeSut();

@@ -1,3 +1,4 @@
+import { UnauthorizedError } from "@/shared/errors";
 import type { IdGenerator } from "@/shared/id-generator";
 
 import { Invitation, Tenant } from "../../../../domain/entities";
@@ -81,6 +82,15 @@ describe("CreateInvitationUseCase", () => {
             generateMagicLinkMock,
         };
     };
+
+    it("should reject the operation when tenantId is not provided", async () => {
+        const { useCase, invitationRepository, tenantRepository, authorizationRoleApi } = makeSut();
+        await expect(useCase.execute({ ...makeInput(), tenantId: "" })).rejects.toThrow(UnauthorizedError);
+        expect(tenantRepository.get).not.toHaveBeenCalled();
+        expect(authorizationRoleApi.validateForTenant).not.toHaveBeenCalled();
+        expect(invitationRepository.findPendingByTenantAndRecipient).not.toHaveBeenCalled();
+        expect(invitationRepository.create).not.toHaveBeenCalled();
+    });
 
     it("should create an invitation successfully", async () => {
         const { useCase, invitationRepository, authorizationRoleApi, generateMock, generateMagicLinkMock } = makeSut();

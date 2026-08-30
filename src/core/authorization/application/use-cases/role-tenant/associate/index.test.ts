@@ -1,3 +1,5 @@
+import { UnauthorizedError } from "@/shared/errors";
+
 import { Role } from "../../../../domain/entities";
 import { CannotManageRoleTenantError, InvalidRoleScopeError, RoleNotFoundError } from "../../../../domain/errors";
 import {
@@ -34,6 +36,24 @@ describe("AssociateRolesToTenantUseCase", () => {
         );
         return { useCase, roleRepository, roleTenantRepository, tenantApi, transactionManager };
     };
+
+    it("should reject the operation when actorTenantId is not provided", async () => {
+        const { useCase, transactionManager, tenantApi, roleRepository, roleTenantRepository } = makeSut();
+
+        await expect(
+            useCase.execute({
+                actorTenantId: "",
+                targetTenantId: "customer-tenant-id",
+                roleIds: ["role-1"],
+            }),
+        ).rejects.toThrow(UnauthorizedError);
+
+        expect(transactionManager.execute).not.toHaveBeenCalled();
+        expect(tenantApi.isPlatformTenant).not.toHaveBeenCalled();
+        expect(tenantApi.validate).not.toHaveBeenCalled();
+        expect(roleRepository.getByIds).not.toHaveBeenCalled();
+        expect(roleTenantRepository.associateRoles).not.toHaveBeenCalled();
+    });
 
     it("should associate multiple roles successfully when the actor is a platform tenant", async () => {
         const { useCase, roleRepository, roleTenantRepository, tenantApi, transactionManager } = makeSut();

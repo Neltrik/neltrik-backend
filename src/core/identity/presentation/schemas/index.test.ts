@@ -5,7 +5,6 @@ describe("registerUserSchema", () => {
         firstName: "John",
         lastName: "Doe",
         email: "john@company.com",
-        tenantId: "550e8400-e29b-41d4-a716-446655440001",
         roleId: "550e8400-e29b-41d4-a716-446655440002",
     });
 
@@ -23,10 +22,6 @@ describe("registerUserSchema", () => {
 
     it("should reject an invalid email", () => {
         expect(() => registerUserSchema.parse({ ...makeInput(), email: "invalid-email" })).toThrow();
-    });
-
-    it("should reject an invalid tenantId", () => {
-        expect(() => registerUserSchema.parse({ ...makeInput(), tenantId: "invalid-id" })).toThrow();
     });
 
     it("should reject an invalid roleId", () => {

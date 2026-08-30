@@ -8,25 +8,14 @@ describe("TenantRoleConfigurationSchema", () => {
     describe("createTenantRoleConfigurationSchema", () => {
         it("should validate a valid payload", () => {
             const result = createTenantRoleConfigurationSchema.safeParse({
-                tenantId: "550e8400-e29b-41d4-a716-446655440001",
                 roleId: "550e8400-e29b-41d4-a716-446655440002",
                 displayName: "Administrator",
             });
             expect(result.success).toBe(true);
         });
 
-        it("should fail when tenantId is invalid", () => {
-            const result = createTenantRoleConfigurationSchema.safeParse({
-                tenantId: "invalid-id",
-                roleId: "550e8400-e29b-41d4-a716-446655440002",
-                displayName: "Administrator",
-            });
-            expect(result.success).toBe(false);
-        });
-
         it("should fail when roleId is invalid", () => {
             const result = createTenantRoleConfigurationSchema.safeParse({
-                tenantId: "550e8400-e29b-41d4-a716-446655440001",
                 roleId: "invalid-id",
                 displayName: "Administrator",
             });
@@ -35,7 +24,6 @@ describe("TenantRoleConfigurationSchema", () => {
 
         it("should fail when displayName is empty", () => {
             const result = createTenantRoleConfigurationSchema.safeParse({
-                tenantId: "550e8400-e29b-41d4-a716-446655440001",
                 roleId: "550e8400-e29b-41d4-a716-446655440002",
                 displayName: "",
             });
@@ -44,7 +32,6 @@ describe("TenantRoleConfigurationSchema", () => {
 
         it("should fail when displayName exceeds 100 characters", () => {
             const result = createTenantRoleConfigurationSchema.safeParse({
-                tenantId: "550e8400-e29b-41d4-a716-446655440001",
                 roleId: "550e8400-e29b-41d4-a716-446655440002",
                 displayName: "a".repeat(101),
             });

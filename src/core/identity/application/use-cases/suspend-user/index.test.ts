@@ -1,4 +1,5 @@
 import { type AuthorizationPolicyApi } from "@/core/authorization/api";
+import { UnauthorizedError } from "@/shared/errors";
 
 import { User } from "../../../domain/entities";
 import { UserAlreadySuspendedError, UserNotFoundError } from "../../../domain/errors";
@@ -34,6 +35,16 @@ describe("SuspendUserUseCase", () => {
         const useCase = new SuspendUserUseCase(userRepository, authorizationPolicyApi);
         return { useCase, userRepository, authorizationPolicyApi, canSuspend };
     };
+
+    it("should reject the operation when actorUserId is not provided", async () => {
+        const { useCase, userRepository, authorizationPolicyApi } = makeSut();
+        await expect(useCase.execute({ actorUserId: "", targetUserId: "target-user-id" })).rejects.toThrow(
+            UnauthorizedError,
+        );
+        expect(userRepository.get).not.toHaveBeenCalled();
+        expect(authorizationPolicyApi.canSuspend).not.toHaveBeenCalled();
+        expect(userRepository.update).not.toHaveBeenCalled();
+    });
 
     it("should suspend a user successfully", async () => {
         const { useCase, userRepository, authorizationPolicyApi } = makeSut();

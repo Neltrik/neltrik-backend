@@ -2,8 +2,8 @@ import { HttpStatus, Injectable } from "@nestjs/common";
 
 import { DomainError } from "@/shared/errors";
 
-import { HttpStatusStrategy } from "../contracts";
-import { DomainStatusRegistry } from "../domain-registry";
+import { HttpStatusStrategy } from "../../contracts";
+import { DomainStatusRegistry } from "../../domain-registry";
 
 @Injectable()
 export class DomainHttpStatusStrategy extends HttpStatusStrategy {

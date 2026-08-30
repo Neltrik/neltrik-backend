@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
 
-import { type ErrorDetail } from "../contracts";
-import { DomainError } from "../exceptions";
-import { ExceptionHandlingStrategy } from "./exception-strategy";
+import { type ErrorDetail } from "../../contracts";
+import { DomainError } from "../../exceptions";
+import { ExceptionHandlingStrategy } from "../exception-strategy";
 
 @Injectable()
 export class DomainExceptionHandlingStrategy extends ExceptionHandlingStrategy {
@@ -12,11 +12,6 @@ export class DomainExceptionHandlingStrategy extends ExceptionHandlingStrategy {
 
     handle(error: unknown): ErrorDetail[] {
         const domainError = error as DomainError;
-        return [
-            {
-                code: domainError.code,
-                message: domainError.message,
-            },
-        ];
+        return [{ code: domainError.code, message: domainError.message }];
     }
 }

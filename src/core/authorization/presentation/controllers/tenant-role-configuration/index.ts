@@ -2,12 +2,14 @@ import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Req } fr
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
+    ApiForbiddenResponse,
     ApiInternalServerErrorResponse,
     ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import type { Request } from "express";
 
@@ -61,6 +63,12 @@ export class TenantRoleConfigurationController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
     })
@@ -93,6 +101,12 @@ export class TenantRoleConfigurationController {
     })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
     })
     @ApiNotFoundResponse({
         description: "Tenant role configuration not found.",
@@ -129,6 +143,12 @@ export class TenantRoleConfigurationController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiNotFoundResponse({
         description: "Tenant role configuration not found.",
     })
@@ -156,6 +176,12 @@ export class TenantRoleConfigurationController {
     })
     @ApiOkResponse({
         description: "Resources retrieved successfully.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
     })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",

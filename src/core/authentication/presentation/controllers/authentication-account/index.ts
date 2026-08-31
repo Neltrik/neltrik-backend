@@ -7,6 +7,7 @@ import {
     ApiOkResponse,
     ApiOperation,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
 import { Public } from "@/shared/auth";
@@ -46,6 +47,9 @@ export class AccountController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
     })
@@ -80,6 +84,9 @@ export class AccountController {
     })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
     })
     @ApiNotFoundResponse({
         description: "Account not found.",

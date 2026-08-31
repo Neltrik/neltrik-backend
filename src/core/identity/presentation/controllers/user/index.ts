@@ -2,12 +2,14 @@ import { Body, Controller, Get, HttpStatus, Param, Patch, Post, Req } from "@nes
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
+    ApiForbiddenResponse,
     ApiInternalServerErrorResponse,
     ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import type { Request } from "express";
 
@@ -68,6 +70,12 @@ export class UserController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
     })
@@ -102,6 +110,12 @@ export class UserController {
     })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
     })
     @ApiNotFoundResponse({
         description: "User not found.",
@@ -144,6 +158,12 @@ export class UserController {
     @ApiOkResponse({
         description: "Resources retrieved successfully.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
     })
@@ -162,11 +182,7 @@ export class UserController {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email.value,
-            role: {
-                id: user.role.id,
-                code: user.role.code,
-                scope: user.role.scope,
-            },
+            role: { id: user.role.id, code: user.role.code, scope: user.role.scope },
             status: user.status,
         }));
     }
@@ -180,6 +196,12 @@ export class UserController {
     })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
     })
     @ApiNotFoundResponse({
         description: "User not found.",
@@ -212,6 +234,12 @@ export class UserController {
     })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
     })
     @ApiNotFoundResponse({
         description: "User not found.",

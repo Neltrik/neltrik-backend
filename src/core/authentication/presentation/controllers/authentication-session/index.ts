@@ -5,9 +5,9 @@ import {
     ApiInternalServerErrorResponse,
     ApiNoContentResponse,
     ApiNotFoundResponse,
-    ApiOkResponse,
     ApiOperation,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
@@ -51,6 +51,12 @@ export class AuthController {
     })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiNotFoundResponse({
+        description: "Account not found.",
     })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
@@ -97,11 +103,11 @@ export class AuthController {
     @ApiNoContentResponse({
         description: "Logout successful.",
     })
-    @ApiOkResponse({
-        description: "Token refreshed successfully.",
-    })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
     })
     @ApiNotFoundResponse({
         description: "Session not found.",
@@ -143,6 +149,9 @@ export class AuthController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
     @ApiNotFoundResponse({
         description: "Session not found.",
     })
@@ -179,11 +188,11 @@ export class AuthController {
     @ApiNoContentResponse({
         description: "Revokes successful.",
     })
-    @ApiOkResponse({
-        description: "Session revoked successfully.",
-    })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
     })
     @ApiNotFoundResponse({
         description: "Session not found.",

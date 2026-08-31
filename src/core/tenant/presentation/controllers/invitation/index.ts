@@ -2,11 +2,13 @@ import { Body, Controller, Get, HttpStatus, Param, Post, Query, Req } from "@nes
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
+    ApiForbiddenResponse,
     ApiInternalServerErrorResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import type { Request } from "express";
 
@@ -59,6 +61,12 @@ export class InvitationController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
     })
@@ -89,11 +97,11 @@ export class InvitationController {
     @ApiOkResponse({
         description: "Invitation is valid.",
     })
-    @ApiNotFoundResponse({
-        description: "Invitation not found.",
-    })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiNotFoundResponse({
+        description: "Invitation not found.",
     })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
@@ -125,11 +133,17 @@ export class InvitationController {
     @ApiOkResponse({
         description: "Invitation revoked successfully.",
     })
-    @ApiNotFoundResponse({
-        description: "Invitation not found.",
-    })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
+    @ApiNotFoundResponse({
+        description: "Invitation not found.",
     })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
@@ -159,11 +173,17 @@ export class InvitationController {
     @ApiOkResponse({
         description: "Invitations retrieved successfully.",
     })
-    @ApiNotFoundResponse({
-        description: "Tenant not found.",
-    })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
+    @ApiNotFoundResponse({
+        description: "Tenant not found.",
     })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",

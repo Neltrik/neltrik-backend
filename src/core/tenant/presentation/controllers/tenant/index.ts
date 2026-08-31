@@ -2,12 +2,14 @@ import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from "@nestjs/c
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
+    ApiForbiddenResponse,
     ApiInternalServerErrorResponse,
     ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
@@ -68,6 +70,12 @@ export class TenantController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
     })
@@ -96,11 +104,17 @@ export class TenantController {
     @ApiOkResponse({
         description: "Resource found.",
     })
-    @ApiNotFoundResponse({
-        description: "Tenant not found.",
-    })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
+    @ApiNotFoundResponse({
+        description: "Tenant not found.",
     })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
@@ -145,6 +159,12 @@ export class TenantController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
     })
@@ -178,6 +198,12 @@ export class TenantController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiNotFoundResponse({
         description: "Tenant not found.",
     })
@@ -210,6 +236,12 @@ export class TenantController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiNotFoundResponse({
         description: "Tenant not found.",
     })
@@ -237,6 +269,12 @@ export class TenantController {
     })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
     })
     @ApiNotFoundResponse({
         description: "Tenant not found.",

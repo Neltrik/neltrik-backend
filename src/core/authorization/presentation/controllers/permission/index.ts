@@ -2,11 +2,13 @@ import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from "@nestjs/c
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
+    ApiForbiddenResponse,
     ApiInternalServerErrorResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
@@ -52,6 +54,12 @@ export class PermissionController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
     })
@@ -79,6 +87,12 @@ export class PermissionController {
     })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
     })
     @ApiNotFoundResponse({
         description: "Permission not found.",
@@ -114,6 +128,15 @@ export class PermissionController {
     })
     @ApiOkResponse({
         description: "Resources retrieved successfully.",
+    })
+    @ApiBadRequestResponse({
+        description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
     })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",

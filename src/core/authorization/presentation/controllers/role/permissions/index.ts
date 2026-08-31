@@ -1,11 +1,13 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
+    ApiForbiddenResponse,
     ApiInternalServerErrorResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
@@ -52,6 +54,12 @@ export class RolePermissionsController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiNotFoundResponse({
         description: "Role or permission not found.",
     })
@@ -90,6 +98,12 @@ export class RolePermissionsController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiNotFoundResponse({
         description: "Role or permission not found.",
     })
@@ -125,6 +139,12 @@ export class RolePermissionsController {
     })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
     })
     @ApiNotFoundResponse({
         description: "Role not found.",

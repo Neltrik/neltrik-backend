@@ -11,6 +11,7 @@ export const PERMISSION_MESSAGES = {
     CREATED: "Permission created successfully.",
     UPDATED: "Permission updated successfully.",
     LISTED: "Permission listed successfully.",
+    CHECKED: "Permission checked successfully.",
 } as const;
 
 export const TENANT_ROLE_CONFIGURATION_MESSAGES = {

@@ -28,6 +28,7 @@ import {
     UpdatePermissionUseCase,
     UpdateRoleUseCase,
     UpdateTenantRoleConfigurationUseCase,
+    UserHasPermissionUseCase,
 } from "./application/use-cases";
 import {
     CanAssignRoleToTenantOhsUseCase,
@@ -82,6 +83,7 @@ import {
         UpdatePermissionUseCase,
         UpdateRoleUseCase,
         UpdateTenantRoleConfigurationUseCase,
+        UserHasPermissionUseCase,
         CanAssignRoleToTenantOhsUseCase,
         CanSuspendUserPolicyOhsUseCase,
         GetRoleOhsUseCase,

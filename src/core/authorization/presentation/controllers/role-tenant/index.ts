@@ -1,12 +1,14 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Req } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
+    ApiForbiddenResponse,
     ApiInternalServerErrorResponse,
     ApiNoContentResponse,
     ApiNotFoundResponse,
     ApiOkResponse,
     ApiOperation,
     ApiTags,
+    ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 import type { Request } from "express";
 
@@ -50,6 +52,12 @@ export class RoleTenantController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiNotFoundResponse({
         description: "Tenant or role not found.",
     })
@@ -86,6 +94,12 @@ export class RoleTenantController {
     @ApiBadRequestResponse({
         description: "Validation failed.",
     })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
     @ApiNotFoundResponse({
         description: "Tenant not found.",
     })
@@ -121,6 +135,12 @@ export class RoleTenantController {
     })
     @ApiBadRequestResponse({
         description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
     })
     @ApiNotFoundResponse({
         description: "Tenant not found.",

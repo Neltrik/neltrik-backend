@@ -59,7 +59,7 @@ export class AuthenticationModule implements OnModuleInit {
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.SESSION_EXPIRED, HttpStatus.UNAUTHORIZED);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.SESSION_REVOKED, HttpStatus.UNAUTHORIZED);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
-        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.AUTHENTICATION_ACCOUNT_NOT_FOUND, HttpStatus.UNAUTHORIZED);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.AUTHENTICATION_ACCOUNT_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.UNAUTHORIZED_SESSION, HttpStatus.UNAUTHORIZED);
     }
 }

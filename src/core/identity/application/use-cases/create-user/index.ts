@@ -2,7 +2,6 @@ import { Injectable } from "@nestjs/common";
 
 import { AuthorizationRoleApi } from "@/core/authorization/api";
 import { TenantApi } from "@/core/tenant/api";
-import { UnauthorizedError } from "@/shared/errors";
 import { IdGenerator } from "@/shared/id-generator";
 
 import { User } from "../../../domain/entities";
@@ -22,9 +21,6 @@ export class RegisterUserUseCase {
     ) {}
 
     public async execute(input: RegisterUserInput): Promise<RegisterUserOutput> {
-        if (!input.tenantId) {
-            throw new UnauthorizedError();
-        }
         await this.tenantApi.validate(input.tenantId);
         await this.authorizationRoleApi.validate(input.roleId);
         await this.authorizationRoleApi.validateForTenant({ roleId: input.roleId, tenantId: input.tenantId });

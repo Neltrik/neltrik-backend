@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post, Req } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Param, Patch, Post } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
@@ -11,8 +11,8 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
-import type { Request } from "express";
 
+import { TenantId } from "@/shared/auth";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -78,12 +78,12 @@ export class TenantRoleConfigurationController {
     })
     @Post()
     public async create(
-        @Req() req: Request,
+        @TenantId() tenantId: string,
         @Body(new ZodValidationPipe(createTenantRoleConfigurationSchema))
         body: CreateTenantRoleConfigurationDto,
     ): Promise<CreateTenantRoleConfigurationResultDto> {
         const input: CreateTenantRoleConfigurationInput = {
-            tenantId: req.user?.tenantId,
+            tenantId,
             roleId: body.roleId,
             displayName: body.displayName,
         };

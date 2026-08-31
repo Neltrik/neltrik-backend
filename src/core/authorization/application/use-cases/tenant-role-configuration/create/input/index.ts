@@ -1,5 +1,5 @@
 export interface CreateTenantRoleConfigurationInput {
-    tenantId: string | undefined;
+    tenantId: string;
     roleId: string;
     displayName: string;
 }

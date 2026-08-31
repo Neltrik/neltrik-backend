@@ -1,4 +1,3 @@
-import { UnauthorizedError } from "@/shared/errors";
 import type { IdGenerator } from "@/shared/id-generator";
 
 import { EmailAlreadyExistsError } from "../../../domain/errors";
@@ -29,16 +28,6 @@ describe("RegisterUserUseCase", () => {
         const useCase = new RegisterUserUseCase(userRepository, authorizationRoleApi, tenantApi, idGenerator);
         return { useCase, userRepository, authorizationRoleApi, tenantApi, generateMock };
     };
-
-    it("should reject the operation when tenantId is not provided", async () => {
-        const { useCase, userRepository, tenantApi, authorizationRoleApi } = makeSut();
-        await expect(useCase.execute({ ...makeInput(), tenantId: "" })).rejects.toThrow(UnauthorizedError);
-        expect(tenantApi.validate).not.toHaveBeenCalled();
-        expect(authorizationRoleApi.validate).not.toHaveBeenCalled();
-        expect(authorizationRoleApi.validateForTenant).not.toHaveBeenCalled();
-        expect(userRepository.existsByEmail).not.toHaveBeenCalled();
-        expect(userRepository.create).not.toHaveBeenCalled();
-    });
 
     it("should register a user successfully", async () => {
         const { useCase, userRepository, authorizationRoleApi, tenantApi, generateMock } = makeSut();

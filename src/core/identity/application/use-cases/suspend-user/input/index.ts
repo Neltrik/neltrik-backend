@@ -1,4 +1,4 @@
 export type SuspendUserInput = {
-    actorUserId: string | undefined;
+    actorUserId: string;
     targetUserId: string;
 };

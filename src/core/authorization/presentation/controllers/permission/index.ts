@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, HttpStatus, Param, Patch, Post, Query } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
@@ -22,6 +22,7 @@ import {
     ListPermissionsUseCase,
     UpdatePermissionInput,
     UpdatePermissionUseCase,
+    UserHasPermissionUseCase,
 } from "../../../application/use-cases";
 import {
     CreatePermissionDto,
@@ -31,9 +32,16 @@ import {
     UpdatePermissionDto,
     UpdatePermissionParamsDto,
     UpdatePermissionResultDto,
+    UserHasPermissionQueryDto,
+    UserHasPermissionResponseDto,
 } from "../../dto/permission";
 import { PERMISSION_MESSAGES } from "../../messages";
-import { createPermissionSchema, permissionParamsSchema, updatePermissionSchema } from "../../schemas";
+import {
+    createPermissionSchema,
+    permissionParamsSchema,
+    updatePermissionSchema,
+    userHasPermissionQuerySchema,
+} from "../../schemas";
 
 @ApiTags("Permissions")
 @Controller("permissions")
@@ -41,8 +49,9 @@ export class PermissionController {
     constructor(
         private readonly createPermissionUseCase: CreatePermissionUseCase,
         private readonly getUserEffectivePermissionsUseCase: GetUserEffectivePermissionsUseCase,
-        private readonly updatePermissionUseCase: UpdatePermissionUseCase,
         private readonly listPermissionsUseCase: ListPermissionsUseCase,
+        private readonly updatePermissionUseCase: UpdatePermissionUseCase,
+        private readonly userHasPermissionUseCase: UserHasPermissionUseCase,
     ) {}
 
     @ApiOperation({
@@ -199,5 +208,45 @@ export class PermissionController {
             description: permission.description,
             scope: permission.scope,
         }));
+    }
+
+    @ApiOperation({
+        summary: "Check user permission",
+        description: "Checks if the authenticated user has a specific permission.",
+    })
+    @ApiContract(UserHasPermissionResponseDto)
+    @ApiOkResponse({
+        description: "Permission check completed successfully.",
+    })
+    @ApiBadRequestResponse({
+        description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
+    @ApiNotFoundResponse({
+        description: "User not found.",
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Internal server error.",
+    })
+    @Response({
+        code: RESPONSE_CODES.RESOURCE_FOUND,
+        message: PERMISSION_MESSAGES.CHECKED,
+    })
+    @Get("check")
+    public async checkPermission(
+        @UserId() userId: string,
+        @Query(new ZodValidationPipe(userHasPermissionQuerySchema))
+        query: UserHasPermissionQueryDto,
+    ): Promise<UserHasPermissionResponseDto> {
+        const hasPermission = await this.userHasPermissionUseCase.execute({
+            userId,
+            code: query.code,
+        });
+        return { hasPermission };
     }
 }

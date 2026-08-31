@@ -19,3 +19,7 @@ export const updatePermissionSchema = z
 export const permissionParamsSchema = z.object({
     id: z.uuid(),
 });
+
+export const userHasPermissionQuerySchema = z.object({
+    code: z.string().min(1, "Permission code is required"),
+});

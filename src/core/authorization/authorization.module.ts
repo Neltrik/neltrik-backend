@@ -1,5 +1,6 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 
+import { IdentityModule } from "@/core/identity/identity.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
 
 import {
@@ -19,6 +20,7 @@ import {
     GetPermissionsByRoleUseCase,
     GetRolesByTenantUseCase,
     GetRoleUseCase,
+    GetUserEffectivePermissionsUseCase,
     ListPermissionsUseCase,
     ListRolesUseCase,
     ListTenantRoleConfigurationUseCase,
@@ -72,6 +74,7 @@ import {
         GetPermissionsByRoleUseCase,
         GetRolesByTenantUseCase,
         GetRoleUseCase,
+        GetUserEffectivePermissionsUseCase,
         ListPermissionsUseCase,
         ListRolesUseCase,
         ListTenantRoleConfigurationUseCase,
@@ -108,7 +111,7 @@ import {
             useClass: PrismaTenantRoleConfigurationRepository,
         },
     ],
-    imports: [TenantModule],
+    imports: [forwardRef(() => IdentityModule), TenantModule],
     exports: [AuthorizationRoleApi, AuthorizationPolicyApi],
 })
 export class AuthorizationModule {}

@@ -2,6 +2,7 @@ export * from "./email-already-exists";
 export * from "./invalid-email";
 export * from "./invalid-first-name";
 export * from "./invalid-last-name";
+export * from "./messages";
 export * from "./user-already-active";
 export * from "./user-already-suspended";
 export * from "./user-not-found";

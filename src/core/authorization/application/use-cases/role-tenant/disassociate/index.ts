@@ -1,7 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
 import { TenantApi } from "@/core/tenant/api";
-import { UnauthorizedError } from "@/shared/errors";
 import { TransactionManager } from "@/shared/transaction";
 
 import { CannotManageRoleTenantError } from "../../../../domain/errors";
@@ -18,13 +17,9 @@ export class DisassociateRolesFromTenantUseCase {
     ) {}
 
     public async execute(input: DisassociateRolesFromTenantInput): Promise<DisassociateRolesFromTenantOutput> {
-        const actorTenantId = input.actorTenantId;
-        if (!actorTenantId) {
-            throw new UnauthorizedError();
-        }
         const roleIds = [...new Set(input.roleIds)];
         return this.transactionManager.execute(async (context) => {
-            const isPlatformActor = await this.tenantApi.isPlatformTenant(actorTenantId);
+            const isPlatformActor = await this.tenantApi.isPlatformTenant(input.actorTenantId);
             if (!isPlatformActor) {
                 throw new CannotManageRoleTenantError();
             }

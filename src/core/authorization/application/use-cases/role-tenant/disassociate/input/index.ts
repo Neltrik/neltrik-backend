@@ -1,5 +1,5 @@
 export interface DisassociateRolesFromTenantInput {
-    actorTenantId: string | undefined;
+    actorTenantId: string;
     targetTenantId: string;
     roleIds: string[];
 }

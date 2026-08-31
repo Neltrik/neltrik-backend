@@ -2,6 +2,6 @@ export interface RegisterUserInput {
     firstName: string;
     lastName: string;
     email: string;
-    tenantId: string | undefined;
+    tenantId: string;
     roleId: string;
 }

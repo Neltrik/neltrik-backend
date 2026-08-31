@@ -11,7 +11,7 @@ import {
 } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
-import { Public } from "@/shared/auth";
+import { Public, UserId } from "@/shared/auth";
 import { ApiContract, CookieHelper, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -206,13 +206,13 @@ export class AuthController {
     })
     @Post("sessions/:id/revoke")
     public async revokeSession(
-        @Req() req: Request,
+        @UserId() userId: string,
         @Param(new ZodValidationPipe(revokeSessionParamsSchema))
         params: RevokeSessionParamsDto,
     ): Promise<void> {
         await this.revokeSessionUseCase.execute({
             sessionId: params.id,
-            userId: req.user?.userId,
+            userId,
         });
     }
 }

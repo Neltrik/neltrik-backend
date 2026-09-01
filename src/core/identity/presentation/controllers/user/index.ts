@@ -1,7 +1,6 @@
-import { Body, Controller, Get, HttpStatus, Param, Patch, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
-    ApiCreatedResponse,
     ApiForbiddenResponse,
     ApiInternalServerErrorResponse,
     ApiNoContentResponse,
@@ -12,15 +11,14 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { TenantId } from "@/shared/auth";
+import { UserId } from "@/shared/auth";
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
 import {
     GetUsersUseCase,
     ReactivateUserUseCase,
-    RegisterUserInput,
-    RegisterUserUseCase,
     SuspendUserUseCase,
     UpdateUserInput,
     UpdateUserUseCase,
@@ -29,8 +27,6 @@ import {
     GetUsersParamsDto,
     GetUsersResultDto,
     ReactivateUserParamsDto,
-    RegisterUserRequestDto,
-    RegisterUserResultDto,
     SuspendUserParamsDto,
     UpdateUserParamsDto,
     UpdateUserRequestDto,
@@ -40,7 +36,6 @@ import { USER_MESSAGES } from "../../messages";
 import {
     getUsersParamsSchema,
     reactivateUserParamsSchema,
-    registerUserSchema,
     suspendUserParamsSchema,
     updateUserParamsSchema,
     updateUserSchema,
@@ -52,53 +47,9 @@ export class UserController {
     constructor(
         private readonly getUsersUseCase: GetUsersUseCase,
         private readonly reactivateUserUseCase: ReactivateUserUseCase,
-        private readonly registerUserUseCase: RegisterUserUseCase,
         private readonly suspendUserUseCase: SuspendUserUseCase,
         private readonly updateUserUseCase: UpdateUserUseCase,
     ) {}
-
-    @ApiOperation({
-        summary: "Register user",
-        description: "Registers a new user.",
-    })
-    @ApiContract(RegisterUserResultDto, {
-        status: HttpStatus.CREATED,
-    })
-    @ApiCreatedResponse({
-        description: "Resource created.",
-    })
-    @ApiBadRequestResponse({
-        description: "Validation failed.",
-    })
-    @ApiUnauthorizedResponse({
-        description: "Unauthorized.",
-    })
-    @ApiForbiddenResponse({
-        description: "Forbidden.",
-    })
-    @ApiInternalServerErrorResponse({
-        description: "Internal server error.",
-    })
-    @Response({
-        code: RESPONSE_CODES.RESOURCE_CREATED,
-        message: USER_MESSAGES.CREATED,
-    })
-    @Post("users")
-    public async create(
-        @TenantId() tenantId: string,
-        @Body(new ZodValidationPipe(registerUserSchema))
-        body: RegisterUserRequestDto,
-    ): Promise<RegisterUserResultDto> {
-        const input: RegisterUserInput = {
-            firstName: body.firstName,
-            lastName: body.lastName,
-            email: body.email,
-            tenantId,
-            roleId: body.roleId,
-        };
-        const user = await this.registerUserUseCase.execute(input);
-        return { id: user.id };
-    }
 
     @ApiOperation({
         summary: "Update user",
@@ -127,6 +78,7 @@ export class UserController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: USER_MESSAGES.UPDATED,
     })
+    @Permissions("USER_UPDATE")
     @Patch("users/:id")
     public async update(
         @Param(new ZodValidationPipe(updateUserParamsSchema))
@@ -171,6 +123,7 @@ export class UserController {
         code: RESPONSE_CODES.RESOURCE_LISTED,
         message: USER_MESSAGES.LISTED,
     })
+    @Permissions("USER_LIST")
     @Get("tenants/:tenantId/users")
     public async list(
         @Param(new ZodValidationPipe(getUsersParamsSchema))
@@ -213,9 +166,10 @@ export class UserController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: USER_MESSAGES.SUSPENDED,
     })
+    @Permissions("USER_SUSPEND")
     @Patch("users/:id/suspend")
     public async suspend(
-        @TenantId() actorUserId: string,
+        @UserId() actorUserId: string,
         @Param(new ZodValidationPipe(suspendUserParamsSchema))
         params: SuspendUserParamsDto,
     ): Promise<void> {
@@ -248,6 +202,7 @@ export class UserController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: USER_MESSAGES.REACTIVATED,
     })
+    @Permissions("USER_REACTIVATE")
     @Patch("users/:id/reactivate")
     public async reactivate(
         @Param(new ZodValidationPipe(reactivateUserParamsSchema))

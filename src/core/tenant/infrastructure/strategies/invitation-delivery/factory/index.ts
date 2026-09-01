@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
-import { InvitationDeliveryStrategy } from "../../../../application/strategies/invitation-delivery";
 import { UnsupportedDeliveryMechanismError } from "../../../../domain/errors/invitation";
+import { InvitationDeliveryStrategy } from "../contracts";
 import { ManualStrategy } from "../manual";
 
 @Injectable()

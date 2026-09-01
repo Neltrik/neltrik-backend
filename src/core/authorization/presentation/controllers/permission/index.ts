@@ -18,7 +18,6 @@ import { ZodValidationPipe } from "@/shared/zod";
 import {
     CreatePermissionInput,
     CreatePermissionUseCase,
-    GetUserEffectivePermissionsUseCase,
     ListPermissionsUseCase,
     UpdatePermissionInput,
     UpdatePermissionUseCase,
@@ -27,7 +26,6 @@ import {
 import {
     CreatePermissionDto,
     CreatePermissionResultDto,
-    GetUserEffectivePermissionsResultDto,
     PermissionResultDto,
     UpdatePermissionDto,
     UpdatePermissionParamsDto,
@@ -48,7 +46,6 @@ import {
 export class PermissionController {
     constructor(
         private readonly createPermissionUseCase: CreatePermissionUseCase,
-        private readonly getUserEffectivePermissionsUseCase: GetUserEffectivePermissionsUseCase,
         private readonly listPermissionsUseCase: ListPermissionsUseCase,
         private readonly updatePermissionUseCase: UpdatePermissionUseCase,
         private readonly userHasPermissionUseCase: UserHasPermissionUseCase,
@@ -161,47 +158,6 @@ export class PermissionController {
     @Get()
     public async list(): Promise<PermissionResultDto[]> {
         const permissions = await this.listPermissionsUseCase.execute();
-        return permissions.map((permission) => ({
-            id: permission.id,
-            code: permission.code,
-            description: permission.description,
-            scope: permission.scope,
-        }));
-    }
-
-    @ApiOperation({
-        summary: "Get user effective permissions",
-        description: "Returns all permissions that the authenticated user has through their role.",
-    })
-    @ApiContract(GetUserEffectivePermissionsResultDto, {
-        responseType: "array",
-        status: HttpStatus.OK,
-    })
-    @ApiOkResponse({
-        description: "Permissions retrieved successfully.",
-    })
-    @ApiBadRequestResponse({
-        description: "Validation failed.",
-    })
-    @ApiUnauthorizedResponse({
-        description: "Unauthorized.",
-    })
-    @ApiForbiddenResponse({
-        description: "Forbidden.",
-    })
-    @ApiNotFoundResponse({
-        description: "User not found.",
-    })
-    @ApiInternalServerErrorResponse({
-        description: "Internal server error.",
-    })
-    @Response({
-        code: RESPONSE_CODES.RESOURCE_LISTED,
-        message: PERMISSION_MESSAGES.LISTED,
-    })
-    @Get("me")
-    public async getMyPermissions(@UserId() userId: string): Promise<GetUserEffectivePermissionsResultDto[]> {
-        const permissions = await this.getUserEffectivePermissionsUseCase.execute(userId);
         return permissions.map((permission) => ({
             id: permission.id,
             code: permission.code,

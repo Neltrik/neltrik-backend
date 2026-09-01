@@ -1,4 +1,4 @@
-import { isEmailPasswordCredentials } from "./index";
+import { isEmailPasswordCredentials } from "./";
 
 describe("isEmailPasswordCredentials", () => {
     it("should return true when credentials have a valid password", () => {

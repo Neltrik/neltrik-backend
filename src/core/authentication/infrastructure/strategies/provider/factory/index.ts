@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
-import { ProviderAuthenticationStrategy } from "../../../../application/strategies";
 import { UnsupportedProviderError } from "../../../../domain/errors";
+import { ProviderAuthenticationStrategy } from "../contract";
 import { EmailPasswordProviderStrategy } from "../email-password";
 
 @Injectable()

@@ -10,6 +10,7 @@ import { AtsModule } from "./modules/ats/ats.module";
 import { PrismaModule } from "./prisma";
 import { AuthenticationGuard } from "./shared/auth";
 import { AuthModule } from "./shared/auth/auth.module";
+import { PermissionsGuard } from "./shared/authorization";
 import { ErrorsModule } from "./shared/errors";
 import { HttpModule } from "./shared/http";
 import { IdGeneratorModule } from "./shared/id-generator";
@@ -34,6 +35,10 @@ import { SanitizationModule } from "./shared/sanitization";
         {
             provide: APP_GUARD,
             useClass: AuthenticationGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: PermissionsGuard,
         },
     ],
 })

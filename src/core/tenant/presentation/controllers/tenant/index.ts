@@ -12,8 +12,9 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
-import { ZodValidationPipe } from "@/shared/pipes/zod-validation";
+import { ZodValidationPipe } from "@/shared/zod";
 
 import {
     CreateTenantInput,
@@ -83,6 +84,7 @@ export class TenantController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: TENANT_MESSAGES.CREATED,
     })
+    @Permissions("TENANT_CREATE")
     @Post()
     public async create(
         @Body(new ZodValidationPipe(createTenantSchema))
@@ -123,6 +125,7 @@ export class TenantController {
         code: RESPONSE_CODES.RESOURCE_FOUND,
         message: TENANT_MESSAGES.RETRIEVED,
     })
+    @Permissions("TENANT_GET")
     @Get(":id")
     public async get(
         @Param(new ZodValidationPipe(getTenantSchema))
@@ -172,6 +175,7 @@ export class TenantController {
         code: RESPONSE_CODES.RESOURCE_FOUND,
         message: TENANT_MESSAGES.RETRIEVED,
     })
+    @Permissions("TENANT_LIST")
     @Get()
     public async list(): Promise<ListTenantsResultDto[]> {
         const tenants = await this.listTenantsUseCase.execute();
@@ -214,6 +218,7 @@ export class TenantController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: TENANT_MESSAGES.UPDATED,
     })
+    @Permissions("TENANT_UPDATE")
     @Patch(":id")
     public async update(
         @Param(new ZodValidationPipe(updateTenantParamsSchema))
@@ -252,6 +257,7 @@ export class TenantController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: TENANT_MESSAGES.SUSPENDED,
     })
+    @Permissions("TENANT_SUSPEND")
     @Patch(":id/suspend")
     public async suspend(
         @Param(new ZodValidationPipe(suspendTenantParamsSchema))
@@ -286,6 +292,7 @@ export class TenantController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: TENANT_MESSAGES.REACTIVATED,
     })
+    @Permissions("TENANT_REACTIVATE")
     @Patch(":id/reactivate")
     public async reactivate(
         @Param(new ZodValidationPipe(reactivateTenantParamsSchema))

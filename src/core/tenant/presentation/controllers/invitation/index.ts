@@ -12,8 +12,9 @@ import {
 } from "@nestjs/swagger";
 
 import { Public, TenantId } from "@/shared/auth";
+import { Permissions, PublicPermission } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
-import { ZodValidationPipe } from "@/shared/pipes/zod-validation";
+import { ZodValidationPipe } from "@/shared/zod";
 
 import {
     CreateInvitationUseCase,
@@ -73,6 +74,7 @@ export class InvitationController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: INVITATION_MESSAGES.CREATED,
     })
+    @Permissions("INVITATION_CREATE")
     @Post()
     public async create(
         @TenantId() tenantId: string,
@@ -110,6 +112,7 @@ export class InvitationController {
         message: INVITATION_MESSAGES.VALIDATED,
     })
     @Public()
+    @PublicPermission()
     @Get("validate")
     public async validate(
         @Query(new ZodValidationPipe(validateInvitationQuerySchema))
@@ -151,6 +154,7 @@ export class InvitationController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: INVITATION_MESSAGES.REVOKED,
     })
+    @Permissions("INVITATION_REVOKE")
     @Get(":token/revoke")
     public async revoke(
         @Param(new ZodValidationPipe(revokeInvitationParamsSchema))
@@ -191,6 +195,7 @@ export class InvitationController {
         code: RESPONSE_CODES.RESOURCE_FOUND,
         message: INVITATION_MESSAGES.RETRIEVED,
     })
+    @Permissions("INVITATION_LIST")
     @Get("tenant/:tenantId")
     public async listByTenant(
         @Param(new ZodValidationPipe(listInvitationsParamsSchema))

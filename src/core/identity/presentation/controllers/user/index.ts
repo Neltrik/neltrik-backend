@@ -14,7 +14,7 @@ import {
 
 import { TenantId } from "@/shared/auth";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
-import { ZodValidationPipe } from "@/shared/pipes/zod-validation";
+import { ZodValidationPipe } from "@/shared/zod";
 
 import {
     GetUsersUseCase,

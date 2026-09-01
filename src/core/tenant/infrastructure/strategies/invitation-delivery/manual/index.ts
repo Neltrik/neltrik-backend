@@ -1,9 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-import {
-    InvitationDeliveryResult,
-    SyncInvitationDeliveryStrategy,
-} from "../../../../application/strategies/invitation-delivery";
+import { InvitationDeliveryResult, SyncInvitationDeliveryStrategy } from "../contracts";
 import { MagicLinkGeneratorService } from "../magic-link-generator.service";
 
 @Injectable()

@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import * as bcrypt from "bcrypt";
 
-import { isEmailPasswordCredentials } from "../../../../application/strategies";
-import { ProviderAuthenticationStrategy, UserProfile } from "../../../../application/strategies";
 import { AuthenticationAccount } from "../../../../domain/entities";
 import { InvalidCredentialsError } from "../../../../domain/errors";
+import { ProviderAuthenticationStrategy, UserProfile } from "../contract";
+import { isEmailPasswordCredentials } from "./type-guard";
 
 @Injectable()
 export class EmailPasswordProviderStrategy extends ProviderAuthenticationStrategy {

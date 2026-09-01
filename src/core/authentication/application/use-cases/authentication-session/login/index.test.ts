@@ -22,8 +22,8 @@ const makeInput = (): LoginInput => ({
     userAgent: "Mozilla/5.0",
 });
 
-const accessTokenExpiration = new Date("2026-09-01T00:00:00.000Z");
-const refreshTokenExpiration = new Date("2026-10-01T00:00:00.000Z");
+const accessTokenExpiration = new Date(Date.now() + 60 * 60 * 1000);
+const refreshTokenExpiration = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
 describe("LoginUseCase", () => {
     const makeSut = () => {

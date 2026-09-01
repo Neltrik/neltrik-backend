@@ -9,12 +9,14 @@ describe("LogoutUseCase", () => {
         const sessionRepository = new AuthenticationSessionRepositorySpy();
         const sha256Hasher = new Sha256HasherSpy();
         sha256Hasher.hash.mockReturnValue("refresh-token-hash");
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
+        const refreshTokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
         const session = AuthenticationSession.create({
             id: "session-id",
             authenticationAccountId: "account-id",
             refreshTokenHash: "refresh-token-hash",
-            expiresAt: ExpirationDate.create(new Date("2026-09-01T00:00:00.000Z")),
-            refreshTokenExpiresAt: ExpirationDate.create(new Date("2026-10-01T00:00:00.000Z")),
+            expiresAt: ExpirationDate.create(expiresAt),
+            refreshTokenExpiresAt: ExpirationDate.create(refreshTokenExpiresAt),
             ipAddress: "127.0.0.1",
             userAgent: "Mozilla/5.0",
             createdAt: new Date(),

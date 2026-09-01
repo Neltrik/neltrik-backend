@@ -2,6 +2,7 @@ import { forwardRef, Module } from "@nestjs/common";
 
 import { IdentityModule } from "@/core/identity/identity.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
+import { PermissionChecker } from "@/shared/authorization";
 
 import {
     AuthorizationPolicyApi,
@@ -20,7 +21,6 @@ import {
     GetPermissionsByRoleUseCase,
     GetRolesByTenantUseCase,
     GetRoleUseCase,
-    GetUserEffectivePermissionsUseCase,
     ListPermissionsUseCase,
     ListRolesUseCase,
     ListTenantRoleConfigurationUseCase,
@@ -42,6 +42,7 @@ import {
     RoleTenantRepository,
     TenantRoleConfigurationRepository,
 } from "./domain/interfaces";
+import { PermissionCheckerProvider } from "./infrastructure/providers";
 import {
     PrismaPermissionRepository,
     PrismaRoleRepository,
@@ -75,7 +76,6 @@ import {
         GetPermissionsByRoleUseCase,
         GetRolesByTenantUseCase,
         GetRoleUseCase,
-        GetUserEffectivePermissionsUseCase,
         ListPermissionsUseCase,
         ListRolesUseCase,
         ListTenantRoleConfigurationUseCase,
@@ -112,8 +112,12 @@ import {
             provide: TenantRoleConfigurationRepository,
             useClass: PrismaTenantRoleConfigurationRepository,
         },
+        {
+            provide: PermissionChecker,
+            useClass: PermissionCheckerProvider,
+        },
     ],
     imports: [forwardRef(() => IdentityModule), TenantModule],
-    exports: [AuthorizationRoleApi, AuthorizationPolicyApi],
+    exports: [AuthorizationRoleApi, AuthorizationPolicyApi, PermissionChecker],
 })
 export class AuthorizationModule {}

@@ -9,6 +9,11 @@ export class ExpirationDate {
         return new ExpirationDate(value);
     }
 
+    public static restore(value: Date): ExpirationDate {
+        this.ensureIsValidDate(value);
+        return new ExpirationDate(value);
+    }
+
     private static ensureIsValidDate(value: Date): void {
         if (!(value instanceof Date) || isNaN(value.getTime())) {
             throw new InvalidExpirationDateError();

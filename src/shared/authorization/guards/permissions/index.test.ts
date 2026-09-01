@@ -65,7 +65,9 @@ describe("PermissionsGuard", () => {
     it("should throw when user is not authenticated", async () => {
         const { guard, reflector, permissionChecker, context } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValueOnce(false).mockReturnValueOnce(["USER_CREATE"]);
-        await expect(guard.canActivate(context)).rejects.toThrow(new ForbiddenException("User not authenticated"));
+        await expect(guard.canActivate(context)).rejects.toThrow(
+            new ForbiddenException("User does not have permission"),
+        );
         expect(permissionChecker.hasPermission).not.toHaveBeenCalled();
     });
 

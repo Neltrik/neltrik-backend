@@ -28,7 +28,7 @@ export class InvitationMapper {
             roleId: prismaInvitation.roleId,
             recipient: Recipient.create(prismaInvitation.recipient),
             token: Token.create(prismaInvitation.token),
-            expirationDate: ExpirationDate.create(prismaInvitation.expiresAt),
+            expirationDate: ExpirationDate.restore(prismaInvitation.expiresAt),
             mechanism: prismaInvitation.mechanism,
             status: prismaInvitation.status,
             usedAt: prismaInvitation.usedAt,

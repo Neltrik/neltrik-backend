@@ -48,6 +48,8 @@ Authentication Account
 ### Descripción
 
 - Una **Authentication Account** puede tener múltiples solicitudes de `Email Verification` durante su ciclo de vida.
+- Al generar una nueva solicitud de verificación, las solicitudes pendientes anteriores
+  correspondientes a la misma Authentication Account deben quedar invalidadas.
 - Cada **Email Verification** pertenece a una única `Authentication Account`.
 - La relación se establece mediante `authenticationAccountId`.
 - Una Authentication Account puede tener múltiples solicitudes históricas de verificación.
@@ -97,6 +99,7 @@ verifiedAt != null
 - Una `Email Verification` solo puede utilizarse si no está expirada.
 - Una `Email Verification` solo puede utilizarse si `verifiedAt` es `null`.
 - El token proporcionado debe corresponder al `tokenHash` almacenado.
+- La comparación debe realizarse contra el `tokenHash`, nunca contra el token original.
 - Una verificación válida debe establecer `verifiedAt`.
 - Una verificación completada no puede utilizarse nuevamente.
 - Una verificación expirada no puede completarse.
@@ -156,5 +159,6 @@ email_verifications
 ## 5.4 Índices
 
 - PK(`id`)
-- UNIQUE(`token_hash`)
+- INDEX(`token_hash`)
 - INDEX(`authentication_account_id`)
+- INDEX(`expires_at`)

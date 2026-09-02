@@ -284,6 +284,7 @@ model EmailVerification {
   expiresAt               DateTime  @map("expires_at")
   verifiedAt              DateTime? @map("verified_at")
   createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
 
   authenticationAccount AuthenticationAccount @relation(fields: [authenticationAccountId], references: [id])
 

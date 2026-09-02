@@ -1,11 +1,23 @@
-import { ExpirationDateInPastError } from "../../errors";
+import { ExpirationDateInPastError, InvalidExpirationDateError } from "../../errors";
 
 export class ExpirationDate {
     private constructor(private readonly expirationDate: Date) {}
 
     public static create(value: Date): ExpirationDate {
+        this.ensureIsValidDate(value);
         this.ensureIsFuture(value);
         return new ExpirationDate(value);
+    }
+
+    public static restore(value: Date): ExpirationDate {
+        this.ensureIsValidDate(value);
+        return new ExpirationDate(value);
+    }
+
+    private static ensureIsValidDate(value: Date): void {
+        if (!(value instanceof Date) || isNaN(value.getTime())) {
+            throw new InvalidExpirationDateError();
+        }
     }
 
     private static ensureIsFuture(value: Date): void {

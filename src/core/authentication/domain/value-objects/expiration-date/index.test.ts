@@ -1,4 +1,4 @@
-import { ExpirationDateInPastError } from "../../errors";
+import { ExpirationDateInPastError, InvalidExpirationDateError } from "../../errors";
 import { ExpirationDate } from "./index";
 
 describe("ExpirationDate", () => {
@@ -59,5 +59,21 @@ describe("ExpirationDate", () => {
         const expirationDate1 = ExpirationDate.create(new Date(Date.now() + 60_000));
         const expirationDate2 = ExpirationDate.create(new Date(Date.now() + 120_000));
         expect(expirationDate1.equals(expirationDate2)).toBe(false);
+    });
+
+    it("should restore an expiration date", () => {
+        const expirationDate = new Date(Date.now() - 60_000);
+        const result = ExpirationDate.restore(expirationDate);
+        expect(result.value).toBe(expirationDate);
+    });
+
+    it("should throw InvalidExpirationDateError when expiration date is invalid", () => {
+        const expirationDate = new Date("invalid");
+        expect(() => ExpirationDate.create(expirationDate)).toThrow(InvalidExpirationDateError);
+    });
+
+    it("should not throw when expiration date is valid", () => {
+        const expirationDate = new Date(Date.now() + 60_000);
+        expect(() => ExpirationDate.create(expirationDate)).not.toThrow();
     });
 });

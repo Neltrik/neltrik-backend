@@ -12,7 +12,7 @@ import {
 import type { Request, Response } from "express";
 
 import { Public, UserId } from "@/shared/auth";
-import { PublicPermission } from "@/shared/authorization";
+import { Permissions, PublicPermission } from "@/shared/authorization";
 import { ApiContract, CookieHelper, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -122,6 +122,7 @@ export class AuthController {
         message: AUTH_MESSAGES.REFRESH_SUCCESS,
     })
     @Public()
+    @PublicPermission()
     @Post("refresh")
     public async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
         const refreshToken = CookieHelper.get(req, "refreshToken");
@@ -164,6 +165,7 @@ export class AuthController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: AUTH_MESSAGES.LOGOUT_SUCCESS,
     })
+    @PublicPermission()
     @Post("logout")
     public async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
         const refreshToken = CookieHelper.get(req, "refreshToken");
@@ -206,6 +208,7 @@ export class AuthController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: AUTH_MESSAGES.SESSION_REVOKED,
     })
+    @Permissions("SESSION_REVOKE")
     @Post("sessions/:id/revoke")
     public async revokeSession(
         @UserId() userId: string,

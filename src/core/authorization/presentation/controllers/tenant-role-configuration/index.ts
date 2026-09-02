@@ -13,6 +13,7 @@ import {
 } from "@nestjs/swagger";
 
 import { TenantId } from "@/shared/auth";
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -76,6 +77,7 @@ export class TenantRoleConfigurationController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: TENANT_ROLE_CONFIGURATION_MESSAGES.CREATED,
     })
+    @Permissions("TENANT_ROLE_CONFIGURATION_CREATE")
     @Post()
     public async create(
         @TenantId() tenantId: string,
@@ -118,6 +120,7 @@ export class TenantRoleConfigurationController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: TENANT_ROLE_CONFIGURATION_MESSAGES.UPDATED,
     })
+    @Permissions("TENANT_ROLE_CONFIGURATION_UPDATE")
     @Patch(":id")
     public async update(
         @Param(new ZodValidationPipe(tenantRoleConfigurationParamsSchema))
@@ -159,6 +162,7 @@ export class TenantRoleConfigurationController {
         code: RESPONSE_CODES.RESOURCE_DELETED,
         message: TENANT_ROLE_CONFIGURATION_MESSAGES.DELETED,
     })
+    @Permissions("TENANT_ROLE_CONFIGURATION_DELETE")
     @Delete(":id")
     public async delete(
         @Param(new ZodValidationPipe(tenantRoleConfigurationParamsSchema))
@@ -190,6 +194,7 @@ export class TenantRoleConfigurationController {
         code: RESPONSE_CODES.RESOURCE_LISTED,
         message: TENANT_ROLE_CONFIGURATION_MESSAGES.LISTED,
     })
+    @Permissions("TENANT_ROLE_CONFIGURATION_LIST")
     @Get(":tenantId")
     public async list(
         @Param("tenantId")

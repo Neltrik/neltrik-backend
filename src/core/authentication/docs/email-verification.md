@@ -21,6 +21,7 @@ Una Email Verification tiene un período de validez limitado y solo puede comple
 | `expiresAt`               | Fecha y hora a partir de la cual la solicitud deja de ser válida.       |
 | `verifiedAt`              | Fecha y hora en la que la verificación fue completada. Nullable.        |
 | `createdAt`               | Fecha de creación de la Email Verification.                             |
+| `updatedAt`               | Fecha de actualización de la Email Verification.                        |
 
 ---
 
@@ -136,6 +137,7 @@ email_verifications
 | `expires_at`                | TIMESTAMP    | ❌   | —                   | Fecha de expiración             |
 | `verified_at`               | TIMESTAMP    | ✅   | `NULL`              | Fecha de completación           |
 | `created_at`                | TIMESTAMP    | ❌   | `NOW()`             | Fecha de creación               |
+| `updated_at`                | TIMESTAMP    | ❌   | `NOW()`             | Fecha de creación               |
 
 ---
 

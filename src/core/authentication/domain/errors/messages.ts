@@ -17,6 +17,11 @@ export const ERROR_MESSAGES = {
     SESSION_REVOKED: "The session has been revoked.",
     SESSION_NOT_FOUND: "The session was not found.",
     UNAUTHORIZED_SESSION: "The session is not authorized.",
+    INVALID_TOKEN_HASH: "The token hash is invalid.",
+    EMAIL_VERIFICATION_ALREADY_COMPLETED: "The email verification has already been completed.",
+    EMAIL_VERIFICATION_EXPIRED: "The email verification has expired.",
+    INVALID_TOKEN: "The token is invalid.",
+    EMPTY_AUTHENTICATION_ACCOUNT_ID: "The authentication account ID cannot be empty.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -38,4 +43,9 @@ export const DOMAIN_ERROR_CODES = {
     SESSION_REVOKED: "SESSION_REVOKED",
     SESSION_NOT_FOUND: "SESSION_NOT_FOUND",
     UNAUTHORIZED_SESSION: "UNAUTHORIZED_SESSION",
+    INVALID_TOKEN_HASH: "INVALID_TOKEN_HASH",
+    EMAIL_VERIFICATION_ALREADY_COMPLETED: "EMAIL_VERIFICATION_ALREADY_COMPLETED",
+    EMAIL_VERIFICATION_EXPIRED: "EMAIL_VERIFICATION_EXPIRED",
+    INVALID_TOKEN: "INVALID_TOKEN",
+    EMPTY_AUTHENTICATION_ACCOUNT_ID: "EMPTY_AUTHENTICATION_ACCOUNT_ID",
 } as const;

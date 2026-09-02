@@ -11,6 +11,7 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -71,6 +72,7 @@ export class RoleController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: ROLE_MESSAGES.CREATED,
     })
+    @Permissions("ROLE_CREATE")
     @Post()
     public async create(
         @Body(new ZodValidationPipe(createRoleSchema))
@@ -113,6 +115,7 @@ export class RoleController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: ROLE_MESSAGES.UPDATED,
     })
+    @Permissions("ROLE_UPDATE")
     @Patch(":id")
     public async update(
         @Param(new ZodValidationPipe(roleParamsSchema))
@@ -157,6 +160,7 @@ export class RoleController {
         code: RESPONSE_CODES.RESOURCE_LISTED,
         message: ROLE_MESSAGES.LISTED,
     })
+    @Permissions("ROLE_LIST")
     @Get()
     public async list(): Promise<RoleResultDto[]> {
         const roles = await this.listRolesUseCase.execute();
@@ -196,6 +200,7 @@ export class RoleController {
         code: RESPONSE_CODES.RESOURCE_FOUND,
         message: ROLE_MESSAGES.RETRIEVED,
     })
+    @Permissions("ROLE_GET")
     @Get(":id")
     public async getRole(
         @Param(new ZodValidationPipe(roleParamsSchema))

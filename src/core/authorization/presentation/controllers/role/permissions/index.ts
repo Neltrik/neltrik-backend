@@ -10,6 +10,7 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -70,6 +71,7 @@ export class RolePermissionsController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: ROLE_MESSAGES.ASSIGNED,
     })
+    @Permissions("ROLE_ASSIGN_PERMISSIONS")
     @Post(":id/permissions")
     public async assignPermissions(
         @Param(new ZodValidationPipe(roleParamsSchema))
@@ -114,6 +116,7 @@ export class RolePermissionsController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: ROLE_MESSAGES.REMOVED,
     })
+    @Permissions("ROLE_REMOVE_PERMISSIONS")
     @Delete(":id/permissions")
     public async removePermissions(
         @Param(new ZodValidationPipe(roleParamsSchema))
@@ -156,6 +159,7 @@ export class RolePermissionsController {
         code: RESPONSE_CODES.RESOURCE_LISTED,
         message: ROLE_MESSAGES.LISTED,
     })
+    @Permissions("ROLE_VIEW_PERMISSIONS")
     @Get(":id/permissions")
     public async getPermissionsByRole(
         @Param(new ZodValidationPipe(roleParamsSchema))

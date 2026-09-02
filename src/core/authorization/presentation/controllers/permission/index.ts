@@ -12,6 +12,7 @@ import {
 } from "@nestjs/swagger";
 
 import { UserId } from "@/shared/auth";
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -77,6 +78,7 @@ export class PermissionController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: PERMISSION_MESSAGES.CREATED,
     })
+    @Permissions("PERMISSION_CREATE")
     @Post()
     public async create(
         @Body(new ZodValidationPipe(createPermissionSchema))
@@ -114,6 +116,7 @@ export class PermissionController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: PERMISSION_MESSAGES.UPDATED,
     })
+    @Permissions("PERMISSION_UPDATE")
     @Patch(":id")
     public async update(
         @Param(new ZodValidationPipe(permissionParamsSchema))
@@ -155,6 +158,7 @@ export class PermissionController {
         code: RESPONSE_CODES.RESOURCE_LISTED,
         message: PERMISSION_MESSAGES.LISTED,
     })
+    @Permissions("PERMISSION_LIST")
     @Get()
     public async list(): Promise<PermissionResultDto[]> {
         const permissions = await this.listPermissionsUseCase.execute();
@@ -193,6 +197,7 @@ export class PermissionController {
         code: RESPONSE_CODES.RESOURCE_FOUND,
         message: PERMISSION_MESSAGES.CHECKED,
     })
+    @Permissions("PERMISSION_VERIFY")
     @Get("check")
     public async checkPermission(
         @UserId() userId: string,

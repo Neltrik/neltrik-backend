@@ -12,6 +12,7 @@ import {
 } from "@nestjs/swagger";
 
 import { TenantId } from "@/shared/auth";
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -68,6 +69,7 @@ export class RoleTenantController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: ROLE_TENANT_MESSAGES.ASSOCIATED,
     })
+    @Permissions("ROLE_TENANT_CREATE")
     @Post()
     public async associate(
         @TenantId() actorTenantId: string,
@@ -110,6 +112,7 @@ export class RoleTenantController {
         code: RESPONSE_CODES.RESOURCE_DELETED,
         message: ROLE_TENANT_MESSAGES.DISASSOCIATED,
     })
+    @Permissions("ROLE_TENANT_DELETE")
     @Delete()
     public async disassociate(
         @TenantId() actorTenantId: string,
@@ -152,6 +155,7 @@ export class RoleTenantController {
         code: RESPONSE_CODES.RESOURCE_LISTED,
         message: ROLE_TENANT_MESSAGES.LISTED,
     })
+    @Permissions("ROLE_TENANT_LIST")
     @Get()
     public async getRoles(
         @Param(new ZodValidationPipe(roleTenantParamsSchema))

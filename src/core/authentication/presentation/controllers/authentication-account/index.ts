@@ -11,6 +11,7 @@ import {
 } from "@nestjs/swagger";
 
 import { Public } from "@/shared/auth";
+import { Permissions, PublicPermission } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -58,6 +59,7 @@ export class AccountController {
         message: ACCOUNT_MESSAGES.CREATED,
     })
     @Public()
+    @PublicPermission()
     @Post()
     public async register(
         @Body(new ZodValidationPipe(registerAccountSchema))
@@ -98,6 +100,7 @@ export class AccountController {
         code: RESPONSE_CODES.RESOURCE_FOUND,
         message: ACCOUNT_MESSAGES.RETRIEVED,
     })
+    @Permissions("ACCOUNT_VIEW")
     @Get()
     public async getAccount(
         @Query(new ZodValidationPipe(getAccountQuerySchema))

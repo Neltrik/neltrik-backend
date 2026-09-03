@@ -10,7 +10,7 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { Public } from "@/shared/auth";
+import { Public, SkipEmailVerification } from "@/shared/auth";
 import { Permissions, PublicPermission } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -59,6 +59,7 @@ export class AccountController {
         message: ACCOUNT_MESSAGES.CREATED,
     })
     @Public()
+    @SkipEmailVerification()
     @PublicPermission()
     @Post()
     public async register(

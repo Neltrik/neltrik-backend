@@ -5,6 +5,7 @@ interface TokenPayload {
     sub: string;
     tenantId: string;
     roleCode: string;
+    emailVerified: boolean;
 }
 
 @Injectable()

@@ -32,10 +32,10 @@ import {
     PrismaEmailVerificationRepository,
 } from "./infrastructure/repositories";
 import { EmailPasswordProviderStrategy, ProviderAuthenticationStrategyFactory } from "./infrastructure/strategies";
-import { AccountController, AuthController } from "./presentation/controllers";
+import { AccountController, AuthController, EmailVerificationController } from "./presentation/controllers";
 
 @Module({
-    controllers: [AccountController, AuthController],
+    controllers: [AccountController, AuthController, EmailVerificationController],
     providers: [
         GetAccountByEmailUseCase,
         GetAccountByUserIdUseCase,

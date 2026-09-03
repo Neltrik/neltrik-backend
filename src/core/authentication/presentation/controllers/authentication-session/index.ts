@@ -11,7 +11,7 @@ import {
 } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
-import { Public, UserId } from "@/shared/auth";
+import { Public, SkipEmailVerification, UserId } from "@/shared/auth";
 import { Permissions, PublicPermission } from "@/shared/authorization";
 import { ApiContract, CookieHelper, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -67,6 +67,7 @@ export class AuthController {
         message: AUTH_MESSAGES.LOGIN_SUCCESS,
     })
     @Public()
+    @SkipEmailVerification()
     @PublicPermission()
     @Post("login")
     public async login(

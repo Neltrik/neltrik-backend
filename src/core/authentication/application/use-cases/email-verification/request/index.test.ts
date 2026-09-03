@@ -26,7 +26,7 @@ describe("RequestEmailVerificationUseCase", () => {
         } satisfies IdGenerator;
         const transactionManager = new TransactionManagerSpy();
         const accountRepository = new AuthenticationAccountRepositorySpy();
-        accountRepository.findById.mockResolvedValue(account);
+        accountRepository.findByUserId.mockResolvedValue(account);
         const emailVerificationRepository = new EmailVerificationRepositorySpy();
         const emailSender = {
             sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
@@ -52,8 +52,8 @@ describe("RequestEmailVerificationUseCase", () => {
     describe("execute", () => {
         it("should request email verification successfully", async () => {
             const sut = makeSut();
-            await sut.useCase.execute("account-id");
-            expect(sut.accountRepository.findById).toHaveBeenCalledWith("account-id");
+            await sut.useCase.execute("user-id");
+            expect(sut.accountRepository.findByUserId).toHaveBeenCalledWith("user-id");
             expect(sut.transactionManager.executeCalls).toBe(1);
             expect(sut.emailVerificationRepository.invalidatePendingByAccount).toHaveBeenCalledTimes(1);
             expect(sut.emailVerificationRepository.create).toHaveBeenCalledTimes(1);
@@ -63,9 +63,9 @@ describe("RequestEmailVerificationUseCase", () => {
 
         it("should throw AuthenticationAccountNotFoundError when account does not exist", async () => {
             const sut = makeSut();
-            sut.accountRepository.findById.mockResolvedValue(null);
-            await expect(sut.useCase.execute("account-id")).rejects.toThrow(AuthenticationAccountNotFoundError);
-            expect(sut.accountRepository.findById).toHaveBeenCalledWith("account-id");
+            sut.accountRepository.findByUserId.mockResolvedValue(null);
+            await expect(sut.useCase.execute("user-id")).rejects.toThrow(AuthenticationAccountNotFoundError);
+            expect(sut.accountRepository.findByUserId).toHaveBeenCalledWith("user-id");
             expect(sut.transactionManager.executeCalls).toBe(0);
             expect(sut.emailVerificationRepository.invalidatePendingByAccount).not.toHaveBeenCalled();
             expect(sut.emailVerificationRepository.create).not.toHaveBeenCalled();
@@ -84,9 +84,9 @@ describe("RequestEmailVerificationUseCase", () => {
                 emailVerified: true,
                 updatedAt: new Date(),
             });
-            sut.accountRepository.findById.mockResolvedValue(verifiedAccount);
-            await expect(sut.useCase.execute("account-id")).rejects.toThrow(EmailAlreadyVerifiedError);
-            expect(sut.accountRepository.findById).toHaveBeenCalledWith("account-id");
+            sut.accountRepository.findByUserId.mockResolvedValue(verifiedAccount);
+            await expect(sut.useCase.execute("user-id")).rejects.toThrow(EmailAlreadyVerifiedError);
+            expect(sut.accountRepository.findByUserId).toHaveBeenCalledWith("user-id");
             expect(sut.transactionManager.executeCalls).toBe(0);
             expect(sut.emailVerificationRepository.invalidatePendingByAccount).not.toHaveBeenCalled();
             expect(sut.emailVerificationRepository.create).not.toHaveBeenCalled();
@@ -95,7 +95,7 @@ describe("RequestEmailVerificationUseCase", () => {
 
         it("should invalidate pending verifications before creating a new one", async () => {
             const sut = makeSut();
-            await sut.useCase.execute("account-id");
+            await sut.useCase.execute("user-id");
             expect(sut.emailVerificationRepository.invalidatePendingByAccount).toHaveBeenCalledTimes(1);
             expect(sut.emailVerificationRepository.create).toHaveBeenCalledTimes(1);
             const invalidateContext = sut.emailVerificationRepository.invalidatePendingByAccount.mock.calls[0]?.[1];
@@ -105,7 +105,7 @@ describe("RequestEmailVerificationUseCase", () => {
 
         it("should invalidate pending verifications for the account", async () => {
             const sut = makeSut();
-            await sut.useCase.execute("account-id");
+            await sut.useCase.execute("user-id");
             expect(sut.emailVerificationRepository.invalidatePendingByAccount).toHaveBeenCalledWith(
                 "account-id",
                 expect.anything(),
@@ -114,7 +114,7 @@ describe("RequestEmailVerificationUseCase", () => {
 
         it("should create an email verification with the expected values", async () => {
             const sut = makeSut();
-            await sut.useCase.execute("account-id");
+            await sut.useCase.execute("user-id");
             const [verification] = sut.emailVerificationRepository.create.mock.calls[0] ?? [];
             expect(verification).toBeDefined();
             expect(verification?.id).toBe("email-verification-id");
@@ -128,7 +128,7 @@ describe("RequestEmailVerificationUseCase", () => {
         it("should create an email verification with an expiration date 24 hours in the future", async () => {
             const sut = makeSut();
             const before = Date.now();
-            await sut.useCase.execute("account-id");
+            await sut.useCase.execute("user-id");
             const after = Date.now();
             const [verification] = sut.emailVerificationRepository.create.mock.calls[0] ?? [];
             expect(verification).toBeDefined();
@@ -139,7 +139,7 @@ describe("RequestEmailVerificationUseCase", () => {
 
         it("should send the verification email using the account email and generated token", async () => {
             const sut = makeSut();
-            await sut.useCase.execute("account-id");
+            await sut.useCase.execute("user-id");
             expect(sut.emailSender.sendVerificationEmail).toHaveBeenCalledTimes(1);
             const calls = sut.emailSender.sendVerificationEmail.mock.calls as [string, string][];
             const call = calls[0];
@@ -154,7 +154,7 @@ describe("RequestEmailVerificationUseCase", () => {
 
         it("should use the generated id when creating the verification", async () => {
             const sut = makeSut();
-            await sut.useCase.execute("account-id");
+            await sut.useCase.execute("user-id");
             expect(sut.idGenerator.generate).toHaveBeenCalledTimes(1);
             const [verification] = sut.emailVerificationRepository.create.mock.calls[0] ?? [];
             expect(verification?.id).toBe("email-verification-id");
@@ -162,7 +162,7 @@ describe("RequestEmailVerificationUseCase", () => {
 
         it("should use the same timestamp for createdAt and updatedAt", async () => {
             const sut = makeSut();
-            await sut.useCase.execute("account-id");
+            await sut.useCase.execute("user-id");
             const [verification] = sut.emailVerificationRepository.create.mock.calls[0] ?? [];
             expect(verification).toBeDefined();
             expect(verification?.createdAt).toEqual(verification?.updatedAt);
@@ -170,7 +170,7 @@ describe("RequestEmailVerificationUseCase", () => {
 
         it("should execute the verification persistence inside a transaction", async () => {
             const sut = makeSut();
-            await sut.useCase.execute("account-id");
+            await sut.useCase.execute("user-id");
             expect(sut.transactionManager.executeCalls).toBe(1);
             expect(sut.emailVerificationRepository.invalidatePendingByAccount).toHaveBeenCalledTimes(1);
             expect(sut.emailVerificationRepository.create).toHaveBeenCalledTimes(1);
@@ -179,7 +179,7 @@ describe("RequestEmailVerificationUseCase", () => {
         it("should not send the verification email when the transaction fails", async () => {
             const sut = makeSut();
             sut.transactionManager.shouldFail = true;
-            await expect(sut.useCase.execute("account-id")).rejects.toThrow("Transaction failed");
+            await expect(sut.useCase.execute("user-id")).rejects.toThrow("Transaction failed");
             expect(sut.emailVerificationRepository.invalidatePendingByAccount).not.toHaveBeenCalled();
             expect(sut.emailVerificationRepository.create).not.toHaveBeenCalled();
             expect(sut.emailSender.sendVerificationEmail).not.toHaveBeenCalled();
@@ -187,8 +187,9 @@ describe("RequestEmailVerificationUseCase", () => {
 
         it("should propagate account repository errors", async () => {
             const sut = makeSut();
-            sut.accountRepository.findById.mockRejectedValue(new Error("Database error"));
-            await expect(sut.useCase.execute("account-id")).rejects.toThrow("Database error");
+            sut.accountRepository.findByUserId.mockRejectedValue(new Error("Database error"));
+            await expect(sut.useCase.execute("user-id")).rejects.toThrow("Database error");
+            expect(sut.accountRepository.findByUserId).toHaveBeenCalledWith("user-id");
             expect(sut.transactionManager.executeCalls).toBe(0);
             expect(sut.emailSender.sendVerificationEmail).not.toHaveBeenCalled();
         });
@@ -198,7 +199,7 @@ describe("RequestEmailVerificationUseCase", () => {
             sut.emailVerificationRepository.invalidatePendingByAccount.mockRejectedValue(
                 new Error("Invalidation failed"),
             );
-            await expect(sut.useCase.execute("account-id")).rejects.toThrow("Invalidation failed");
+            await expect(sut.useCase.execute("user-id")).rejects.toThrow("Invalidation failed");
             expect(sut.emailVerificationRepository.create).not.toHaveBeenCalled();
             expect(sut.emailSender.sendVerificationEmail).not.toHaveBeenCalled();
         });
@@ -206,7 +207,7 @@ describe("RequestEmailVerificationUseCase", () => {
         it("should propagate verification creation errors", async () => {
             const sut = makeSut();
             sut.emailVerificationRepository.create.mockRejectedValue(new Error("Creation failed"));
-            await expect(sut.useCase.execute("account-id")).rejects.toThrow("Creation failed");
+            await expect(sut.useCase.execute("user-id")).rejects.toThrow("Creation failed");
             expect(sut.emailVerificationRepository.create).toHaveBeenCalledTimes(1);
             expect(sut.emailSender.sendVerificationEmail).not.toHaveBeenCalled();
         });
@@ -214,7 +215,7 @@ describe("RequestEmailVerificationUseCase", () => {
         it("should propagate email sending errors", async () => {
             const sut = makeSut();
             sut.emailSender.sendVerificationEmail.mockRejectedValue(new Error("Email sending failed"));
-            await expect(sut.useCase.execute("account-id")).rejects.toThrow("Email sending failed");
+            await expect(sut.useCase.execute("user-id")).rejects.toThrow("Email sending failed");
             expect(sut.emailVerificationRepository.create).toHaveBeenCalledTimes(1);
             expect(sut.emailSender.sendVerificationEmail).toHaveBeenCalledTimes(1);
         });

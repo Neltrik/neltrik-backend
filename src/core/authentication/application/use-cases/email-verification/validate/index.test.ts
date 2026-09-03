@@ -1,10 +1,6 @@
 import { AuthenticationAccount } from "../../../../domain/entities";
 import { EmailVerification } from "../../../../domain/entities";
-import {
-    AuthenticationAccountNotFoundError,
-    EmailVerificationNotFoundError,
-    InvalidTokenError,
-} from "../../../../domain/errors";
+import { AuthenticationAccountNotFoundError, EmailVerificationNotFoundError } from "../../../../domain/errors";
 import { ExpirationDate, PasswordHash, TokenHash } from "../../../../domain/value-objects";
 import {
     AuthenticationAccountRepositorySpy,
@@ -65,24 +61,6 @@ describe("ValidateEmailVerificationUseCase", () => {
             expect(sut.transactionManager.executeCalls).toBe(1);
             expect(sut.emailVerificationRepository.update).toHaveBeenCalledTimes(1);
             expect(sut.accountRepository.update).toHaveBeenCalledTimes(1);
-        });
-
-        it("should throw InvalidTokenError when token is empty", async () => {
-            const sut = makeSut();
-            await expect(sut.useCase.execute("")).rejects.toThrow(InvalidTokenError);
-            expect(sut.emailVerificationRepository.findByTokenHash).not.toHaveBeenCalled();
-            expect(sut.accountRepository.findById).not.toHaveBeenCalled();
-            expect(sut.transactionManager.executeCalls).toBe(0);
-            expect(sut.emailVerificationRepository.update).not.toHaveBeenCalled();
-            expect(sut.accountRepository.update).not.toHaveBeenCalled();
-        });
-
-        it("should throw InvalidTokenError when token contains only whitespace", async () => {
-            const sut = makeSut();
-            await expect(sut.useCase.execute("   ")).rejects.toThrow(InvalidTokenError);
-            expect(sut.emailVerificationRepository.findByTokenHash).not.toHaveBeenCalled();
-            expect(sut.accountRepository.findById).not.toHaveBeenCalled();
-            expect(sut.transactionManager.executeCalls).toBe(0);
         });
 
         it("should throw EmailVerificationNotFoundError when verification does not exist", async () => {

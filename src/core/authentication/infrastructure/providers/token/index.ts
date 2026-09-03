@@ -21,6 +21,7 @@ export class TokenProvider {
             email: payload.email,
             tenantId: payload.tenantId,
             roleCode: payload.roleCode,
+            emailVerified: payload.emailVerified,
         });
         return token;
     }

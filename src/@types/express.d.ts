@@ -8,5 +8,8 @@ declare module "express" {
             tenantId: string;
             roleCode: string;
         };
+        account?: {
+            emailVerified: boolean;
+        };
     }
 }

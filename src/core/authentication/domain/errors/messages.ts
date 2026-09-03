@@ -23,6 +23,7 @@ export const ERROR_MESSAGES = {
     INVALID_TOKEN: "The token is invalid.",
     EMPTY_AUTHENTICATION_ACCOUNT_ID: "The authentication account ID cannot be empty.",
     INVALID_EXPIRATION_DATE: "The expiration date is invalid.",
+    EMAIL_VERIFICATION_NOT_FOUND: "The email verification was not found.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -50,4 +51,5 @@ export const DOMAIN_ERROR_CODES = {
     INVALID_TOKEN: "INVALID_TOKEN",
     EMPTY_AUTHENTICATION_ACCOUNT_ID: "EMPTY_AUTHENTICATION_ACCOUNT_ID",
     INVALID_EXPIRATION_DATE: "INVALID_EXPIRATION_DATE",
+    EMAIL_VERIFICATION_NOT_FOUND: "EMAIL_VERIFICATION_NOT_FOUND",
 } as const;

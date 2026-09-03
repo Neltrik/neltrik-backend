@@ -11,7 +11,7 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { Public, TenantId } from "@/shared/auth";
+import { Public, SkipEmailVerification, TenantId } from "@/shared/auth";
 import { Permissions, PublicPermission } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -112,6 +112,7 @@ export class InvitationController {
         message: INVITATION_MESSAGES.VALIDATED,
     })
     @Public()
+    @SkipEmailVerification()
     @PublicPermission()
     @Get("validate")
     public async validate(

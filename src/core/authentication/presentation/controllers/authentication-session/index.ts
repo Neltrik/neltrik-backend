@@ -123,6 +123,7 @@ export class AuthController {
         message: AUTH_MESSAGES.REFRESH_SUCCESS,
     })
     @Public()
+    @SkipEmailVerification()
     @PublicPermission()
     @Post("refresh")
     public async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
@@ -166,6 +167,7 @@ export class AuthController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: AUTH_MESSAGES.LOGOUT_SUCCESS,
     })
+    @SkipEmailVerification()
     @PublicPermission()
     @Post("logout")
     public async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {

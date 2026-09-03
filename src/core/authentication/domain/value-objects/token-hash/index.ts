@@ -26,6 +26,10 @@ export class TokenHash {
         }
     }
 
+    public static hash(token: string): string {
+        return createHash("sha256").update(token).digest("hex");
+    }
+
     public get value(): string {
         return this.hash;
     }

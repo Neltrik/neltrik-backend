@@ -16,6 +16,7 @@ import {
     RegisterUseCase,
     RequestEmailVerificationUseCase,
     RevokeSessionUseCase,
+    ValidateEmailVerificationUseCase,
     ValidateSessionUseCase,
 } from "./application/use-cases";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
@@ -44,6 +45,7 @@ import { AccountController, AuthController } from "./presentation/controllers";
         RegisterUseCase,
         RequestEmailVerificationUseCase,
         RevokeSessionUseCase,
+        ValidateEmailVerificationUseCase,
         ValidateSessionUseCase,
         EmailPasswordProviderStrategy,
         ProviderAuthenticationStrategyFactory,

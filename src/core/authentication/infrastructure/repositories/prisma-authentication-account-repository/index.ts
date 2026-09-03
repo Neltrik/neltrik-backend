@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/prisma/index";
+import { TransactionContext } from "@/shared/transaction";
 
 import { AuthenticationAccount } from "../../../domain/entities";
 import { AuthenticationAccountRepository } from "../../../domain/interfaces";
@@ -18,8 +20,9 @@ export class PrismaAuthenticationAccountRepository extends AuthenticationAccount
         });
     }
 
-    public async update(account: AuthenticationAccount): Promise<void> {
-        await this.prisma.authenticationAccount.update({
+    public async update(account: AuthenticationAccount, context?: TransactionContext): Promise<void> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma;
+        await prisma.authenticationAccount.update({
             where: { id: account.id },
             data: AuthenticationAccountMapper.toPersistence(account),
         });

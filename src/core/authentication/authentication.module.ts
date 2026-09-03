@@ -14,15 +14,21 @@ import {
     LogoutUseCase,
     RefreshTokenUseCase,
     RegisterUseCase,
+    RequestEmailVerificationUseCase,
     RevokeSessionUseCase,
     ValidateSessionUseCase,
 } from "./application/use-cases";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
-import { AuthenticationAccountRepository, AuthenticationSessionRepository } from "./domain/interfaces";
-import { Sha256Hasher, TokenProvider } from "./infrastructure/providers";
+import {
+    AuthenticationAccountRepository,
+    AuthenticationSessionRepository,
+    EmailVerificationRepository,
+} from "./domain/interfaces";
+import { EmailSender, NodemailerEmailSender, Sha256Hasher, TokenProvider } from "./infrastructure/providers";
 import {
     PrismaAuthenticationAccountRepository,
     PrismaAuthenticationSessionRepository,
+    PrismaEmailVerificationRepository,
 } from "./infrastructure/repositories";
 import { EmailPasswordProviderStrategy, ProviderAuthenticationStrategyFactory } from "./infrastructure/strategies";
 import { AccountController, AuthController } from "./presentation/controllers";
@@ -36,6 +42,7 @@ import { AccountController, AuthController } from "./presentation/controllers";
         LogoutUseCase,
         RefreshTokenUseCase,
         RegisterUseCase,
+        RequestEmailVerificationUseCase,
         RevokeSessionUseCase,
         ValidateSessionUseCase,
         EmailPasswordProviderStrategy,
@@ -49,6 +56,14 @@ import { AccountController, AuthController } from "./presentation/controllers";
         {
             provide: AuthenticationSessionRepository,
             useClass: PrismaAuthenticationSessionRepository,
+        },
+        {
+            provide: EmailVerificationRepository,
+            useClass: PrismaEmailVerificationRepository,
+        },
+        {
+            provide: EmailSender,
+            useClass: NodemailerEmailSender,
         },
     ],
     imports: [JwtModule.register({ secret: env.JWT_SECRET }), AuthorizationModule, IdentityModule, TenantModule],

@@ -33,6 +33,9 @@ export class AuthenticationGuard implements CanActivate {
             tenantId: payload.tenantId,
             roleCode: payload.roleCode,
         };
+        request.account = {
+            emailVerified: payload.emailVerified,
+        };
         return true;
     }
 }

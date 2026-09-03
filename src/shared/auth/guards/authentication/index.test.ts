@@ -73,6 +73,7 @@ describe("AuthenticationGuard", () => {
             sub: "user-id",
             tenantId: "tenant-id",
             roleCode: "ADMIN",
+            emailVerified: false,
         });
         await expect(guard.canActivate(context)).resolves.toBe(true);
         expect(tokenVerifier.verify).toHaveBeenCalledWith("access-token");

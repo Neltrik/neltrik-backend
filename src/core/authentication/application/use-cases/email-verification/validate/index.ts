@@ -2,11 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { TransactionManager } from "@/shared/transaction";
 
-import {
-    AuthenticationAccountNotFoundError,
-    EmailVerificationNotFoundError,
-    InvalidTokenError,
-} from "../../../../domain/errors";
+import { AuthenticationAccountNotFoundError, EmailVerificationNotFoundError } from "../../../../domain/errors";
 import { AuthenticationAccountRepository, EmailVerificationRepository } from "../../../../domain/interfaces";
 import { TokenHash } from "../../../../domain/value-objects";
 
@@ -19,9 +15,6 @@ export class ValidateEmailVerificationUseCase {
     ) {}
 
     public async execute(token: string): Promise<void> {
-        if (!token || token.trim() === "") {
-            throw new InvalidTokenError();
-        }
         const tokenHash = TokenHash.hash(token);
         const verification = await this.emailVerificationRepository.findByTokenHash(tokenHash);
         if (!verification) {

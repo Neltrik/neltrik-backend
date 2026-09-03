@@ -3,4 +3,5 @@ export type AccessTokenPayload = {
     email: string;
     tenantId: string;
     roleCode: string;
+    emailVerified: boolean;
 };

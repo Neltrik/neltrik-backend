@@ -43,6 +43,7 @@ export class LoginUseCase {
             email: account.email,
             roleCode: role.code,
             tenantId: identityUser.tenantId,
+            emailVerified: account.emailVerified,
         });
         const refreshToken = this.tokenProvider.generateRefreshToken();
         const refreshTokenHash = this.sha256Hasher.hash(refreshToken);

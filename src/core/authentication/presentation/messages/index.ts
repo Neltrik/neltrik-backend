@@ -9,3 +9,8 @@ export const AUTH_MESSAGES = {
     LOGOUT_SUCCESS: "Logout successful.",
     SESSION_REVOKED: "Session revoked successfully.",
 } as const;
+
+export const EMAIL_VERIFICATION = {
+    EMAIL_VERIFICATION_REQUEST_SUCCESS: "Verification email sent successfully.",
+    EMAIL_VERIFICATION_VALIDATE_SUCCESS: "Email verified successfully.",
+} as const;

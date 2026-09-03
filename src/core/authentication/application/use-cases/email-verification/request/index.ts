@@ -19,8 +19,8 @@ export class RequestEmailVerificationUseCase {
         private readonly emailSender: EmailSender,
     ) {}
 
-    public async execute(authenticationAccountId: string): Promise<void> {
-        const account = await this.accountRepository.findById(authenticationAccountId);
+    public async execute(userId: string): Promise<void> {
+        const account = await this.accountRepository.findByUserId(userId);
         if (!account) {
             throw new AuthenticationAccountNotFoundError();
         }
@@ -30,10 +30,10 @@ export class RequestEmailVerificationUseCase {
         const { token, hash } = TokenHash.generate();
         const now = new Date();
         await this.transactionManager.execute(async (context) => {
-            await this.emailVerificationRepository.invalidatePendingByAccount(authenticationAccountId, context);
+            await this.emailVerificationRepository.invalidatePendingByAccount(account.id, context);
             const verification = EmailVerification.create({
                 id: this.idGenerator.generate(),
-                authenticationAccountId,
+                authenticationAccountId: account.id,
                 email: account.email,
                 tokenHash: hash,
                 expiresAt: ExpirationDate.create(new Date(Date.now() + 24 * 60 * 60 * 1000)),

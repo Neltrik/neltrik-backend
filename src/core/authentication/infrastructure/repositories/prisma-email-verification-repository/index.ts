@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/prisma/index";
+import type { TransactionContext } from "@/shared/transaction";
 
 import { EmailVerification } from "../../../domain/entities";
 import { EmailVerificationRepository } from "../../../domain/interfaces";
@@ -12,14 +14,16 @@ export class PrismaEmailVerificationRepository extends EmailVerificationReposito
         super();
     }
 
-    public async create(verification: EmailVerification): Promise<void> {
-        await this.prisma.emailVerification.create({
+    public async create(verification: EmailVerification, context?: TransactionContext): Promise<void> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma;
+        await prisma.emailVerification.create({
             data: EmailVerificationMapper.toPersistence(verification),
         });
     }
 
-    public async update(verification: EmailVerification): Promise<void> {
-        await this.prisma.emailVerification.update({
+    public async update(verification: EmailVerification, context?: TransactionContext): Promise<void> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma;
+        await prisma.emailVerification.update({
             where: { id: verification.id },
             data: EmailVerificationMapper.toPersistence(verification),
         });
@@ -52,8 +56,12 @@ export class PrismaEmailVerificationRepository extends EmailVerificationReposito
         return verifications.map((verification) => EmailVerificationMapper.toDomain(verification));
     }
 
-    public async invalidatePendingByAccount(authenticationAccountId: string): Promise<void> {
-        await this.prisma.emailVerification.updateMany({
+    public async invalidatePendingByAccount(
+        authenticationAccountId: string,
+        context: TransactionContext,
+    ): Promise<void> {
+        const prisma = context.get<Prisma.TransactionClient>();
+        await prisma.emailVerification.updateMany({
             where: { authenticationAccountId, verifiedAt: null },
             data: { expiresAt: new Date(), updatedAt: new Date() },
         });

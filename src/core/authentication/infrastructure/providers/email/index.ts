@@ -42,3 +42,5 @@ export class NodemailerEmailSender extends EmailSender {
         });
     }
 }
+
+export { EmailSender };

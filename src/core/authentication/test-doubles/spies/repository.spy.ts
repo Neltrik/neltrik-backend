@@ -1,5 +1,11 @@
-import type { AuthenticationAccount, AuthenticationSession } from "../../domain/entities";
-import { AuthenticationAccountRepository, AuthenticationSessionRepository } from "../../domain/interfaces";
+import type { TransactionContext } from "@/shared/transaction";
+
+import type { AuthenticationAccount, AuthenticationSession, EmailVerification } from "../../domain/entities";
+import {
+    AuthenticationAccountRepository,
+    AuthenticationSessionRepository,
+    EmailVerificationRepository,
+} from "../../domain/interfaces";
 
 export class AuthenticationAccountRepositorySpy extends AuthenticationAccountRepository {
     public create = jest.fn<Promise<void>, [AuthenticationAccount]>();
@@ -16,4 +22,13 @@ export class AuthenticationSessionRepositorySpy extends AuthenticationSessionRep
     public findById = jest.fn<Promise<AuthenticationSession | null>, [string]>();
     public findByRefreshTokenHash = jest.fn<Promise<AuthenticationSession | null>, [string]>();
     public findByAuthenticationAccountId = jest.fn<Promise<AuthenticationSession[]>, [string]>();
+}
+
+export class EmailVerificationRepositorySpy extends EmailVerificationRepository {
+    public create = jest.fn<Promise<void>, [EmailVerification, TransactionContext?]>();
+    public update = jest.fn<Promise<void>, [EmailVerification, TransactionContext?]>();
+    public findById = jest.fn<Promise<EmailVerification | null>, [string]>();
+    public findByTokenHash = jest.fn<Promise<EmailVerification | null>, [string]>();
+    public findPendingByAccount = jest.fn<Promise<EmailVerification[]>, [string]>();
+    public invalidatePendingByAccount = jest.fn<Promise<void>, [string, TransactionContext]>();
 }

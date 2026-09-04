@@ -1,4 +1,3 @@
-export * from "./email-verification-already-completed";
-export * from "./email-verification-expired";
-export * from "./invalid-token";
+export * from "./already-completed";
+export * from "./expired";
 export * from "./not-found";

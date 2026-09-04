@@ -249,6 +249,7 @@ model AuthenticationAccount {
 
   sessions           AuthenticationSession[]
   emailVerifications EmailVerification[]
+  passwordResets     PasswordReset[]
 
   @@index([email])
   @@index([provider])
@@ -292,4 +293,21 @@ model EmailVerification {
   @@index([tokenHash])
   @@index([expiresAt])
   @@map("email_verifications")
+}
+
+model PasswordReset {
+  id                      String    @id @default(uuid()) @db.Uuid
+  authenticationAccountId String    @map("authentication_account_id") @db.Uuid
+  tokenHash               String    @map("token_hash") @db.VarChar(255)
+  expiresAt               DateTime  @map("expires_at")
+  usedAt                  DateTime? @map("used_at")
+  createdAt               DateTime  @default(now()) @map("created_at")
+  updatedAt               DateTime  @updatedAt @map("updated_at")
+
+  authenticationAccount AuthenticationAccount @relation(fields: [authenticationAccountId], references: [id])
+
+  @@index([authenticationAccountId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("password_resets")
 }

@@ -160,4 +160,4 @@ password_resets
 - `PK(id)`
 - `INDEX(authentication_account_id)`
 - `INDEX(expires_at)`
-- `token_hash`
+- `INDEX(token_hash)`

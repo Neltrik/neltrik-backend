@@ -20,6 +20,7 @@ Una Password Reset tiene un período de validez limitado y solo puede utilizarse
 | `expiresAt`               | Fecha y hora a partir de la cual la solicitud deja de ser válida.         |
 | `usedAt`                  | Fecha y hora en la que la solicitud fue utilizada. Nullable.              |
 | `createdAt`               | Fecha de creación del Password Reset.                                     |
+| `updatedAt`               | Fecha y hora de la última actualización del Password Reset.               |
 
 ---
 
@@ -36,6 +37,7 @@ Una Password Reset tiene un período de validez limitado y solo puede utilizarse
 - Un Password Reset utilizado no puede reutilizarse.
 - El Password Reset no almacena la nueva contraseña.
 - La nueva contraseña debe actualizarse en la `Authentication Account` mediante su `passwordHash`.
+- `updatedAt` se actualiza automáticamente cuando el Password Reset es utilizado.
 
 ## 2. Relaciones
 
@@ -133,6 +135,7 @@ password_resets
 | `expires_at`                | TIMESTAMP    | ❌   | —                   | Fecha de expiración             |
 | `used_at`                   | TIMESTAMP    | ✅   | `NULL`              | Fecha de utilización            |
 | `created_at`                | TIMESTAMP    | ❌   | `NOW()`             | Fecha de creación               |
+| `updated_at`                | TIMESTAMP    | ❌   | `NOW()`             | Fecha de actualización          |
 
 ---
 
@@ -156,4 +159,5 @@ password_resets
 
 - `PK(id)`
 - `INDEX(authentication_account_id)`
-- `UNIQUE(token_hash)`
+- `INDEX(expires_at)`
+- `token_hash`

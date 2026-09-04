@@ -24,12 +24,14 @@ import {
     AuthenticationAccountRepository,
     AuthenticationSessionRepository,
     EmailVerificationRepository,
+    PasswordResetRepository,
 } from "./domain/interfaces";
 import { EmailSender, NodemailerEmailSender, Sha256Hasher, TokenProvider } from "./infrastructure/providers";
 import {
     PrismaAuthenticationAccountRepository,
     PrismaAuthenticationSessionRepository,
     PrismaEmailVerificationRepository,
+    PrismaPasswordResetRepository,
 } from "./infrastructure/repositories";
 import { EmailPasswordProviderStrategy, ProviderAuthenticationStrategyFactory } from "./infrastructure/strategies";
 import { AccountController, AuthController, EmailVerificationController } from "./presentation/controllers";
@@ -62,6 +64,10 @@ import { AccountController, AuthController, EmailVerificationController } from "
         {
             provide: EmailVerificationRepository,
             useClass: PrismaEmailVerificationRepository,
+        },
+        {
+            provide: PasswordResetRepository,
+            useClass: PrismaPasswordResetRepository,
         },
         {
             provide: EmailSender,

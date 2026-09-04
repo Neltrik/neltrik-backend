@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/prisma/index";
+import { TransactionContext } from "@/shared/transaction";
 
 import { AuthenticationSession } from "../../../domain/entities";
 import { AuthenticationSessionRepository } from "../../../domain/interfaces";
@@ -46,5 +48,13 @@ export class PrismaAuthenticationSessionRepository extends AuthenticationSession
             where: { authenticationAccountId },
         });
         return sessions.map((session) => AuthenticationSessionMapper.toDomain(session));
+    }
+
+    public async invalidateByAccount(accountId: string, context: TransactionContext): Promise<void> {
+        const prisma = context.get<Prisma.TransactionClient>();
+        await prisma.authenticationSession.updateMany({
+            where: { authenticationAccountId: accountId, revokedAt: null },
+            data: { revokedAt: new Date(), updatedAt: new Date() },
+        });
     }
 }

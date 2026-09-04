@@ -14,9 +14,8 @@ export class PrismaPasswordResetRepository extends PasswordResetRepository {
         super();
     }
 
-    public async create(reset: PasswordReset, context?: TransactionContext): Promise<void> {
-        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma;
-        await prisma.passwordReset.create({
+    public async create(reset: PasswordReset): Promise<void> {
+        await this.prisma.passwordReset.create({
             data: PasswordResetMapper.toPersistence(reset),
         });
     }

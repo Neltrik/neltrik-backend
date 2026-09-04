@@ -26,6 +26,7 @@ export const ERROR_MESSAGES = {
     EMAIL_VERIFICATION_NOT_FOUND: "The email verification was not found.",
     PASSWORD_RESET_ALREADY_USED: "The password reset has already been used.",
     PASSWORD_RESET_EXPIRED: "The password reset has expired.",
+    PASSWORD_RESET_NOT_FOUND: "The password reset was not found.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -56,4 +57,5 @@ export const DOMAIN_ERROR_CODES = {
     EMAIL_VERIFICATION_NOT_FOUND: "EMAIL_VERIFICATION_NOT_FOUND",
     PASSWORD_RESET_ALREADY_USED: "PASSWORD_RESET_ALREADY_USED",
     PASSWORD_RESET_EXPIRED: "PASSWORD_RESET_EXPIRED",
+    PASSWORD_RESET_NOT_FOUND: "PASSWORD_RESET_NOT_FOUND",
 } as const;

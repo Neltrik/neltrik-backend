@@ -30,6 +30,7 @@ describe("RequestEmailVerificationUseCase", () => {
         const emailVerificationRepository = new EmailVerificationRepositorySpy();
         const emailSender = {
             sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
+            sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
         };
         const useCase = new RequestEmailVerificationUseCase(
             idGenerator,

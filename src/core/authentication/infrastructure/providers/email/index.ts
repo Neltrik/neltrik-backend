@@ -41,6 +41,29 @@ export class NodemailerEmailSender extends EmailSender {
             `,
         });
     }
+
+    public async sendPasswordResetEmail(to: string, token: string): Promise<void> {
+        const resetLink = `${env.FRONTEND_URL}/auth/reset-password?token=${token}`;
+        await this.transporter.sendMail({
+            from: env.SMTP_FROM,
+            to,
+            subject: "Reset your password",
+            html: `
+                <h1>Reset your password</h1>
+                <p>Click the link below to reset your password:</p>
+                <a href="${resetLink}">${resetLink}</a>
+                <p>This link will expire in 24 hours.</p>
+                <p>If you didn't request this, please ignore this email.</p>
+            `,
+            text: `
+                Reset your password
+                Click the link below to reset your password:
+                ${resetLink}
+                This link will expire in 24 hours.
+                If you didn't request this, please ignore this email.
+            `,
+        });
+    }
 }
 
 export { EmailSender };

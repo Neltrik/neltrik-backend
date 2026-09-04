@@ -1,11 +1,23 @@
 import type { TransactionContext } from "@/shared/transaction";
 
-import type { AuthenticationAccount, AuthenticationSession, EmailVerification } from "../../domain/entities";
+import type {
+    AuthenticationAccount,
+    AuthenticationSession,
+    EmailVerification,
+    PasswordReset,
+} from "../../domain/entities";
 import {
     AuthenticationAccountRepository,
     AuthenticationSessionRepository,
     EmailVerificationRepository,
+    PasswordResetRepository,
 } from "../../domain/interfaces";
+
+export class PasswordResetRepositorySpy extends PasswordResetRepository {
+    public create = jest.fn<Promise<void>, [PasswordReset]>();
+    public update = jest.fn<Promise<void>, [PasswordReset]>();
+    public findByTokenHash = jest.fn<Promise<PasswordReset | null>, [string]>();
+}
 
 export class AuthenticationAccountRepositorySpy extends AuthenticationAccountRepository {
     public create = jest.fn<Promise<void>, [AuthenticationAccount]>();
@@ -22,6 +34,7 @@ export class AuthenticationSessionRepositorySpy extends AuthenticationSessionRep
     public findById = jest.fn<Promise<AuthenticationSession | null>, [string]>();
     public findByRefreshTokenHash = jest.fn<Promise<AuthenticationSession | null>, [string]>();
     public findByAuthenticationAccountId = jest.fn<Promise<AuthenticationSession[]>, [string]>();
+    public invalidateByAccount = jest.fn<Promise<void>, [string, TransactionContext]>();
 }
 
 export class EmailVerificationRepositorySpy extends EmailVerificationRepository {

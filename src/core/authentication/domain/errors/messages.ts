@@ -24,6 +24,8 @@ export const ERROR_MESSAGES = {
     EMPTY_AUTHENTICATION_ACCOUNT_ID: "The authentication account ID cannot be empty.",
     INVALID_EXPIRATION_DATE: "The expiration date is invalid.",
     EMAIL_VERIFICATION_NOT_FOUND: "The email verification was not found.",
+    PASSWORD_RESET_ALREADY_USED: "The password reset has already been used.",
+    PASSWORD_RESET_EXPIRED: "The password reset has expired.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -52,4 +54,6 @@ export const DOMAIN_ERROR_CODES = {
     EMPTY_AUTHENTICATION_ACCOUNT_ID: "EMPTY_AUTHENTICATION_ACCOUNT_ID",
     INVALID_EXPIRATION_DATE: "INVALID_EXPIRATION_DATE",
     EMAIL_VERIFICATION_NOT_FOUND: "EMAIL_VERIFICATION_NOT_FOUND",
+    PASSWORD_RESET_ALREADY_USED: "PASSWORD_RESET_ALREADY_USED",
+    PASSWORD_RESET_EXPIRED: "PASSWORD_RESET_EXPIRED",
 } as const;

@@ -14,8 +14,9 @@ export class PrismaPasswordResetRepository extends PasswordResetRepository {
         super();
     }
 
-    public async create(reset: PasswordReset): Promise<void> {
-        await this.prisma.passwordReset.create({
+    public async create(reset: PasswordReset, context?: TransactionContext): Promise<void> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma;
+        await prisma.passwordReset.create({
             data: PasswordResetMapper.toPersistence(reset),
         });
     }
@@ -29,10 +30,20 @@ export class PrismaPasswordResetRepository extends PasswordResetRepository {
     }
 
     public async findByTokenHash(tokenHash: string): Promise<PasswordReset | null> {
-        const reset = await this.prisma.passwordReset.findFirst({ where: { tokenHash } });
+        const reset = await this.prisma.passwordReset.findFirst({
+            where: { tokenHash },
+        });
         if (!reset) {
             return null;
         }
         return PasswordResetMapper.toDomain(reset);
+    }
+
+    public async invalidatePendingByAccount(accountId: string, context: TransactionContext): Promise<void> {
+        const prisma = context.get<Prisma.TransactionClient>();
+        await prisma.passwordReset.updateMany({
+            where: { authenticationAccountId: accountId, usedAt: null },
+            data: { expiresAt: new Date(), updatedAt: new Date() },
+        });
     }
 }

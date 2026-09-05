@@ -15,6 +15,8 @@ import {
     RefreshTokenUseCase,
     RegisterUseCase,
     RequestEmailVerificationUseCase,
+    RequestPasswordResetUseCase,
+    ResetPasswordUseCase,
     RevokeSessionUseCase,
     ValidateEmailVerificationUseCase,
     ValidateSessionUseCase,
@@ -26,7 +28,13 @@ import {
     EmailVerificationRepository,
     PasswordResetRepository,
 } from "./domain/interfaces";
-import { EmailSender, NodemailerEmailSender, Sha256Hasher, TokenProvider } from "./infrastructure/providers";
+import {
+    EmailSender,
+    NodemailerEmailSender,
+    PasswordHasher,
+    Sha256Hasher,
+    TokenProvider,
+} from "./infrastructure/providers";
 import {
     PrismaAuthenticationAccountRepository,
     PrismaAuthenticationSessionRepository,
@@ -34,10 +42,15 @@ import {
     PrismaPasswordResetRepository,
 } from "./infrastructure/repositories";
 import { EmailPasswordProviderStrategy, ProviderAuthenticationStrategyFactory } from "./infrastructure/strategies";
-import { AccountController, AuthController, EmailVerificationController } from "./presentation/controllers";
+import {
+    AccountController,
+    AuthController,
+    EmailVerificationController,
+    PasswordResetController,
+} from "./presentation/controllers";
 
 @Module({
-    controllers: [AccountController, AuthController, EmailVerificationController],
+    controllers: [AccountController, AuthController, EmailVerificationController, PasswordResetController],
     providers: [
         GetAccountByEmailUseCase,
         GetAccountByUserIdUseCase,
@@ -46,11 +59,14 @@ import { AccountController, AuthController, EmailVerificationController } from "
         RefreshTokenUseCase,
         RegisterUseCase,
         RequestEmailVerificationUseCase,
+        RequestPasswordResetUseCase,
+        ResetPasswordUseCase,
         RevokeSessionUseCase,
         ValidateEmailVerificationUseCase,
         ValidateSessionUseCase,
         EmailPasswordProviderStrategy,
         ProviderAuthenticationStrategyFactory,
+        PasswordHasher,
         Sha256Hasher,
         TokenProvider,
         {

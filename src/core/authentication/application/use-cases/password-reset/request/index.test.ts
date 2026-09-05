@@ -1,6 +1,10 @@
 import { AuthenticationAccount } from "../../../../domain/entities";
 import { PasswordHash } from "../../../../domain/value-objects";
-import { AuthenticationAccountRepositorySpy, PasswordResetRepositorySpy } from "../../../../test-doubles";
+import {
+    AuthenticationAccountRepositorySpy,
+    PasswordResetRepositorySpy,
+    TransactionManagerSpy,
+} from "../../../../test-doubles";
 import { RequestPasswordResetUseCase } from "./index";
 
 describe("RequestPasswordResetUseCase", () => {
@@ -14,6 +18,7 @@ describe("RequestPasswordResetUseCase", () => {
             passwordHash: PasswordHash.create("hashed-password"),
             updatedAt: new Date("2025-01-01T00:00:00.000Z"),
         });
+        const transactionManager = new TransactionManagerSpy();
         const accountRepository = new AuthenticationAccountRepositorySpy();
         accountRepository.findByEmail.mockResolvedValue(account);
         const passwordResetRepository = new PasswordResetRepositorySpy();
@@ -21,8 +26,13 @@ describe("RequestPasswordResetUseCase", () => {
             sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
             sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
         };
-        const useCase = new RequestPasswordResetUseCase(accountRepository, passwordResetRepository, emailSender);
-        return { useCase, account, accountRepository, passwordResetRepository, emailSender };
+        const useCase = new RequestPasswordResetUseCase(
+            transactionManager,
+            accountRepository,
+            passwordResetRepository,
+            emailSender,
+        );
+        return { useCase, account, transactionManager, accountRepository, passwordResetRepository, emailSender };
     };
 
     describe("execute", () => {

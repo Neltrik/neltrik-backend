@@ -54,20 +54,20 @@ describe("ExceptionResolver", () => {
         const {
             resolver,
             domainExceptionHandlingStrategy,
-            nestJSExceptionHandlingStrategy,
             zodExceptionHandlingStrategy,
+            nestJSExceptionHandlingStrategy,
         } = makeSut();
         const exception = new Error("Test error");
-        const details = [{ code: "NESTJS_ERROR", message: "NestJS error" }];
+        const details = [{ code: "ZOD_ERROR", message: "Zod error" }];
         jest.spyOn(domainExceptionHandlingStrategy, "supports").mockReturnValue(false);
-        jest.spyOn(nestJSExceptionHandlingStrategy, "supports").mockReturnValue(true);
-        jest.spyOn(nestJSExceptionHandlingStrategy, "handle").mockReturnValue(details);
-        const zodSupportsSpy = jest.spyOn(zodExceptionHandlingStrategy, "supports");
+        jest.spyOn(zodExceptionHandlingStrategy, "supports").mockReturnValue(true);
+        jest.spyOn(zodExceptionHandlingStrategy, "handle").mockReturnValue(details);
+        const nestSupportsSpy = jest.spyOn(nestJSExceptionHandlingStrategy, "supports");
         const result = resolver.handle(exception);
         expect(domainExceptionHandlingStrategy.supports).toHaveBeenCalledWith(exception);
-        expect(nestJSExceptionHandlingStrategy.supports).toHaveBeenCalledWith(exception);
-        expect(nestJSExceptionHandlingStrategy.handle).toHaveBeenCalledWith(exception);
-        expect(zodSupportsSpy).not.toHaveBeenCalled();
+        expect(zodExceptionHandlingStrategy.supports).toHaveBeenCalledWith(exception);
+        expect(zodExceptionHandlingStrategy.handle).toHaveBeenCalledWith(exception);
+        expect(nestSupportsSpy).not.toHaveBeenCalled();
         expect(result).toEqual(details);
     });
 
@@ -81,14 +81,14 @@ describe("ExceptionResolver", () => {
         const exception = new Error("Test error");
         const details = [{ code: "VALIDATION_ERROR", message: "Validation error" }];
         jest.spyOn(domainExceptionHandlingStrategy, "supports").mockReturnValue(false);
-        jest.spyOn(nestJSExceptionHandlingStrategy, "supports").mockReturnValue(false);
         jest.spyOn(zodExceptionHandlingStrategy, "supports").mockReturnValue(true);
         jest.spyOn(zodExceptionHandlingStrategy, "handle").mockReturnValue(details);
+        const nestSupportsSpy = jest.spyOn(nestJSExceptionHandlingStrategy, "supports");
         const result = resolver.handle(exception);
         expect(domainExceptionHandlingStrategy.supports).toHaveBeenCalledWith(exception);
-        expect(nestJSExceptionHandlingStrategy.supports).toHaveBeenCalledWith(exception);
         expect(zodExceptionHandlingStrategy.supports).toHaveBeenCalledWith(exception);
         expect(zodExceptionHandlingStrategy.handle).toHaveBeenCalledWith(exception);
+        expect(nestSupportsSpy).not.toHaveBeenCalled();
         expect(result).toEqual(details);
     });
 

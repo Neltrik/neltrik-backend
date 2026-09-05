@@ -17,6 +17,7 @@ export class PasswordResetRepositorySpy extends PasswordResetRepository {
     public create = jest.fn<Promise<void>, [PasswordReset]>();
     public update = jest.fn<Promise<void>, [PasswordReset]>();
     public findByTokenHash = jest.fn<Promise<PasswordReset | null>, [string]>();
+    public invalidatePendingByAccount = jest.fn<Promise<void>, [string, TransactionContext]>();
 }
 
 export class AuthenticationAccountRepositorySpy extends AuthenticationAccountRepository {

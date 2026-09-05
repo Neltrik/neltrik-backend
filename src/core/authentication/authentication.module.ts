@@ -5,6 +5,7 @@ import { env } from "@/config/index";
 import { AuthorizationModule } from "@/core/authorization/authorization.module";
 import { IdentityModule } from "@/core/identity/identity.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
+import { SessionValidator } from "@/shared/auth";
 import { DomainStatusRegistry } from "@/shared/http";
 
 import {
@@ -32,6 +33,7 @@ import {
     EmailSender,
     NodemailerEmailSender,
     PasswordHasher,
+    SessionValidatorProvider,
     Sha256Hasher,
     TokenProvider,
 } from "./infrastructure/providers";
@@ -89,8 +91,13 @@ import {
             provide: EmailSender,
             useClass: NodemailerEmailSender,
         },
+        {
+            provide: SessionValidator,
+            useClass: SessionValidatorProvider,
+        },
     ],
     imports: [JwtModule.register({ secret: env.JWT_SECRET }), AuthorizationModule, IdentityModule, TenantModule],
+    exports: [SessionValidator],
 })
 export class AuthenticationModule implements OnModuleInit {
     public onModuleInit(): void {

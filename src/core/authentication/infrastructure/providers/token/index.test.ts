@@ -26,6 +26,7 @@ describe("TokenProvider", () => {
                 roleCode: "USER",
                 tenantId: "tenant-id",
                 emailVerified: false,
+                sessionId: "",
             });
             expect(signAsyncMock).toHaveBeenCalledTimes(1);
             expect(signAsyncMock).toHaveBeenCalledWith({
@@ -34,6 +35,7 @@ describe("TokenProvider", () => {
                 tenantId: "tenant-id",
                 roleCode: "USER",
                 emailVerified: false,
+                sessionId: "",
             });
             expect(result).toBe("access-token");
         });
@@ -48,6 +50,7 @@ describe("TokenProvider", () => {
                     roleCode: "USER",
                     tenantId: "tenant-id",
                     emailVerified: false,
+                    sessionId: "",
                 }),
             ).rejects.toThrow("JWT generation failed");
         });

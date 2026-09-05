@@ -38,13 +38,6 @@ export class LoginUseCase {
         }
         const identityUser = await this.userApi.getUserById(account.userId);
         const role = await this.authorizationRoleApi.getRoleById(identityUser.roleId);
-        const accessToken = await this.tokenProvider.generateAccessToken({
-            userId: account.userId,
-            email: account.email,
-            roleCode: role.code,
-            tenantId: identityUser.tenantId,
-            emailVerified: account.emailVerified,
-        });
         const refreshToken = this.tokenProvider.generateRefreshToken();
         const refreshTokenHash = this.sha256Hasher.hash(refreshToken);
         const now = new Date();
@@ -61,6 +54,14 @@ export class LoginUseCase {
             updatedAt: now,
         });
         await this.sessionRepository.create(session);
+        const accessToken = await this.tokenProvider.generateAccessToken({
+            userId: account.userId,
+            email: account.email,
+            roleCode: role.code,
+            tenantId: identityUser.tenantId,
+            emailVerified: account.emailVerified,
+            sessionId: session.id,
+        });
         return { sessionId: session.id, accessToken, refreshToken };
     }
 }

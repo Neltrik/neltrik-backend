@@ -131,6 +131,7 @@ describe("LoginUseCase", () => {
                 roleCode: "USER",
                 tenantId: "tenant-id",
                 emailVerified: false,
+                sessionId: "session-id",
             });
             expect(sut.tokenProvider.generateRefreshToken).toHaveBeenCalledTimes(1);
             expect(sut.sha256Hasher.hash).toHaveBeenCalledWith("refresh-token");
@@ -209,8 +210,9 @@ describe("LoginUseCase", () => {
             const sut = makeSut();
             sut.tokenProvider.generateAccessToken.mockRejectedValue(new Error("Access token generation failed"));
             await expect(sut.useCase.execute(makeInput())).rejects.toThrow("Access token generation failed");
-            expect(sut.tokenProvider.generateRefreshToken).not.toHaveBeenCalled();
-            expectNoSessionCreation(sut);
+            expect(sut.tokenProvider.generateRefreshToken).toHaveBeenCalledTimes(1);
+            expect(sut.sha256Hasher.hash).toHaveBeenCalledWith("refresh-token");
+            expect(sut.sessionRepository.create).toHaveBeenCalledTimes(1);
         });
 
         it("should propagate refresh token generation errors", async () => {

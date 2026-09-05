@@ -14,3 +14,8 @@ export const EMAIL_VERIFICATION = {
     EMAIL_VERIFICATION_REQUEST_SUCCESS: "Verification email sent successfully.",
     EMAIL_VERIFICATION_VALIDATE_SUCCESS: "Email verified successfully.",
 } as const;
+
+export const PASSWORD_RESET_MESSAGES = {
+    REQUEST_SUCCESS: "Password reset email sent successfully.",
+    RESET_SUCCESS: "Password reset successfully.",
+} as const;

@@ -21,8 +21,8 @@ export class ExceptionResolver {
     ) {
         this.strategies = [
             this.domainExceptionHandlingStrategy,
-            this.nestJSExceptionHandlingStrategy,
             this.zodExceptionHandlingStrategy,
+            this.nestJSExceptionHandlingStrategy,
         ];
     }
 

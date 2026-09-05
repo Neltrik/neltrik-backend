@@ -6,12 +6,14 @@ import { CookieHelper } from "@/shared/http";
 
 import { IS_PUBLIC_KEY } from "../../decorators";
 import { TokenVerifier } from "../../providers";
+import { SessionValidator } from "./contracts";
 
 @Injectable()
 export class AuthenticationGuard implements CanActivate {
     constructor(
         private readonly reflector: Reflector,
         private readonly tokenVerifier: TokenVerifier,
+        private readonly sessionValidator: SessionValidator,
     ) {}
 
     public async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -28,6 +30,10 @@ export class AuthenticationGuard implements CanActivate {
             throw new UnauthorizedException("Access token not found");
         }
         const payload = await this.tokenVerifier.verify(token);
+        const isValid = await this.sessionValidator.validate(payload.sessionId);
+        if (!isValid) {
+            throw new UnauthorizedException("Invalid or revoked session");
+        }
         request.user = {
             userId: payload.sub,
             tenantId: payload.tenantId,

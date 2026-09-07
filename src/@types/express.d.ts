@@ -1,13 +1,11 @@
 /* eslint-disable no-restricted-syntax */
+import { type UserPayload } from "@/shared/auth";
+
 import "express";
 
 declare module "express" {
     interface Request {
-        user?: {
-            userId: string;
-            tenantId: string;
-            roleCode: string;
-        };
+        user?: UserPayload;
         account?: {
             emailVerified: boolean;
         };

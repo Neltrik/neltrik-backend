@@ -7,6 +7,10 @@ export const AUTH_MESSAGES = {
     LOGIN_SUCCESS: "Login successful.",
     REFRESH_SUCCESS: "Token refreshed successfully.",
     LOGOUT_SUCCESS: "Logout successful.",
+} as const;
+
+export const SESSION_MESSAGES = {
+    LIST_SUCCESS: "Sessions listed successfully",
     SESSION_REVOKED: "Session revoked successfully.",
 } as const;
 

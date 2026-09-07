@@ -105,7 +105,12 @@ describe("AuthenticationGuard", () => {
         await expect(guard.canActivate(context)).resolves.toBe(true);
         expect(tokenVerifier.verify).toHaveBeenCalledWith("access-token");
         expect(sessionValidator.validate).toHaveBeenCalledWith("session-id");
-        expect(request.user).toEqual({ userId: "user-id", tenantId: "tenant-id", roleCode: "ADMIN" });
+        expect(request.user).toEqual({
+            userId: "user-id",
+            tenantId: "tenant-id",
+            roleCode: "ADMIN",
+            sessionId: "session-id",
+        });
         expect(request.account).toEqual({ emailVerified: false });
     });
 

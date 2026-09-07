@@ -12,6 +12,7 @@ export const AUTH_MESSAGES = {
 export const SESSION_MESSAGES = {
     LIST_SUCCESS: "Sessions listed successfully",
     SESSION_REVOKED: "Session revoked successfully.",
+    DETAIL_SUCCESS: "Session details retrieved successfully",
 } as const;
 
 export const EMAIL_VERIFICATION = {

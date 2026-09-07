@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-class SessionDto {
+export class SessionDetailsResponseDto {
     @ApiProperty({
         example: "550e8400-e29b-41d4-a716-446655440000",
         description: "ID de la sesión",
@@ -55,8 +55,8 @@ class SessionDto {
 
 export class ListSessionsResponseDto {
     @ApiProperty({
-        type: [SessionDto],
+        type: [SessionDetailsResponseDto],
         description: "Lista de sesiones del usuario",
     })
-    sessions!: SessionDto[];
+    sessions!: SessionDetailsResponseDto[];
 }

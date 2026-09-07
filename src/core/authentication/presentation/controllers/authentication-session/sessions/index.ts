@@ -6,6 +6,7 @@ import {
     ApiInternalServerErrorResponse,
     ApiNoContentResponse,
     ApiNotFoundResponse,
+    ApiOkResponse,
     ApiOperation,
     ApiTags,
     ApiUnauthorizedResponse,
@@ -16,15 +17,21 @@ import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
-import { ListSessionsUseCase, RevokeSessionUseCase } from "../../../../application/use-cases";
-import { ListSessionsResponseDto, RevokeSessionParamsDto } from "../../../dto";
+import { GetSessionUseCase, ListSessionsUseCase, RevokeSessionUseCase } from "../../../../application/use-cases";
+import {
+    ListSessionsResponseDto,
+    RevokeSessionParamsDto,
+    SessionDetailsResponseDto,
+    SessionParamsDto,
+} from "../../../dto";
 import { SESSION_MESSAGES } from "../../../messages";
-import { revokeSessionParamsSchema } from "../../../schemas";
+import { revokeSessionParamsSchema, sessionParamsSchema } from "../../../schemas";
 
 @ApiTags("Authentication - Sessions")
 @Controller("auth/sessions")
 export class SessionController {
     constructor(
+        private readonly getSessionUseCase: GetSessionUseCase,
         private readonly listSessionsUseCase: ListSessionsUseCase,
         private readonly revokeSessionUseCase: RevokeSessionUseCase,
     ) {}
@@ -69,6 +76,53 @@ export class SessionController {
     }
 
     @ApiOperation({
+        summary: "Get session details",
+        description: "Returns detailed information about a specific session.",
+    })
+    @ApiOkResponse({
+        description: "Session details retrieved successfully.",
+        type: SessionDetailsResponseDto,
+    })
+    @ApiBadRequestResponse({
+        description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
+    @ApiNotFoundResponse({
+        description: "Session not found.",
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Internal server error.",
+    })
+    @ResponseDecorator({
+        code: RESPONSE_CODES.RESOURCE_FOUND,
+        message: SESSION_MESSAGES.DETAIL_SUCCESS,
+    })
+    @Permissions("SESSION_VIEW")
+    @Get(":id")
+    public async getSession(
+        @CurrentUser() user: UserPayload,
+        @Param(new ZodValidationPipe(sessionParamsSchema))
+        params: SessionParamsDto,
+    ): Promise<SessionDetailsResponseDto> {
+        const session = await this.getSessionUseCase.execute({ userId: user.userId, sessionId: params.id });
+        return {
+            id: session.id,
+            ipAddress: session.ipAddress,
+            userAgent: session.userAgent,
+            lastUsedAt: session.lastUsedAt,
+            createdAt: session.createdAt,
+            expiresAt: session.expiresAt,
+            isRevoked: session.isRevoked,
+            isCurrent: session.id === user.sessionId,
+        };
+    }
+
+    @ApiOperation({
         summary: "Revoke session",
         description: "Revokes a specific session by its ID.",
     })
@@ -93,7 +147,7 @@ export class SessionController {
         message: SESSION_MESSAGES.SESSION_REVOKED,
     })
     @Permissions("SESSION_REVOKE")
-    @Post("sessions/:id/revoke")
+    @Post(":id/revoke")
     public async revokeSession(
         @CurrentUser("userId") userId: string,
         @Param(new ZodValidationPipe(revokeSessionParamsSchema))

@@ -76,7 +76,7 @@ describe("PermissionsGuard", () => {
         jest.spyOn(reflector, "getAllAndOverride")
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(["USER_CREATE", "USER_READ"]);
-        request.user = { userId: "user-id", tenantId: "tenant-id", roleCode: "ADMIN" };
+        request.user = { userId: "user-id", tenantId: "tenant-id", roleCode: "ADMIN", sessionId: "" };
         hasPermissionMock.mockResolvedValueOnce(true).mockResolvedValueOnce(true);
         await expect(guard.canActivate(context)).resolves.toBe(true);
         expect(hasPermissionMock).toHaveBeenCalledTimes(2);
@@ -89,7 +89,7 @@ describe("PermissionsGuard", () => {
         jest.spyOn(reflector, "getAllAndOverride")
             .mockReturnValueOnce(false)
             .mockReturnValueOnce(["USER_CREATE", "USER_DELETE"]);
-        request.user = { userId: "user-id", roleCode: "", tenantId: "" };
+        request.user = { userId: "user-id", roleCode: "", tenantId: "", sessionId: "" };
         permissionChecker.hasPermission.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
         await expect(guard.canActivate(context)).rejects.toThrow(
             new ForbiddenException("Missing required permission: USER_DELETE"),
@@ -102,7 +102,7 @@ describe("PermissionsGuard", () => {
     it("should propagate permission checker errors", async () => {
         const { guard, reflector, permissionChecker, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValueOnce(false).mockReturnValueOnce(["USER_CREATE"]);
-        request.user = { userId: "user-id", roleCode: "", tenantId: "" };
+        request.user = { userId: "user-id", roleCode: "", tenantId: "", sessionId: "" };
         permissionChecker.hasPermission.mockRejectedValue(new Error("Permission checker error"));
         await expect(guard.canActivate(context)).rejects.toThrow("Permission checker error");
         expect(permissionChecker.hasPermission).toHaveBeenCalledWith("user-id", "USER_CREATE");

@@ -52,7 +52,7 @@ describe("EmailVerifiedGuard", () => {
     it("should throw when account is not found", () => {
         const { guard, reflector, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-        request.user = { userId: "user-id", tenantId: "tenant-id", roleCode: "ADMIN" };
+        request.user = { userId: "user-id", tenantId: "tenant-id", roleCode: "ADMIN", sessionId: "" };
         delete request.account;
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("User not authenticated"));
     });
@@ -60,7 +60,7 @@ describe("EmailVerifiedGuard", () => {
     it("should throw when email is not verified", () => {
         const { guard, reflector, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-        request.user = { userId: "user-id", tenantId: "tenant-id", roleCode: "ADMIN" };
+        request.user = { userId: "user-id", tenantId: "tenant-id", roleCode: "ADMIN", sessionId: "" };
         request.account = { emailVerified: false };
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("Email not verified"));
     });
@@ -68,11 +68,7 @@ describe("EmailVerifiedGuard", () => {
     it("should allow access when email is verified", () => {
         const { guard, reflector, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-        request.user = {
-            userId: "user-id",
-            tenantId: "tenant-id",
-            roleCode: "ADMIN",
-        };
+        request.user = { userId: "user-id", tenantId: "tenant-id", roleCode: "ADMIN", sessionId: "" };
         request.account = { emailVerified: true };
         expect(guard.canActivate(context)).toBe(true);
         expect(reflector.getAllAndOverride).toHaveBeenCalledWith(SKIP_EMAIL_VERIFICATION_KEY, [

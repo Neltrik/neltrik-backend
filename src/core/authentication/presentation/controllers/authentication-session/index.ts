@@ -1,4 +1,4 @@
-import { Body, Controller, HttpCode, HttpStatus, Param, Post, Req, Res } from "@nestjs/common";
+import { Body, Controller, HttpCode, HttpStatus, Post, Req, Res } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiCreatedResponse,
@@ -11,21 +11,15 @@ import {
 } from "@nestjs/swagger";
 import type { Request, Response } from "express";
 
-import { Public, SkipEmailVerification, UserId } from "@/shared/auth";
-import { Permissions, PublicPermission } from "@/shared/authorization";
+import { Public, SkipEmailVerification } from "@/shared/auth";
+import { PublicPermission } from "@/shared/authorization";
 import { ApiContract, CookieHelper, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
-import {
-    LoginInput,
-    LoginUseCase,
-    LogoutUseCase,
-    RefreshTokenUseCase,
-    RevokeSessionUseCase,
-} from "../../../application/use-cases";
-import { LoginRequestDto, LoginResponseDto, RevokeSessionParamsDto } from "../../dto";
+import { LoginInput, LoginUseCase, LogoutUseCase, RefreshTokenUseCase } from "../../../application/use-cases";
+import { LoginRequestDto, LoginResponseDto } from "../../dto";
 import { AUTH_MESSAGES } from "../../messages";
-import { loginSchema, revokeSessionParamsSchema } from "../../schemas";
+import { loginSchema } from "../../schemas";
 
 const MAX_AGE_REFRESH_TOKEN = 7 * 24 * 60 * 60 * 1000;
 const MAX_AGE_ACCESS_TOKEN = 15 * 60 * 1000;
@@ -37,7 +31,6 @@ export class AuthController {
         private readonly loginUseCase: LoginUseCase,
         private readonly refreshTokenUseCase: RefreshTokenUseCase,
         private readonly logoutUseCase: LogoutUseCase,
-        private readonly revokeSessionUseCase: RevokeSessionUseCase,
     ) {}
 
     @ApiOperation({
@@ -186,41 +179,6 @@ export class AuthController {
             sameSite: "strict",
         });
     }
-
-    @ApiOperation({
-        summary: "Revoke session",
-        description: "Revokes a specific session by its ID.",
-    })
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiNoContentResponse({
-        description: "Revokes successful.",
-    })
-    @ApiBadRequestResponse({
-        description: "Validation failed.",
-    })
-    @ApiUnauthorizedResponse({
-        description: "Unauthorized.",
-    })
-    @ApiNotFoundResponse({
-        description: "Session not found.",
-    })
-    @ApiInternalServerErrorResponse({
-        description: "Internal server error.",
-    })
-    @ResponseDecorator({
-        code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
-        message: AUTH_MESSAGES.SESSION_REVOKED,
-    })
-    @Permissions("SESSION_REVOKE")
-    @Post("sessions/:id/revoke")
-    public async revokeSession(
-        @UserId() userId: string,
-        @Param(new ZodValidationPipe(revokeSessionParamsSchema))
-        params: RevokeSessionParamsDto,
-    ): Promise<void> {
-        await this.revokeSessionUseCase.execute({
-            sessionId: params.id,
-            userId,
-        });
-    }
 }
+
+export { SessionController } from "./sessions";

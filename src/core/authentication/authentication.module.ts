@@ -11,6 +11,7 @@ import { DomainStatusRegistry } from "@/shared/http";
 import {
     GetAccountByEmailUseCase,
     GetAccountByUserIdUseCase,
+    ListSessionsUseCase,
     LoginUseCase,
     LogoutUseCase,
     RefreshTokenUseCase,
@@ -49,13 +50,21 @@ import {
     AuthController,
     EmailVerificationController,
     PasswordResetController,
+    SessionController,
 } from "./presentation/controllers";
 
 @Module({
-    controllers: [AccountController, AuthController, EmailVerificationController, PasswordResetController],
+    controllers: [
+        AccountController,
+        AuthController,
+        EmailVerificationController,
+        PasswordResetController,
+        SessionController,
+    ],
     providers: [
         GetAccountByEmailUseCase,
         GetAccountByUserIdUseCase,
+        ListSessionsUseCase,
         LoginUseCase,
         LogoutUseCase,
         RefreshTokenUseCase,

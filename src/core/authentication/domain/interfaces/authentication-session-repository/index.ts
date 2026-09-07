@@ -9,4 +9,5 @@ export abstract class AuthenticationSessionRepository {
     abstract findByRefreshTokenHash(refreshTokenHash: string): Promise<AuthenticationSession | null>;
     abstract findByAuthenticationAccountId(authenticationAccountId: string): Promise<AuthenticationSession[]>;
     abstract invalidateByAccount(accountId: string, context: TransactionContext): Promise<void>;
+    abstract revokeAllExcept(accountId: string, currentSessionId: string, context: TransactionContext): Promise<void>;
 }

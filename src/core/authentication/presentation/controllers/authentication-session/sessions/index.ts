@@ -17,7 +17,12 @@ import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
-import { GetSessionUseCase, ListSessionsUseCase, RevokeSessionUseCase } from "../../../../application/use-cases";
+import {
+    GetSessionUseCase,
+    ListSessionsUseCase,
+    RevokeAllSessionsUseCase,
+    RevokeSessionUseCase,
+} from "../../../../application/use-cases";
 import {
     ListSessionsResponseDto,
     RevokeSessionParamsDto,
@@ -33,6 +38,7 @@ export class SessionController {
     constructor(
         private readonly getSessionUseCase: GetSessionUseCase,
         private readonly listSessionsUseCase: ListSessionsUseCase,
+        private readonly revokeAllSessionsUseCase: RevokeAllSessionsUseCase,
         private readonly revokeSessionUseCase: RevokeSessionUseCase,
     ) {}
 
@@ -154,5 +160,35 @@ export class SessionController {
         params: RevokeSessionParamsDto,
     ): Promise<void> {
         await this.revokeSessionUseCase.execute({ sessionId: params.id, userId });
+    }
+
+    @ApiOperation({
+        summary: "Revoke all sessions",
+        description: "Revokes all sessions except the current one.",
+    })
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiNoContentResponse({
+        description: "All sessions revoked successfully.",
+    })
+    @ApiBadRequestResponse({
+        description: "Validation failed.",
+    })
+    @ApiUnauthorizedResponse({
+        description: "Unauthorized.",
+    })
+    @ApiForbiddenResponse({
+        description: "Forbidden.",
+    })
+    @ApiInternalServerErrorResponse({
+        description: "Internal server error.",
+    })
+    @ResponseDecorator({
+        code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
+        message: SESSION_MESSAGES.REVOKE_ALL_SUCCESS,
+    })
+    @Permissions("SESSION_REVOKE_ALL")
+    @Post("revoke-all")
+    public async revokeAllSessions(@CurrentUser() user: UserPayload): Promise<void> {
+        await this.revokeAllSessionsUseCase.execute({ userId: user.userId, currentSessionId: user.sessionId });
     }
 }

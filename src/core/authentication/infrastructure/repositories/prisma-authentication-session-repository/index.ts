@@ -57,4 +57,16 @@ export class PrismaAuthenticationSessionRepository extends AuthenticationSession
             data: { revokedAt: new Date(), updatedAt: new Date() },
         });
     }
+
+    public async revokeAllExcept(
+        accountId: string,
+        currentSessionId: string,
+        context: TransactionContext,
+    ): Promise<void> {
+        const prisma = context.get<Prisma.TransactionClient>();
+        await prisma.authenticationSession.updateMany({
+            where: { authenticationAccountId: accountId, revokedAt: null, id: { not: currentSessionId } },
+            data: { revokedAt: new Date(), updatedAt: new Date() },
+        });
+    }
 }

@@ -36,6 +36,7 @@ export class AuthenticationSessionRepositorySpy extends AuthenticationSessionRep
     public findByRefreshTokenHash = jest.fn<Promise<AuthenticationSession | null>, [string]>();
     public findByAuthenticationAccountId = jest.fn<Promise<AuthenticationSession[]>, [string]>();
     public invalidateByAccount = jest.fn<Promise<void>, [string, TransactionContext]>();
+    public revokeAllExcept = jest.fn<Promise<void>, [string, string, TransactionContext]>();
 }
 
 export class EmailVerificationRepositorySpy extends EmailVerificationRepository {

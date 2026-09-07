@@ -11,6 +11,7 @@ import { DomainStatusRegistry } from "@/shared/http";
 import {
     GetAccountByEmailUseCase,
     GetAccountByUserIdUseCase,
+    GetSessionUseCase,
     ListSessionsUseCase,
     LoginUseCase,
     LogoutUseCase,
@@ -64,6 +65,7 @@ import {
     providers: [
         GetAccountByEmailUseCase,
         GetAccountByUserIdUseCase,
+        GetSessionUseCase,
         ListSessionsUseCase,
         LoginUseCase,
         LogoutUseCase,
@@ -116,5 +118,6 @@ export class AuthenticationModule implements OnModuleInit {
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.INVALID_CREDENTIALS, HttpStatus.UNAUTHORIZED);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.AUTHENTICATION_ACCOUNT_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.UNAUTHORIZED_SESSION, HttpStatus.UNAUTHORIZED);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.SESSION_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 }

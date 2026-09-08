@@ -11,7 +11,7 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { TenantId } from "@/shared/auth";
+import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -72,7 +72,7 @@ export class RoleTenantController {
     @Permissions("ROLE_TENANT_CREATE")
     @Post()
     public async associate(
-        @TenantId() actorTenantId: string,
+        @CurrentUser("tenantId") actorTenantId: string,
         @Param(new ZodValidationPipe(roleTenantParamsSchema))
         params: { tenantId: string },
         @Body(new ZodValidationPipe(associateRolesToTenantSchema))
@@ -115,7 +115,7 @@ export class RoleTenantController {
     @Permissions("ROLE_TENANT_DELETE")
     @Delete()
     public async disassociate(
-        @TenantId() actorTenantId: string,
+        @CurrentUser("tenantId") actorTenantId: string,
         @Param(new ZodValidationPipe(roleTenantParamsSchema))
         params: { tenantId: string },
         @Body(new ZodValidationPipe(disassociateRolesFromTenantSchema))

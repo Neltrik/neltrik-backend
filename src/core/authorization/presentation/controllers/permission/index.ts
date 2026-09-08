@@ -11,7 +11,7 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { UserId } from "@/shared/auth";
+import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -200,7 +200,7 @@ export class PermissionController {
     @Permissions("PERMISSION_VERIFY")
     @Get("check")
     public async checkPermission(
-        @UserId() userId: string,
+        @CurrentUser("userId") userId: string,
         @Query(new ZodValidationPipe(userHasPermissionQuerySchema))
         query: UserHasPermissionQueryDto,
     ): Promise<UserHasPermissionResponseDto> {

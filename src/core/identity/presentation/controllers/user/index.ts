@@ -11,7 +11,7 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { UserId } from "@/shared/auth";
+import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -169,7 +169,7 @@ export class UserController {
     @Permissions("USER_SUSPEND")
     @Patch("users/:id/suspend")
     public async suspend(
-        @UserId() actorUserId: string,
+        @CurrentUser("userId") actorUserId: string,
         @Param(new ZodValidationPipe(suspendUserParamsSchema))
         params: SuspendUserParamsDto,
     ): Promise<void> {

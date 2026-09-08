@@ -12,7 +12,7 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { TenantId } from "@/shared/auth";
+import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -80,7 +80,7 @@ export class TenantRoleConfigurationController {
     @Permissions("TENANT_ROLE_CONFIGURATION_CREATE")
     @Post()
     public async create(
-        @TenantId() tenantId: string,
+        @CurrentUser("tenantId") tenantId: string,
         @Body(new ZodValidationPipe(createTenantRoleConfigurationSchema))
         body: CreateTenantRoleConfigurationDto,
     ): Promise<CreateTenantRoleConfigurationResultDto> {

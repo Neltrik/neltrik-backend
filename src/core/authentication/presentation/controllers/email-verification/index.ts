@@ -9,7 +9,7 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { Public, SkipEmailVerification, UserId } from "@/shared/auth";
+import { CurrentUser, Public, SkipEmailVerification } from "@/shared/auth";
 import { PublicPermission } from "@/shared/authorization";
 import { Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -54,7 +54,7 @@ export class EmailVerificationController {
     @SkipEmailVerification()
     @PublicPermission()
     @Post()
-    public async requestVerification(@UserId() userId: string): Promise<void> {
+    public async requestVerification(@CurrentUser("userId") userId: string): Promise<void> {
         await this.requestEmailVerificationUseCase.execute(userId);
     }
 

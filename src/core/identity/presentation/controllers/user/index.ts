@@ -24,7 +24,6 @@ import {
     UpdateUserUseCase,
 } from "../../../application/use-cases";
 import {
-    GetUsersParamsDto,
     GetUsersResultDto,
     ReactivateUserParamsDto,
     SuspendUserParamsDto,
@@ -34,7 +33,6 @@ import {
 } from "../../dto/user";
 import { USER_MESSAGES } from "../../messages";
 import {
-    getUsersParamsSchema,
     reactivateUserParamsSchema,
     suspendUserParamsSchema,
     updateUserParamsSchema,
@@ -124,12 +122,9 @@ export class UserController {
         message: USER_MESSAGES.LISTED,
     })
     @Permissions("USER_LIST")
-    @Get("tenants/:tenantId/users")
-    public async list(
-        @Param(new ZodValidationPipe(getUsersParamsSchema))
-        params: GetUsersParamsDto,
-    ): Promise<GetUsersResultDto[]> {
-        const users = await this.getUsersUseCase.execute({ tenantId: params.tenantId });
+    @Get("users")
+    public async list(): Promise<GetUsersResultDto[]> {
+        const users = await this.getUsersUseCase.execute();
         return users.map((user) => ({
             id: user.id,
             firstName: user.firstName,

@@ -15,13 +15,13 @@ export class PrismaAuthenticationAccountRepository extends AuthenticationAccount
     }
 
     public async create(account: AuthenticationAccount): Promise<void> {
-        await this.prisma.authenticationAccount.create({
+        await this.prisma.tenantClient.authenticationAccount.create({
             data: AuthenticationAccountMapper.toPersistence(account),
         });
     }
 
     public async update(account: AuthenticationAccount, context?: TransactionContext): Promise<void> {
-        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma;
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
         await prisma.authenticationAccount.update({
             where: { id: account.id },
             data: AuthenticationAccountMapper.toPersistence(account),
@@ -29,7 +29,7 @@ export class PrismaAuthenticationAccountRepository extends AuthenticationAccount
     }
 
     public async findByUserId(userId: string): Promise<AuthenticationAccount | null> {
-        const account = await this.prisma.authenticationAccount.findUnique({
+        const account = await this.prisma.tenantClient.authenticationAccount.findUnique({
             where: { userId },
         });
         if (!account) {
@@ -39,7 +39,7 @@ export class PrismaAuthenticationAccountRepository extends AuthenticationAccount
     }
 
     public async findByEmail(email: string): Promise<AuthenticationAccount | null> {
-        const account = await this.prisma.authenticationAccount.findFirst({
+        const account = await this.prisma.tenantClient.authenticationAccount.findFirst({
             where: { email },
         });
         if (!account) {
@@ -49,11 +49,11 @@ export class PrismaAuthenticationAccountRepository extends AuthenticationAccount
     }
 
     public async delete(id: string): Promise<void> {
-        await this.prisma.authenticationAccount.delete({ where: { id } });
+        await this.prisma.tenantClient.authenticationAccount.delete({ where: { id } });
     }
 
     public async findById(id: string): Promise<AuthenticationAccount | null> {
-        const account = await this.prisma.authenticationAccount.findUnique({ where: { id } });
+        const account = await this.prisma.tenantClient.authenticationAccount.findUnique({ where: { id } });
         if (!account) {
             return null;
         }

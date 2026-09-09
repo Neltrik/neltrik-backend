@@ -2,7 +2,6 @@ import { User } from "../../../domain/entities";
 import { Email } from "../../../domain/value-objects";
 import { AuthorizationRoleApiSpy, UserRepositorySpy } from "../../../test-doubles";
 import { GetUsersUseCase } from "./index";
-import type { GetUsersInput } from "./input";
 
 const makeUser = () =>
     User.create({
@@ -17,10 +16,6 @@ const makeUser = () =>
         suspendedAt: null,
     });
 
-const makeInput = (): GetUsersInput => ({
-    tenantId: "tenant-id",
-});
-
 describe("GetUsersUseCase", () => {
     const makeSut = () => {
         const userRepository = new UserRepositorySpy();
@@ -33,8 +28,8 @@ describe("GetUsersUseCase", () => {
 
     it("should return users successfully", async () => {
         const { useCase, userRepository, authorizationRoleApi } = makeSut();
-        const result = await useCase.execute(makeInput());
-        expect(userRepository.list).toHaveBeenCalledWith("tenant-id");
+        const result = await useCase.execute();
+        expect(userRepository.list).toHaveBeenCalled();
         expect(authorizationRoleApi.getRoleById).toHaveBeenCalledWith("role-id");
         expect(result).toHaveLength(1);
         expect(result[0]?.role).toEqual({ id: "role-id", code: "RECRUITER", scope: "TENANT" });
@@ -43,13 +38,13 @@ describe("GetUsersUseCase", () => {
     it("should return an empty list", async () => {
         const { useCase, userRepository } = makeSut();
         userRepository.list.mockResolvedValue([]);
-        const result = await useCase.execute(makeInput());
+        const result = await useCase.execute();
         expect(result).toEqual([]);
     });
 
     it("should propagate repository errors", async () => {
         const { useCase, userRepository } = makeSut();
         userRepository.list.mockRejectedValue(new Error("Database error"));
-        await expect(useCase.execute(makeInput())).rejects.toThrow("Database error");
+        await expect(useCase.execute()).rejects.toThrow("Database error");
     });
 });

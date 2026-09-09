@@ -2,13 +2,6 @@ import { ApiProperty } from "@nestjs/swagger";
 
 import { USER_STATUS, type UserStatus } from "../../../domain/types";
 
-export class GetUsersParamsDto {
-    @ApiProperty({
-        example: "550e8400-e29b-41d4-a716-446655440000",
-    })
-    tenantId!: string;
-}
-
 class GetUsersRoleResultDto {
     @ApiProperty({
         example: "550e8400-e29b-41d4-a716-446655440001",

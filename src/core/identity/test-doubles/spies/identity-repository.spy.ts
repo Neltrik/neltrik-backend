@@ -6,7 +6,7 @@ export class UserRepositorySpy extends UserRepository {
     public create = jest.fn<Promise<void>, [User]>();
     public update = jest.fn<Promise<void>, [User]>();
     public get = jest.fn<Promise<User | null>, [string]>();
-    public list = jest.fn<Promise<User[]>, [string]>();
+    public list = jest.fn<Promise<User[]>, []>();
     public existsByEmail = jest.fn<Promise<boolean>, [Email]>();
     public delete = jest.fn<Promise<void>, [string]>();
 }

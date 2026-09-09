@@ -1,13 +1,13 @@
 import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
-import { APP_GUARD } from "@nestjs/core";
+import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 
 import { AuthenticationModule } from "./core/authentication/authentication.module";
 import { AuthorizationModule } from "./core/authorization/authorization.module";
 import { IdentityModule } from "./core/identity/identity.module";
 import { TenantModule } from "./core/tenant/tenant.module";
 import { AtsModule } from "./modules/ats/ats.module";
-import { PrismaModule } from "./prisma";
+import { PrismaModule, TenantInterceptor } from "./prisma";
 import { AuthenticationGuard, EmailVerifiedGuard } from "./shared/auth";
 import { AuthModule } from "./shared/auth/auth.module";
 import { PermissionsGuard } from "./shared/authorization";
@@ -43,6 +43,10 @@ import { SanitizationModule } from "./shared/sanitization";
         {
             provide: APP_GUARD,
             useClass: PermissionsGuard,
+        },
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: TenantInterceptor,
         },
     ],
 })

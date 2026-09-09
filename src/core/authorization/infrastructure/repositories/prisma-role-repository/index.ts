@@ -15,20 +15,20 @@ export class PrismaRoleRepository extends RoleRepository {
     }
 
     public async create(role: Role): Promise<void> {
-        await this.prisma.role.create({
+        await this.prisma.tenantClient.role.create({
             data: RoleMapper.toPersistence(role),
         });
     }
 
     public async update(role: Role): Promise<void> {
-        await this.prisma.role.update({
+        await this.prisma.tenantClient.role.update({
             where: { id: role.id },
             data: RoleMapper.toPersistence(role),
         });
     }
 
     public async get(id: string): Promise<Role | null> {
-        const role = await this.prisma.role.findUnique({ where: { id } });
+        const role = await this.prisma.tenantClient.role.findUnique({ where: { id } });
         if (!role) {
             return null;
         }
@@ -36,17 +36,17 @@ export class PrismaRoleRepository extends RoleRepository {
     }
 
     public async getByIds(ids: string[]): Promise<Role[]> {
-        const roles = await this.prisma.role.findMany({ where: { id: { in: ids } } });
+        const roles = await this.prisma.tenantClient.role.findMany({ where: { id: { in: ids } } });
         return roles.map((role) => RoleMapper.toDomain(role));
     }
 
     public async list(): Promise<Role[]> {
-        const roles = await this.prisma.role.findMany();
+        const roles = await this.prisma.tenantClient.role.findMany();
         return roles.map((role) => RoleMapper.toDomain(role));
     }
 
     public async existsByCode(code: string): Promise<boolean> {
-        const role = await this.prisma.role.findUnique({ where: { code }, select: { id: true } });
+        const role = await this.prisma.tenantClient.role.findUnique({ where: { code }, select: { id: true } });
         return role !== null;
     }
 
@@ -74,7 +74,7 @@ export class PrismaRoleRepository extends RoleRepository {
     }
 
     public async getPermissionsByRole(roleId: string): Promise<Permission[]> {
-        const rolePermissions = await this.prisma.rolePermission.findMany({
+        const rolePermissions = await this.prisma.tenantClient.rolePermission.findMany({
             where: { roleId },
             include: { permission: true },
         });

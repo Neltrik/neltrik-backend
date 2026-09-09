@@ -32,8 +32,8 @@ export class PrismaUserRepository extends UserRepository {
         return UserMapper.toDomain(user);
     }
 
-    public async list(tenantId: string): Promise<User[]> {
-        const users = await this.prisma.user.findMany({ where: { tenantId } });
+    public async list(): Promise<User[]> {
+        const users = await this.prisma.tenantClient.user.findMany();
         return users.map((user) => UserMapper.toDomain(user));
     }
 

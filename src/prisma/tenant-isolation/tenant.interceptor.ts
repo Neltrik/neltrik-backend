@@ -10,7 +10,10 @@ export class TenantInterceptor implements NestInterceptor {
 
     public intercept(context: ExecutionContext, next: CallHandler): Observable<unknown> {
         const request = context.switchToHttp().getRequest<Request>();
-        const tenantId = request.user?.tenantId ?? null;
+        let tenantId = request.user?.tenantId ?? null;
+        if (request.user?.roleCode === "PLATFORM_ADMIN") {
+            tenantId = null;
+        }
         return new Observable<unknown>((observer) => {
             this.tenantContextService.runWithTenant(tenantId, () => {
                 next.handle().subscribe({

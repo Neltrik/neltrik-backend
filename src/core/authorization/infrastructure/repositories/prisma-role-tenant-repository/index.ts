@@ -28,7 +28,10 @@ export class PrismaRoleTenantRepository extends RoleTenantRepository {
     }
 
     public async getRolesByTenant(tenantId: string): Promise<Role[]> {
-        const roleTenants = await this.prisma.roleTenant.findMany({ where: { tenantId }, include: { role: true } });
+        const roleTenants = await this.prisma.tenantClient.roleTenant.findMany({
+            where: { tenantId },
+            include: { role: true },
+        });
         return roleTenants.map(({ role }) => RoleMapper.toDomain(role));
     }
 }

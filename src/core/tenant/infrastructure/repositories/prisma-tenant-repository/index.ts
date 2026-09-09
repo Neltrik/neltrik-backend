@@ -13,20 +13,20 @@ export class PrismaTenantRepository extends TenantRepository {
     }
 
     public async create(tenant: Tenant): Promise<void> {
-        await this.prisma.tenant.create({
+        await this.prisma.tenantClient.tenant.create({
             data: TenantMapper.toPersistence(tenant),
         });
     }
 
     public async update(tenant: Tenant): Promise<void> {
-        await this.prisma.tenant.update({
+        await this.prisma.tenantClient.tenant.update({
             where: { id: tenant.id },
             data: TenantMapper.toPersistence(tenant),
         });
     }
 
     public async get(id: string): Promise<Tenant | null> {
-        const tenant = await this.prisma.tenant.findUnique({ where: { id } });
+        const tenant = await this.prisma.tenantClient.tenant.findUnique({ where: { id } });
         if (!tenant) {
             return null;
         }
@@ -34,7 +34,7 @@ export class PrismaTenantRepository extends TenantRepository {
     }
 
     public async list(): Promise<Tenant[]> {
-        const tenants = await this.prisma.tenant.findMany();
+        const tenants = await this.prisma.tenantClient.tenant.findMany();
         return tenants.map((tenant) => TenantMapper.toDomain(tenant));
     }
 }

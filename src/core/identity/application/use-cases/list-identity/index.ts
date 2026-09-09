@@ -3,7 +3,6 @@ import { Injectable } from "@nestjs/common";
 import { AuthorizationRoleApi } from "@/core/authorization/api";
 
 import { UserRepository } from "../../../domain/interfaces";
-import type { GetUsersInput } from "./input";
 import { GetUsersOutput } from "./output";
 
 @Injectable()
@@ -13,8 +12,8 @@ export class GetUsersUseCase {
         private readonly authorizationRoleApi: AuthorizationRoleApi,
     ) {}
 
-    public async execute(input: GetUsersInput): Promise<GetUsersOutput[]> {
-        const users = await this.userRepository.list(input.tenantId);
+    public async execute(): Promise<GetUsersOutput[]> {
+        const users = await this.userRepository.list();
         return Promise.all(
             users.map(async (user) => {
                 const role = await this.authorizationRoleApi.getRoleById(user.roleId);
@@ -34,5 +33,3 @@ export class GetUsersUseCase {
         );
     }
 }
-
-export type { GetUsersInput };

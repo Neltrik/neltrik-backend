@@ -14,10 +14,6 @@ export const updateUserSchema = z
         message: "At least one field must be provided.",
     });
 
-export const getUsersParamsSchema = z.object({
-    tenantId: z.uuid(),
-});
-
 export const suspendUserParamsSchema = z.object({
     id: z.uuid(),
 });

@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { PrismaClient } from "@prisma/client";
 
 import { TenantContextService } from "./tenant-isolation";
@@ -16,7 +16,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 @Injectable()
-export class PrismaService extends PrismaClient implements OnModuleInit {
+export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
     public readonly tenantClient: PrismaClient;
 
     constructor(private readonly tenantContext: TenantContextService) {
@@ -47,11 +47,11 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
         }) as PrismaClient;
     }
 
-    async onModuleInit() {
+    public async onModuleInit(): Promise<void> {
         await this.$connect();
     }
 
-    async onModuleDestroy() {
+    public async onModuleDestroy(): Promise<void> {
         await this.$disconnect();
     }
 }

@@ -15,20 +15,20 @@ export class PrismaAuthenticationSessionRepository extends AuthenticationSession
     }
 
     public async create(session: AuthenticationSession): Promise<void> {
-        await this.prisma.authenticationSession.create({
+        await this.prisma.tenantClient.authenticationSession.create({
             data: AuthenticationSessionMapper.toPersistence(session),
         });
     }
 
     public async update(session: AuthenticationSession): Promise<void> {
-        await this.prisma.authenticationSession.update({
+        await this.prisma.tenantClient.authenticationSession.update({
             where: { id: session.id },
             data: AuthenticationSessionMapper.toPersistence(session),
         });
     }
 
     public async findById(id: string): Promise<AuthenticationSession | null> {
-        const session = await this.prisma.authenticationSession.findUnique({ where: { id } });
+        const session = await this.prisma.tenantClient.authenticationSession.findUnique({ where: { id } });
         if (!session) {
             return null;
         }
@@ -36,7 +36,7 @@ export class PrismaAuthenticationSessionRepository extends AuthenticationSession
     }
 
     public async findByRefreshTokenHash(refreshTokenHash: string): Promise<AuthenticationSession | null> {
-        const session = await this.prisma.authenticationSession.findFirst({ where: { refreshTokenHash } });
+        const session = await this.prisma.tenantClient.authenticationSession.findFirst({ where: { refreshTokenHash } });
         if (!session) {
             return null;
         }
@@ -44,7 +44,7 @@ export class PrismaAuthenticationSessionRepository extends AuthenticationSession
     }
 
     public async findByAuthenticationAccountId(authenticationAccountId: string): Promise<AuthenticationSession[]> {
-        const sessions = await this.prisma.authenticationSession.findMany({
+        const sessions = await this.prisma.tenantClient.authenticationSession.findMany({
             where: { authenticationAccountId },
         });
         return sessions.map((session) => AuthenticationSessionMapper.toDomain(session));

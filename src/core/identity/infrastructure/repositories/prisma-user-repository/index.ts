@@ -14,18 +14,15 @@ export class PrismaUserRepository extends UserRepository {
     }
 
     public async create(user: User): Promise<void> {
-        await this.prisma.user.create({ data: UserMapper.toPersistence(user) });
+        await this.prisma.tenantClient.user.create({ data: UserMapper.toPersistence(user) });
     }
 
     public async update(user: User): Promise<void> {
-        await this.prisma.user.update({
-            where: { id: user.id },
-            data: UserMapper.toPersistence(user),
-        });
+        await this.prisma.tenantClient.user.update({ where: { id: user.id }, data: UserMapper.toPersistence(user) });
     }
 
     public async get(id: string): Promise<User | null> {
-        const user = await this.prisma.user.findUnique({ where: { id } });
+        const user = await this.prisma.tenantClient.user.findUnique({ where: { id } });
         if (!user) {
             return null;
         }
@@ -38,7 +35,7 @@ export class PrismaUserRepository extends UserRepository {
     }
 
     public async existsByEmail(email: Email): Promise<boolean> {
-        const user = await this.prisma.user.findUnique({
+        const user = await this.prisma.tenantClient.user.findUnique({
             where: { email: email.value },
             select: { id: true },
         });
@@ -46,6 +43,6 @@ export class PrismaUserRepository extends UserRepository {
     }
 
     public async delete(id: string): Promise<void> {
-        await this.prisma.user.delete({ where: { id } });
+        await this.prisma.tenantClient.user.delete({ where: { id } });
     }
 }

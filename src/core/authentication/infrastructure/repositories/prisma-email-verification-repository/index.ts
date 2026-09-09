@@ -15,14 +15,14 @@ export class PrismaEmailVerificationRepository extends EmailVerificationReposito
     }
 
     public async create(verification: EmailVerification, context?: TransactionContext): Promise<void> {
-        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma;
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
         await prisma.emailVerification.create({
             data: EmailVerificationMapper.toPersistence(verification),
         });
     }
 
     public async update(verification: EmailVerification, context?: TransactionContext): Promise<void> {
-        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma;
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
         await prisma.emailVerification.update({
             where: { id: verification.id },
             data: EmailVerificationMapper.toPersistence(verification),
@@ -30,7 +30,7 @@ export class PrismaEmailVerificationRepository extends EmailVerificationReposito
     }
 
     public async findById(id: string): Promise<EmailVerification | null> {
-        const verification = await this.prisma.emailVerification.findUnique({
+        const verification = await this.prisma.tenantClient.emailVerification.findUnique({
             where: { id },
         });
         if (!verification) {
@@ -40,7 +40,7 @@ export class PrismaEmailVerificationRepository extends EmailVerificationReposito
     }
 
     public async findByTokenHash(tokenHash: string): Promise<EmailVerification | null> {
-        const verification = await this.prisma.emailVerification.findFirst({
+        const verification = await this.prisma.tenantClient.emailVerification.findFirst({
             where: { tokenHash },
         });
         if (!verification) {
@@ -50,7 +50,7 @@ export class PrismaEmailVerificationRepository extends EmailVerificationReposito
     }
 
     public async findPendingByAccount(authenticationAccountId: string): Promise<EmailVerification[]> {
-        const verifications = await this.prisma.emailVerification.findMany({
+        const verifications = await this.prisma.tenantClient.emailVerification.findMany({
             where: { authenticationAccountId, verifiedAt: null, expiresAt: { gt: new Date() } },
         });
         return verifications.map((verification) => EmailVerificationMapper.toDomain(verification));

@@ -25,7 +25,6 @@ import {
 import {
     CreateInvitationRequestDto,
     CreateInvitationResultDto,
-    ListInvitationsParamsDto,
     ListInvitationsResultDto,
     RevokeInvitationParamsDto,
     RevokeInvitationResultDto,
@@ -33,12 +32,7 @@ import {
     ValidateInvitationResultDto,
 } from "../../dto";
 import { INVITATION_MESSAGES } from "../../messages";
-import {
-    createInvitationSchema,
-    listInvitationsParamsSchema,
-    revokeInvitationParamsSchema,
-    validateInvitationQuerySchema,
-} from "../../schemas";
+import { createInvitationSchema, revokeInvitationParamsSchema, validateInvitationQuerySchema } from "../../schemas";
 
 @ApiTags("Invitations")
 @Controller("invitations")
@@ -197,12 +191,9 @@ export class InvitationController {
         message: INVITATION_MESSAGES.RETRIEVED,
     })
     @Permissions("INVITATION_LIST")
-    @Get("tenant/:tenantId")
-    public async listByTenant(
-        @Param(new ZodValidationPipe(listInvitationsParamsSchema))
-        params: ListInvitationsParamsDto,
-    ): Promise<ListInvitationsResultDto> {
-        const invitations = await this.listInvitationsByTenantUseCase.execute(params.tenantId);
+    @Get()
+    public async listByTenant(@CurrentUser("tenantId") tenantId: string): Promise<ListInvitationsResultDto> {
+        const invitations = await this.listInvitationsByTenantUseCase.execute(tenantId);
         return {
             items: invitations.map((invitation) => ({
                 id: invitation.id,

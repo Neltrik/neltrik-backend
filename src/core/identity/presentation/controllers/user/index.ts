@@ -17,36 +17,36 @@ import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
 import {
+    ChangeRoleUserInput,
+    ChangeRoleUserUseCase,
     GetUsersUseCase,
     ReactivateUserUseCase,
     SuspendUserUseCase,
-    UpdateUserInput,
-    UpdateUserUseCase,
 } from "../../../application/use-cases";
 import {
+    ChangeRoleUserRequestDto,
     GetUsersResultDto,
     ReactivateUserParamsDto,
     SuspendUserParamsDto,
     UpdateUserParamsDto,
-    UpdateUserRequestDto,
     UpdateUserResultDto,
 } from "../../dto/user";
 import { USER_MESSAGES } from "../../messages";
 import {
+    changeRoleUserParamsSchema,
+    changeRoleUserSchema,
     reactivateUserParamsSchema,
     suspendUserParamsSchema,
-    updateUserParamsSchema,
-    updateUserSchema,
 } from "../../schemas";
 
 @ApiTags("Users")
 @Controller()
 export class UserController {
     constructor(
+        private readonly changeRoleUserUseCase: ChangeRoleUserUseCase,
         private readonly getUsersUseCase: GetUsersUseCase,
         private readonly reactivateUserUseCase: ReactivateUserUseCase,
         private readonly suspendUserUseCase: SuspendUserUseCase,
-        private readonly updateUserUseCase: UpdateUserUseCase,
     ) {}
 
     @ApiOperation({
@@ -78,25 +78,17 @@ export class UserController {
     })
     @Permissions("USER_UPDATE")
     @Patch("users/:id")
-    public async update(
-        @Param(new ZodValidationPipe(updateUserParamsSchema))
+    public async changeRole(
+        @Param(new ZodValidationPipe(changeRoleUserSchema))
         params: UpdateUserParamsDto,
-        @Body(new ZodValidationPipe(updateUserSchema))
-        body: UpdateUserRequestDto,
+        @Body(new ZodValidationPipe(changeRoleUserParamsSchema))
+        body: ChangeRoleUserRequestDto,
     ): Promise<UpdateUserResultDto> {
-        const input: UpdateUserInput = {
+        const input: ChangeRoleUserInput = {
             id: params.id,
+            roleId: body.roleId,
         };
-        if (body.firstName !== undefined) {
-            input.firstName = body.firstName;
-        }
-        if (body.lastName !== undefined) {
-            input.lastName = body.lastName;
-        }
-        if (body.roleId !== undefined) {
-            input.roleId = body.roleId;
-        }
-        const user = await this.updateUserUseCase.execute(input);
+        const user = await this.changeRoleUserUseCase.execute(input);
         return { id: user.id };
     }
 

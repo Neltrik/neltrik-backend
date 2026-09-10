@@ -1,9 +1,4 @@
-import {
-    createInvitationSchema,
-    listInvitationsParamsSchema,
-    revokeInvitationParamsSchema,
-    validateInvitationQuerySchema,
-} from ".";
+import { createInvitationSchema, revokeInvitationParamsSchema, validateInvitationQuerySchema } from ".";
 
 describe("createInvitationSchema", () => {
     const validPayload = {
@@ -109,27 +104,6 @@ describe("revokeInvitationParamsSchema", () => {
 
     it("should reject a missing token", () => {
         const result = revokeInvitationParamsSchema.safeParse({});
-        expect(result.success).toBe(false);
-    });
-});
-
-describe("listInvitationsParamsSchema", () => {
-    it("should validate a valid tenantId", () => {
-        const result = listInvitationsParamsSchema.safeParse({
-            tenantId: "550e8400-e29b-41d4-a716-446655440000",
-        });
-        expect(result.success).toBe(true);
-    });
-
-    it("should reject an invalid tenantId", () => {
-        const result = listInvitationsParamsSchema.safeParse({
-            tenantId: "invalid-id",
-        });
-        expect(result.success).toBe(false);
-    });
-
-    it("should reject a missing tenantId", () => {
-        const result = listInvitationsParamsSchema.safeParse({});
         expect(result.success).toBe(false);
     });
 });

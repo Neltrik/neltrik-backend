@@ -5,7 +5,12 @@ import { TenantModule } from "@/core/tenant/tenant.module";
 import { DomainStatusRegistry } from "@/shared/http";
 
 import { UserApi, UserApiImpl } from "./api";
-import { GetUsersUseCase, ReactivateUserUseCase, SuspendUserUseCase, UpdateUserUseCase } from "./application/use-cases";
+import {
+    ChangeRoleUserUseCase,
+    GetUsersUseCase,
+    ReactivateUserUseCase,
+    SuspendUserUseCase,
+} from "./application/use-cases";
 import { DeleteUserOhsUseCase, GetUserByIdOhsUseCase, RegisterUserOhsUseCase } from "./application/use-cases-ohs";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
 import { UserRepository } from "./domain/interfaces";
@@ -15,10 +20,10 @@ import { UserController } from "./presentation/controllers/user";
 @Module({
     controllers: [UserController],
     providers: [
+        ChangeRoleUserUseCase,
         GetUsersUseCase,
         ReactivateUserUseCase,
         SuspendUserUseCase,
-        UpdateUserUseCase,
         DeleteUserOhsUseCase,
         GetUserByIdOhsUseCase,
         RegisterUserOhsUseCase,

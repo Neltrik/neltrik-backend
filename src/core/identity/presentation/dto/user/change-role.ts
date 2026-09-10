@@ -7,21 +7,11 @@ export class UpdateUserParamsDto {
     id!: string;
 }
 
-export class UpdateUserRequestDto {
-    @ApiProperty({
-        example: "John",
-    })
-    firstName?: string;
-
-    @ApiProperty({
-        example: "Doe",
-    })
-    lastName?: string;
-
+export class ChangeRoleUserRequestDto {
     @ApiProperty({
         example: "550e8400-e29b-41d4-a716-446655440111",
     })
-    roleId?: string;
+    roleId!: string;
 }
 
 export class UpdateUserResultDto {

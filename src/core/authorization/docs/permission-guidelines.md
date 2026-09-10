@@ -2,9 +2,9 @@
 
 ## Objetivo
 
-Este documento define las convenciones utilizadas para crear y mantener el catálogo oficial de **Permissions** de Neltrik.
+Este documento define las convenciones utilizadas para crear y mantener el catálogo oficial de Permissions de Neltrik.
 
-Su propósito es garantizar que todos los Permissions de la plataforma mantengan una nomenclatura consistente, representen una única capacidad del sistema y puedan escalar de forma ordenada conforme evolucionen los módulos del producto.
+Su propósito es garantizar que todos los Permissions mantengan una nomenclatura consistente, representen una única capacidad del sistema y permitan identificar de forma explícita su categoría de acceso.
 
 Este documento complementa el DDD y el SDD del dominio Authorization.
 
@@ -22,14 +22,54 @@ Los Tenants nunca crean ni modifican Permissions.
 
 Todos los Permissions deberán seguir la siguiente estructura:
 
-```text
-<RESOURCE>_<ACTION>
-```
+<CATEGORY>_<RESOURCE>_<ACTION>
 
 Donde:
 
-- **RESOURCE** representa la entidad o recurso sobre el cual se ejecuta la acción.
-- **ACTION** representa la capacidad específica autorizada.
+- CATEGORY representa la categoría de acceso del permiso.
+- RESOURCE representa la entidad o recurso sobre el cual se ejecuta la acción.
+- ACTION representa la capacidad específica autorizada.
+
+---
+
+## CATEGORY
+
+Existen tres categorías oficiales:
+
+PLATFORM_ Permisos de sistema (solo PLATFORM_ADMIN)
+ADMIN_ Permisos administrativos del tenant
+(sin prefijo) Permisos de ownership (el propio usuario)
+
+### PLATFORM_
+
+Permisos exclusivos de PLATFORM_ADMIN.
+
+Ejemplos:
+
+PLATFORM_TENANT_CREATE
+PLATFORM_TENANT_UPDATE
+PLATFORM_ROLE_CREATE
+PLATFORM_PERMISSION_CREATE
+
+### ADMIN_
+
+Permisos de administradores del tenant.
+
+Ejemplos:
+
+ADMIN_USER_UPDATE
+ADMIN_USER_SUSPEND
+ADMIN_INVITATION_CREATE
+
+### Sin prefijo
+
+Permisos del propio usuario sobre sus propios recursos.
+
+Ejemplos:
+
+SESSION_LIST
+SESSION_VIEW
+SESSION_REVOKE
 
 ---
 
@@ -39,16 +79,16 @@ El recurso debe corresponder al nombre oficial de la entidad definida dentro del
 
 Ejemplos:
 
-```text
 ROLE
 PERMISSION
 USER
 TENANT
+SESSION
+INVITATION
 VACANCY
 CANDIDATE
 PIPELINE
 JOB
-```
 
 Siempre utilizar mayúsculas y nombres en singular.
 
@@ -60,7 +100,6 @@ Las acciones representan capacidades específicas del sistema.
 
 Ejemplos comunes:
 
-```text
 CREATE
 LIST
 UPDATE
@@ -77,7 +116,6 @@ EXPORT
 
 APPROVE
 REJECT
-```
 
 No todas las entidades implementarán todas las acciones.
 
@@ -91,17 +129,13 @@ Las descripciones deben escribirse en español y explicar claramente la capacida
 
 Ejemplos:
 
-```text
-ROLE_CREATE
+PLATFORM_ROLE_CREATE
 
 Permite crear roles oficiales del catálogo de Neltrik.
-```
 
-```text
-VACANCY_PUBLISH
+ADMIN_USER_SUSPEND
 
-Permite publicar vacantes.
-```
+Permite suspender usuarios del tenant.
 
 Las descripciones deben orientarse al usuario administrador de la plataforma.
 
@@ -113,17 +147,13 @@ Las descripciones deben orientarse al usuario administrador de la plataforma.
 
 Correcto
 
-```text
-USER_CREATE
+ADMIN_USER_CREATE
 
-USER_UPDATE
-```
+ADMIN_USER_UPDATE
 
 Incorrecto
 
-```text
-USER_CREATE_UPDATE
-```
+ADMIN_USER_CREATE_UPDATE
 
 ---
 
@@ -135,11 +165,28 @@ Si cambia la capacidad del sistema, deberá crearse un nuevo Permission.
 
 ---
 
+## La categoría siempre es explícita
+
+Correcto
+
+PLATFORM_TENANT_CREATE
+
+ADMIN_USER_UPDATE
+
+SESSION_LIST
+
+Incorrecto
+
+TENANT_CREATE (¿es sistema o administrativo?)
+
+USER_UPDATE (¿es administrativo u ownership?)
+
+---
+
 ## No utilizar nombres ambiguos
 
 Incorrecto
 
-```text
 ADMIN
 
 ACCESS
@@ -147,17 +194,14 @@ ACCESS
 MANAGE
 
 GENERAL
-```
 
 Correcto
 
-```text
-USER_CREATE
+ADMIN_USER_CREATE
 
-USER_SUSPEND
+ADMIN_USER_SUSPEND
 
-ROLE_UPDATE
-```
+SESSION_REVOKE
 
 ---
 
@@ -167,15 +211,11 @@ Siempre utilizar el nombre oficial definido por el dominio.
 
 Incorrecto
 
-```text
 PROFILE_CREATE
-```
 
 Correcto
 
-```text
-ROLE_CREATE
-```
+ADMIN_USER_CREATE
 
 ---
 
@@ -185,59 +225,83 @@ Los Permissions representan capacidades, no responsabilidades.
 
 Incorrecto
 
-```text
 ADMIN_CREATE_USER
 
 OWNER_DELETE_ROLE
-```
 
 Correcto
 
-```text
-USER_CREATE
+ADMIN_USER_CREATE
 
-ROLE_DELETE
-```
+ADMIN_ROLE_DELETE
 
 La responsabilidad pertenece al Role, no al Permission.
 
 ---
 
+## El prefijo determina la categoría
+
+Correcto
+
+PLATFORM_TENANT_CREATE
+ADMIN_USER_UPDATE
+SESSION_LIST
+
+Incorrecto
+
+TENANT_CREATE
+USER_UPDATE
+SESSION_LIST_SELF
+
+---
+
 # Ejemplos
 
-Correctos
+## Sistema (PLATFORM_)
 
-```text
-ROLE_CREATE
-ROLE_UPDATE
-ROLE_LIST
+PLATFORM_TENANT_CREATE
+PLATFORM_TENANT_UPDATE
+PLATFORM_TENANT_LIST
 
-PERMISSION_CREATE
-PERMISSION_UPDATE
-PERMISSION_LIST
+PLATFORM_ROLE_CREATE
+PLATFORM_ROLE_UPDATE
+PLATFORM_ROLE_LIST
 
-USER_CREATE
-USER_UPDATE
-USER_LIST
+PLATFORM_PERMISSION_CREATE
+PLATFORM_PERMISSION_LIST
 
-VACANCY_CREATE
-VACANCY_PUBLISH
-VACANCY_ARCHIVE
-```
+## Administrativos (ADMIN_)
 
-Incorrectos
+ADMIN_USER_CREATE
+ADMIN_USER_UPDATE
+ADMIN_USER_SUSPEND
+ADMIN_USER_REACTIVATE
+ADMIN_USER_LIST
 
-```text
-CREATE_ROLE
+ADMIN_INVITATION_CREATE
+ADMIN_INVITATION_LIST
+ADMIN_INVITATION_REVOKE
 
-ROLE_CAN_CREATE
+## Ownership (sin prefijo)
 
-ROLE_CREATE_UPDATE
+SESSION_LIST
+SESSION_VIEW
+SESSION_REVOKE
+SESSION_REVOKE_ALL
 
-ADMIN_ROLE
+## Incorrectos
 
-GENERAL_PERMISSION
-```
+TENANT_CREATE (falta prefijo PLATFORM_)
+
+USER_UPDATE (falta prefijo ADMIN_)
+
+CREATE_ROLE (orden incorrecto)
+
+ROLE_CAN_CREATE (formato incorrecto)
+
+ADMIN_ROLE (ambiguo)
+
+GENERAL_PERMISSION (ambiguo)
 
 ---
 

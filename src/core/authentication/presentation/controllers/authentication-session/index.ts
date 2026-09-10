@@ -97,16 +97,16 @@ export class AuthController {
     })
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiNoContentResponse({
-        description: "Logout successful.",
+        description: "Refresh successful.",
     })
     @ApiBadRequestResponse({
-        description: "Validation failed.",
+        description: "Refresh failed.",
     })
     @ApiUnauthorizedResponse({
         description: "Unauthorized.",
     })
     @ApiNotFoundResponse({
-        description: "Session not found.",
+        description: "Refresh not found.",
     })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",
@@ -151,7 +151,7 @@ export class AuthController {
         description: "Unauthorized.",
     })
     @ApiNotFoundResponse({
-        description: "Session not found.",
+        description: "Logout not found.",
     })
     @ApiInternalServerErrorResponse({
         description: "Internal server error.",

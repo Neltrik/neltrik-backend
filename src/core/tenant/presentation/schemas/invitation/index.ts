@@ -14,7 +14,3 @@ export const validateInvitationQuerySchema = z.object({
 export const revokeInvitationParamsSchema = z.object({
     token: z.string().trim().min(1),
 });
-
-export const listInvitationsParamsSchema = z.object({
-    tenantId: z.uuid(),
-});

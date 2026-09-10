@@ -1,9 +1,9 @@
 import { User } from "../../../domain/entities";
-import { InvalidFirstNameError, UserNotFoundError } from "../../../domain/errors";
+import { UserNotFoundError } from "../../../domain/errors";
 import { Email } from "../../../domain/value-objects";
 import { AuthorizationRoleApiSpy, UserRepositorySpy } from "../../../test-doubles";
-import { UpdateUserUseCase } from "./index";
-import type { UpdateUserInput } from "./input";
+import { ChangeRoleUserUseCase } from "./index";
+import type { ChangeRoleUserInput } from "./input";
 
 const makeUser = () =>
     User.create({
@@ -18,24 +18,22 @@ const makeUser = () =>
         suspendedAt: null,
     });
 
-const makeInput = (): UpdateUserInput => ({
+const makeInput = (): ChangeRoleUserInput => ({
     id: "user-id",
-    firstName: "Jane",
-    lastName: "Smith",
     roleId: "new-role-id",
 });
 
-describe("UpdateUserUseCase", () => {
-    const makeSut = () => {
-        const userRepository = new UserRepositorySpy();
-        const authorizationRoleApi = new AuthorizationRoleApiSpy();
-        userRepository.get.mockResolvedValue(makeUser());
-        userRepository.update.mockResolvedValue(undefined);
-        const useCase = new UpdateUserUseCase(userRepository, authorizationRoleApi);
-        return { useCase, userRepository, authorizationRoleApi };
-    };
+const makeSut = () => {
+    const userRepository = new UserRepositorySpy();
+    const authorizationRoleApi = new AuthorizationRoleApiSpy();
+    userRepository.get.mockResolvedValue(makeUser());
+    userRepository.update.mockResolvedValue(undefined);
+    const useCase = new ChangeRoleUserUseCase(userRepository, authorizationRoleApi);
+    return { useCase, userRepository, authorizationRoleApi };
+};
 
-    it("should update a user successfully", async () => {
+describe("ChangeRoleUserUseCase", () => {
+    it("should change the user's role successfully", async () => {
         const { useCase, userRepository, authorizationRoleApi } = makeSut();
         const result = await useCase.execute(makeInput());
         expect(userRepository.get).toHaveBeenCalledWith("user-id");
@@ -45,6 +43,9 @@ describe("UpdateUserUseCase", () => {
             tenantId: "tenant-id",
         });
         expect(userRepository.update).toHaveBeenCalledTimes(1);
+        expect(userRepository.update).toHaveBeenCalledWith(
+            expect.objectContaining({ id: "user-id", roleId: "new-role-id" }),
+        );
         expect(result).toEqual({ id: "user-id" });
     });
 
@@ -57,14 +58,24 @@ describe("UpdateUserUseCase", () => {
         expect(userRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should not validate the role when roleId is not provided", async () => {
+    it("should validate that the role exists", async () => {
         const { useCase, authorizationRoleApi } = makeSut();
-        await useCase.execute({ id: "user-id", firstName: "Jane" });
-        expect(authorizationRoleApi.validate).not.toHaveBeenCalled();
-        expect(authorizationRoleApi.validateForTenant).not.toHaveBeenCalled();
+        await useCase.execute(makeInput());
+        expect(authorizationRoleApi.validate).toHaveBeenCalledTimes(1);
+        expect(authorizationRoleApi.validate).toHaveBeenCalledWith("new-role-id");
     });
 
-    it("should propagate role validation errors", async () => {
+    it("should validate that the role is enabled for the user's tenant", async () => {
+        const { useCase, authorizationRoleApi } = makeSut();
+        await useCase.execute(makeInput());
+        expect(authorizationRoleApi.validateForTenant).toHaveBeenCalledTimes(1);
+        expect(authorizationRoleApi.validateForTenant).toHaveBeenCalledWith({
+            roleId: "new-role-id",
+            tenantId: "tenant-id",
+        });
+    });
+
+    it("should not validate the role for the tenant when role validation fails", async () => {
         const { useCase, authorizationRoleApi, userRepository } = makeSut();
         authorizationRoleApi.validate.mockRejectedValue(new Error("Role not found"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("Role not found");
@@ -79,11 +90,10 @@ describe("UpdateUserUseCase", () => {
         expect(userRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should propagate domain errors", async () => {
-        const { useCase, userRepository } = makeSut();
-        const input = makeInput();
-        input.firstName = "";
-        await expect(useCase.execute(input)).rejects.toThrow(InvalidFirstNameError);
+    it("should not update the user when role validation fails", async () => {
+        const { useCase, authorizationRoleApi, userRepository } = makeSut();
+        authorizationRoleApi.validate.mockRejectedValue(new Error("Role not found"));
+        await expect(useCase.execute(makeInput())).rejects.toThrow();
         expect(userRepository.update).not.toHaveBeenCalled();
     });
 

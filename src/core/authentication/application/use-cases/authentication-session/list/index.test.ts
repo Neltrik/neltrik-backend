@@ -21,6 +21,7 @@ describe("ListSessionsUseCase", () => {
         const session = AuthenticationSession.create({
             id: "session-id",
             authenticationAccountId: "account-id",
+            ownerId: "user-id",
             refreshTokenHash: "refresh-token-hash",
             expiresAt: ExpirationDate.create(new Date(Date.now() + 60 * 60 * 1000)),
             refreshTokenExpiresAt: ExpirationDate.create(new Date(Date.now() + 2 * 60 * 60 * 1000)),
@@ -79,6 +80,7 @@ describe("ListSessionsUseCase", () => {
         const secondSession = AuthenticationSession.create({
             id: "second-session-id",
             authenticationAccountId: "account-id",
+            ownerId: "user-id",
             refreshTokenHash: "second-refresh-token-hash",
             expiresAt: ExpirationDate.create(new Date(Date.now() + 2 * 60 * 60 * 1000)),
             refreshTokenExpiresAt: ExpirationDate.create(new Date(Date.now() + 3 * 60 * 60 * 1000)),
@@ -121,6 +123,7 @@ describe("ListSessionsUseCase", () => {
         const sessionWithoutClientInfo = AuthenticationSession.create({
             id: "session-id",
             authenticationAccountId: "account-id",
+            ownerId: "user-id",
             refreshTokenHash: "refresh-token-hash",
             expiresAt: ExpirationDate.create(new Date(Date.now() + 60 * 60 * 1000)),
             refreshTokenExpiresAt: ExpirationDate.create(new Date(Date.now() + 2 * 60 * 60 * 1000)),

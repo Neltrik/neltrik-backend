@@ -4,15 +4,25 @@ import { PrismaClient } from "@prisma/client";
 import { TenantContextService } from "./tenant-isolation";
 
 const TENANT_MODELS = ["User", "Role", "Permission", "TenantRoleConfiguration", "Invitation"] as const;
+const OWNERSHIP_MODELS = ["AuthenticationSession"] as const;
 
 type TenantModel = (typeof TENANT_MODELS)[number];
+type OwnershipModel = (typeof OWNERSHIP_MODELS)[number];
 
 function isTenantModel(model: string): model is TenantModel {
     return TENANT_MODELS.includes(model as TenantModel);
 }
 
+function isOwnershipModel(model: string): model is OwnershipModel {
+    return OWNERSHIP_MODELS.includes(model as OwnershipModel);
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null;
+}
+
+function isWriteOperation(operation: string): boolean {
+    return operation === "create" || operation === "upsert";
 }
 
 @Injectable()
@@ -24,22 +34,30 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         this.tenantClient = this.$extends({
             query: {
                 $allModels: {
-                    async $allOperations({ args, query }) {
+                    async $allOperations({ model, operation, args, query }) {
+                        if (tenantContext.isPlatformAdmin()) {
+                            return query(args);
+                        }
+                        if (isWriteOperation(operation)) {
+                            return query(args);
+                        }
                         const tenantId = tenantContext.getCurrentTenant();
-                        const model = (this as { name: string }).name;
-                        const action = (this as { type: string }).type;
-                        if (!tenantId) {
+                        const userId = tenantContext.getCurrentUserId();
+                        const requiresTenant = tenantId && isTenantModel(model);
+                        const requiresOwner = userId && isOwnershipModel(model);
+                        if (!requiresTenant && !requiresOwner) {
                             return query(args);
                         }
-                        if (action === "create" || action === "upsert") {
-                            return query(args);
+                        const safeArgs = args as unknown as Record<string, unknown>;
+                        const where = isRecord(safeArgs.where) ? safeArgs.where : {};
+                        let newWhere = { ...where };
+                        if (requiresTenant) {
+                            newWhere = { ...newWhere, tenantId };
                         }
-                        if (!isTenantModel(model)) {
-                            return query(args);
+                        if (requiresOwner) {
+                            newWhere = { ...newWhere, ownerId: userId };
                         }
-                        const where = (args as Record<string, unknown>).where;
-                        const safeWhere = isRecord(where) ? where : {};
-                        (args as Record<string, unknown>).where = { ...safeWhere, tenantId };
+                        safeArgs.where = newWhere;
                         return query(args);
                     },
                 },

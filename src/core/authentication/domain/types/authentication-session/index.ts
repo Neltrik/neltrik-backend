@@ -3,6 +3,7 @@ import type { ExpirationDate } from "../../value-objects";
 export type AuthenticationSessionProps = {
     id: string;
     authenticationAccountId: string;
+    ownerId: string | null;
     refreshTokenHash: string;
     expiresAt: ExpirationDate;
     refreshTokenExpiresAt: ExpirationDate;

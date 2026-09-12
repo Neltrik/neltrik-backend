@@ -46,6 +46,7 @@ describe("ValidateSessionUseCase", () => {
         const session = AuthenticationSession.create({
             id: "session-id",
             authenticationAccountId: "account-id",
+            ownerId: "user-id",
             refreshTokenHash: "refresh-token-hash",
             expiresAt: ExpirationDate.create(new Date(Date.now() + 60 * 60 * 1000)),
             refreshTokenExpiresAt: ExpirationDate.create(new Date(Date.now() + 2 * 60 * 60 * 1000)),
@@ -95,6 +96,7 @@ describe("ValidateSessionUseCase", () => {
         const expiredSession = AuthenticationSession.create({
             id: "session-id",
             authenticationAccountId: "account-id",
+            ownerId: "user-id",
             refreshTokenHash: "refresh-token-hash",
             expiresAt: ExpirationDate.create(new Date(Date.now() + 1000)),
             refreshTokenExpiresAt: ExpirationDate.create(new Date(Date.now() + 60 * 60 * 1000)),
@@ -117,6 +119,7 @@ describe("ValidateSessionUseCase", () => {
         const revokedSession = AuthenticationSession.create({
             id: "session-id",
             authenticationAccountId: "account-id",
+            ownerId: "user-id",
             refreshTokenHash: "refresh-token-hash",
             expiresAt: ExpirationDate.create(new Date(Date.now() + 60 * 60 * 1000)),
             refreshTokenExpiresAt: ExpirationDate.create(new Date(Date.now() + 2 * 60 * 60 * 1000)),

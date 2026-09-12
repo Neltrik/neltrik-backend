@@ -8,6 +8,7 @@ const createProps = (): Omit<AuthenticationSessionProps, "revokedAt" | "lastUsed
     return {
         id: "authentication-session-id",
         authenticationAccountId: "authentication-account-id",
+        ownerId: "user-id",
         refreshTokenHash: "refresh-token-hash",
         expiresAt: ExpirationDate.create(new Date("2030-01-01T00:00:00.000Z")),
         refreshTokenExpiresAt: ExpirationDate.create(new Date("2030-01-01T00:00:00.000Z")),

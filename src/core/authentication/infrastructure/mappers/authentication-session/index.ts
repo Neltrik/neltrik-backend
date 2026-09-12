@@ -8,6 +8,7 @@ export class AuthenticationSessionMapper {
         return {
             id: session.id,
             authenticationAccountId: session.authenticationAccountId,
+            ownerId: session.ownerId,
             refreshTokenHash: session.refreshTokenHash,
             expiresAt: session.expiresAt.value,
             refreshTokenExpiresAt: session.refreshTokenExpiresAt.value,
@@ -24,6 +25,7 @@ export class AuthenticationSessionMapper {
         return AuthenticationSession.restore({
             id: prismaSession.id,
             authenticationAccountId: prismaSession.authenticationAccountId,
+            ownerId: prismaSession.ownerId,
             refreshTokenHash: prismaSession.refreshTokenHash,
             expiresAt: ExpirationDate.restore(prismaSession.expiresAt),
             refreshTokenExpiresAt: ExpirationDate.restore(prismaSession.refreshTokenExpiresAt),

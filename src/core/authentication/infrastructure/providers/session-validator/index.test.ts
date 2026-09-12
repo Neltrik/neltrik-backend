@@ -11,6 +11,7 @@ describe("SessionValidatorProvider", () => {
         return AuthenticationSession.create({
             id: "session-id",
             authenticationAccountId: "account-id",
+            ownerId: "user-id",
             refreshTokenHash: "refresh-token-hash",
             expiresAt: ExpirationDate.create(expiration),
             refreshTokenExpiresAt: ExpirationDate.create(refreshTokenExpiration),

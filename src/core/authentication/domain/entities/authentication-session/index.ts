@@ -81,6 +81,10 @@ export class AuthenticationSession {
         return this.props.authenticationAccountId;
     }
 
+    public get ownerId(): string | null {
+        return this.props.ownerId;
+    }
+
     public get refreshTokenHash(): string {
         return this.props.refreshTokenHash;
     }

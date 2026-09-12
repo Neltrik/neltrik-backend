@@ -14,6 +14,7 @@ describe("LogoutUseCase", () => {
         const session = AuthenticationSession.create({
             id: "session-id",
             authenticationAccountId: "account-id",
+            ownerId: "user-id",
             refreshTokenHash: "refresh-token-hash",
             expiresAt: ExpirationDate.create(expiresAt),
             refreshTokenExpiresAt: ExpirationDate.create(refreshTokenExpiresAt),

@@ -45,6 +45,7 @@ export class LoginUseCase {
         const session = AuthenticationSession.create({
             id: this.idGenerator.generate(),
             authenticationAccountId: account.id,
+            ownerId: account.userId,
             refreshTokenHash,
             expiresAt: ExpirationDate.create(this.tokenProvider.calculateAccessTokenExpiration()),
             refreshTokenExpiresAt: ExpirationDate.create(refreshTokenExpiresAt),

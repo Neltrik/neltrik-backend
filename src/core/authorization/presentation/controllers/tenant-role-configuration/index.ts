@@ -195,11 +195,8 @@ export class TenantRoleConfigurationController {
         message: TENANT_ROLE_CONFIGURATION_MESSAGES.LISTED,
     })
     @Permissions("TENANT_ROLE_CONFIGURATION_LIST")
-    @Get(":tenantId")
-    public async list(
-        @Param("tenantId")
-        tenantId: string,
-    ): Promise<TenantRoleConfigurationResultDto[]> {
+    @Get()
+    public async list(@CurrentUser("tenantId") tenantId: string): Promise<TenantRoleConfigurationResultDto[]> {
         const configurations = await this.listTenantRoleConfigurationUseCase.execute(tenantId);
         return configurations.map((configuration) => ({
             id: configuration.id,

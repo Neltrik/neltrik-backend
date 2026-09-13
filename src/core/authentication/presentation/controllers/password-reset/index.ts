@@ -7,6 +7,7 @@ import {
     ApiOperation,
     ApiTags,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { Public, SkipEmailVerification } from "@/shared/auth";
 import { PublicPermission } from "@/shared/authorization";
@@ -47,6 +48,7 @@ export class PasswordResetController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: PASSWORD_RESET_MESSAGES.REQUEST_SUCCESS,
     })
+    @Throttle({ default: { limit: 3, ttl: 3600000 } })
     @Public()
     @SkipEmailVerification()
     @PublicPermission()
@@ -79,6 +81,7 @@ export class PasswordResetController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: PASSWORD_RESET_MESSAGES.RESET_SUCCESS,
     })
+    @Throttle({ default: { limit: 10, ttl: 3600000 } })
     @Public()
     @SkipEmailVerification()
     @PublicPermission()

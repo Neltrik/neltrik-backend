@@ -9,6 +9,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
@@ -71,6 +72,7 @@ export class RolePermissionsController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: ROLE_MESSAGES.ASSIGNED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("ROLE_ASSIGN_PERMISSIONS")
     @Post(":id/permissions")
     public async assignPermissions(
@@ -116,6 +118,7 @@ export class RolePermissionsController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: ROLE_MESSAGES.REMOVED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("ROLE_REMOVE_PERMISSIONS")
     @Delete(":id/permissions")
     public async removePermissions(

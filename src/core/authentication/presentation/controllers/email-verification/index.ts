@@ -8,6 +8,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser, Public, SkipEmailVerification } from "@/shared/auth";
 import { PublicPermission } from "@/shared/authorization";
@@ -51,6 +52,7 @@ export class EmailVerificationController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: EMAIL_VERIFICATION.EMAIL_VERIFICATION_REQUEST_SUCCESS,
     })
+    @Throttle({ default: { limit: 3, ttl: 3600000 } })
     @SkipEmailVerification()
     @PublicPermission()
     @Post()
@@ -79,6 +81,7 @@ export class EmailVerificationController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: EMAIL_VERIFICATION.EMAIL_VERIFICATION_VALIDATE_SUCCESS,
     })
+    @Throttle({ default: { limit: 10, ttl: 3600000 } })
     @Public()
     @SkipEmailVerification()
     @PublicPermission()

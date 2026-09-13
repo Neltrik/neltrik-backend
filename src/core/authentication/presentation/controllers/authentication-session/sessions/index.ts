@@ -10,6 +10,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser, type UserPayload } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
@@ -151,6 +152,7 @@ export class SessionController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: SESSION_MESSAGES.SESSION_REVOKED,
     })
+    @Throttle({ default: { limit: 10, ttl: 900000 } })
     @Permissions("SESSION_REVOKE")
     @Post(":id/revoke")
     public async revokeSession(
@@ -185,6 +187,7 @@ export class SessionController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: SESSION_MESSAGES.REVOKE_ALL_SUCCESS,
     })
+    @Throttle({ default: { limit: 10, ttl: 3600000 } })
     @Permissions("SESSION_REVOKE_ALL")
     @Post("revoke-all")
     public async revokeAllSessions(@CurrentUser() user: UserPayload): Promise<void> {

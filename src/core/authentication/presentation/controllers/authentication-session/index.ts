@@ -9,6 +9,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 import type { Request, Response } from "express";
 
 import { Public, SkipEmailVerification } from "@/shared/auth";
@@ -59,6 +60,7 @@ export class AuthController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: AUTH_MESSAGES.LOGIN_SUCCESS,
     })
+    @Throttle({ default: { limit: 5, ttl: 900000 } })
     @Public()
     @SkipEmailVerification()
     @PublicPermission()
@@ -115,6 +117,7 @@ export class AuthController {
         code: RESPONSE_CODES.RESOURCE_NO_CONTENT,
         message: AUTH_MESSAGES.REFRESH_SUCCESS,
     })
+    @Throttle({ default: { limit: 30, ttl: 900000 } })
     @Public()
     @SkipEmailVerification()
     @PublicPermission()

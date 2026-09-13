@@ -10,6 +10,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser, Public, SkipEmailVerification } from "@/shared/auth";
 import { Permissions, PublicPermission } from "@/shared/authorization";
@@ -68,6 +69,7 @@ export class InvitationController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: INVITATION_MESSAGES.CREATED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("INVITATION_CREATE")
     @Post()
     public async create(
@@ -105,6 +107,7 @@ export class InvitationController {
         code: RESPONSE_CODES.RESOURCE_FOUND,
         message: INVITATION_MESSAGES.VALIDATED,
     })
+    @Throttle({ default: { limit: 10, ttl: 3600000 } })
     @Public()
     @SkipEmailVerification()
     @PublicPermission()
@@ -149,6 +152,7 @@ export class InvitationController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: INVITATION_MESSAGES.REVOKED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("INVITATION_REVOKE")
     @Get(":token/revoke")
     public async revoke(

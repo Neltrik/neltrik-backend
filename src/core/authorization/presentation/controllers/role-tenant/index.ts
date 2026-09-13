@@ -10,6 +10,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
@@ -69,6 +70,7 @@ export class RoleTenantController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: ROLE_TENANT_MESSAGES.ASSOCIATED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("ROLE_TENANT_CREATE")
     @Post()
     public async associate(
@@ -112,6 +114,7 @@ export class RoleTenantController {
         code: RESPONSE_CODES.RESOURCE_DELETED,
         message: ROLE_TENANT_MESSAGES.DISASSOCIATED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("ROLE_TENANT_DELETE")
     @Delete()
     public async disassociate(

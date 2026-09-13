@@ -10,6 +10,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
@@ -76,6 +77,7 @@ export class UserController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: USER_MESSAGES.UPDATED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("USER_UPDATE")
     @Patch("users/:id")
     public async changeRole(
@@ -153,6 +155,7 @@ export class UserController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: USER_MESSAGES.SUSPENDED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("USER_SUSPEND")
     @Patch("users/:id/suspend")
     public async suspend(
@@ -189,6 +192,7 @@ export class UserController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: USER_MESSAGES.REACTIVATED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("USER_REACTIVATE")
     @Patch("users/:id/reactivate")
     public async reactivate(

@@ -11,6 +11,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
@@ -84,6 +85,7 @@ export class TenantController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: TENANT_MESSAGES.CREATED,
     })
+    @Throttle({ default: { limit: 20, ttl: 3600000 } })
     @Permissions("TENANT_CREATE")
     @Post()
     public async create(
@@ -218,6 +220,7 @@ export class TenantController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: TENANT_MESSAGES.UPDATED,
     })
+    @Throttle({ default: { limit: 20, ttl: 3600000 } })
     @Permissions("TENANT_UPDATE")
     @Patch(":id")
     public async update(
@@ -257,6 +260,7 @@ export class TenantController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: TENANT_MESSAGES.SUSPENDED,
     })
+    @Throttle({ default: { limit: 10, ttl: 3600000 } })
     @Permissions("TENANT_SUSPEND")
     @Patch(":id/suspend")
     public async suspend(
@@ -292,6 +296,7 @@ export class TenantController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: TENANT_MESSAGES.REACTIVATED,
     })
+    @Throttle({ default: { limit: 10, ttl: 3600000 } })
     @Permissions("TENANT_REACTIVATE")
     @Patch(":id/reactivate")
     public async reactivate(

@@ -10,6 +10,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
@@ -197,6 +198,7 @@ export class PermissionController {
         code: RESPONSE_CODES.RESOURCE_FOUND,
         message: PERMISSION_MESSAGES.CHECKED,
     })
+    @Throttle({ default: { limit: 30, ttl: 900000 } })
     @Permissions("PERMISSION_VERIFY")
     @Get("check")
     public async checkPermission(

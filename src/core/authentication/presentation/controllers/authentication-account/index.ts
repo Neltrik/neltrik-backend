@@ -9,6 +9,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { Public, SkipEmailVerification } from "@/shared/auth";
 import { Permissions, PublicPermission } from "@/shared/authorization";
@@ -58,6 +59,7 @@ export class AccountController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: ACCOUNT_MESSAGES.CREATED,
     })
+    @Throttle({ default: { limit: 10, ttl: 3600000 } })
     @Public()
     @SkipEmailVerification()
     @PublicPermission()

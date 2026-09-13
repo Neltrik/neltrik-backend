@@ -11,6 +11,7 @@ import {
     ApiTags,
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
+import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
@@ -77,6 +78,7 @@ export class TenantRoleConfigurationController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: TENANT_ROLE_CONFIGURATION_MESSAGES.CREATED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("TENANT_ROLE_CONFIGURATION_CREATE")
     @Post()
     public async create(
@@ -120,6 +122,7 @@ export class TenantRoleConfigurationController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: TENANT_ROLE_CONFIGURATION_MESSAGES.UPDATED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("TENANT_ROLE_CONFIGURATION_UPDATE")
     @Patch(":id")
     public async update(
@@ -162,6 +165,7 @@ export class TenantRoleConfigurationController {
         code: RESPONSE_CODES.RESOURCE_DELETED,
         message: TENANT_ROLE_CONFIGURATION_MESSAGES.DELETED,
     })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("TENANT_ROLE_CONFIGURATION_DELETE")
     @Delete(":id")
     public async delete(

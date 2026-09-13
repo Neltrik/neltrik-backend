@@ -1,6 +1,9 @@
 import { Module } from "@nestjs/common";
-import { ConfigModule } from "@nestjs/config";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
+import { ThrottlerStorageRedisService } from "@nest-lab/throttler-storage-redis";
+import Redis from "ioredis";
 
 import { AuthenticationModule } from "./core/authentication/authentication.module";
 import { AuthorizationModule } from "./core/authorization/authorization.module";
@@ -19,6 +22,22 @@ import { SanitizationModule } from "./shared/sanitization";
 @Module({
     imports: [
         ConfigModule.forRoot({ isGlobal: true }),
+
+        ThrottlerModule.forRootAsync({
+            imports: [ConfigModule],
+            inject: [ConfigService],
+            useFactory: (config: ConfigService) => ({
+                throttlers: [
+                    {
+                        name: "default",
+                        ttl: 900000,
+                        limit: 100,
+                    },
+                ],
+                storage: new ThrottlerStorageRedisService(new Redis(config.getOrThrow<string>("REDIS_URL"))),
+            }),
+        }),
+
         PrismaModule,
         HttpModule,
         AuthModule,
@@ -32,6 +51,10 @@ import { SanitizationModule } from "./shared/sanitization";
         AtsModule,
     ],
     providers: [
+        {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+        },
         {
             provide: APP_GUARD,
             useClass: AuthenticationGuard,

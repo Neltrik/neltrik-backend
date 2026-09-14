@@ -10,6 +10,7 @@ export const MODULE_FOLDERS = [
 
     "infrastructure/mappers",
     "infrastructure/repositories",
+    "infrastructure/providers",
 
     "presentation/controllers",
     "presentation/dto",

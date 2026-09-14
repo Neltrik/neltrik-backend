@@ -1,0 +1,607 @@
+# Audit
+
+# Paso 1 — Definir el propósito del dominio
+
+## Objetivo
+
+El módulo **Audit** es responsable de registrar de forma inmutable todas las acciones relevantes que ocurren dentro de **Neltrik**, garantizando trazabilidad, cumplimiento normativo y visibilidad para los administradores de cada tenant.
+
+Su responsabilidad principal es determinar qué acciones deben auditarse, cómo se registran de forma segura e inmutable, y cómo se consultan dichos registros. El módulo debe diseñarse para que cada tenant pueda ver únicamente los eventos de auditoría que le corresponden.
+
+El módulo debe diseñarse de forma extensible para permitir incorporar nuevos tipos de eventos sin modificar las reglas fundamentales del dominio.
+---
+
+## Responsabilidades
+
+El módulo **Audit** es responsable de:
+
+- Registrar eventos de auditoría de acciones relevantes del sistema.
+- Definir y mantener el catálogo oficial de acciones auditables.
+- Definir y mantener el catálogo oficial de recursos auditables.
+- Almacenar el actor, la acción, el recurso afectado, el resultado y el contexto.
+- Garantizar la inmutabilidad de los eventos (solo INSERT).
+- Registrar eventos de autenticación (login, logout, refresh, register).
+- Registrar eventos de autorización (cambios de rol, permisos).
+- Registrar eventos de identidad (suspensión, reactivación de usuarios).
+- Registrar eventos de tenant (creación, suspensión, reactivación).
+- Registrar eventos de invitación (creación, revocación, uso).
+- Permitir la consulta de eventos por tenant, usuario, acción y recurso.
+- Garantizar que cada tenant solo vea sus propios eventos.
+- Mantener la integridad y seguridad de los registros de auditoría.
+- Permitir la incorporación futura de nuevos tipos de eventos.
+- Permitir la incorporación futura de hash chain para compliance.
+- Permitir la incorporación futura de cola de reintentos.
+
+---
+
+## No es responsabilidad del módulo
+
+El módulo **Audit** no administra:
+
+- Usuarios como entidad de negocio.
+- Roles.
+- Permisos.
+- Policies de autorización.
+- Tenants.
+- Sesiones.
+- Información específica del perfil del usuario.
+- Reglas de negocio de otros módulos.
+- La lógica de las acciones auditadas.
+
+Estas responsabilidades pertenecen a sus respectivos módulos del Core.
+
+> **Nota:** **Audit** puede consultar información proporcionada por otros módulos mediante sus interfaces públicas (api/), pero no debe administrar sus entidades ni duplicar sus reglas de negocio.
+
+---
+
+## ¿Qué representa Audit?
+
+El módulo **Audit** representa el registro histórico e inmutable de todas las acciones relevantes que ocurren en **Neltrik**.
+
+El dominio debe separar la acción auditada del registro de auditoría. El evento de auditoría es un hecho ocurrido en el pasado, no una acción que se ejecuta.
+
+Cada evento de auditoría representa un hecho ocurrido en un momento específico, con un actor, una acción, un recurso afectado y un resultado.
+
+El conjunto de acciones auditables es abierto y extensible. Para el MVP, se auditarán las acciones críticas del Core, pero el dominio deberá permitir incorporar nuevas acciones sin modificar las reglas fundamentales de Audit.
+
+Los eventos se capturan mediante `AuditApi` (OHS), que permite a otros módulos registrar eventos sin acoplarse a la implementación de Audit.
+
+El registro de auditoría es consultable por el tenant correspondiente. Cada tenant ve únicamente sus propios eventos. PLATFORM_ADMIN ve todos los eventos.
+
+---
+
+## Contexto dentro de la plataforma
+
+```text
+                       Audit
+                         │
+        ┌────────────────┼────────────────┐
+        │                │                │
+        ▼                ▼                ▼
+    Recording        Querying         (futuro)
+        │                │                │
+        │                │                │
+        ▼                ▼                ▼
+   Authentication   Authorization    Exporting
+        │                │                │
+        └────────────────┼────────────────┘
+                         │
+                         ▼
+                     Identity
+                         │
+                         ▼
+                      Tenant
+```
+
+El flujo conceptual será:
+
+```text
+Recording
+
+Acción en el Core
+  │
+  ├── Authentication (login, logout, register)
+  ├── Authorization (role change, permission assign)
+  ├── Identity (user suspend, reactivate)
+  ├── Tenant (create, suspend, reactivate)
+  └── Invitation (create, revoke, use)
+          │
+          ▼
+    AuditApi.record()
+          │
+          ├── captura: userId, tenantId, action, resource
+          ├── captura: resourceId, metadata, status
+          └── captura: ipAddress, userAgent (desde contexto)
+          │
+          ▼
+    CreateAuditEventUseCase
+          │
+          └── registra: AuditEvent
+```
+
+```text
+Querying
+
+AuditEventController
+    │
+    ├── GET /audit-events
+    ├── GET /audit-events/:id
+    └── filtra por tenantId (Tenant Scope)
+            │
+            ▼
+    ListAuditEventsUseCase
+            │
+            └── retorna eventos del tenant
+```
+
+> **Nota:** Los eventos de auditoría son inmutables. No se pueden modificar ni eliminar. El repositorio solo tiene create y find.
+
+---
+
+## Dependencias
+
+El módulo **Audit** podrá depender de otros módulos del Core exclusivamente mediante sus interfaces públicas (api/).
+
+La comunicación deberá respetar la arquitectura modular definida por **Neltrik** y no deberá importar directamente elementos internos de otros módulos.
+
+Audit no es dependencia de otros módulos. Los módulos consumidores solo conocen `AuditApi` (el contrato), no la implementación.
+
+# Paso 2 — Descubrir los conceptos del negocio
+
+## 👤 Actores (¿Quién realiza acciones?)
+
+- User
+- Sistema / Cliente
+- Módulos del Core
+
+Nota:
+
+El User es el actor cuyas acciones son auditadas. No inicia directamente
+la auditoría, pero es el sujeto de los eventos registrados.
+
+El Sistema / Cliente inicia operaciones que generan eventos de auditoría
+a través de los módulos del Core.
+
+Audit no inicia acciones. Audit registra acciones iniciadas por otros.
+
+---
+
+## 📦 Entidades (¿Qué información administra el dominio?)
+
+- Audit Event _(se valida en el Paso 3)_
+
+---
+
+## 💡 Conceptos del negocio
+
+- Audit
+- Audit Event
+- Audit Action
+- Audit Status
+- Audit Resource
+- Audit Actor
+- Audit Context
+- Audit Metadata
+- Audit Record
+- Audit Trail
+- Audit Log
+- Audit Query
+- Audit Immutability
+- Audit Retention
+- Audit Export
+- Audit Compliance
+- Audit Forensic
+- Audit Timestamp
+- Audit Hash Chain _(futuro)_
+- Audit Replay _(futuro)_
+- Audit Streaming _(futuro)_
+- Audit SIEM Integration _(futuro)_
+- Audit Data Subject Access Request _(futuro)_
+
+---
+
+# Paso 3 — Identificar entidades
+
+Después del análisis del dominio se definieron las siguientes entidades
+para el MVP.
+
+| Concepto    | Estado        |
+| ----------- | ------------- |
+| Audit Event | ✅ Confirmada |
+
+## Conceptos del dominio
+
+| Concepto       | Tipo                 |
+| -------------- | -------------------- |
+| Audit Event    | Entidad              |
+| Audit Action   | Catálogo del dominio |
+| Audit Resource | Catálogo del dominio |
+| Audit Status   | Enum                 |
+| Audit Metadata | Value Object         |
+| Ip Address     | Value Object         |
+
+## Audit Event
+
+Representa un hecho ocurrido en el pasado dentro de la plataforma que debe
+ser registrado de forma inmutable para garantizar trazabilidad y
+cumplimiento normativo.
+
+Cada Audit Event está asociado a:
+
+- Un actor (`userId`) que originó la acción. Puede ser nulo para eventos generados por el sistema.
+- Un tenant (`tenantId`) al que pertenece el evento. Puede ser nulo para
+  eventos de PLATFORM_ADMIN.
+- Una acción (`action`) que identifica el evento específico que ocurrió.
+- Un recurso (`resource`) que identifica el tipo de recurso de negocio afectado.
+- Un recurso específico (`resourceId`) cuando aplica.
+- Un resultado (`status`) que indica si fue éxito, fallo o denegado.
+- Un contexto (`metadata`) con información adicional.
+- Contexto forense (`ipAddress`, `userAgent`).
+- Un timestamp (`createdAt`) que indica cuándo ocurrió.
+
+El Audit Event es inmutable. Una vez creado, no puede modificarse ni
+eliminarse.
+
+El Audit Event es consultable por el tenant correspondiente. Cada tenant
+ve únicamente sus propios eventos. PLATFORM_ADMIN ve todos los eventos.
+
+> **Nota:** Para el MVP, el Audit Event no incluye hash chain. El diseño
+> permite incorporarlo posteriormente sin modificar las reglas
+> fundamentales del dominio.
+
+## Audit Action
+
+Representa el evento específico que ocurrió dentro de la plataforma y que debe ser registrado por Audit.
+
+Las acciones son definidas y mantenidas exclusivamente por el módulo Audit.
+
+Las acciones siguen la convención:
+
+<RESOURCE>_<EVENT>
+
+Ejemplos:
+
+- USER_CREATED
+- USER_UPDATED
+- USER_SUSPENDED
+- USER_REACTIVATED
+- ROLE_CREATED
+- ROLE_UPDATED
+- ROLE_DELETED
+- INVITATION_CREATED
+- INVITATION_REVOKED
+- VACANCY_PUBLISHED
+
+Los módulos del Core no definen sus propios catálogos de acciones de auditoría. Utilizan las acciones oficiales expuestas por Audit mediante su API pública.
+
+La acción no representa el caso de uso ni la ruta HTTP que originó el evento. Representa el hecho de negocio que ocurrió.
+
+## Audit Resource
+
+Representa el tipo de recurso de negocio afectado por una acción auditada.
+
+Los recursos son definidos y mantenidos exclusivamente por el módulo Audit.
+
+El nombre del recurso debe corresponder al nombre oficial utilizado por el dominio correspondiente.
+
+Los recursos deben utilizar nombres singulares y en mayúsculas.
+
+Ejemplos:
+
+- USER
+- ROLE
+- PERMISSION
+- TENANT
+- SESSION
+- INVITATION
+- VACANCY
+- CANDIDATE
+- PIPELINE
+- JOB
+
+`AuditResource` no representa una entidad administrada por Audit.
+
+Audit únicamente registra el tipo de recurso afectado y, cuando corresponde, el identificador de la instancia afectada mediante `resourceId`.
+
+Los módulos del Core no definen sus propios catálogos de recursos de auditoría. Utilizan los recursos oficiales expuestos por Audit mediante su API pública.
+
+## Value Objects
+
+### Audit Metadata
+
+Representa información adicional específica del evento.
+
+Es un objeto JSON que permite almacenar contexto adicional sin modificar
+el modelo.
+
+La estructura de metadata es definida por cada módulo del Core según
+las necesidades de sus eventos.
+
+Es un Value Object porque:
+
+- Es inmutable
+- Tiene comportamiento (get, has, toJSON)
+- Se valida al crear
+
+### Ip Address
+
+Representa la dirección IP desde la cual se ejecutó la acción.
+
+Soporta IPv4 e IPv6.
+
+Es un Value Object porque:
+
+- Es inmutable
+- Tiene validación (IPv4, IPv6)
+- Se sanitiza (normalización de IPv6)
+
+# Paso 4 — Definir relaciones y reglas de negocio
+
+## Parte A — Relaciones
+
+```text
+                    Core
+                     │
+        ┌────────────┼────────────┐
+        │            │            │
+        ▼            ▼            ▼
+Authentication  Authorization   Identity
+        │            │            │
+        └────────────┼────────────┘
+                     │
+                     │ AuditApi
+                     ▼
+              ┌───────────────┐
+              │     Audit     │
+              │               │
+              │   AuditEvent  │
+              └───────────────┘
+```
+
+Relación conceptual:
+
+```text
+Core Module
+     │
+     └──────────────► AuditApi
+                          │
+                          ▼
+                     AuditEvent
+                          │
+             ┌────────────┼────────────┐
+             │            │            │
+             ▼            ▼            ▼
+          userId       tenantId     resourceId
+```
+
+> **Nota:** **Audit** registra acciones originadas en otros módulos del Core o por el sistema. Los módulos consumidores utilizan `AuditApi` para registrar eventos y no dependen de la implementación interna de Audit.
+
+> **Nota:** `userId` mantiene una referencia hacia el usuario que originó la acción. User pertenece a **Identity** y **Audit** no administra la entidad **User**.
+
+> **Nota:** `tenantId` mantiene una referencia hacia el tenant al que pertenece el evento. **Tenant** pertenece a su respectivo módulo y **Audit** no administra la entidad **Tenant**.
+
+> **Nota:** `resource` y `resourceId` no representan una relación de entidad administrada por Audit. `resource` identifica el tipo de recurso de negocio afectado y `resourceId` identifica la instancia concreta cuando aplica.
+
+> **Nota:** Un `AuditEvent` no mantiene relaciones con otros `AuditEvent`. Cada evento representa un hecho histórico independiente.
+
+> **Nota:** `userId` puede ser nulo cuando el evento es generado por el sistema.
+
+> **Nota:** `tenantId` puede ser nulo cuando el evento corresponde a una operación de `PLATFORM_ADMIN` que no pertenece a un tenant específico.
+
+# Parte B — Reglas de negocio
+
+## Audit
+
+- Audit únicamente registra acciones ocurridas dentro de la plataforma.
+- Audit no ejecuta las acciones que registra.
+- Audit no determina si una acción está autorizada.
+- Audit no administra usuarios, roles, permisos, tenants ni recursos de otros módulos.
+- Los módulos del Core deben utilizar `AuditApi` para registrar eventos sin depender de la implementación interna de Audit.
+- Audit debe permitir registrar eventos generados por usuarios.
+- Audit debe permitir registrar eventos generados por el sistema.
+- Una falla durante el registro de auditoría no debe revertir la operación principal que originó el evento.
+- El registro de auditoría debe ejecutarse de forma independiente de la transacción principal.
+- El mecanismo de registro debe permitir evolucionar posteriormente hacia procesamiento asíncrono, reintentos y hash chain sin modificar las reglas fundamentales del dominio.
+
+## Audit Event
+
+- Todo `AuditEvent` representa un hecho ocurrido en un momento determinado.
+- Todo `AuditEvent` debe registrar una acción.
+- Todo `AuditEvent` debe identificar el recurso sobre el cual ocurrió la acción.
+- `resourceId` puede ser nulo cuando la acción no afecta a un recurso específico.
+- Todo `AuditEvent` debe registrar el resultado de la acción mediante `status`.
+- `status` únicamente puede utilizar los valores definidos por el dominio.
+- `userId` puede ser nulo cuando el evento es generado por el sistema.
+- `tenantId` puede ser nulo cuando el evento corresponde a una operación de `PLATFORM_ADMIN` sin tenant específico.
+- `metadata` puede contener información adicional relacionada con el contexto del evento.
+- `ipAddress` puede ser nulo cuando la dirección IP no está disponible.
+- `userAgent` puede ser nulo cuando la información no está disponible.
+- `createdAt` debe representar el momento en que ocurrió el evento.
+- Un `AuditEvent` es inmutable después de su creación.
+- Un `AuditEvent` no puede modificarse después de ser registrado.
+- Un `AuditEvent` no puede eliminarse.
+- La consulta de un `AuditEvent` no puede modificar su contenido.
+- Cada `AuditEvent` debe poseer un identificador único.
+- `action` debe pertenecer al catálogo oficial de `AuditAction`.
+- `resource` debe pertenecer al catálogo oficial de `AuditResource`.
+- `action` debe representar un evento específico y no una capacidad genérica como `CREATE`, `UPDATE` o `DELETE`.
+- Las acciones de auditoría deben seguir la convención `<RESOURCE>_<EVENT>`.
+- Los recursos de auditoría deben corresponder a los nombres oficiales de los recursos definidos por los dominios correspondientes.
+
+## Audit Metadata
+
+- `AuditMetadata` debe representar información adicional válida asociada al evento.
+- `AuditMetadata` debe ser inmutable.
+- La metadata puede variar según el módulo que origine el evento.
+- La estructura de la metadata no debe modificar las reglas fundamentales de `AuditEvent`.
+- `AuditMetadata` debe poder consultarse sin modificar su contenido.
+
+## IP Address
+
+- `IpAddress` debe representar una dirección IP válida.
+- Debe soportar direcciones IPv4.
+- Debe soportar direcciones IPv6.
+- Una dirección IP inválida no puede formar parte de un `AuditEvent`.
+- La dirección IP debe normalizarse cuando sea necesario.
+- `IpAddress` debe ser inmutable.
+
+## Consulta de Audit Events
+
+- Los eventos de auditoría deben poder consultarse mediante los casos de uso definidos por Audit.
+- Un tenant únicamente puede consultar los eventos correspondientes a su propio `tenantId`.
+- `PLATFORM_ADMIN` puede consultar eventos correspondientes a todos los tenants.
+- La consulta debe permitir filtrar eventos por tenant, usuario, acción y recurso.
+- La consulta debe soportar paginación.
+- La consulta debe respetar las reglas de autorización definidas para `AUDIT_LIST`.
+- La consulta no puede modificar los eventos.
+- La consulta no puede eliminar los eventos.
+
+# Paso 5 — Definir el Lenguaje Ubicuo
+
+## Diccionario del dominio
+
+| Español                           | Inglés (Código)        | Tipo           | Descripción                                                                                                           |
+| --------------------------------- | ---------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Evento de Auditoría               | `AuditEvent`           | Entidad        | Representa un hecho histórico e inmutable ocurrido en Neltrik que debe ser registrado para garantizar trazabilidad.   |
+| Acción de Auditoría               | `AuditAction`          | Domain Concept | Representa el evento específico que ocurrió y que debe ser registrado por el sistema de auditoría.                    |
+| Recurso de Auditoría              | `AuditResource`        | Domain Concept | Representa el tipo de recurso de negocio afectado por una acción auditada.                                            |
+| Estado de Auditoría               | `AuditStatus`          | Enum           | Representa el resultado de la acción auditada, como exitosa, fallida o denegada.                                      |
+| Actor de Auditoría                | `AuditActor`           | Domain Concept | Representa quién o qué originó la acción auditada, pudiendo corresponder a un usuario o al sistema.                   |
+| Metadatos de Auditoría            | `AuditMetadata`        | Value Object   | Representa información adicional y específica del evento que complementa el registro de auditoría.                    |
+| Dirección IP                      | `IpAddress`            | Value Object   | Representa la dirección IP desde la cual se originó la acción auditada.                                               |
+| Identificador de Recurso          | `ResourceId`           | Domain Concept | Representa el identificador de la instancia concreta del recurso afectado por la acción auditada, cuando aplique.     |
+| Registro de Auditoría             | `AuditRecord`          | Domain Concept | Representa el registro persistido de un evento de auditoría.                                                          |
+| Consulta de Auditoría             | `AuditQuery`           | Domain Concept | Representa los criterios utilizados para consultar y filtrar eventos de auditoría.                                    |
+| Inmutabilidad de Auditoría        | `AuditImmutability`    | Domain Concept | Representa la regla mediante la cual un evento de auditoría no puede modificarse ni eliminarse después de registrado. |
+| Catálogo de Acciones de Auditoría | `AuditActionCatalog`   | Domain Concept | Representa el catálogo oficial de acciones auditables mantenido por el módulo Audit.                                  |
+| Catálogo de Recursos de Auditoría | `AuditResourceCatalog` | Domain Concept | Representa el catálogo oficial de recursos auditables mantenido por el módulo Audit.                                  |
+
+---
+
+## Términos prohibidos
+
+| ❌ No usar                                        | ✅ Usar                                       |
+| ------------------------------------------------- | --------------------------------------------- |
+| Audit Log                                         | `AuditEvent`                                  |
+| Audit Entry                                       | `AuditEvent`                                  |
+| Log Entry                                         | `AuditEvent`                                  |
+| Event Log                                         | `AuditEvent`                                  |
+| Audit Action Type                                 | `AuditAction`                                 |
+| Action Type                                       | `AuditAction`                                 |
+| Resource Type                                     | `AuditResource`                               |
+| Entity Type                                       | `AuditResource`                               |
+| User Action                                       | `AuditAction`                                 |
+| HTTP Action                                       | `AuditAction`                                 |
+| Endpoint Action                                   | `AuditAction`                                 |
+| CREATE / UPDATE / DELETE como acción de auditoría | Acción específica, por ejemplo `USER_CREATED` |
+| User Actor                                        | `User` / `AuditActor` según el contexto       |
+| Audit Data                                        | `AuditMetadata`                               |
+| Audit IP                                          | `IpAddress`                                   |
+| Audit ID                                          | `AuditEvent` / `id` según el contexto         |
+| Audit Record como entidad principal               | `AuditEvent`                                  |
+
+---
+
+## Convenciones del dominio
+
+- Todo el código del dominio se escribirá en **inglés**.
+- Cada concepto tendrá un único nombre; no se utilizarán sinónimos.
+- `Audit` representa el contexto responsable de registrar y consultar hechos históricos relevantes ocurridos en Neltrik.
+- `AuditEvent` representa un hecho ocurrido en el pasado y no una acción que Audit ejecute.
+- `Audit` registra acciones originadas por otros módulos del Core o por el sistema.
+- `Audit` no ejecuta las acciones que registra.
+- `Audit` es responsable de definir y mantener el vocabulario oficial de auditoría.
+- `AuditAction` representa una acción específica que ocurrió en el sistema.
+- Las acciones de auditoría seguirán la convención `<RESOURCE>_<EVENT>`.
+- Las acciones de auditoría deben representar eventos específicos y no operaciones genéricas como `CREATE`, `UPDATE` o `DELETE`.
+- `AuditResource` representa el tipo de recurso de negocio afectado por una acción auditada.
+- `AuditResource` no representa una entidad administrada por Audit.
+- Los recursos de auditoría deben corresponder a los nombres oficiales de los recursos definidos por los dominios correspondientes.
+- `resourceId` identifica la instancia concreta del recurso afectado cuando corresponda.
+- `userId` identifica al usuario que originó la acción cuando exista un usuario como actor.
+- Las acciones originadas directamente por el sistema pueden no tener `userId`.
+- `tenantId` identifica el tenant al que pertenece el evento cuando corresponda.
+- Los eventos de plataforma que no estén asociados a un tenant específico pueden no tener `tenantId`.
+- `AuditStatus` representa únicamente estados definidos por el dominio.
+- `AuditMetadata` permite almacenar información adicional específica del evento sin modificar las reglas fundamentales de `AuditEvent`.
+- `AuditEvent` es inmutable después de su creación.
+- Los eventos de auditoría no pueden actualizarse ni eliminarse.
+- La consulta de eventos de auditoría nunca puede modificar sus registros.
+- Los eventos deben conservar el momento en que ocurrió la acción mediante `createdAt`.
+- La información de contexto, como `IpAddress` y `userAgent`, puede no estar disponible en determinados escenarios.
+- La comunicación de los módulos consumidores con Audit debe realizarse mediante `AuditApi`.
+- Los módulos del Core no deben definir sus propios catálogos de `AuditAction` o `AuditResource`.
+- Las nuevas acciones auditables deben incorporarse al vocabulario oficial de Audit antes de implementarse.
+- Si aparece un nuevo concepto durante el desarrollo, primero deberá incorporarse al Lenguaje Ubicuo antes de implementarse.
+- El mecanismo de persistencia, procesamiento asíncrono, reintentos o futuras cadenas de hash no forma parte del lenguaje principal del dominio y podrá evolucionar sin modificar el significado fundamental de `AuditEvent`.
+
+# Resultado
+
+Con este documento se establece el **Lenguaje Ubicuo inicial del dominio Audit** para el MVP.
+
+El dominio queda preparado para representar eventos históricos mediante la siguiente estructura conceptual:
+
+```text
+AuditEvent
+    │
+    ├── AuditAction
+    ├── AuditResource
+    ├── AuditStatus
+    ├── AuditActor
+    ├── ResourceId
+    ├── AuditMetadata
+    ├── IpAddress
+    ├── tenantId
+    └── createdAt
+```
+
+El vocabulario oficial de auditoría será mantenido exclusivamente por el módulo **Audit**:
+
+```text
+Audit
+ │
+ ├── AuditAction
+ │      ├── USER_CREATED
+ │      ├── USER_SUSPENDED
+ │      ├── ROLE_UPDATED
+ │      └── VACANCY_PUBLISHED
+ │
+ └── AuditResource
+        ├── USER
+        ├── ROLE
+        ├── TENANT
+        ├── INVITATION
+        └── VACANCY
+```
+
+Los módulos no definirán catálogos propios de acciones o recursos de auditoría. Cuando necesiten registrar un evento, utilizarán el contrato público `AuditApi`.
+
+Ejemplo conceptual:
+
+```text
+Identity
+   │
+   │ acción: USER_SUSPENDED
+   ▼
+AuditApi
+   │
+   ▼
+AuditEvent
+   ├── action: USER_SUSPENDED
+   ├── resource: USER
+   └── resourceId: userId
+```
+
+El MVP implementará únicamente las acciones definidas en el catálogo inicial de Audit. El catálogo podrá extenderse posteriormente con nuevas acciones y recursos sin modificar las reglas fundamentales de `AuditEvent`.
+
+Este documento debe mantenerse actualizado conforme evolucione el dominio y constituye la documentación oficial del módulo **Audit**.
+
+## Dependencias del dominio
+
+El dominio **Audit** no depende directamente de las implementaciones internas de otros dominios del Core.
+
+Cuando **Audit** necesite interactuar con otro Bounded Context, dicha comunicación deberá realizarse mediante las interfaces públicas (`api/`) definidas por el módulo correspondiente.
+
+Los módulos que necesiten registrar eventos de auditoría utilizarán `AuditApi` sin depender de la implementación interna de Audit.
+
+El dominio **Audit** únicamente puede depender de componentes ubicados en `shared` y de contratos públicos (`api/`) de otros módulos cuando el dominio requiera dicha interacción.

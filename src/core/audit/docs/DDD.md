@@ -109,7 +109,7 @@ Acción en el Core
           ▼
     AuditApi.record()
           │
-          ├── captura: userId, tenantId, action, resource
+          ├── captura: userId, userEmail, tenantId, action, resource
           ├── captura: resourceId, metadata, status
           └── captura: ipAddress, userAgent (desde contexto)
           │
@@ -179,21 +179,12 @@ Audit no inicia acciones. Audit registra acciones iniciadas por otros.
 - Audit Action
 - Audit Status
 - Audit Resource
-- Audit Actor
-- Audit Context
 - Audit Metadata
-- Audit Record
-- Audit Trail
-- Audit Log
-- Audit Query
-- Audit Immutability
-- Audit Retention
-- Audit Export
-- Audit Compliance
-- Audit Forensic
-- Audit Timestamp
+- IP Address
+- Audit Retention _(futuro)_
+- Audit Export _(futuro)_
+- Audit Compliance _(futuro)_
 - Audit Hash Chain _(futuro)_
-- Audit Replay _(futuro)_
 - Audit Streaming _(futuro)_
 - Audit SIEM Integration _(futuro)_
 - Audit Data Subject Access Request _(futuro)_
@@ -228,7 +219,7 @@ cumplimiento normativo.
 
 Cada Audit Event está asociado a:
 
-- Un actor (`userId`) que originó la acción. Puede ser nulo para eventos generados por el sistema.
+- Un actor identificado mediante `userId` y, cuando corresponda, `userEmail`, que originó la acción. `userId` y `userEmail` pueden ser nulos para eventos generados por el sistema.
 - Un tenant (`tenantId`) al que pertenece el evento. Puede ser nulo para
   eventos de PLATFORM_ADMIN.
 - Una acción (`action`) que identifica el evento específico que ocurrió.
@@ -368,15 +359,18 @@ Core Module
                           ▼
                      AuditEvent
                           │
-             ┌────────────┼────────────┐
-             │            │            │
-             ▼            ▼            ▼
-          userId       tenantId     resourceId
+          ┌───────────────┼───────────────┐
+          │               │               │
+          ▼               ▼               ▼
+       userId         tenantId        resourceId
+          │
+          ▼
+      userEmail
 ```
 
 > **Nota:** **Audit** registra acciones originadas en otros módulos del Core o por el sistema. Los módulos consumidores utilizan `AuditApi` para registrar eventos y no dependen de la implementación interna de Audit.
 
-> **Nota:** `userId` mantiene una referencia hacia el usuario que originó la acción. User pertenece a **Identity** y **Audit** no administra la entidad **User**.
+> **Nota:** `userId` mantiene una referencia hacia el usuario que originó la acción. User pertenece a **Identity** y **Audit** no administra la entidad **User**. `userEmail` almacena una captura histórica del email del usuario en el momento en que ocurrió la acción.
 
 > **Nota:** `tenantId` mantiene una referencia hacia el tenant al que pertenece el evento. **Tenant** pertenece a su respectivo módulo y **Audit** no administra la entidad **Tenant**.
 
@@ -412,6 +406,10 @@ Core Module
 - Todo `AuditEvent` debe registrar el resultado de la acción mediante `status`.
 - `status` únicamente puede utilizar los valores definidos por el dominio.
 - `userId` puede ser nulo cuando el evento es generado por el sistema.
+- `userEmail` puede ser nulo cuando el evento es generado por el sistema o cuando el email del actor no está disponible.
+- `userEmail` representa el email del User en el momento en que ocurrió el evento.
+- `userEmail` constituye una captura histórica del contexto del actor y no una referencia al email actual del User.
+- Los cambios posteriores realizados sobre el email del User no deben modificar el `userEmail` almacenado en un `AuditEvent`.
 - `tenantId` puede ser nulo cuando el evento corresponde a una operación de `PLATFORM_ADMIN` sin tenant específico.
 - `metadata` puede contener información adicional relacionada con el contexto del evento.
 - `ipAddress` puede ser nulo cuando la dirección IP no está disponible.
@@ -460,21 +458,14 @@ Core Module
 
 ## Diccionario del dominio
 
-| Español                           | Inglés (Código)        | Tipo           | Descripción                                                                                                           |
-| --------------------------------- | ---------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Evento de Auditoría               | `AuditEvent`           | Entidad        | Representa un hecho histórico e inmutable ocurrido en Neltrik que debe ser registrado para garantizar trazabilidad.   |
-| Acción de Auditoría               | `AuditAction`          | Domain Concept | Representa el evento específico que ocurrió y que debe ser registrado por el sistema de auditoría.                    |
-| Recurso de Auditoría              | `AuditResource`        | Domain Concept | Representa el tipo de recurso de negocio afectado por una acción auditada.                                            |
-| Estado de Auditoría               | `AuditStatus`          | Enum           | Representa el resultado de la acción auditada, como exitosa, fallida o denegada.                                      |
-| Actor de Auditoría                | `AuditActor`           | Domain Concept | Representa quién o qué originó la acción auditada, pudiendo corresponder a un usuario o al sistema.                   |
-| Metadatos de Auditoría            | `AuditMetadata`        | Value Object   | Representa información adicional y específica del evento que complementa el registro de auditoría.                    |
-| Dirección IP                      | `IpAddress`            | Value Object   | Representa la dirección IP desde la cual se originó la acción auditada.                                               |
-| Identificador de Recurso          | `ResourceId`           | Domain Concept | Representa el identificador de la instancia concreta del recurso afectado por la acción auditada, cuando aplique.     |
-| Registro de Auditoría             | `AuditRecord`          | Domain Concept | Representa el registro persistido de un evento de auditoría.                                                          |
-| Consulta de Auditoría             | `AuditQuery`           | Domain Concept | Representa los criterios utilizados para consultar y filtrar eventos de auditoría.                                    |
-| Inmutabilidad de Auditoría        | `AuditImmutability`    | Domain Concept | Representa la regla mediante la cual un evento de auditoría no puede modificarse ni eliminarse después de registrado. |
-| Catálogo de Acciones de Auditoría | `AuditActionCatalog`   | Domain Concept | Representa el catálogo oficial de acciones auditables mantenido por el módulo Audit.                                  |
-| Catálogo de Recursos de Auditoría | `AuditResourceCatalog` | Domain Concept | Representa el catálogo oficial de recursos auditables mantenido por el módulo Audit.                                  |
+| Español                | Inglés (Código) | Tipo           | Descripción                                                                                                         |
+| ---------------------- | --------------- | -------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Evento de Auditoría    | `AuditEvent`    | Entidad        | Representa un hecho histórico e inmutable ocurrido en Neltrik que debe ser registrado para garantizar trazabilidad. |
+| Acción de Auditoría    | `AuditAction`   | Domain Concept | Representa el evento específico que ocurrió y que debe ser registrado por el sistema de auditoría.                  |
+| Recurso de Auditoría   | `AuditResource` | Domain Concept | Representa el tipo de recurso de negocio afectado por una acción auditada.                                          |
+| Estado de Auditoría    | `AuditStatus`   | Enum           | Representa el resultado de la acción auditada.                                                                      |
+| Metadatos de Auditoría | `AuditMetadata` | Value Object   | Representa información adicional y específica del evento que complementa el registro de auditoría.                  |
+| Dirección IP           | `IpAddress`     | Value Object   | Representa la dirección IP desde la cual se originó la acción auditada.                                             |
 
 ---
 
@@ -494,7 +485,7 @@ Core Module
 | HTTP Action                                       | `AuditAction`                                 |
 | Endpoint Action                                   | `AuditAction`                                 |
 | CREATE / UPDATE / DELETE como acción de auditoría | Acción específica, por ejemplo `USER_CREATED` |
-| User Actor                                        | `User` / `AuditActor` según el contexto       |
+| User Actor                                        | `User` según el contexto                      |
 | Audit Data                                        | `AuditMetadata`                               |
 | Audit IP                                          | `IpAddress`                                   |
 | Audit ID                                          | `AuditEvent` / `id` según el contexto         |
@@ -519,7 +510,9 @@ Core Module
 - Los recursos de auditoría deben corresponder a los nombres oficiales de los recursos definidos por los dominios correspondientes.
 - `resourceId` identifica la instancia concreta del recurso afectado cuando corresponda.
 - `userId` identifica al usuario que originó la acción cuando exista un usuario como actor.
-- Las acciones originadas directamente por el sistema pueden no tener `userId`.
+- `userEmail` representa el email del usuario en el momento en que ocurrió la acción.
+- `userEmail` constituye una captura histórica del contexto del actor y no una referencia al email actual del User.
+- Las acciones originadas directamente por el sistema pueden no tener `userId` ni `userEmail`.
 - `tenantId` identifica el tenant al que pertenece el evento cuando corresponda.
 - Los eventos de plataforma que no estén asociados a un tenant específico pueden no tener `tenantId`.
 - `AuditStatus` representa únicamente estados definidos por el dominio.
@@ -544,14 +537,16 @@ El dominio queda preparado para representar eventos históricos mediante la sigu
 ```text
 AuditEvent
     │
+    ├── userId
+    ├── userEmail
+    ├── tenantId
     ├── AuditAction
     ├── AuditResource
+    ├── resourceId
     ├── AuditStatus
-    ├── AuditActor
-    ├── ResourceId
     ├── AuditMetadata
     ├── IpAddress
-    ├── tenantId
+    ├── userAgent
     └── createdAt
 ```
 
@@ -587,6 +582,8 @@ AuditApi
    │
    ▼
 AuditEvent
+   ├── userId: userId
+   ├── userEmail: user@email.com
    ├── action: USER_SUSPENDED
    ├── resource: USER
    └── resourceId: userId

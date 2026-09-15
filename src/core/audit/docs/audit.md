@@ -121,6 +121,31 @@ Representa el resultado de la acción auditada.
 
 `AuditStatus` pertenece al dominio **Audit** y únicamente puede utilizar los valores definidos oficialmente por el contexto.
 
+## 3.1 Value Objects
+
+### AuditMetadata
+
+Representa metadata adicional del `AuditEvent`.
+
+- Se crea mediante `AuditMetadata.create(value)`.
+- `value` debe ser un objeto JSON válido.
+- La raíz debe ser un objeto; puede estar vacío y puede contener objetos o arrays anidados.
+- No acepta arrays ni valores escalares como raíz.
+- Es inmutable después de su creación.
+- Expone `get(key)`, `has(key)` y `toJSON()`.
+- No valida el significado ni esquema interno de sus propiedades.
+
+### IpAddress
+
+Representa la dirección IP del origen del evento.
+
+- Se crea mediante `IpAddress.create(value)`.
+- Acepta direcciones IPv4 e IPv6 válidas.
+- Rechaza valores que no representen una IP válida.
+- Normaliza la representación de la dirección.
+- Es inmutable después de su creación.
+- Expone su valor normalizado mediante `value`.
+
 ## 4. Reglas de negocio
 
 ### 4.1 Creación
@@ -128,7 +153,6 @@ Representa el resultado de la acción auditada.
 - Todo **Audit Event** debe representar un hecho ocurrido dentro de Neltrik que deba ser registrado para garantizar trazabilidad, seguridad o visibilidad.
 - Todo **Audit Event** debe poseer un `id` único.
 - Todo **Audit Event** debe poseer una `action` definida en el catálogo oficial de **AuditAction**.
-- Toda `action` debe representar un evento específico y no una operación HTTP ni una operación genérica como `CREATE`, `UPDATE` o `DELETE`.
 - Toda `action` debe pertenecer al catálogo oficial de `AuditAction`.
 - Las nuevas entradas del catálogo oficial de `AuditAction` deben definirse siguiendo la convención `<RESOURCE>_<EVENT>`.
 - Todo **Audit Event** debe poseer un `resource` definido en el catálogo oficial de **AuditResource**.
@@ -218,7 +242,7 @@ Todos los campos de **AuditEvent** son inmutables después de su creación.
 - `resource_id` puede ser `NULL` cuando la acción no afecte a una instancia específica.
 - `status` es obligatorio.
 - `status` debe corresponder a un valor válido de **AuditStatus**.
-- `status` se almacena como texto y no utiliza un tipo `ENUM` de PostgreSQL.
+- `status` se almacena mediante el tipo `ENUM` de PostgreSQL `AuditStatus`.
 - `metadata` es obligatorio y debe almacenar un objeto JSON válido.
 - `ip_address` puede ser `NULL` cuando la dirección IP no esté disponible.
 - `user_agent` puede ser `NULL` cuando el contexto de origen no proporcione dicha información.
@@ -233,7 +257,7 @@ Todos los campos de **AuditEvent** son inmutables después de su creación.
 
 ### 5.4 Índices
 
-De acuerdo con lo definido en el DDD, tendremos los siguientes 6 índices:
+De acuerdo con lo definido en el modelo físico, tendremos los siguientes índices:
 
 - `PK(id)`
 - `INDEX(tenant_id)`
@@ -241,6 +265,7 @@ De acuerdo con lo definido en el DDD, tendremos los siguientes 6 índices:
 - `INDEX(action)`
 - `INDEX(resource)`
 - `INDEX(created_at)`
+- `INDEX(tenant_id, created_at)`
 
 ### 5.5 Restricciones de unicidad
 

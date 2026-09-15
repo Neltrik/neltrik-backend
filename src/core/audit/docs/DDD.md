@@ -220,8 +220,8 @@ cumplimiento normativo.
 Cada Audit Event está asociado a:
 
 - Un actor identificado mediante `userId` y, cuando corresponda, `userEmail`, que originó la acción. `userId` y `userEmail` pueden ser nulos para eventos generados por el sistema.
-- Un tenant (`tenantId`) al que pertenece el evento. Puede ser nulo para
-  eventos de PLATFORM_ADMIN.
+- Un tenant (`tenantId`) al que pertenece el evento. Puede ser nulo cuando
+  el evento corresponde a una operación de `PLATFORM_ADMIN` sin tenant específico.
 - Una acción (`action`) que identifica el evento específico que ocurrió.
 - Un recurso (`resource`) que identifica el tipo de recurso de negocio afectado.
 - Un recurso específico (`resourceId`) cuando aplica.
@@ -315,31 +315,39 @@ Los módulos del Core no definen sus propios catálogos de recursos de auditorí
 
 ### Audit Metadata
 
-Representa información adicional específica del evento.
+Representa información adicional y específica del evento que complementa
+los datos estructurados de `AuditEvent`.
 
-Es un objeto JSON que permite almacenar contexto adicional sin modificar
-el modelo.
+`AuditMetadata` utiliza una estructura JSON flexible cuya forma puede variar
+según el evento y el módulo del Core que lo origine.
 
-La estructura de metadata es definida por cada módulo del Core según
-las necesidades de sus eventos.
+Audit no define ni valida el significado ni el esquema interno de las
+propiedades contenidas en la metadata. Su responsabilidad se limita a
+garantizar que la metadata corresponda a una estructura JSON válida.
 
 Es un Value Object porque:
 
-- Es inmutable
-- Tiene comportamiento (get, has, toJSON)
-- Se valida al crear
+- Es inmutable.
+- Encapsula la validación de su propia estructura.
+- Encapsula el acceso a sus propiedades mediante `get` y `has`.
+- Encapsula su serialización mediante `toJSON`.
 
 ### Ip Address
 
 Representa la dirección IP desde la cual se ejecutó la acción.
 
-Soporta IPv4 e IPv6.
+`IpAddress` soporta direcciones IPv4 e IPv6 y garantiza que el valor
+corresponda a una dirección IP válida.
+
+El Value Object encapsula las reglas propias de validación y normalización
+de una dirección IP, independientemente de `AuditEvent`.
 
 Es un Value Object porque:
 
-- Es inmutable
-- Tiene validación (IPv4, IPv6)
-- Se sanitiza (normalización de IPv6)
+- Es inmutable.
+- Valida que el valor corresponda a una dirección IPv4 o IPv6 válida.
+- Normaliza la representación de la dirección cuando corresponda.
+- Encapsula las reglas propias del concepto de dirección IP.
 
 # Paso 4 — Definir relaciones y reglas de negocio
 
@@ -443,20 +451,22 @@ Core Module
 
 ## Audit Metadata
 
-- `AuditMetadata` debe representar información adicional válida asociada al evento.
-- `AuditMetadata` debe ser inmutable.
-- La metadata puede variar según el módulo que origine el evento.
-- La estructura de la metadata no debe modificar las reglas fundamentales de `AuditEvent`.
-- `AuditMetadata` debe poder consultarse sin modificar su contenido.
+- `AuditMetadata` debe representar información adicional y específica del evento.
+- La metadata debe corresponder a una estructura JSON válida.
+- La estructura de la metadata puede variar según el evento y el módulo del Core que lo origine.
+- Audit no debe definir ni validar el significado ni el esquema interno de las propiedades contenidas en la metadata.
+- La metadata debe complementar los datos estructurados de `AuditEvent` y no sustituirlos.
+- `AuditMetadata` es inmutable después de su creación.
+- El acceso a las propiedades de la metadata no puede modificar su contenido.
 
 ## IP Address
 
 - `IpAddress` debe representar una dirección IP válida.
-- Debe soportar direcciones IPv4.
-- Debe soportar direcciones IPv6.
-- Una dirección IP inválida no puede formar parte de un `AuditEvent`.
-- La dirección IP debe normalizarse cuando sea necesario.
-- `IpAddress` debe ser inmutable.
+- `IpAddress` debe soportar direcciones IPv4.
+- `IpAddress` debe soportar direcciones IPv6.
+- Una dirección IP inválida no puede formar parte de `AuditEvent`.
+- La representación de la dirección IP debe mantenerse en una forma normalizada.
+- `IpAddress` es inmutable después de su creación.
 
 ## Consulta de Audit Events
 

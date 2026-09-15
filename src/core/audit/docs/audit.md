@@ -193,10 +193,10 @@ Todos los campos de **AuditEvent** son inmutables después de su creación.
 | `action`      | `VARCHAR(100)` | ❌   | —                   | Acción oficial de AuditAction           |
 | `resource`    | `VARCHAR(100)` | ❌   | —                   | Recurso oficial de AuditResource        |
 | `resource_id` | `UUID`         | ✅   | `NULL`              | Identificador de la instancia afectada  |
-| `status`      | `VARCHAR(20)`  | ❌   | —                   | Resultado del evento                    |
 | `metadata`    | `JSONB`        | ❌   | `'{}'`              | Información adicional del evento        |
 | `ip_address`  | `VARCHAR(45)`  | ✅   | `NULL`              | Dirección IPv4 o IPv6                   |
 | `user_agent`  | `TEXT`         | ✅   | `NULL`              | User Agent del contexto de origen       |
+| `status`      | `AuditStatus`  | ❌   | —                   | Resultado del evento                    |
 | `created_at`  | `TIMESTAMP`    | ❌   | `NOW()`             | Momento en que ocurrió la acción        |
 
 ### 5.3 Restricciones

@@ -311,3 +311,32 @@ model PasswordReset {
   @@index([expiresAt])
   @@map("password_resets")
 }
+
+enum AuditStatus {
+  SUCCESS
+  FAILED
+  DENIED
+}
+
+model AuditEvent {
+  id         String      @id @db.Uuid
+  userId     String?     @map("user_id") @db.Uuid
+  userEmail  String?     @map("user_email") @db.VarChar(255)
+  tenantId   String?     @map("tenant_id") @db.Uuid
+  action     String      @db.VarChar(100)
+  resource   String      @db.VarChar(100)
+  resourceId String?     @map("resource_id") @db.Uuid
+  metadata   Json        @default(dbgenerated("'{}'::jsonb"))
+  ipAddress  String?     @map("ip_address") @db.VarChar(45)
+  userAgent  String?     @map("user_agent") @db.Text
+  status     AuditStatus
+  createdAt  DateTime    @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([tenantId])
+  @@index([action])
+  @@index([resource])
+  @@index([createdAt])
+  @@index([tenantId, createdAt])
+  @@map("audit_events")
+}

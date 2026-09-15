@@ -43,7 +43,8 @@ Un Audit Event es **inmutable** después de su creación y únicamente puede ser
 - `resourceId` identifica la instancia concreta del recurso afectado cuando corresponda.
 - `resourceId` puede ser `null` cuando la acción no afecte a una instancia específica.
 - `action` representa un evento específico y no una operación HTTP ni una capacidad genérica como `CREATE`, `UPDATE` o `DELETE`.
-- Las acciones de auditoría siguen la convención `<RESOURCE>_<EVENT>`.
+- Las nuevas entradas del catálogo oficial de `AuditAction` siguen la convención `<RESOURCE>_<EVENT>`.
+- Esta convención corresponde a una regla de definición y nomenclatura del catálogo y no constituye una validación adicional realizada por `AuditEvent`.
 - `status` únicamente puede utilizar valores definidos por el dominio `AuditStatus`.
 - `metadata` permite almacenar información adicional relacionada con el evento sin modificar la estructura fundamental de `AuditEvent`.
 - `metadata` no debe utilizarse para duplicar información que ya pertenece a los campos principales de `AuditEvent`.
@@ -128,7 +129,8 @@ Representa el resultado de la acción auditada.
 - Todo **Audit Event** debe poseer un `id` único.
 - Todo **Audit Event** debe poseer una `action` definida en el catálogo oficial de **AuditAction**.
 - Toda `action` debe representar un evento específico y no una operación HTTP ni una operación genérica como `CREATE`, `UPDATE` o `DELETE`.
-- Toda `action` debe seguir la convención `<RESOURCE>_<EVENT>`.
+- Toda `action` debe pertenecer al catálogo oficial de `AuditAction`.
+- Las nuevas entradas del catálogo oficial de `AuditAction` deben definirse siguiendo la convención `<RESOURCE>_<EVENT>`.
 - Todo **Audit Event** debe poseer un `resource` definido en el catálogo oficial de **AuditResource**.
 - `resourceId` debe identificar la instancia concreta del recurso afectado cuando corresponda.
 - `resourceId` puede ser `null` cuando la acción no afecte a una instancia específica.

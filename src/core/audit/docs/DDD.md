@@ -6,7 +6,7 @@
 
 El módulo **Audit** es responsable de registrar de forma inmutable todas las acciones relevantes que ocurren dentro de **Neltrik**, garantizando trazabilidad, cumplimiento normativo y visibilidad para los administradores de cada tenant.
 
-Su responsabilidad principal es determinar qué acciones deben auditarse, cómo se registran de forma segura e inmutable, y cómo se consultan dichos registros. El módulo debe diseñarse para que cada tenant pueda ver únicamente los eventos de auditoría que le corresponden.
+Su responsabilidad principal es determinar qué acciones deben auditarse, cómo se registran de forma segura e inmutable, y cómo se consultan dichos registros. El módulo debe diseñarse para que cada tenant pueda ver únicamente los eventos de auditoría que le corresponden, mientras que `PLATFORM_ADMIN` puede consultar los eventos de todos los tenants.
 
 El módulo debe diseñarse de forma extensible para permitir incorporar nuevos tipos de eventos sin modificar las reglas fundamentales del dominio.
 ---
@@ -250,6 +250,12 @@ Las acciones siguen la convención:
 
 <RESOURCE>_<EVENT>
 
+Esta convención se utiliza como guía para definir y mantener nuevas
+entradas en el catálogo de `AuditAction`.
+
+La pertenencia de una acción al catálogo oficial de `AuditAction` es la
+que determina si dicha acción es reconocida por Audit.
+
 Ejemplos:
 
 - USER_CREATED
@@ -273,9 +279,16 @@ Representa el tipo de recurso de negocio afectado por una acción auditada.
 
 Los recursos son definidos y mantenidos exclusivamente por el módulo Audit.
 
-El nombre del recurso debe corresponder al nombre oficial utilizado por el dominio correspondiente.
+Los recursos son identificadores pertenecientes al vocabulario oficial de
+Audit.
 
-Los recursos deben utilizar nombres singulares y en mayúsculas.
+El nombre utilizado para cada recurso es definido por Audit y no constituye
+una relación, dependencia ni regla de negocio sobre la entidad o recurso
+administrado por otro dominio.
+
+Los nombres del catálogo deben seleccionarse de forma que permitan
+identificar claramente el recurso al que hacen referencia dentro del
+contexto de auditoría.
 
 Ejemplos:
 
@@ -292,7 +305,9 @@ Ejemplos:
 
 `AuditResource` no representa una entidad administrada por Audit.
 
-Audit únicamente registra el tipo de recurso afectado y, cuando corresponde, el identificador de la instancia afectada mediante `resourceId`.
+Audit registra el identificador del tipo de recurso mediante `resource` y,
+cuando corresponde, el identificador de la instancia afectada mediante
+`resourceId`.
 
 Los módulos del Core no definen sus propios catálogos de recursos de auditoría. Utilizan los recursos oficiales expuestos por Audit mediante su API pública.
 
@@ -423,8 +438,8 @@ Core Module
 - `action` debe pertenecer al catálogo oficial de `AuditAction`.
 - `resource` debe pertenecer al catálogo oficial de `AuditResource`.
 - `action` debe representar un evento específico y no una capacidad genérica como `CREATE`, `UPDATE` o `DELETE`.
-- Las acciones de auditoría deben seguir la convención `<RESOURCE>_<EVENT>`.
-- Los recursos de auditoría deben corresponder a los nombres oficiales de los recursos definidos por los dominios correspondientes.
+- La convención `<RESOURCE>_<EVENT>` aplica a la definición de nuevas entradas del catálogo oficial de `AuditAction`.
+- La incorporación de una nueva acción al catálogo requiere que su definición haya sido previamente analizada y aprobada dentro del contexto de Audit.
 
 ## Audit Metadata
 
@@ -503,12 +518,16 @@ Core Module
 - `Audit` no ejecuta las acciones que registra.
 - `Audit` es responsable de definir y mantener el vocabulario oficial de auditoría.
 - `AuditAction` representa una acción específica que ocurrió en el sistema.
-- Las acciones de auditoría seguirán la convención `<RESOURCE>_<EVENT>`.
+- Las nuevas entradas del catálogo de `AuditAction` seguirán la convención `<RESOURCE>_<EVENT>`.
+- La convención `<RESOURCE>_<EVENT>` constituye una regla de definición y nomenclatura del catálogo, no una validación adicional realizada por `AuditEvent`.
 - Las acciones de auditoría deben representar eventos específicos y no operaciones genéricas como `CREATE`, `UPDATE` o `DELETE`.
-- `AuditResource` representa el tipo de recurso de negocio afectado por una acción auditada.
+- Una acción únicamente puede utilizarse como `AuditAction` si forma parte del catálogo oficial mantenido por Audit.
+- `AuditResource` representa el identificador del tipo de recurso al que hace referencia una acción auditada.
 - `AuditResource` no representa una entidad administrada por Audit.
-- Los recursos de auditoría deben corresponder a los nombres oficiales de los recursos definidos por los dominios correspondientes.
+- Los valores de `AuditResource` son definidos y mantenidos exclusivamente por Audit.
+- El nombre de un `AuditResource` pertenece al vocabulario de Audit y no impone reglas de nomenclatura sobre el dominio que administra el recurso representado.
 - `resourceId` identifica la instancia concreta del recurso afectado cuando corresponda.
+- Un `resourceId` no implica que Audit administre o mantenga la entidad correspondiente al identificador.
 - `userId` identifica al usuario que originó la acción cuando exista un usuario como actor.
 - `userEmail` representa el email del usuario en el momento en que ocurrió la acción.
 - `userEmail` constituye una captura histórica del contexto del actor y no una referencia al email actual del User.

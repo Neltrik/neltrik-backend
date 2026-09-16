@@ -37,19 +37,15 @@ describe("AuditMetadata", () => {
     });
 
     it("should throw InvalidAuditMetadataError when metadata is null", () => {
-        expect(() => AuditMetadata.create(null as unknown as Record<string, unknown>)).toThrow(
-            InvalidAuditMetadataError,
-        );
+        expect(() => AuditMetadata.create(null)).toThrow(InvalidAuditMetadataError);
     });
 
     it("should throw InvalidAuditMetadataError when metadata is an array", () => {
-        expect(() => AuditMetadata.create([] as unknown as Record<string, unknown>)).toThrow(InvalidAuditMetadataError);
+        expect(() => AuditMetadata.create([] as unknown)).toThrow(InvalidAuditMetadataError);
     });
 
     it("should throw InvalidAuditMetadataError when metadata is not an object", () => {
-        expect(() => AuditMetadata.create("metadata" as unknown as Record<string, unknown>)).toThrow(
-            InvalidAuditMetadataError,
-        );
+        expect(() => AuditMetadata.create("metadata")).toThrow(InvalidAuditMetadataError);
     });
 
     it("should throw InvalidAuditMetadataError when metadata contains undefined", () => {

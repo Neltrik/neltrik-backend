@@ -1,15 +1,21 @@
 import { InvalidAuditMetadataError } from "../../../errors";
 
-export class AuditMetadata {
-    private constructor(private readonly metadata: Record<string, unknown>) {}
+type JsonArray = JsonValue[];
+type JsonValue = string | number | boolean | null | JsonObject | JsonArray;
+export interface JsonObject {
+    [key: string]: JsonValue;
+}
 
-    public static create(value: Record<string, unknown>): AuditMetadata {
+export class AuditMetadata {
+    private constructor(private readonly metadata: JsonObject) {}
+
+    public static create(value: unknown): AuditMetadata {
         this.ensureIsObject(value);
         this.ensureIsJsonValue(value);
         return new AuditMetadata(AuditMetadata.clone(value));
     }
 
-    private static ensureIsObject(value: unknown): void {
+    private static ensureIsObject(value: unknown): asserts value is JsonObject {
         if (typeof value !== "object" || value === null || Array.isArray(value)) {
             throw new InvalidAuditMetadataError();
         }
@@ -26,17 +32,17 @@ export class AuditMetadata {
             return;
         }
         if (Array.isArray(value)) {
-            value.forEach((item) => this.ensureIsJsonValue(item));
+            value.forEach((item) => AuditMetadata.ensureIsJsonValue(item));
             return;
         }
         if (typeof value === "object") {
-            Object.values(value).forEach((item) => this.ensureIsJsonValue(item));
+            Object.values(value).forEach((item) => AuditMetadata.ensureIsJsonValue(item));
             return;
         }
         throw new InvalidAuditMetadataError();
     }
 
-    private static clone(value: Record<string, unknown>): Record<string, unknown> {
+    private static clone(value: JsonObject): JsonObject {
         return structuredClone(value);
     }
 
@@ -48,7 +54,7 @@ export class AuditMetadata {
         return Object.prototype.hasOwnProperty.call(this.metadata, key);
     }
 
-    public toJSON(): Record<string, unknown> {
+    public toJSON(): JsonObject {
         return AuditMetadata.clone(this.metadata);
     }
 }

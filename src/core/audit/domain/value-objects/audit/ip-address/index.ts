@@ -25,6 +25,14 @@ export class IpAddress {
         }
     }
 
+    public isIPv4(): boolean {
+        return ipaddr.parse(this.ipAddress).kind() === "ipv4";
+    }
+
+    public isIPv6(): boolean {
+        return ipaddr.parse(this.ipAddress).kind() === "ipv6";
+    }
+
     public get value(): string {
         return this.ipAddress;
     }

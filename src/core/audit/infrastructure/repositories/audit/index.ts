@@ -1,5 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
+import { FindManyAuditEventsParams } from "@/core/audit/domain/types";
 import { PrismaService } from "@/prisma/index";
 
 import { AuditEvent } from "../../../domain/entities";
@@ -24,5 +25,18 @@ export class PrismaAuditEventRepository extends AuditEventRepository {
             return null;
         }
         return AuditEventMapper.toDomain(auditEvent);
+    }
+
+    public async findMany(params: FindManyAuditEventsParams): Promise<AuditEvent[]> {
+        const auditEvents = await this.prisma.tenantClient.auditEvent.findMany({
+            where: {
+                ...(params.userId && { userId: params.userId }),
+                ...(params.tenantId && { tenantId: params.tenantId }),
+                ...(params.action && { action: params.action }),
+                ...(params.resource && { resource: params.resource }),
+            },
+            orderBy: { createdAt: "desc" },
+        });
+        return auditEvents.map((audit) => AuditEventMapper.toDomain(audit));
     }
 }

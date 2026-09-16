@@ -1,3 +1,4 @@
+import { EmptyActionError, EmptyResourceError } from "../../errors";
 import type { AuditEventProps, AuditStatus } from "../../types";
 import type { AuditMetadata, IpAddress } from "../../value-objects";
 
@@ -5,6 +6,8 @@ export class AuditEvent {
     private readonly props: AuditEventProps;
 
     private constructor(props: AuditEventProps) {
+        this.ensureActionIsNotEmpty(props.action);
+        this.ensureResourceIsNotEmpty(props.resource);
         this.props = props;
     }
 
@@ -14,6 +17,18 @@ export class AuditEvent {
 
     public static restore(props: AuditEventProps): AuditEvent {
         return new AuditEvent(props);
+    }
+
+    private ensureActionIsNotEmpty(action: string): void {
+        if (!action || action.trim() === "") {
+            throw new EmptyActionError();
+        }
+    }
+
+    private ensureResourceIsNotEmpty(resource: string): void {
+        if (!resource || resource.trim() === "") {
+            throw new EmptyResourceError();
+        }
     }
 
     public get id(): string {

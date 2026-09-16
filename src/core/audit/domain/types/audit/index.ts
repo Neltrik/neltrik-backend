@@ -21,3 +21,10 @@ export interface AuditEventProps {
     userAgent: string | null;
     createdAt: Date;
 }
+
+export interface FindManyAuditEventsParams {
+    userId?: string;
+    tenantId?: string;
+    action?: string;
+    resource?: string;
+}

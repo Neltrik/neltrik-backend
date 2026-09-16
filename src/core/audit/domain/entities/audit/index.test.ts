@@ -1,3 +1,4 @@
+import { EmptyActionError, EmptyResourceError } from "../../errors";
 import type { AuditEventProps } from "../../types";
 import { AuditMetadata, IpAddress } from "../../value-objects";
 import { AuditEvent } from "./index";
@@ -46,5 +47,27 @@ describe("AuditEvent", () => {
         expect(auditEvent.ipAddress).toBe(props.ipAddress);
         expect(auditEvent.userAgent).toBe(props.userAgent);
         expect(auditEvent.createdAt).toEqual(props.createdAt);
+    });
+});
+
+describe("Validations", () => {
+    it.each([
+        ["empty string", ""],
+        ["whitespace string", "   "],
+        ["null value", null as unknown as string],
+        ["undefined value", undefined as unknown as string],
+    ])("should throw EmptyActionError when action is %s", (_, invalidAction) => {
+        const props = { ...createProps(), action: invalidAction };
+        expect(() => AuditEvent.create(props)).toThrow(EmptyActionError);
+    });
+
+    it.each([
+        ["empty string", ""],
+        ["whitespace string", "   "],
+        ["null value", null as unknown as string],
+        ["undefined value", undefined as unknown as string],
+    ])("should throw EmptyResourceError when resource is %s", (_, invalidResource) => {
+        const props = { ...createProps(), resource: invalidResource };
+        expect(() => AuditEvent.create(props)).toThrow(EmptyResourceError);
     });
 });

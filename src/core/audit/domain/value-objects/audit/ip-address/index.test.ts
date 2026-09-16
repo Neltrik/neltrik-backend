@@ -83,4 +83,24 @@ describe("IpAddress", () => {
         const secondIpAddress = IpAddress.create("::ffff:c0a8:101");
         expect(firstIpAddress.equals(secondIpAddress)).toBe(true);
     });
+
+    it("should return true when the IP address is IPv4", () => {
+        const ipAddress = IpAddress.create("192.168.1.1");
+        expect(ipAddress.isIPv4()).toBe(true);
+    });
+
+    it("should return false when the IPv6 address is checked as IPv4", () => {
+        const ipAddress = IpAddress.create("2001:db8::1");
+        expect(ipAddress.isIPv4()).toBe(false);
+    });
+
+    it("should return true when the IP address is IPv6", () => {
+        const ipAddress = IpAddress.create("2001:db8::1");
+        expect(ipAddress.isIPv6()).toBe(true);
+    });
+
+    it("should return false when the IPv4 address is checked as IPv6", () => {
+        const ipAddress = IpAddress.create("192.168.1.1");
+        expect(ipAddress.isIPv6()).toBe(false);
+    });
 });

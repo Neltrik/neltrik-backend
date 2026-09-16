@@ -152,4 +152,36 @@ describe("AuditMetadata", () => {
         const action = metadata.get<string>("action");
         expect(action).toBe("LOGIN");
     });
+
+    it("should return all keys of the metadata", () => {
+        const metadata = AuditMetadata.create({ action: "LOGIN", source: "web", status: "SUCCESS" });
+        expect(metadata.keys()).toEqual(["action", "source", "status"]);
+    });
+
+    it("should return an empty array of keys when metadata is empty", () => {
+        const metadata = AuditMetadata.create({});
+        expect(metadata.keys()).toEqual([]);
+    });
+
+    it("should return true when metadata is empty", () => {
+        const metadata = AuditMetadata.create({});
+        expect(metadata.isEmpty()).toBe(true);
+    });
+
+    it("should return false when metadata is not empty", () => {
+        const metadata = AuditMetadata.create({ action: "LOGIN" });
+        expect(metadata.isEmpty()).toBe(false);
+    });
+
+    it("should return true when two metadata instances are equal", () => {
+        const metadata1 = AuditMetadata.create({ action: "LOGIN", source: "web" });
+        const metadata2 = AuditMetadata.create({ action: "LOGIN", source: "web" });
+        expect(metadata1.equals(metadata2)).toBe(true);
+    });
+
+    it("should return false when two metadata instances have different values", () => {
+        const metadata1 = AuditMetadata.create({ action: "LOGIN", source: "web" });
+        const metadata2 = AuditMetadata.create({ action: "LOGOUT", source: "web" });
+        expect(metadata1.equals(metadata2)).toBe(false);
+    });
 });

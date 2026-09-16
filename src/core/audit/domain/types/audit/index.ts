@@ -1,3 +1,4 @@
+import type { AuditAction, AuditResource } from "../../catalogs";
 import type { AuditMetadata, IpAddress } from "../../value-objects";
 
 export const AUDIT_STATUS = {
@@ -23,8 +24,8 @@ export interface AuditEventProps {
 }
 
 export interface FindManyAuditEventsParams {
-    userId?: string;
-    tenantId?: string;
-    action?: string;
-    resource?: string;
+    userId?: string | undefined;
+    tenantId?: string | undefined;
+    action?: AuditAction | undefined;
+    resource?: AuditResource | undefined;
 }

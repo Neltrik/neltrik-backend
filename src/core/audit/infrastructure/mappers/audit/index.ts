@@ -1,10 +1,10 @@
-import type { AuditEvent as PrismaAuditEvent } from "@prisma/client";
+import type { AuditEvent as PrismaAuditEvent, Prisma } from "@prisma/client";
 
 import { AuditEvent } from "../../../domain/entities";
 import { AuditMetadata, IpAddress } from "../../../domain/value-objects";
 
 export class AuditEventMapper {
-    public static toPersistence(auditEvent: AuditEvent) {
+    public static toPersistence(auditEvent: AuditEvent): Prisma.AuditEventCreateInput {
         return {
             id: auditEvent.id,
             userId: auditEvent.userId,

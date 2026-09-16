@@ -57,4 +57,16 @@ export class AuditMetadata {
     public toJSON(): JsonObject {
         return AuditMetadata.clone(this.metadata);
     }
+
+    public keys(): string[] {
+        return Object.keys(this.metadata);
+    }
+
+    public isEmpty(): boolean {
+        return Object.keys(this.metadata).length === 0;
+    }
+
+    public equals(other: AuditMetadata): boolean {
+        return JSON.stringify(this.metadata) === JSON.stringify(other.metadata);
+    }
 }

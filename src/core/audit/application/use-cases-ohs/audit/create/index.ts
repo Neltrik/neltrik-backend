@@ -8,6 +8,7 @@ import { InvalidAuditActionError, InvalidAuditResourceError } from "../../../../
 import { AuditEventRepository } from "../../../../domain/interfaces";
 import { AuditMetadata, IpAddress } from "../../../../domain/value-objects";
 import { CreateAuditEventInput } from "./input";
+import { CreateAuditEventOutput } from "./output";
 
 @Injectable()
 export class CreateAuditEventUseCase {
@@ -16,7 +17,7 @@ export class CreateAuditEventUseCase {
         private readonly auditEventRepository: AuditEventRepository,
     ) {}
 
-    public async execute(input: CreateAuditEventInput): Promise<string> {
+    public async execute(input: CreateAuditEventInput): Promise<CreateAuditEventOutput> {
         const actions = Object.values(AUDIT_ACTION);
         if (!actions.includes(input.action)) {
             throw new InvalidAuditActionError();
@@ -41,8 +42,6 @@ export class CreateAuditEventUseCase {
             createdAt: now,
         });
         await this.auditEventRepository.create(auditEvent);
-        return auditEvent.id;
+        return { id: auditEvent.id };
     }
 }
-
-export type { CreateAuditEventInput };

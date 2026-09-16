@@ -5,6 +5,7 @@ export const ERROR_MESSAGES = {
     EMPTY_RESOURCE: "Resource must not be empty",
     INVALID_AUDIT_ACTION: "Audit action is invalid",
     INVALID_AUDIT_RESOURCE: "Audit resource is invalid",
+    AUDIT_EVENT_NOT_FOUND: "Audit event was not found",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -14,4 +15,5 @@ export const DOMAIN_ERROR_CODES = {
     EMPTY_RESOURCE: "EMPTY_RESOURCE",
     INVALID_AUDIT_ACTION: "INVALID_AUDIT_ACTION",
     INVALID_AUDIT_RESOURCE: "INVALID_AUDIT_RESOURCE",
+    AUDIT_EVENT_NOT_FOUND: "AUDIT_EVENT_NOT_FOUND",
 } as const;

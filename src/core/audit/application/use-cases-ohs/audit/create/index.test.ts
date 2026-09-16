@@ -36,7 +36,7 @@ describe("CreateAuditEventUseCase", () => {
         const result = await useCase.execute({ ...makeInput(), ipAddress: null });
         expect(generateMock).toHaveBeenCalledTimes(1);
         expect(auditEventRepository.create).toHaveBeenCalledTimes(1);
-        expect(result).toBe("audit-event-id");
+        expect(result).toEqual({ id: "audit-event-id" });
     });
 
     it("should throw InvalidAuditActionError when action is invalid", async () => {

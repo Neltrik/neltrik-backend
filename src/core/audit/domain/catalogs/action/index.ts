@@ -1,0 +1,12 @@
+export const AUDIT_ACTION = {
+    // Identity
+    USER_SUSPENDED: "USER_SUSPENDED",
+    USER_REACTIVATED: "USER_REACTIVATED",
+    USER_ROLE_CHANGED: "USER_ROLE_CHANGED",
+
+    // Tenant
+    TENANT_SUSPENDED: "TENANT_SUSPENDED",
+    TENANT_REACTIVATED: "TENANT_REACTIVATED",
+} as const;
+
+export type AuditAction = (typeof AUDIT_ACTION)[keyof typeof AUDIT_ACTION];

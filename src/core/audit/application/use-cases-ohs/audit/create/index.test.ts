@@ -3,7 +3,7 @@ import type { IdGenerator } from "@/shared/id-generator";
 import { AUDIT_ACTION, AUDIT_RESOURCE } from "../../../../domain/catalogs";
 import { InvalidAuditActionError, InvalidAuditResourceError } from "../../../../domain/errors";
 import { AuditEventRepositorySpy } from "../../../../test-doubles";
-import { CreateAuditEventUseCase } from "./index";
+import { CreateAuditEventOhsUseCase } from "./index";
 import type { CreateAuditEventInput } from "./input";
 
 const makeInput = (): CreateAuditEventInput => ({
@@ -19,7 +19,7 @@ const makeInput = (): CreateAuditEventInput => ({
     userAgent: "Mozilla/5.0",
 });
 
-describe("CreateAuditEventUseCase", () => {
+describe("CreateAuditEventOhsUseCase", () => {
     const makeSut = () => {
         const auditEventRepository = new AuditEventRepositorySpy();
         auditEventRepository.create.mockResolvedValue(undefined);
@@ -27,13 +27,13 @@ describe("CreateAuditEventUseCase", () => {
         const idGenerator = {
             generate: generateMock,
         } satisfies IdGenerator;
-        const useCase = new CreateAuditEventUseCase(idGenerator, auditEventRepository);
+        const useCase = new CreateAuditEventOhsUseCase(idGenerator, auditEventRepository);
         return { useCase, auditEventRepository, generateMock };
     };
 
     it("should create an audit event successfully", async () => {
         const { useCase, auditEventRepository, generateMock } = makeSut();
-        const result = await useCase.execute({ ...makeInput(), ipAddress: null });
+        const result = await useCase.execute({ ...makeInput(), ipAddress: null, userAgent: null });
         expect(generateMock).toHaveBeenCalledTimes(1);
         expect(auditEventRepository.create).toHaveBeenCalledTimes(1);
         expect(result).toEqual({ id: "audit-event-id" });

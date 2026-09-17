@@ -11,7 +11,7 @@ import { CreateAuditEventInput } from "./input";
 import { CreateAuditEventOutput } from "./output";
 
 @Injectable()
-export class CreateAuditEventUseCase {
+export class CreateAuditEventOhsUseCase {
     constructor(
         private readonly idGenerator: IdGenerator,
         private readonly auditEventRepository: AuditEventRepository,
@@ -38,10 +38,12 @@ export class CreateAuditEventUseCase {
             status: input.status,
             metadata: AuditMetadata.create(input.metadata),
             ipAddress: input.ipAddress ? IpAddress.create(input.ipAddress) : null,
-            userAgent: input.userAgent,
+            userAgent: input.userAgent ?? null,
             createdAt: now,
         });
         await this.auditEventRepository.create(auditEvent);
         return { id: auditEvent.id };
     }
 }
+
+export { type CreateAuditEventInput };

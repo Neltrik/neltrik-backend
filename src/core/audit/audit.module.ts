@@ -1,7 +1,8 @@
 import { Module } from "@nestjs/common";
 
+import { AuditApi, AuditApiImpl } from "./api";
 import { GetAuditEventUseCase, ListAuditEventsUseCase } from "./application/use-cases";
-import { CreateAuditEventUseCase } from "./application/use-cases-ohs";
+import { CreateAuditEventOhsUseCase } from "./application/use-cases-ohs";
 import { AuditEventRepository } from "./domain/interfaces";
 import { PrismaAuditEventRepository } from "./infrastructure/repositories";
 
@@ -9,11 +10,16 @@ import { PrismaAuditEventRepository } from "./infrastructure/repositories";
     providers: [
         GetAuditEventUseCase,
         ListAuditEventsUseCase,
-        CreateAuditEventUseCase,
+        CreateAuditEventOhsUseCase,
         {
             provide: AuditEventRepository,
             useClass: PrismaAuditEventRepository,
         },
+        {
+            provide: AuditApi,
+            useClass: AuditApiImpl,
+        },
     ],
+    exports: [AuditApi],
 })
 export class AuditModule {}

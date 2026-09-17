@@ -10,6 +10,6 @@ export type CreateAuditEventInput = {
     resourceId: string | null;
     status: AuditStatus;
     metadata: Record<string, unknown>;
-    ipAddress: string | null;
-    userAgent: string | null;
+    ipAddress?: string | null;
+    userAgent?: string | null;
 };

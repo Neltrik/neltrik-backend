@@ -10,7 +10,7 @@ import {
     ApiUnauthorizedResponse,
 } from "@nestjs/swagger";
 
-import { Permissions, PublicPermission } from "@/shared/authorization";
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -111,8 +111,7 @@ export class AuditEventController {
         code: RESPONSE_CODES.RESOURCE_FOUND,
         message: AUDIT_MESSAGES.RETRIEVED,
     })
-    // @Permissions("AUDIT_LIST")
-    @PublicPermission()
+    @Permissions("AUDIT_LIST")
     @Get(":id")
     public async get(
         @Param(new ZodValidationPipe(getAuditEventParamsSchema))

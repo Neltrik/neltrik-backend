@@ -4,7 +4,7 @@ import { User } from "../../../domain/entities";
 import { UserAlreadySuspendedError, UserNotFoundError } from "../../../domain/errors";
 import { USER_STATUS } from "../../../domain/types";
 import { Email } from "../../../domain/value-objects/email";
-import { UserRepositorySpy } from "../../../test-doubles";
+import { AuditApiSpy, UserRepositorySpy } from "../../../test-doubles";
 import { SuspendUserUseCase } from "./index";
 
 const makeUser = (id: string, roleId: string) =>
@@ -23,6 +23,7 @@ const makeUser = (id: string, roleId: string) =>
 describe("SuspendUserUseCase", () => {
     const makeSut = () => {
         const userRepository = new UserRepositorySpy();
+        const auditApiSpy = new AuditApiSpy();
         const canSuspend = jest.fn().mockResolvedValue(undefined);
         const authorizationPolicyApi = {
             canSuspend,
@@ -31,7 +32,7 @@ describe("SuspendUserUseCase", () => {
             .mockResolvedValueOnce(makeUser("actor-user-id", "actor-role-id"))
             .mockResolvedValueOnce(makeUser("target-user-id", "target-role-id"));
         userRepository.update.mockResolvedValue(undefined);
-        const useCase = new SuspendUserUseCase(userRepository, authorizationPolicyApi);
+        const useCase = new SuspendUserUseCase(auditApiSpy, userRepository, authorizationPolicyApi);
         return { useCase, userRepository, authorizationPolicyApi, canSuspend };
     };
 

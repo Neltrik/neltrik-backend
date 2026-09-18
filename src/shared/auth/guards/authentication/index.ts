@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { Reflector } from "@nestjs/core";
 import { Request } from "express";
 
+import { AUDIT_METADATA_KEY, type AuditMetadata, AuditRecorder } from "@/shared/audit";
 import { CookieHelper } from "@/shared/http";
 
 import { IS_PUBLIC_KEY } from "../../decorators";
@@ -12,37 +13,64 @@ import { SessionValidator } from "./contracts";
 export class AuthenticationGuard implements CanActivate {
     constructor(
         private readonly reflector: Reflector,
+        private readonly auditRecorder: AuditRecorder,
         private readonly tokenVerifier: TokenVerifier,
         private readonly sessionValidator: SessionValidator,
     ) {}
 
     public async canActivate(context: ExecutionContext): Promise<boolean> {
-        const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-            context.getHandler(),
-            context.getClass(),
-        ]);
-        if (isPublic) {
+        try {
+            const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
+                context.getHandler(),
+                context.getClass(),
+            ]);
+            if (isPublic) {
+                return true;
+            }
+            const request = context.switchToHttp().getRequest<Request>();
+            const token = CookieHelper.get(request, "accessToken");
+            if (!token) {
+                throw new UnauthorizedException("Access token not found");
+            }
+            const payload = await this.tokenVerifier.verify(token);
+            const isValid = await this.sessionValidator.validate(payload.sessionId);
+            if (!isValid) {
+                throw new UnauthorizedException("Invalid or revoked session");
+            }
+            request.user = {
+                userId: payload.sub,
+                tenantId: payload.tenantId,
+                roleCode: payload.roleCode,
+                sessionId: payload.sessionId,
+            };
+            request.account = {
+                emailVerified: payload.emailVerified,
+            };
             return true;
+        } catch (error) {
+            this.auditDenied(context, error);
+            throw error;
         }
-        const request = context.switchToHttp().getRequest<Request>();
-        const token = CookieHelper.get(request, "accessToken");
-        if (!token) {
-            throw new UnauthorizedException("Access token not found");
+    }
+
+    private auditDenied(context: ExecutionContext, error: unknown): void {
+        const auditMetadata = this.reflector.get<AuditMetadata | undefined>(AUDIT_METADATA_KEY, context.getHandler());
+        if (!auditMetadata) {
+            return;
         }
-        const payload = await this.tokenVerifier.verify(token);
-        const isValid = await this.sessionValidator.validate(payload.sessionId);
-        if (!isValid) {
-            throw new UnauthorizedException("Invalid or revoked session");
-        }
-        request.user = {
-            userId: payload.sub,
-            tenantId: payload.tenantId,
-            roleCode: payload.roleCode,
-            sessionId: payload.sessionId,
-        };
-        request.account = {
-            emailVerified: payload.emailVerified,
-        };
-        return true;
+
+        this.auditRecorder.record({
+            action: auditMetadata.action,
+            resource: auditMetadata.resource,
+            resourceId: null,
+            userId: null,
+            userEmail: null,
+            tenantId: null,
+            status: "DENIED",
+            metadata: {
+                errorMessage: error instanceof Error ? error.message : "Unknown error",
+                origin: "AuthenticationGuard",
+            },
+        });
     }
 }

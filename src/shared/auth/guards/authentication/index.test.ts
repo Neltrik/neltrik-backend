@@ -4,6 +4,7 @@ import { Reflector } from "@nestjs/core";
 import { JwtService } from "@nestjs/jwt";
 import type { Request } from "express";
 
+import { type AuditRecorder } from "@/shared/audit";
 import { CookieHelper } from "@/shared/http";
 
 import { IS_PUBLIC_KEY } from "../../decorators";
@@ -21,11 +22,14 @@ describe("AuthenticationGuard", () => {
     const makeSut = () => {
         const reflector = new Reflector();
         const jwtService = new JwtService();
+        const auditRecorder: jest.Mocked<AuditRecorder> = {
+            record: jest.fn(),
+        };
         const tokenVerifier = new TokenVerifier(jwtService);
         const sessionValidator: jest.Mocked<SessionValidator> = {
             validate: jest.fn(),
         };
-        const guard = new AuthenticationGuard(reflector, tokenVerifier, sessionValidator);
+        const guard = new AuthenticationGuard(reflector, auditRecorder, tokenVerifier, sessionValidator);
         const request = Object.create(Request.prototype) as Request;
         request.cookies = {};
         const httpContext = {

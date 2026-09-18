@@ -1,5 +1,6 @@
 import { forwardRef, HttpStatus, Module, OnModuleInit } from "@nestjs/common";
 
+import { AuditModule } from "@/core/audit/audit.module";
 import { AuthorizationModule } from "@/core/authorization/authorization.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
 import { DomainStatusRegistry } from "@/shared/http";
@@ -36,7 +37,7 @@ import { UserController } from "./presentation/controllers/user";
             useClass: PrismaUserRepository,
         },
     ],
-    imports: [TenantModule, forwardRef(() => AuthorizationModule)],
+    imports: [AuditModule, forwardRef(() => AuthorizationModule), TenantModule],
     exports: [UserApi],
 })
 export class IdentityModule implements OnModuleInit {

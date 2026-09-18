@@ -12,6 +12,8 @@ import {
 } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 
+import { AUDIT_ACTION, AUDIT_RESOURCE } from "@/core/audit/api";
+import { Audit } from "@/shared/audit";
 import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
@@ -155,6 +157,7 @@ export class UserController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: USER_MESSAGES.SUSPENDED,
     })
+    @Audit({ action: AUDIT_ACTION.USER_SUSPENDED, resource: AUDIT_RESOURCE.USER })
     @Throttle({ default: { limit: 20, ttl: 900000 } })
     @Permissions("USER_SUSPEND")
     @Patch("users/:id/suspend")

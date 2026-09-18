@@ -3,13 +3,18 @@ import { ForbiddenException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import type { Request } from "express";
 
+import { type AuditRecorder } from "@/shared/audit";
+
 import { SKIP_EMAIL_VERIFICATION_KEY } from "../../";
 import { EmailVerifiedGuard } from ".";
 
 describe("EmailVerifiedGuard", () => {
     const makeSut = () => {
         const reflector = new Reflector();
-        const guard = new EmailVerifiedGuard(reflector);
+        const auditRecorder: jest.Mocked<AuditRecorder> = {
+            record: jest.fn(),
+        };
+        const guard = new EmailVerifiedGuard(reflector, auditRecorder);
         const request = Object.create(Request.prototype) as Request;
         const httpContext = {
             getRequest: jest.fn().mockReturnValue(request),

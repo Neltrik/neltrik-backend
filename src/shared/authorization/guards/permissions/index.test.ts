@@ -2,6 +2,8 @@ import { type ExecutionContext, ForbiddenException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import type { Request } from "express";
 
+import { type AuditRecorder } from "@/shared/audit";
+
 import { type PermissionChecker } from "../../contracts";
 import { PUBLIC_PERMISSION_KEY } from "../../decorators";
 import { PermissionsGuard } from ".";
@@ -13,7 +15,10 @@ describe("PermissionsGuard", () => {
         const permissionChecker = {
             hasPermission: hasPermissionMock,
         } satisfies PermissionChecker;
-        const guard = new PermissionsGuard(reflector, permissionChecker);
+        const auditRecorder: jest.Mocked<AuditRecorder> = {
+            record: jest.fn(),
+        };
+        const guard = new PermissionsGuard(reflector, auditRecorder, permissionChecker);
         const request = Object.create(Request.prototype) as Request;
         const httpContext = { getRequest: jest.fn().mockReturnValue(request) };
         const context: ExecutionContext = {

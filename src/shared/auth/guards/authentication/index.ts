@@ -58,7 +58,6 @@ export class AuthenticationGuard implements CanActivate {
         if (!auditMetadata) {
             return;
         }
-
         this.auditRecorder.record({
             action: auditMetadata.action,
             resource: auditMetadata.resource,

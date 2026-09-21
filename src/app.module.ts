@@ -15,7 +15,7 @@ import { PrismaModule, TenantInterceptor } from "./prisma";
 import { AuthenticationGuard, EmailVerifiedGuard } from "./shared/auth";
 import { AuthModule } from "./shared/auth/auth.module";
 import { PermissionsGuard } from "./shared/authorization";
-import { ErrorsModule } from "./shared/errors";
+import { ErrorsModule } from "./shared/errors/errors.module";
 import { HttpModule } from "./shared/http";
 import { IdGeneratorModule } from "./shared/id-generator";
 import { SanitizationModule } from "./shared/sanitization";

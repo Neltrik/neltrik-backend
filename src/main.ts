@@ -6,7 +6,7 @@ import helmet from "helmet";
 
 import { AppModule } from "./app.module";
 import { configureSwagger, env } from "./config";
-import { GlobalExceptionFilter } from "./shared/errors";
+import { GlobalExceptionFilter } from "./shared/errors/filters";
 import { ResponseInterceptor } from "./shared/http";
 import { SanitizationPipe } from "./shared/sanitization";
 

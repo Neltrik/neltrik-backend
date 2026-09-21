@@ -31,13 +31,10 @@ describe("AuthenticationGuard", () => {
         };
         const guard = new AuthenticationGuard(reflector, auditRecorder, tokenVerifier, sessionValidator);
         const request = Object.create(Request.prototype) as Request;
-
         request.cookies = {};
-
         const httpContext = {
             getRequest: jest.fn().mockReturnValue(request),
         };
-
         const context: ExecutionContext = {
             getArgs: jest.fn(),
             getArgByIndex: jest.fn(),
@@ -48,19 +45,8 @@ describe("AuthenticationGuard", () => {
             switchToWs: jest.fn(),
             switchToHttp: jest.fn().mockReturnValue(httpContext),
         };
-
-        // Por defecto, los handlers no tienen metadata de auditoría.
         jest.spyOn(reflector, "get").mockReturnValue(undefined);
-
-        return {
-            guard,
-            reflector,
-            auditRecorder,
-            tokenVerifier,
-            sessionValidator,
-            context,
-            request,
-        };
+        return { guard, reflector, auditRecorder, tokenVerifier, sessionValidator, context, request };
     };
 
     afterEach(() => {
@@ -82,24 +68,18 @@ describe("AuthenticationGuard", () => {
 
     it("should throw when the access token is not found", async () => {
         const { guard, reflector, tokenVerifier, sessionValidator, context } = makeSut();
-
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         jest.spyOn(CookieHelper, "get").mockReturnValue(undefined);
-
         const verifySpy = jest.spyOn(tokenVerifier, "verify");
-
         await expect(guard.canActivate(context)).rejects.toThrow(new UnauthorizedException("Access token not found"));
-
         expect(verifySpy).not.toHaveBeenCalled();
         expect(sessionValidator.validate).not.toHaveBeenCalled();
     });
 
     it("should throw when the session is invalid or revoked", async () => {
         const { guard, reflector, tokenVerifier, sessionValidator, context } = makeSut();
-
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         jest.spyOn(CookieHelper, "get").mockReturnValue("access-token");
-
         jest.spyOn(tokenVerifier, "verify").mockResolvedValue({
             sub: "user-id",
             tenantId: "tenant-id",
@@ -107,23 +87,18 @@ describe("AuthenticationGuard", () => {
             emailVerified: false,
             sessionId: "session-id",
         });
-
         sessionValidator.validate.mockResolvedValue(false);
-
         await expect(guard.canActivate(context)).rejects.toThrow(
             new UnauthorizedException("Invalid or revoked session"),
         );
-
         expect(tokenVerifier.verify).toHaveBeenCalledWith("access-token");
         expect(sessionValidator.validate).toHaveBeenCalledWith("session-id");
     });
 
     it("should allow access and set the authenticated user when the token and session are valid", async () => {
         const { guard, reflector, tokenVerifier, sessionValidator, context, request } = makeSut();
-
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         jest.spyOn(CookieHelper, "get").mockReturnValue("access-token");
-
         jest.spyOn(tokenVerifier, "verify").mockResolvedValue({
             sub: "user-id",
             tenantId: "tenant-id",
@@ -131,56 +106,39 @@ describe("AuthenticationGuard", () => {
             emailVerified: false,
             sessionId: "session-id",
         });
-
         sessionValidator.validate.mockResolvedValue(true);
-
         await expect(guard.canActivate(context)).resolves.toBe(true);
-
         expect(tokenVerifier.verify).toHaveBeenCalledWith("access-token");
         expect(sessionValidator.validate).toHaveBeenCalledWith("session-id");
-
         expect(request.user).toEqual({
             userId: "user-id",
             tenantId: "tenant-id",
             roleCode: "ADMIN",
             sessionId: "session-id",
         });
-
-        expect(request.account).toEqual({
-            emailVerified: false,
-        });
+        expect(request.account).toEqual({ emailVerified: false });
     });
 
     it("should propagate the error when token verification fails", async () => {
         const { guard, reflector, tokenVerifier, sessionValidator, context } = makeSut();
-
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         jest.spyOn(CookieHelper, "get").mockReturnValue("invalid-token");
-
         jest.spyOn(tokenVerifier, "verify").mockRejectedValue(new Error("Invalid access token"));
-
         await expect(guard.canActivate(context)).rejects.toThrow("Invalid access token");
-
         expect(tokenVerifier.verify).toHaveBeenCalledWith("invalid-token");
         expect(sessionValidator.validate).not.toHaveBeenCalled();
     });
 
     it("should record a denied audit when authentication fails and audit metadata exists", async () => {
         const { guard, reflector, auditRecorder, context } = makeSut();
-
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-
         jest.spyOn(reflector, "get").mockReturnValue({
             action: "AUTHENTICATE",
             resource: "SESSION",
         });
-
         jest.spyOn(CookieHelper, "get").mockReturnValue(undefined);
-
         await expect(guard.canActivate(context)).rejects.toThrow(new UnauthorizedException("Access token not found"));
-
         expect(reflector.get).toHaveBeenCalledWith(AUDIT_METADATA_KEY, context.getHandler());
-
         expect(auditRecorder.record).toHaveBeenCalledWith({
             action: "AUTHENTICATE",
             resource: "SESSION",
@@ -189,42 +147,29 @@ describe("AuthenticationGuard", () => {
             userEmail: null,
             tenantId: null,
             status: "DENIED",
-            metadata: {
-                errorMessage: "Access token not found",
-                origin: "AuthenticationGuard",
-            },
+            metadata: { errorMessage: "Access token not found", origin: "AuthenticationGuard" },
         });
     });
 
     it("should not record an audit when authentication fails without audit metadata", async () => {
         const { guard, reflector, auditRecorder, context } = makeSut();
-
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         jest.spyOn(reflector, "get").mockReturnValue(undefined);
-
         jest.spyOn(CookieHelper, "get").mockReturnValue(undefined);
-
         await expect(guard.canActivate(context)).rejects.toThrow(new UnauthorizedException("Access token not found"));
-
         expect(auditRecorder.record).not.toHaveBeenCalled();
     });
 
     it("should record the token verification error in the audit metadata", async () => {
         const { guard, reflector, auditRecorder, tokenVerifier, context } = makeSut();
-
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-
         jest.spyOn(reflector, "get").mockReturnValue({
             action: "AUTHENTICATE",
             resource: "SESSION",
         });
-
         jest.spyOn(CookieHelper, "get").mockReturnValue("invalid-token");
-
         jest.spyOn(tokenVerifier, "verify").mockRejectedValue(new Error("Invalid access token"));
-
         await expect(guard.canActivate(context)).rejects.toThrow("Invalid access token");
-
         expect(auditRecorder.record).toHaveBeenCalledWith({
             action: "AUTHENTICATE",
             resource: "SESSION",
@@ -242,16 +187,12 @@ describe("AuthenticationGuard", () => {
 
     it("should record the invalid session error in the audit metadata", async () => {
         const { guard, reflector, auditRecorder, tokenVerifier, sessionValidator, context } = makeSut();
-
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-
         jest.spyOn(reflector, "get").mockReturnValue({
             action: "AUTHENTICATE",
             resource: "SESSION",
         });
-
         jest.spyOn(CookieHelper, "get").mockReturnValue("access-token");
-
         jest.spyOn(tokenVerifier, "verify").mockResolvedValue({
             sub: "user-id",
             tenantId: "tenant-id",
@@ -259,13 +200,10 @@ describe("AuthenticationGuard", () => {
             emailVerified: true,
             sessionId: "session-id",
         });
-
         sessionValidator.validate.mockResolvedValue(false);
-
         await expect(guard.canActivate(context)).rejects.toThrow(
             new UnauthorizedException("Invalid or revoked session"),
         );
-
         expect(auditRecorder.record).toHaveBeenCalledWith({
             action: "AUTHENTICATE",
             resource: "SESSION",
@@ -274,29 +212,20 @@ describe("AuthenticationGuard", () => {
             userEmail: null,
             tenantId: null,
             status: "DENIED",
-            metadata: {
-                errorMessage: "Invalid or revoked session",
-                origin: "AuthenticationGuard",
-            },
+            metadata: { errorMessage: "Invalid or revoked session", origin: "AuthenticationGuard" },
         });
     });
 
     it("should record Unknown error when the authentication error is not an Error instance", async () => {
         const { guard, reflector, auditRecorder, tokenVerifier, context } = makeSut();
-
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-
         jest.spyOn(reflector, "get").mockReturnValue({
             action: "AUTHENTICATE",
             resource: "SESSION",
         });
-
         jest.spyOn(CookieHelper, "get").mockReturnValue("invalid-token");
-
         jest.spyOn(tokenVerifier, "verify").mockRejectedValue("Something went wrong");
-
         await expect(guard.canActivate(context)).rejects.toBe("Something went wrong");
-
         expect(auditRecorder.record).toHaveBeenCalledWith({
             action: "AUTHENTICATE",
             resource: "SESSION",

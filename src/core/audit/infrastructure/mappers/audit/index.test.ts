@@ -98,10 +98,7 @@ describe("AuditEventMapper", () => {
 
     it("should map a domain audit event without an IP address to persistence", () => {
         const props = createProps();
-        const auditEvent = AuditEvent.restore({
-            ...props,
-            ipAddress: null,
-        });
+        const auditEvent = AuditEvent.restore({ ...props, ipAddress: null });
         const persistence = AuditEventMapper.toPersistence(auditEvent);
         expect(persistence.ipAddress).toBeNull();
     });

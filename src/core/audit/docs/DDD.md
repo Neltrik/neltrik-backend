@@ -31,6 +31,10 @@ El módulo **Audit** es responsable de:
 - Permitir la incorporación futura de nuevos tipos de eventos.
 - Permitir la incorporación futura de hash chain para compliance.
 - Permitir la incorporación futura de cola de reintentos.
+- Exponer `AuditRecorder` para que los guards registren eventos DENIED.
+- Exponer `@Audit()` para que los controllers marquen endpoints auditables.
+- Registrar eventos con 3 status: SUCCESS, FAILED, DENIED.
+- Auditar los rechazos de los guards (401, 403) como DENIED.
 
 ---
 
@@ -64,7 +68,11 @@ Cada evento de auditoría representa un hecho ocurrido en un momento específico
 
 El conjunto de acciones auditables es abierto y extensible. Para el MVP, se auditarán las acciones críticas del Core, pero el dominio deberá permitir incorporar nuevas acciones sin modificar las reglas fundamentales de Audit.
 
-Los eventos se capturan mediante `AuditApi` (OHS), que permite a otros módulos registrar eventos sin acoplarse a la implementación de Audit.
+Los eventos se capturan mediante:
+
+- `AuditApi` (OHS): Para use cases que auditan SUCCESS/FAILED.
+- `AuditRecorder` (shared): Para guards que auditan DENIED.
+- `@Audit()` (shared): Para que los controllers marquen endpoints auditables.
 
 El registro de auditoría es consultable por el tenant correspondiente. Cada tenant ve únicamente sus propios eventos. PLATFORM_ADMIN ve todos los eventos.
 
@@ -144,7 +152,17 @@ El módulo **Audit** podrá depender de otros módulos del Core exclusivamente m
 
 La comunicación deberá respetar la arquitectura modular definida por **Neltrik** y no deberá importar directamente elementos internos de otros módulos.
 
-Audit no es dependencia de otros módulos. Los módulos consumidores solo conocen `AuditApi` (el contrato), no la implementación.
+El módulo **Audit** expone:
+
+- `AuditApi` (OHS): Para use cases.
+- `AuditRecorder` (shared): Para guards.
+- `@Audit()` (shared): Para controllers.
+
+Los módulos consumidores solo conocen:
+
+- `AuditApi` (para use cases).
+- `AuditRecorder` (para guards).
+- `@Audit()` (para controllers).
 
 # Paso 2 — Descubrir los conceptos del negocio
 
@@ -202,14 +220,16 @@ para el MVP.
 
 ## Conceptos del dominio
 
-| Concepto       | Tipo                 |
-| -------------- | -------------------- |
-| Audit Event    | Entidad              |
-| Audit Action   | Catálogo del dominio |
-| Audit Resource | Catálogo del dominio |
-| Audit Status   | Enum                 |
-| Audit Metadata | Value Object         |
-| Ip Address     | Value Object         |
+| Concepto          | Tipo                   |
+| ----------------- | ---------------------- |
+| Audit Event       | Entidad                |
+| Audit Action      | Catálogo del dominio   |
+| Audit Resource    | Catálogo del dominio   |
+| Audit Status      | Enum                   |
+| Audit Metadata    | Value Object           |
+| Ip Address        | Value Object           |
+| **AuditRecorder** | **Contrato (shared)**  |
+| **@Audit()**      | **Decorador (shared)** |
 
 ## Audit Event
 
@@ -372,6 +392,26 @@ Authentication  Authorization   Identity
               └───────────────┘
 ```
 
+```text
+Guards (shared)
+    │
+    ├── AuthenticationGuard
+    ├── EmailVerifiedGuard
+    └── PermissionsGuard
+            │
+            ▼
+    AuditRecorder (shared)
+            │
+            ▼
+    AuditRecorderProvider (core/audit)
+            │
+            ▼
+    CreateAuditEventOhsUseCase
+            │
+            ▼
+    AuditEvent (DENIED)
+```
+
 Relación conceptual:
 
 ```text
@@ -479,6 +519,19 @@ Core Module
 - La consulta no puede modificar los eventos.
 - La consulta no puede eliminar los eventos.
 
+## Guards (AuditRecorder)
+
+- Los guards deben auditar `DENIED` cuando rechazan una request.
+- Los guards deben leer `@Audit()` del handler para saber qué auditar.
+- Si el handler no tiene `@Audit()`, el guard NO audita.
+- Los guards NO auditan si el error no es de autorización.
+- Los guards auditan: `AuthenticationGuard`, `EmailVerifiedGuard`, `PermissionsGuard`.
+- `ThrottlerGuard` NO audita (es técnico).
+- El registro de auditoría es fire-and-forget.
+- Si el registro falla, no revierte la operación del guard.
+- Los guards auditan solo si el handler tiene `@Audit()`.
+- Los guards NO auditan si el handler no tiene `@Audit()`.
+
 # Paso 5 — Definir el Lenguaje Ubicuo
 
 ## Diccionario del dominio
@@ -491,6 +544,8 @@ Core Module
 | Estado de Auditoría    | `AuditStatus`   | Enum           | Representa el resultado de la acción auditada.                                                                      |
 | Metadatos de Auditoría | `AuditMetadata` | Value Object   | Representa información adicional y específica del evento que complementa el registro de auditoría.                  |
 | Dirección IP           | `IpAddress`     | Value Object   | Representa la dirección IP desde la cual se originó la acción auditada.                                             |
+| Grabador de Auditoría  | `AuditRecorder` | Contrato       | Contrato que los guards usan para registrar eventos de auditoría.                                                   |
+| Decorador de Auditoría | `@Audit()`      | Decorador      | Decorador que marca un endpoint como auditable.                                                                     |
 
 ---
 

@@ -10,6 +10,11 @@ La entidad **Audit Event** pertenece exclusivamente al contexto de **Audit**. Au
 
 Un Audit Event es **inmutable** después de su creación y únicamente puede ser registrado mediante una operación de creación.
 
+La entidad **Audit Event** puede ser registrada mediante:
+
+- `AuditApi` (OHS): Para use cases que auditan SUCCESS/FAILED.
+- `AuditRecorder` (shared): Para guards que auditan DENIED.
+
 ## Audit Event
 
 | Campo        | Descripción                                                                                                                                                      |
@@ -54,10 +59,16 @@ Un Audit Event es **inmutable** después de su creación y únicamente puede ser
 - Un Audit Event es inmutable después de su creación.
 - Un Audit Event no puede ser actualizado.
 - Un Audit Event no puede ser eliminado.
-- El registro de un Audit Event debe realizarse de forma independiente de la transacción principal que originó la acción.
-- Un fallo en el registro del Audit Event no debe revertir la operación principal que originó el evento.
 - La entidad no contiene información específica de infraestructura relacionada con el mecanismo utilizado para persistir o procesar el evento.
 - El modelo queda preparado para futuras extensiones como procesamiento asíncrono, reintentos o hash chain sin modificar el significado fundamental del Audit Event.
+- `status` puede ser `SUCCESS`, `FAILED` o `DENIED`.
+- `SUCCESS` se registra cuando la acción se ejecutó correctamente.
+- `FAILED` se registra cuando la acción falló.
+- `DENIED` se registra cuando la acción fue rechazada por un guard.
+- Los guards que auditan `DENIED` son: `AuthenticationGuard`, `EmailVerifiedGuard`, `PermissionsGuard`.
+- `ThrottlerGuard` NO audita (es técnico).
+- Los guards auditan solo si el handler tiene `@Audit()`.
+- Si el handler no tiene `@Audit()`, el guard NO audita.
 
 ## 2. Relaciones
 
@@ -109,6 +120,8 @@ No representan entidades relacionadas mediante identificadores.
 
 La entidad **Audit Event** utiliza el siguiente tipo enumerado para el MVP.
 
+`AuditStatus` pertenece al dominio **Audit** y únicamente puede utilizar los valores definidos oficialmente por el contexto.
+
 ### AuditStatus
 
 Representa el resultado de la acción auditada.
@@ -119,7 +132,13 @@ Representa el resultado de la acción auditada.
 | `FAILED`  | La acción fue ejecutada pero produjo un fallo.                |
 | `DENIED`  | La acción fue rechazada por falta de autorización o permisos. |
 
-`AuditStatus` pertenece al dominio **Audit** y únicamente puede utilizar los valores definidos oficialmente por el contexto.
+**¿Quién registra cada status?**
+
+| Status    | ¿Quién?  | ¿Cómo?                  |
+| --------- | -------- | ----------------------- |
+| `SUCCESS` | Use case | `AuditApi.recordWithFn` |
+| `FAILED`  | Use case | `AuditApi.record`       |
+| `DENIED`  | Guards   | `AuditRecorder`         |
 
 ## 3.1 Value Objects
 
@@ -172,9 +191,14 @@ Representa la dirección IP del origen del evento.
 - `ipAddress` puede ser `null` cuando la dirección IP no esté disponible.
 - `userAgent` puede ser `null` cuando el contexto de origen no proporcione dicha información.
 - `createdAt` debe representar el momento en que ocurrió la acción auditada.
-- La creación de un **Audit Event** debe realizarse mediante el contrato público **AuditApi**.
 - El registro del evento debe ser independiente de la transacción principal que originó la acción.
 - Un fallo durante el registro del **Audit Event** no debe revertir la operación principal que originó el evento.
+- La creación de un **Audit Event** debe realizarse mediante:
+    - `AuditApi` (OHS): Para use cases que auditan SUCCESS/FAILED.
+    - `AuditRecorder` (shared): Para guards que auditan DENIED.
+- Los guards auditan `DENIED` solo si el handler tiene `@Audit()`.
+- Los guards NO auditan si el handler no tiene `@Audit()`.
+- `ThrottlerGuard` NO audita (es técnico).
 
 ### 4.2 Actualización
 

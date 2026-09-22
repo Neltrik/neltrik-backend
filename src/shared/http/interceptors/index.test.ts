@@ -3,6 +3,7 @@ import type { Reflector } from "@nestjs/core";
 import { of } from "rxjs";
 
 import { ResponseInterceptor } from "./";
+import { extractPayload } from "./extractPayload";
 
 describe("ResponseInterceptor", () => {
     const makeSut = () => {
@@ -56,5 +57,47 @@ describe("ResponseInterceptor", () => {
         jest.spyOn(reflector, "get").mockReturnValue(undefined);
         expect(() => interceptor.intercept(context, next)).toThrow("Response metadata was not found.");
         expect(next.handle).not.toHaveBeenCalled();
+    });
+});
+
+describe("extractPayload", () => {
+    it("should extract data and meta from a valid payload", () => {
+        const value = {
+            data: { id: "vacancy-id" },
+            meta: { nextCursor: "cursor-123", hasMore: true },
+        };
+        const result = extractPayload(value);
+        expect(result).toEqual({
+            data: { id: "vacancy-id" },
+            meta: { nextCursor: "cursor-123", hasMore: true },
+        });
+    });
+
+    it("should return the value as data with empty meta when payload does not contain data and meta", () => {
+        const value = { id: "vacancy-id" };
+        const result = extractPayload(value);
+        expect(result).toEqual({ data: value, meta: {} });
+    });
+
+    it("should return the value as data when value is null", () => {
+        const result = extractPayload(null);
+        expect(result).toEqual({ data: null, meta: {} });
+    });
+
+    it("should return the value as data when value is undefined", () => {
+        const result = extractPayload(undefined);
+        expect(result).toEqual({ data: undefined, meta: {} });
+    });
+
+    it("should return the value as data when meta is not an object", () => {
+        const value = { data: { id: "vacancy-id" }, meta: "invalid-meta" };
+        const result = extractPayload(value);
+        expect(result).toEqual({ data: value, meta: {} });
+    });
+
+    it("should return the value as data when data is missing", () => {
+        const value = { meta: { hasMore: true } };
+        const result = extractPayload(value);
+        expect(result).toEqual({ data: value, meta: {} });
     });
 });

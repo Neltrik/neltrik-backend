@@ -1,9 +1,11 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
+import { PaginationQueryDto } from "@/shared/pagination";
+
 import { type AuditStatus } from "../../../../audit/domain/types";
 import { AUDIT_ACTION, AUDIT_RESOURCE, type AuditAction, type AuditResource } from "../../../domain/catalogs";
 
-export class ListAuditEventsQueryDto {
+export class ListAuditEventsQueryDto extends PaginationQueryDto {
     @ApiPropertyOptional()
     userId?: string;
 
@@ -62,9 +64,4 @@ export class AuditEventResponseDto {
 
     @ApiProperty()
     createdAt!: Date;
-}
-
-export class ListAuditEventsResponseDto {
-    @ApiProperty({ type: [AuditEventResponseDto] })
-    events!: AuditEventResponseDto[];
 }

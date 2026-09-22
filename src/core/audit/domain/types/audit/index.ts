@@ -1,3 +1,5 @@
+import type { PaginationInput } from "@/shared/pagination";
+
 import type { AuditAction, AuditResource } from "../../catalogs";
 import type { AuditMetadata, IpAddress } from "../../value-objects";
 
@@ -23,7 +25,7 @@ export interface AuditEventProps {
     createdAt: Date;
 }
 
-export interface FindManyAuditEventsParams {
+export interface FindManyAuditEventsParams extends PaginationInput {
     userId?: string | undefined;
     tenantId?: string | undefined;
     action?: AuditAction | undefined;

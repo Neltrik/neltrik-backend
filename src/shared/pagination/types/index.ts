@@ -1,10 +1,10 @@
-type PaginationResult = {
+export type PaginationResult = {
     nextCursor: string | null;
     hasMore: boolean;
 };
 
 export type PaginationInput = {
-    cursor?: string;
+    cursor?: string | undefined;
     limit: number;
 };
 
@@ -23,4 +23,9 @@ export type PaginationArgs = {
     take: number;
     skip?: number;
     cursor?: { id: string };
+};
+
+export type ResponsePayload<T> = {
+    data: T;
+    meta: Record<string, unknown>;
 };

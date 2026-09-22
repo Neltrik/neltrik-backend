@@ -1,8 +1,10 @@
 import { z } from "zod";
 
+import { paginationQuerySchema } from "@/shared/pagination";
+
 import { AUDIT_ACTION, AUDIT_RESOURCE } from "../../domain/catalogs";
 
-export const listAuditEventsQuerySchema = z.object({
+export const listAuditEventsQuerySchema = paginationQuerySchema.extend({
     userId: z.uuid().optional(),
     tenantId: z.uuid().optional(),
     action: z.enum(Object.values(AUDIT_ACTION) as [string, ...string[]]).optional(),

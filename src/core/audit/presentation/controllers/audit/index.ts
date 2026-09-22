@@ -12,15 +12,11 @@ import {
 
 import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
+import { ResponsePayload } from "@/shared/pagination";
 import { ZodValidationPipe } from "@/shared/zod";
 
 import { GetAuditEventUseCase, ListAuditEventsUseCase } from "../../../application/use-cases";
-import {
-    AuditEventResponseDto,
-    GetAuditEventParamsDto,
-    ListAuditEventsQueryDto,
-    ListAuditEventsResponseDto,
-} from "../../dto";
+import { AuditEventResponseDto, GetAuditEventParamsDto, ListAuditEventsQueryDto } from "../../dto";
 import { AUDIT_MESSAGES } from "../../messages";
 import { getAuditEventParamsSchema, listAuditEventsQuerySchema } from "../../schemas";
 
@@ -36,7 +32,7 @@ export class AuditEventController {
         summary: "List audit events",
         description: "Returns the list of audit events.",
     })
-    @ApiContract(ListAuditEventsResponseDto)
+    @ApiContract(AuditEventResponseDto, { responseType: "array" })
     @ApiOkResponse({
         description: "Resources retrieved successfully.",
     })
@@ -61,14 +57,16 @@ export class AuditEventController {
     public async list(
         @Query(new ZodValidationPipe(listAuditEventsQuerySchema))
         query: ListAuditEventsQueryDto,
-    ): Promise<AuditEventResponseDto[]> {
-        const events = await this.listAuditEventsUseCase.execute({
+    ): Promise<ResponsePayload<AuditEventResponseDto[]>> {
+        const { events, meta } = await this.listAuditEventsUseCase.execute({
             userId: query.userId,
             tenantId: query.tenantId,
             action: query.action,
             resource: query.resource,
+            cursor: query.cursor,
+            limit: query.limit,
         });
-        return events.map((event) => ({
+        const items = events.map((event) => ({
             id: event.id,
             userId: event.userId,
             userEmail: event.userEmail,
@@ -82,6 +80,7 @@ export class AuditEventController {
             userAgent: event.userAgent,
             createdAt: event.createdAt,
         }));
+        return { data: items, meta };
     }
 
     @ApiOperation({

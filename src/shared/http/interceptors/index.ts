@@ -4,6 +4,7 @@ import { map, Observable } from "rxjs";
 
 import { ResponseBuilder } from "../builders";
 import { RESPONSE_METADATA, ResponseMetadata } from "../decorators";
+import { extractPayload } from "./extractPayload";
 
 @Injectable()
 export class ResponseInterceptor implements NestInterceptor {
@@ -14,6 +15,11 @@ export class ResponseInterceptor implements NestInterceptor {
         if (!metadata) {
             throw new Error("Response metadata was not found.");
         }
-        return next.handle().pipe(map((data) => ResponseBuilder.build(data, metadata.code, metadata.message)));
+        return next.handle().pipe(
+            map((result) => {
+                const { data, meta } = extractPayload(result);
+                return ResponseBuilder.build(data, metadata.code, metadata.message, [], meta);
+            }),
+        );
     }
 }

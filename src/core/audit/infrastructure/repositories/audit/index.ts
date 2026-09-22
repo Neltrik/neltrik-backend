@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { FindManyAuditEventsParams } from "@/core/audit/domain/types";
 import { PrismaService } from "@/prisma/index";
+import { withPaginationArgs } from "@/shared/pagination";
 
 import { AuditEvent } from "../../../domain/entities";
 import { AuditEventRepository } from "../../../domain/interfaces";
@@ -35,7 +36,8 @@ export class PrismaAuditEventRepository extends AuditEventRepository {
                 ...(params.action && { action: params.action }),
                 ...(params.resource && { resource: params.resource }),
             },
-            orderBy: { createdAt: "desc" },
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            ...withPaginationArgs({ cursor: params.cursor, limit: params.limit }),
         });
         return auditEvents.map((audit) => AuditEventMapper.toDomain(audit));
     }

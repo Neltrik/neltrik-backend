@@ -1,6 +1,6 @@
 import { type PaginationArgs } from "../../types";
 
-export function withPaginationArgs({ cursor, limit }: { cursor?: string; limit: number }): PaginationArgs {
+export function withPaginationArgs({ cursor, limit }: { cursor?: string | undefined; limit: number }): PaginationArgs {
     const args: PaginationArgs = { take: limit + 1 };
     if (cursor) {
         args.skip = 1;

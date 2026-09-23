@@ -60,9 +60,7 @@ export class LoginUseCase {
             email: account.email,
             roleCode: role.code,
             tenantId: identityUser.tenantId,
-            emailVerified: account.emailVerified,
             sessionId: session.id,
-            userState: { status: identityUser.status },
         });
         return { sessionId: session.id, accessToken, refreshToken };
     }

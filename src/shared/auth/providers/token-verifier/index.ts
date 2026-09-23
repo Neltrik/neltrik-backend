@@ -1,15 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 
-import { UserState } from "../../decorators";
-
 interface TokenPayload {
     sub: string;
     tenantId: string;
     roleCode: string;
-    emailVerified: boolean;
     sessionId: string;
-    userState: UserState;
 }
 
 @Injectable()

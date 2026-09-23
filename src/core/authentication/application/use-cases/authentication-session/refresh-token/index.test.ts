@@ -110,9 +110,7 @@ describe("RefreshTokenUseCase", () => {
             email: "john@company.com",
             tenantId: "tenant-id",
             roleCode: "USER",
-            emailVerified: false,
             sessionId: "session-id",
-            userState: { status: "ACTIVE" },
         });
         expect(tokenProvider.generateRefreshToken).toHaveBeenCalledTimes(1);
         expect(tokenProvider.calculateRefreshTokenExpiration).toHaveBeenCalledTimes(1);

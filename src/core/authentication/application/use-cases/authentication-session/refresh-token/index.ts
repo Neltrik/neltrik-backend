@@ -54,9 +54,7 @@ export class RefreshTokenUseCase {
             email: account.email,
             tenantId: identityUser.tenantId,
             roleCode: role.code,
-            emailVerified: account.emailVerified,
             sessionId: session.id,
-            userState: { status: identityUser.status },
         });
         const newRefreshToken = this.tokenProvider.generateRefreshToken();
         const newRefreshTokenHash = this.sha256Hasher.hash(newRefreshToken);

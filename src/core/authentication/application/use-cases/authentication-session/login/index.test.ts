@@ -130,9 +130,7 @@ describe("LoginUseCase", () => {
                 email: "john@company.com",
                 roleCode: "USER",
                 tenantId: "tenant-id",
-                emailVerified: false,
                 sessionId: "session-id",
-                userState: { status: "ACTIVE" },
             });
             expect(sut.tokenProvider.generateRefreshToken).toHaveBeenCalledTimes(1);
             expect(sut.sha256Hasher.hash).toHaveBeenCalledWith("refresh-token");

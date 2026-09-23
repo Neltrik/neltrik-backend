@@ -84,9 +84,7 @@ describe("AuthenticationGuard", () => {
             sub: "user-id",
             tenantId: "tenant-id",
             roleCode: "ADMIN",
-            emailVerified: false,
             sessionId: "session-id",
-            userState: { status: "ACTIVE" },
         });
         sessionValidator.resolve.mockResolvedValue({
             accountState: { emailVerified: false },
@@ -108,9 +106,7 @@ describe("AuthenticationGuard", () => {
             sub: "user-id",
             tenantId: "tenant-id",
             roleCode: "ADMIN",
-            emailVerified: false,
             sessionId: "session-id",
-            userState: { status: "ACTIVE" },
         });
         sessionValidator.resolve.mockResolvedValue({
             accountState: { emailVerified: false },
@@ -208,9 +204,7 @@ describe("AuthenticationGuard", () => {
             sub: "user-id",
             tenantId: "tenant-id",
             roleCode: "ADMIN",
-            emailVerified: true,
             sessionId: "session-id",
-            userState: { status: "ACTIVE" },
         });
         sessionValidator.resolve.mockResolvedValue({
             accountState: { emailVerified: false },

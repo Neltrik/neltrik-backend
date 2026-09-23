@@ -1,7 +1,9 @@
 import type { User as PrismaUser } from "@prisma/client";
 
+import { RESOURCE_STATUS } from "@/types/index";
+
 import { User } from "../../../domain/entities";
-import { USER_STATUS, type UserState } from "../../../domain/types";
+import { type UserState } from "../../../domain/types";
 import { Email } from "../../../domain/value-objects/email";
 import { UserMapper } from "./index";
 
@@ -14,7 +16,7 @@ const createProps = (): UserState => {
         email: Email.create("omar@gmail.com"),
         tenantId: "tenant-id",
         roleId: "role-id",
-        status: USER_STATUS.ACTIVE,
+        status: RESOURCE_STATUS.ACTIVE,
         createdAt,
         updatedAt: createdAt,
         suspendedAt: null,
@@ -62,11 +64,11 @@ describe("UserMapper", () => {
         const persistence: PrismaUser = {
             ...props,
             email: props.email.value,
-            status: USER_STATUS.SUSPENDED,
+            status: RESOURCE_STATUS.SUSPENDED,
             suspendedAt,
         };
         const user = UserMapper.toDomain(persistence);
-        expect(user.status).toBe(USER_STATUS.SUSPENDED);
+        expect(user.status).toBe(RESOURCE_STATUS.SUSPENDED);
         expect(user.suspendedAt).toEqual(suspendedAt);
     });
 });

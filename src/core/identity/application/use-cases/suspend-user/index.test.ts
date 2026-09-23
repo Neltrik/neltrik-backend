@@ -1,8 +1,8 @@
 import { type AuthorizationPolicyApi } from "@/core/authorization/api";
+import { RESOURCE_STATUS } from "@/types/index";
 
 import { User } from "../../../domain/entities";
 import { UserAlreadySuspendedError, UserNotFoundError } from "../../../domain/errors";
-import { USER_STATUS } from "../../../domain/types";
 import { Email } from "../../../domain/value-objects/email";
 import { AuditApiSpy, UserRepositorySpy } from "../../../test-doubles";
 import { SuspendUserUseCase } from "./index";
@@ -50,7 +50,7 @@ describe("SuspendUserUseCase", () => {
         expect(userRepository.update).toHaveBeenCalledTimes(1);
         const updatedUser = userRepository.update.mock.calls[0]![0];
         expect(updatedUser.id).toBe("target-user-id");
-        expect(updatedUser.status).toBe(USER_STATUS.SUSPENDED);
+        expect(updatedUser.status).toBe(RESOURCE_STATUS.SUSPENDED);
         expect(updatedUser.suspendedAt).toBeInstanceOf(Date);
     });
 

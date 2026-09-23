@@ -1,11 +1,12 @@
+import { RESOURCE_STATUS, type ResourceStatus } from "@/types/index";
+
 import {
     InvalidFirstNameError,
     InvalidLastNameError,
     UserAlreadyActiveError,
     UserAlreadySuspendedError,
 } from "../../errors";
-import type { UserState, UserStatus } from "../../types";
-import { USER_STATUS } from "../../types";
+import type { UserState } from "../../types";
 import type { Email } from "../../value-objects/email";
 
 export class User {
@@ -20,7 +21,7 @@ export class User {
     public static create(props: Omit<UserState, "status">): User {
         return new User({
             ...props,
-            status: USER_STATUS.ACTIVE,
+            status: RESOURCE_STATUS.ACTIVE,
         });
     }
 
@@ -35,14 +36,14 @@ export class User {
 
     public suspend(): void {
         this.ensureCanBeSuspended();
-        this.props.status = USER_STATUS.SUSPENDED;
+        this.props.status = RESOURCE_STATUS.SUSPENDED;
         this.props.suspendedAt = new Date();
         this.props.updatedAt = new Date();
     }
 
     public reactivate(): void {
         this.ensureCanBeReactivated();
-        this.props.status = USER_STATUS.ACTIVE;
+        this.props.status = RESOURCE_STATUS.ACTIVE;
         this.props.suspendedAt = null;
         this.props.updatedAt = new Date();
     }
@@ -60,13 +61,13 @@ export class User {
     }
 
     private ensureCanBeSuspended(): void {
-        if (this.props.status === USER_STATUS.SUSPENDED) {
+        if (this.props.status === RESOURCE_STATUS.SUSPENDED) {
             throw new UserAlreadySuspendedError();
         }
     }
 
     private ensureCanBeReactivated(): void {
-        if (this.props.status === USER_STATUS.ACTIVE) {
+        if (this.props.status === RESOURCE_STATUS.ACTIVE) {
             throw new UserAlreadyActiveError();
         }
     }
@@ -95,7 +96,7 @@ export class User {
         return this.props.roleId;
     }
 
-    public get status(): UserStatus {
+    public get status(): ResourceStatus {
         return this.props.status;
     }
 

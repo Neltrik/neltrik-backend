@@ -1,5 +1,6 @@
+import { type ResourceStatus } from "@/types/index";
+
 import type { Email } from "../../value-objects";
-import { type UserStatus } from "../";
 
 interface UserProps {
     id: string;
@@ -14,5 +15,5 @@ interface UserProps {
 }
 
 export type UserState = UserProps & {
-    status: UserStatus;
+    status: ResourceStatus;
 };

@@ -1,10 +1,12 @@
+import { RESOURCE_STATUS } from "@/types/index";
+
 import {
     InvalidTenantNameError,
     InvalidTenantSlugError,
     TenantAlreadyActiveError,
     TenantAlreadySuspendedError,
 } from "../../errors";
-import { TENANT_STATUS, type TenantState } from "../../types";
+import { type TenantState } from "../../types";
 import { Tenant } from "./index";
 
 const createProps = (): Omit<TenantState, "status"> => {
@@ -22,18 +24,18 @@ const createProps = (): Omit<TenantState, "status"> => {
 
 const restoreProps = (): TenantState => ({
     ...createProps(),
-    status: TENANT_STATUS.SUSPENDED,
+    status: RESOURCE_STATUS.SUSPENDED,
 });
 
 describe("Tenant", () => {
     it("should restore a tenant preserving its persisted status", () => {
         const tenant = Tenant.restore(restoreProps());
-        expect(tenant.status).toBe(TENANT_STATUS.SUSPENDED);
+        expect(tenant.status).toBe(RESOURCE_STATUS.SUSPENDED);
     });
 
     it("should create a tenant with active status", () => {
         const tenant = Tenant.create(createProps());
-        expect(tenant.status).toBe(TENANT_STATUS.ACTIVE);
+        expect(tenant.status).toBe(RESOURCE_STATUS.ACTIVE);
     });
 
     it("should throw InvalidTenantNameError when name is empty", () => {
@@ -69,7 +71,7 @@ describe("Tenant", () => {
         expect(tenant.createdAt).toEqual(props.createdAt);
         expect(tenant.updatedAt).toEqual(props.updatedAt);
         expect(tenant.suspendedAt).toBeNull();
-        expect(tenant.status).toBe(TENANT_STATUS.ACTIVE);
+        expect(tenant.status).toBe(RESOURCE_STATUS.ACTIVE);
     });
 
     it("should update tenant name successfully", () => {
@@ -93,7 +95,7 @@ describe("Tenant", () => {
     it("should suspend an active tenant", () => {
         const tenant = Tenant.create(createProps());
         tenant.suspend();
-        expect(tenant.status).toBe(TENANT_STATUS.SUSPENDED);
+        expect(tenant.status).toBe(RESOURCE_STATUS.SUSPENDED);
         expect(tenant.suspendedAt).not.toBeNull();
         expect(tenant.updatedAt.getTime()).toBeGreaterThan(tenant.createdAt.getTime());
     });
@@ -106,7 +108,7 @@ describe("Tenant", () => {
     it("should reactivate a suspended tenant", () => {
         const tenant = Tenant.restore(restoreProps());
         tenant.reactivate();
-        expect(tenant.status).toBe(TENANT_STATUS.ACTIVE);
+        expect(tenant.status).toBe(RESOURCE_STATUS.ACTIVE);
         expect(tenant.suspendedAt).toBeNull();
         expect(tenant.updatedAt.getTime()).toBeGreaterThan(tenant.createdAt.getTime());
     });

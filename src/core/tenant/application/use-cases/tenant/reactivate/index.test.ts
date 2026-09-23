@@ -1,6 +1,8 @@
+import { RESOURCE_STATUS } from "@/types/index";
+
 import { Tenant } from "../../../../domain/entities";
 import { TenantAlreadyActiveError, TenantNotFoundError } from "../../../../domain/errors";
-import { TENANT_STATUS, type TenantState } from "../../../../domain/types";
+import { type TenantState } from "../../../../domain/types";
 import { TenantRepositorySpy } from "../../../../test-doubles";
 import { ReactivateTenantUseCase } from "./index";
 
@@ -24,7 +26,7 @@ const createSuspendedTenant = (): Tenant => {
         name: "Neltrik",
         slug: "neltrik-12345678",
         type: "PLATFORM",
-        status: TENANT_STATUS.SUSPENDED,
+        status: RESOURCE_STATUS.SUSPENDED,
         createdAt: now,
         updatedAt: now,
         suspendedAt: now,
@@ -46,7 +48,7 @@ describe("ReactivateTenantUseCase", () => {
         expect(tenantRepository.get).toHaveBeenCalledWith("tenant-id");
         expect(tenantRepository.update).toHaveBeenCalledTimes(1);
         const tenant = tenantRepository.update.mock.calls[0]![0];
-        expect(tenant.status).toBe(TENANT_STATUS.ACTIVE);
+        expect(tenant.status).toBe(RESOURCE_STATUS.ACTIVE);
         expect(tenant.suspendedAt).toBeNull();
     });
 

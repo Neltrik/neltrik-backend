@@ -1,4 +1,4 @@
-import { type UserStatus } from "../../domain/types";
+import { type ResourceStatus } from "@/types/index";
 
 export class RegisterUserRequestDto {
     firstName!: string;
@@ -23,7 +23,7 @@ export class GetUserRequestDto {
     email!: string;
     tenantId!: string;
     roleId!: string;
-    status!: UserStatus;
+    status!: ResourceStatus;
     createdAt!: Date;
     updatedAt!: Date;
     suspendedAt!: Date | null;

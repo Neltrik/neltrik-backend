@@ -23,6 +23,7 @@ export class TokenProvider {
             roleCode: payload.roleCode,
             emailVerified: payload.emailVerified,
             sessionId: payload.sessionId,
+            userState: payload.userState,
         });
         return token;
     }

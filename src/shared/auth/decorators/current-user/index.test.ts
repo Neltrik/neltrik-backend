@@ -36,6 +36,7 @@ describe("CurrentUser", () => {
         tenantId: "tenant-id",
         roleCode: "role-code",
         sessionId: "session-id",
+        userState: { status: "ACTIVE" },
     };
 
     const makeContext = (currentUser?: UserPayload): ExecutionContext =>

@@ -12,7 +12,7 @@ import { IdentityModule } from "./core/identity/identity.module";
 import { TenantModule } from "./core/tenant/tenant.module";
 import { AtsModule } from "./modules/ats/ats.module";
 import { PrismaModule, TenantInterceptor } from "./prisma";
-import { AuthenticationGuard, EmailVerifiedGuard } from "./shared/auth";
+import { AuthenticationGuard, EmailVerifiedGuard, UserStateGuard } from "./shared/auth";
 import { AuthModule } from "./shared/auth/auth.module";
 import { PermissionsGuard } from "./shared/authorization";
 import { ErrorsModule } from "./shared/errors/errors.module";
@@ -66,6 +66,10 @@ import { SanitizationModule } from "./shared/sanitization";
         {
             provide: APP_GUARD,
             useClass: PermissionsGuard,
+        },
+        {
+            provide: APP_GUARD,
+            useClass: UserStateGuard,
         },
         {
             provide: APP_INTERCEPTOR,

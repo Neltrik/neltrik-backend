@@ -1,6 +1,7 @@
+import { RESOURCE_STATUS } from "@/types/index";
+
 import { User } from "../../../domain/entities";
 import { UserAlreadyActiveError, UserNotFoundError } from "../../../domain/errors";
-import { USER_STATUS } from "../../../domain/types";
 import { Email } from "../../../domain/value-objects/email";
 import { UserRepositorySpy } from "../../../test-doubles";
 import { ReactivateUserUseCase } from "./index";
@@ -36,7 +37,7 @@ describe("ReactivateUserUseCase", () => {
         expect(userRepository.get).toHaveBeenCalledWith("user-id");
         expect(userRepository.update).toHaveBeenCalledTimes(1);
         const updatedUser = userRepository.update.mock.calls[0]![0];
-        expect(updatedUser.status).toBe(USER_STATUS.ACTIVE);
+        expect(updatedUser.status).toBe(RESOURCE_STATUS.ACTIVE);
         expect(updatedUser.suspendedAt).toBeNull();
     });
 

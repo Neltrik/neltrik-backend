@@ -21,6 +21,7 @@ const config: Config = {
         "^@/config/(.*)$": "<rootDir>/src/config/$1",
         "^@/core/(.*)$": "<rootDir>/src/core/$1",
         "^@/shared/(.*)$": "<rootDir>/src/shared/$1",
+        "^@/types/(.*)$": "<rootDir>/src/types/$1",
         "^(\\.{1,2}/.*)\\.js$": "$1",
     },
 };

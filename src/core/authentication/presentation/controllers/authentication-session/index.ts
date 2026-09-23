@@ -12,7 +12,7 @@ import {
 import { Throttle } from "@nestjs/throttler";
 import type { Request, Response } from "express";
 
-import { Public, SkipEmailVerification } from "@/shared/auth";
+import { Public, SkipEmailVerification, SkipUserState } from "@/shared/auth";
 import { PublicPermission } from "@/shared/authorization";
 import { ApiContract, CookieHelper, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -63,6 +63,7 @@ export class AuthController {
     @Throttle({ default: { limit: 5, ttl: 900000 } })
     @Public()
     @SkipEmailVerification()
+    @SkipUserState()
     @PublicPermission()
     @Post("login")
     public async login(
@@ -120,6 +121,7 @@ export class AuthController {
     @Throttle({ default: { limit: 30, ttl: 900000 } })
     @Public()
     @SkipEmailVerification()
+    @SkipUserState()
     @PublicPermission()
     @Post("refresh")
     public async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
@@ -164,6 +166,7 @@ export class AuthController {
         message: AUTH_MESSAGES.LOGOUT_SUCCESS,
     })
     @SkipEmailVerification()
+    @SkipUserState()
     @PublicPermission()
     @Post("logout")
     public async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {

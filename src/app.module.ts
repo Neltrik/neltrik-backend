@@ -65,11 +65,11 @@ import { SanitizationModule } from "./shared/sanitization";
         },
         {
             provide: APP_GUARD,
-            useClass: PermissionsGuard,
+            useClass: UserStateGuard,
         },
         {
             provide: APP_GUARD,
-            useClass: UserStateGuard,
+            useClass: PermissionsGuard,
         },
         {
             provide: APP_INTERCEPTOR,

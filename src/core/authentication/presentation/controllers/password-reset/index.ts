@@ -9,7 +9,7 @@ import {
 } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 
-import { Public, SkipEmailVerification } from "@/shared/auth";
+import { Public, SkipEmailVerification, SkipUserState } from "@/shared/auth";
 import { PublicPermission } from "@/shared/authorization";
 import { Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -51,6 +51,7 @@ export class PasswordResetController {
     @Throttle({ default: { limit: 3, ttl: 3600000 } })
     @Public()
     @SkipEmailVerification()
+    @SkipUserState()
     @PublicPermission()
     @Post("forgot")
     public async requestReset(
@@ -84,6 +85,7 @@ export class PasswordResetController {
     @Throttle({ default: { limit: 10, ttl: 3600000 } })
     @Public()
     @SkipEmailVerification()
+    @SkipUserState()
     @PublicPermission()
     @Post("reset")
     public async resetPassword(

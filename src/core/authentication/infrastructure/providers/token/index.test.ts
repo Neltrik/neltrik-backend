@@ -37,6 +37,7 @@ describe("TokenProvider", () => {
                 roleCode: "USER",
                 emailVerified: false,
                 sessionId: "",
+                userState: { status: "SUSPENDED" },
             });
             expect(result).toBe("access-token");
         });

@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-import { SessionValidator } from "@/shared/auth";
+import { SessionResolution, SessionValidator } from "@/shared/auth";
 
 import { AuthenticationSessionRepository } from "../../../domain/interfaces";
 
@@ -8,11 +8,19 @@ import { AuthenticationSessionRepository } from "../../../domain/interfaces";
 export class SessionValidatorProvider implements SessionValidator {
     constructor(private readonly sessionRepository: AuthenticationSessionRepository) {}
 
-    public async validate(sessionId: string): Promise<boolean> {
-        const session = await this.sessionRepository.findById(sessionId);
-        if (!session) {
-            return false;
+    public async resolve(sessionId: string): Promise<SessionResolution> {
+        const result = await this.sessionRepository.findByIdWithOwnerState(sessionId);
+        if (!result || result.session.isRevoked()) {
+            return {
+                isValid: false,
+                userState: { status: "SUSPENDED" },
+                accountState: { emailVerified: false },
+            };
         }
-        return !session.isRevoked();
+        return {
+            isValid: true,
+            userState: { status: result.userStatus },
+            accountState: { emailVerified: result.emailVerified },
+        };
     }
 }

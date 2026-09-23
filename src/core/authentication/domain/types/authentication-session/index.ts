@@ -1,3 +1,6 @@
+import { type ResourceStatus } from "@/types/index";
+
+import { type AuthenticationSession } from "../../entities";
 import type { ExpirationDate } from "../../value-objects";
 
 export type AuthenticationSessionProps = {
@@ -13,4 +16,10 @@ export type AuthenticationSessionProps = {
     userAgent: string | null;
     createdAt: Date;
     updatedAt: Date;
+};
+
+export type SessionWithOwnerState = {
+    session: AuthenticationSession;
+    userStatus: ResourceStatus;
+    emailVerified: boolean;
 };

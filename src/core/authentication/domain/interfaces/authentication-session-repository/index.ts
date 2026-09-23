@@ -1,6 +1,7 @@
 import { type TransactionContext } from "@/shared/transaction";
 
 import type { AuthenticationSession } from "../../entities";
+import { type SessionWithOwnerState } from "../../types";
 
 export abstract class AuthenticationSessionRepository {
     abstract create(session: AuthenticationSession): Promise<void>;
@@ -10,4 +11,5 @@ export abstract class AuthenticationSessionRepository {
     abstract findByAuthenticationAccountId(authenticationAccountId: string): Promise<AuthenticationSession[]>;
     abstract invalidateByAccount(accountId: string, context: TransactionContext): Promise<void>;
     abstract revokeAllExcept(accountId: string, currentSessionId: string, context: TransactionContext): Promise<void>;
+    abstract findByIdWithOwnerState(id: string): Promise<SessionWithOwnerState | null>;
 }

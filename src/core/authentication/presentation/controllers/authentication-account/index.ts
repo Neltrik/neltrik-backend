@@ -11,7 +11,7 @@ import {
 } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 
-import { Public, SkipEmailVerification } from "@/shared/auth";
+import { Public, SkipEmailVerification, SkipUserState } from "@/shared/auth";
 import { Permissions, PublicPermission } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -62,6 +62,7 @@ export class AccountController {
     @Throttle({ default: { limit: 10, ttl: 3600000 } })
     @Public()
     @SkipEmailVerification()
+    @SkipUserState()
     @PublicPermission()
     @Post()
     public async register(

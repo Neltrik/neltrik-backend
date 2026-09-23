@@ -12,6 +12,7 @@ import {
     EmailVerificationRepository,
     PasswordResetRepository,
 } from "../../domain/interfaces";
+import { type SessionWithOwnerState } from "../../domain/types";
 
 export class PasswordResetRepositorySpy extends PasswordResetRepository {
     public create = jest.fn<Promise<void>, [PasswordReset]>();
@@ -37,6 +38,7 @@ export class AuthenticationSessionRepositorySpy extends AuthenticationSessionRep
     public findByAuthenticationAccountId = jest.fn<Promise<AuthenticationSession[]>, [string]>();
     public invalidateByAccount = jest.fn<Promise<void>, [string, TransactionContext]>();
     public revokeAllExcept = jest.fn<Promise<void>, [string, string, TransactionContext]>();
+    public findByIdWithOwnerState = jest.fn<Promise<SessionWithOwnerState | null>, [string]>();
 }
 
 export class EmailVerificationRepositorySpy extends EmailVerificationRepository {

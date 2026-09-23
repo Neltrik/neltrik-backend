@@ -33,8 +33,8 @@ export class AuthenticationGuard implements CanActivate {
                 throw new UnauthorizedException("Access token not found");
             }
             const payload = await this.tokenVerifier.verify(token);
-            const isValid = await this.sessionValidator.validate(payload.sessionId);
-            if (!isValid) {
+            const result = await this.sessionValidator.resolve(payload.sessionId);
+            if (!result.isValid) {
                 throw new UnauthorizedException("Invalid or revoked session");
             }
             request.user = {
@@ -42,10 +42,10 @@ export class AuthenticationGuard implements CanActivate {
                 tenantId: payload.tenantId,
                 roleCode: payload.roleCode,
                 sessionId: payload.sessionId,
-                userState: payload.userState,
+                userState: result.userState,
             };
             request.account = {
-                emailVerified: payload.emailVerified,
+                emailVerified: result.accountState.emailVerified,
             };
             return true;
         } catch (error) {

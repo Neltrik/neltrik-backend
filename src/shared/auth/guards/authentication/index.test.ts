@@ -27,7 +27,7 @@ describe("AuthenticationGuard", () => {
         };
         const tokenVerifier = new TokenVerifier(jwtService);
         const sessionValidator: jest.Mocked<SessionValidator> = {
-            validate: jest.fn(),
+            resolve: jest.fn(),
         };
         const guard = new AuthenticationGuard(reflector, auditRecorder, tokenVerifier, sessionValidator);
         const request = Object.create(Request.prototype) as Request;
@@ -63,7 +63,7 @@ describe("AuthenticationGuard", () => {
             context.getClass(),
         ]);
         expect(verifySpy).not.toHaveBeenCalled();
-        expect(sessionValidator.validate).not.toHaveBeenCalled();
+        expect(sessionValidator.resolve).not.toHaveBeenCalled();
     });
 
     it("should throw when the access token is not found", async () => {
@@ -73,7 +73,7 @@ describe("AuthenticationGuard", () => {
         const verifySpy = jest.spyOn(tokenVerifier, "verify");
         await expect(guard.canActivate(context)).rejects.toThrow(new UnauthorizedException("Access token not found"));
         expect(verifySpy).not.toHaveBeenCalled();
-        expect(sessionValidator.validate).not.toHaveBeenCalled();
+        expect(sessionValidator.resolve).not.toHaveBeenCalled();
     });
 
     it("should throw when the session is invalid or revoked", async () => {
@@ -88,12 +88,16 @@ describe("AuthenticationGuard", () => {
             sessionId: "session-id",
             userState: { status: "ACTIVE" },
         });
-        sessionValidator.validate.mockResolvedValue(false);
+        sessionValidator.resolve.mockResolvedValue({
+            accountState: { emailVerified: false },
+            isValid: false,
+            userState: { status: "ACTIVE" },
+        });
         await expect(guard.canActivate(context)).rejects.toThrow(
             new UnauthorizedException("Invalid or revoked session"),
         );
         expect(tokenVerifier.verify).toHaveBeenCalledWith("access-token");
-        expect(sessionValidator.validate).toHaveBeenCalledWith("session-id");
+        expect(sessionValidator.resolve).toHaveBeenCalledWith("session-id");
     });
 
     it("should allow access and set the authenticated user when the token and session are valid", async () => {
@@ -108,10 +112,14 @@ describe("AuthenticationGuard", () => {
             sessionId: "session-id",
             userState: { status: "ACTIVE" },
         });
-        sessionValidator.validate.mockResolvedValue(true);
+        sessionValidator.resolve.mockResolvedValue({
+            accountState: { emailVerified: false },
+            isValid: true,
+            userState: { status: "ACTIVE" },
+        });
         await expect(guard.canActivate(context)).resolves.toBe(true);
         expect(tokenVerifier.verify).toHaveBeenCalledWith("access-token");
-        expect(sessionValidator.validate).toHaveBeenCalledWith("session-id");
+        expect(sessionValidator.resolve).toHaveBeenCalledWith("session-id");
         expect(request.user).toEqual({
             userId: "user-id",
             tenantId: "tenant-id",
@@ -129,7 +137,7 @@ describe("AuthenticationGuard", () => {
         jest.spyOn(tokenVerifier, "verify").mockRejectedValue(new Error("Invalid access token"));
         await expect(guard.canActivate(context)).rejects.toThrow("Invalid access token");
         expect(tokenVerifier.verify).toHaveBeenCalledWith("invalid-token");
-        expect(sessionValidator.validate).not.toHaveBeenCalled();
+        expect(sessionValidator.resolve).not.toHaveBeenCalled();
     });
 
     it("should record a denied audit when authentication fails and audit metadata exists", async () => {
@@ -204,7 +212,11 @@ describe("AuthenticationGuard", () => {
             sessionId: "session-id",
             userState: { status: "ACTIVE" },
         });
-        sessionValidator.validate.mockResolvedValue(false);
+        sessionValidator.resolve.mockResolvedValue({
+            accountState: { emailVerified: false },
+            isValid: false,
+            userState: { status: "ACTIVE" },
+        });
         await expect(guard.canActivate(context)).rejects.toThrow(
             new UnauthorizedException("Invalid or revoked session"),
         );

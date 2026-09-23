@@ -6,6 +6,7 @@ import { TransactionContext } from "@/shared/transaction";
 
 import { AuthenticationSession } from "../../../domain/entities";
 import { AuthenticationSessionRepository } from "../../../domain/interfaces";
+import { SessionWithOwnerState } from "../../../domain/types";
 import { AuthenticationSessionMapper } from "../../mappers";
 
 @Injectable()
@@ -68,5 +69,23 @@ export class PrismaAuthenticationSessionRepository extends AuthenticationSession
             where: { authenticationAccountId: accountId, revokedAt: null, id: { not: currentSessionId } },
             data: { revokedAt: new Date(), updatedAt: new Date() },
         });
+    }
+
+    public async findByIdWithOwnerState(id: string): Promise<SessionWithOwnerState | null> {
+        const session = await this.prisma.tenantClient.authenticationSession.findUnique({
+            where: { id },
+            include: {
+                owner: { select: { status: true } },
+                authenticationAccount: { select: { emailVerified: true } },
+            },
+        });
+        if (!session) {
+            return null;
+        }
+        return {
+            session: AuthenticationSessionMapper.toDomain(session),
+            userStatus: session.owner?.status ?? "SUSPENDED",
+            emailVerified: session.authenticationAccount.emailVerified,
+        };
     }
 }

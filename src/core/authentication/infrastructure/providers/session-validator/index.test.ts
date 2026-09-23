@@ -28,38 +28,58 @@ describe("SessionValidatorProvider", () => {
         return { provider, sessionRepository };
     };
 
-    describe("validate", () => {
-        it("should return true when the session exists and is not revoked", async () => {
-            const sut = makeSut();
+    describe("resolve", () => {
+        it("should return valid resolution when the session exists and is not revoked", async () => {
+            const { provider, sessionRepository } = makeSut();
             const session = makeSession();
-            sut.sessionRepository.findById.mockResolvedValue(session);
-            const result = await sut.provider.validate("session-id");
-            expect(sut.sessionRepository.findById).toHaveBeenCalledWith("session-id");
-            expect(result).toBe(true);
+            sessionRepository.findByIdWithOwnerState.mockResolvedValue({
+                session,
+                userStatus: "ACTIVE",
+                emailVerified: true,
+            });
+            const result = await provider.resolve("session-id");
+            expect(sessionRepository.findByIdWithOwnerState).toHaveBeenCalledWith("session-id");
+            expect(result).toEqual({
+                isValid: true,
+                userState: { status: "ACTIVE" },
+                accountState: { emailVerified: true },
+            });
         });
 
-        it("should return false when the session does not exist", async () => {
-            const sut = makeSut();
-            sut.sessionRepository.findById.mockResolvedValue(null);
-            const result = await sut.provider.validate("session-id");
-            expect(sut.sessionRepository.findById).toHaveBeenCalledWith("session-id");
-            expect(result).toBe(false);
+        it("should return invalid resolution when the session does not exist", async () => {
+            const { provider, sessionRepository } = makeSut();
+            sessionRepository.findByIdWithOwnerState.mockResolvedValue(null);
+            const result = await provider.resolve("session-id");
+            expect(sessionRepository.findByIdWithOwnerState).toHaveBeenCalledWith("session-id");
+            expect(result).toEqual({
+                isValid: false,
+                userState: { status: "SUSPENDED" },
+                accountState: { emailVerified: false },
+            });
         });
 
-        it("should return false when the session is revoked", async () => {
-            const sut = makeSut();
+        it("should return invalid resolution when the session is revoked", async () => {
+            const { provider, sessionRepository } = makeSut();
             const session = makeSession();
             session.revoke();
-            sut.sessionRepository.findById.mockResolvedValue(session);
-            const result = await sut.provider.validate("session-id");
-            expect(sut.sessionRepository.findById).toHaveBeenCalledWith("session-id");
-            expect(result).toBe(false);
+            sessionRepository.findByIdWithOwnerState.mockResolvedValue({
+                session,
+                userStatus: "ACTIVE",
+                emailVerified: true,
+            });
+            const result = await provider.resolve("session-id");
+            expect(sessionRepository.findByIdWithOwnerState).toHaveBeenCalledWith("session-id");
+            expect(result).toEqual({
+                isValid: false,
+                userState: { status: "SUSPENDED" },
+                accountState: { emailVerified: false },
+            });
         });
 
         it("should propagate errors from the session repository", async () => {
-            const sut = makeSut();
-            sut.sessionRepository.findById.mockRejectedValue(new Error("Database error"));
-            await expect(sut.provider.validate("session-id")).rejects.toThrow("Database error");
+            const { provider, sessionRepository } = makeSut();
+            sessionRepository.findByIdWithOwnerState.mockRejectedValue(new Error("Database error"));
+            await expect(provider.resolve("session-id")).rejects.toThrow("Database error");
         });
     });
 });

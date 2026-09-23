@@ -1,11 +1,12 @@
+import { RESOURCE_STATUS, type ResourceStatus } from "@/types/index";
+
 import {
     InvalidTenantNameError,
     InvalidTenantSlugError,
     TenantAlreadyActiveError,
     TenantAlreadySuspendedError,
 } from "../../errors";
-import type { TenantState, TenantStatus, TenantType } from "../../types";
-import { TENANT_STATUS } from "../../types";
+import type { TenantState, TenantType } from "../../types";
 
 export class Tenant {
     private readonly props: TenantState;
@@ -17,7 +18,7 @@ export class Tenant {
     }
 
     public static create(props: Omit<TenantState, "status">): Tenant {
-        return new Tenant({ ...props, status: TENANT_STATUS.ACTIVE });
+        return new Tenant({ ...props, status: RESOURCE_STATUS.ACTIVE });
     }
 
     public static restore(props: TenantState): Tenant {
@@ -32,14 +33,14 @@ export class Tenant {
 
     public suspend(): void {
         this.ensureCanBeSuspended();
-        this.props.status = TENANT_STATUS.SUSPENDED;
+        this.props.status = RESOURCE_STATUS.SUSPENDED;
         this.props.suspendedAt = new Date();
         this.props.updatedAt = new Date();
     }
 
     public reactivate(): void {
         this.ensureCanBeReactivated();
-        this.props.status = TENANT_STATUS.ACTIVE;
+        this.props.status = RESOURCE_STATUS.ACTIVE;
         this.props.suspendedAt = null;
         this.props.updatedAt = new Date();
     }
@@ -57,13 +58,13 @@ export class Tenant {
     }
 
     private ensureCanBeSuspended(): void {
-        if (this.props.status === TENANT_STATUS.SUSPENDED) {
+        if (this.props.status === RESOURCE_STATUS.SUSPENDED) {
             throw new TenantAlreadySuspendedError();
         }
     }
 
     private ensureCanBeReactivated(): void {
-        if (this.props.status === TENANT_STATUS.ACTIVE) {
+        if (this.props.status === RESOURCE_STATUS.ACTIVE) {
             throw new TenantAlreadyActiveError();
         }
     }
@@ -84,7 +85,7 @@ export class Tenant {
         return this.props.type;
     }
 
-    public get status(): TenantStatus {
+    public get status(): ResourceStatus {
         return this.props.status;
     }
 

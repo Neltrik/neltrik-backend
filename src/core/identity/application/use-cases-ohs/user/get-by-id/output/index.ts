@@ -1,4 +1,5 @@
-import { type UserStatus } from "../../../../../domain/types";
+import { type ResourceStatus } from "@/types/index";
+
 import { type Email } from "../../../../../domain/value-objects";
 
 export type GetUserByIdOhsOutput = {
@@ -8,7 +9,7 @@ export type GetUserByIdOhsOutput = {
     email: Email;
     tenantId: string;
     roleId: string;
-    status: UserStatus;
+    status: ResourceStatus;
     createdAt: Date;
     updatedAt: Date;
     suspendedAt: Date | null;

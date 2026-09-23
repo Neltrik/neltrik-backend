@@ -41,7 +41,8 @@
             "@/config/*": ["src/config/*"],
             "@/core/*": ["src/core/*"],
             "@/shared/*": ["src/shared/*"],
-            "@/modules/*": ["src/modules/*"]
+            "@/modules/*": ["src/modules/*"],
+            "@/types/*": ["src/types/*"]
         },
 
         "types": ["node"]

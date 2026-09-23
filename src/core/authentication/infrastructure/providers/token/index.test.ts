@@ -27,6 +27,7 @@ describe("TokenProvider", () => {
                 tenantId: "tenant-id",
                 emailVerified: false,
                 sessionId: "",
+                userState: { status: "SUSPENDED" },
             });
             expect(signAsyncMock).toHaveBeenCalledTimes(1);
             expect(signAsyncMock).toHaveBeenCalledWith({
@@ -51,6 +52,7 @@ describe("TokenProvider", () => {
                     tenantId: "tenant-id",
                     emailVerified: false,
                     sessionId: "",
+                    userState: { status: "SUSPENDED" },
                 }),
             ).rejects.toThrow("JWT generation failed");
         });

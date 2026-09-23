@@ -1,5 +1,7 @@
+import { RESOURCE_STATUS } from "@/types/index";
+
 import { Tenant } from "../../../domain/entities";
-import { TENANT_STATUS, type TenantState } from "../../../domain/types";
+import { type TenantState } from "../../../domain/types";
 import { TenantMapper } from "./index";
 
 const createProps = (): TenantState => {
@@ -9,7 +11,7 @@ const createProps = (): TenantState => {
         name: "Neltrik",
         slug: "neltrik",
         type: "PLATFORM",
-        status: TENANT_STATUS.ACTIVE,
+        status: RESOURCE_STATUS.ACTIVE,
         createdAt,
         updatedAt: createdAt,
         suspendedAt: null,
@@ -49,11 +51,11 @@ describe("TenantMapper", () => {
         const suspendedAt = new Date("2025-02-01T00:00:00.000Z");
         const persistence = {
             ...createProps(),
-            status: TENANT_STATUS.SUSPENDED,
+            status: RESOURCE_STATUS.SUSPENDED,
             suspendedAt,
         };
         const tenant = TenantMapper.toDomain(persistence);
-        expect(tenant.status).toBe(TENANT_STATUS.SUSPENDED);
+        expect(tenant.status).toBe(RESOURCE_STATUS.SUSPENDED);
         expect(tenant.suspendedAt).toEqual(suspendedAt);
     });
 });

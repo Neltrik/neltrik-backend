@@ -5,16 +5,16 @@ import type { Request } from "express";
 
 import { AUDIT_METADATA_KEY, type AuditRecorder } from "@/shared/audit";
 
-import { SKIP_EMAIL_VERIFICATION_KEY } from "../../";
-import { EmailVerifiedGuard } from ".";
+import { SKIP_USER_STATE_KEY } from "../../";
+import { UserStateGuard } from "./";
 
-describe("EmailVerifiedGuard", () => {
+describe("UserStateGuard", () => {
     const makeSut = () => {
         const reflector = new Reflector();
         const auditRecorder: jest.Mocked<AuditRecorder> = {
             record: jest.fn(),
         };
-        const guard = new EmailVerifiedGuard(reflector, auditRecorder);
+        const guard = new UserStateGuard(reflector, auditRecorder);
         const request = Object.create(Request.prototype) as Request;
         const httpContext = {
             getRequest: jest.fn().mockReturnValue(request),
@@ -37,11 +37,11 @@ describe("EmailVerifiedGuard", () => {
         jest.restoreAllMocks();
     });
 
-    it("should allow access when email verification is skipped", () => {
+    it("should allow access when user state is skipped", () => {
         const { guard, reflector, context } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(true);
         expect(guard.canActivate(context)).toBe(true);
-        expect(reflector.getAllAndOverride).toHaveBeenCalledWith(SKIP_EMAIL_VERIFICATION_KEY, [
+        expect(reflector.getAllAndOverride).toHaveBeenCalledWith(SKIP_USER_STATE_KEY, [
             context.getHandler(),
             context.getClass(),
         ]);
@@ -51,51 +51,34 @@ describe("EmailVerifiedGuard", () => {
         const { guard, reflector, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         delete request.user;
-        delete request.account;
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("User not authenticated"));
     });
 
-    it("should throw when account is not found", () => {
+    it("should throw when user is not active", () => {
         const { guard, reflector, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         request.user = {
             userId: "user-id",
             tenantId: "tenant-id",
             roleCode: "ADMIN",
-            sessionId: "",
-            userState: { status: "ACTIVE" },
+            sessionId: "session-id",
+            userState: { status: "SUSPENDED" },
         };
-        delete request.account;
-        expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("User not authenticated"));
+        expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("User is not active"));
     });
 
-    it("should throw when email is not verified", () => {
+    it("should allow access when user is active", () => {
         const { guard, reflector, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         request.user = {
             userId: "user-id",
             tenantId: "tenant-id",
             roleCode: "ADMIN",
-            sessionId: "",
+            sessionId: "session-id",
             userState: { status: "ACTIVE" },
         };
-        request.account = { emailVerified: false };
-        expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("Email not verified"));
-    });
-
-    it("should allow access when email is verified", () => {
-        const { guard, reflector, context, request } = makeSut();
-        jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-        request.user = {
-            userId: "user-id",
-            tenantId: "tenant-id",
-            roleCode: "ADMIN",
-            sessionId: "",
-            userState: { status: "ACTIVE" },
-        };
-        request.account = { emailVerified: true };
         expect(guard.canActivate(context)).toBe(true);
-        expect(reflector.getAllAndOverride).toHaveBeenCalledWith(SKIP_EMAIL_VERIFICATION_KEY, [
+        expect(reflector.getAllAndOverride).toHaveBeenCalledWith(SKIP_USER_STATE_KEY, [
             context.getHandler(),
             context.getClass(),
         ]);
@@ -104,12 +87,8 @@ describe("EmailVerifiedGuard", () => {
     it("should record a denied audit when user is not authenticated and audit metadata exists", () => {
         const { guard, reflector, auditRecorder, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-        jest.spyOn(reflector, "get").mockReturnValue({
-            action: "AUTHENTICATE",
-            resource: "ACCOUNT",
-        });
+        jest.spyOn(reflector, "get").mockReturnValue({ action: "AUTHENTICATE", resource: "ACCOUNT" });
         delete request.user;
-        delete request.account;
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("User not authenticated"));
         expect(reflector.get).toHaveBeenCalledWith(AUDIT_METADATA_KEY, context.getHandler());
         expect(auditRecorder.record).toHaveBeenCalledWith({
@@ -120,11 +99,11 @@ describe("EmailVerifiedGuard", () => {
             userEmail: null,
             tenantId: null,
             status: "DENIED",
-            metadata: { errorMessage: "User not authenticated", origin: "EmailVerifiedGuard" },
+            metadata: { errorMessage: "User not authenticated", origin: "UserStateGuard" },
         });
     });
 
-    it("should record a denied audit when email is not verified", () => {
+    it("should record a denied audit when user is not active", () => {
         const { guard, reflector, auditRecorder, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         jest.spyOn(reflector, "get").mockReturnValue({
@@ -136,10 +115,9 @@ describe("EmailVerifiedGuard", () => {
             tenantId: "tenant-id",
             roleCode: "ADMIN",
             sessionId: "session-id",
-            userState: { status: "ACTIVE" },
+            userState: { status: "SUSPENDED" },
         };
-        request.account = { emailVerified: false };
-        expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("Email not verified"));
+        expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("User is not active"));
         expect(auditRecorder.record).toHaveBeenCalledWith({
             action: "AUTHENTICATE",
             resource: "ACCOUNT",
@@ -148,7 +126,7 @@ describe("EmailVerifiedGuard", () => {
             userEmail: null,
             tenantId: null,
             status: "DENIED",
-            metadata: { errorMessage: "Email not verified", origin: "EmailVerifiedGuard" },
+            metadata: { errorMessage: "User is not active", origin: "UserStateGuard" },
         });
     });
 
@@ -157,7 +135,6 @@ describe("EmailVerifiedGuard", () => {
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         jest.spyOn(reflector, "get").mockReturnValue(undefined);
         delete request.user;
-        delete request.account;
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("User not authenticated"));
         expect(auditRecorder.record).not.toHaveBeenCalled();
     });
@@ -165,10 +142,7 @@ describe("EmailVerifiedGuard", () => {
     it("should record Unknown error when the error is not an Error instance", () => {
         const { guard, reflector, auditRecorder, context } = makeSut();
         const nonError: object = Object.create(null) as object;
-        jest.spyOn(reflector, "get").mockReturnValue({
-            action: "AUTHENTICATE",
-            resource: "ACCOUNT",
-        });
+        jest.spyOn(reflector, "get").mockReturnValue({ action: "AUTHENTICATE", resource: "ACCOUNT" });
         expect(nonError instanceof Error).toBe(false);
         (
             guard as unknown as {
@@ -183,10 +157,7 @@ describe("EmailVerifiedGuard", () => {
             userId: null,
             tenantId: null,
             status: "DENIED",
-            metadata: {
-                errorMessage: "Unknown error",
-                origin: "EmailVerifiedGuard",
-            },
+            metadata: { errorMessage: "Unknown error", origin: "UserStateGuard" },
         });
     });
 });

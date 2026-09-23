@@ -1,6 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-import { TENANT_STATUS, TENANT_TYPE, type TenantStatus, type TenantType } from "../../../domain/types";
+import { RESOURCE_STATUS, type ResourceStatus } from "@/types/index";
+
+import { TENANT_TYPE, type TenantType } from "../../../domain/types";
 
 export class ListTenantsResultDto {
     @ApiProperty({
@@ -25,10 +27,10 @@ export class ListTenantsResultDto {
     type!: TenantType;
 
     @ApiProperty({
-        enum: TENANT_STATUS,
-        example: TENANT_STATUS.ACTIVE,
+        enum: RESOURCE_STATUS,
+        example: RESOURCE_STATUS.ACTIVE,
     })
-    status!: TenantStatus;
+    status!: ResourceStatus;
 
     @ApiProperty({
         example: "2026-07-01T10:00:00.000Z",

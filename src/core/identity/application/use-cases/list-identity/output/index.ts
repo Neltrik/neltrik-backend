@@ -1,4 +1,5 @@
-import { type UserStatus } from "../../../../domain/types";
+import { type ResourceStatus } from "@/types/index";
+
 import { type Email } from "../../../../domain/value-objects";
 
 export type GetUsersOutput = {
@@ -12,7 +13,7 @@ export type GetUsersOutput = {
         code: string;
         scope: string;
     };
-    status: UserStatus;
+    status: ResourceStatus;
     suspendedAt: Date | null;
     createdAt: Date;
     updatedAt: Date;

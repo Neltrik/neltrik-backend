@@ -1,3 +1,5 @@
+import { RESOURCE_STATUS } from "@/types/index";
+
 import {
     InvalidFirstNameError,
     InvalidLastNameError,
@@ -5,7 +7,6 @@ import {
     UserAlreadySuspendedError,
 } from "../../errors";
 import type { UserState } from "../../types";
-import { USER_STATUS } from "../../types";
 import { Email } from "../../value-objects/email";
 import { User } from "./index";
 
@@ -26,18 +27,18 @@ const createProps = (): Omit<UserState, "status"> => {
 
 const restoreProps = (): UserState => ({
     ...createProps(),
-    status: USER_STATUS.SUSPENDED,
+    status: RESOURCE_STATUS.SUSPENDED,
 });
 
 describe("User", () => {
     it("should restore a user preserving its persisted status", () => {
         const user = User.restore(restoreProps());
-        expect(user.status).toBe(USER_STATUS.SUSPENDED);
+        expect(user.status).toBe(RESOURCE_STATUS.SUSPENDED);
     });
 
     it("should create a user with active status", () => {
         const user = User.create(createProps());
-        expect(user.status).toBe(USER_STATUS.ACTIVE);
+        expect(user.status).toBe(RESOURCE_STATUS.ACTIVE);
     });
 
     it("should throw InvalidFirstNameError when first name is empty", () => {
@@ -76,7 +77,7 @@ describe("User", () => {
         expect(user.createdAt).toEqual(props.createdAt);
         expect(user.updatedAt).toEqual(props.updatedAt);
         expect(user.suspendedAt).toBeNull();
-        expect(user.status).toBe(USER_STATUS.ACTIVE);
+        expect(user.status).toBe(RESOURCE_STATUS.ACTIVE);
     });
 
     it("should update the provided fields successfully", () => {
@@ -99,7 +100,7 @@ describe("User", () => {
     it("should suspend an active user", () => {
         const user = User.create(createProps());
         user.suspend();
-        expect(user.status).toBe(USER_STATUS.SUSPENDED);
+        expect(user.status).toBe(RESOURCE_STATUS.SUSPENDED);
         expect(user.suspendedAt).not.toBeNull();
         expect(user.updatedAt.getTime()).toBeGreaterThan(user.createdAt.getTime());
     });
@@ -112,7 +113,7 @@ describe("User", () => {
     it("should reactivate a suspended user", () => {
         const user = User.restore(restoreProps());
         user.reactivate();
-        expect(user.status).toBe(USER_STATUS.ACTIVE);
+        expect(user.status).toBe(RESOURCE_STATUS.ACTIVE);
         expect(user.suspendedAt).toBeNull();
         expect(user.updatedAt.getTime()).toBeGreaterThan(user.createdAt.getTime());
     });

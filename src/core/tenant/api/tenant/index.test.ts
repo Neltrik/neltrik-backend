@@ -1,5 +1,7 @@
+import { RESOURCE_STATUS } from "@/types/index";
+
 import { Tenant } from "../../domain/entities";
-import { TENANT_STATUS, TENANT_TYPE } from "../../domain/types";
+import { TENANT_TYPE } from "../../domain/types";
 import { GetTenantOhsUseCaseSpy } from "../../test-doubles";
 import { TenantApiImpl } from "./index";
 
@@ -9,7 +11,7 @@ const makeTenant = (type: "PLATFORM" | "CUSTOMER") =>
         name: "Acme Corporation",
         slug: "acme-corporation",
         type,
-        status: TENANT_STATUS.ACTIVE,
+        status: RESOURCE_STATUS.ACTIVE,
         createdAt: new Date("2025-01-01T00:00:00.000Z"),
         updatedAt: new Date("2025-01-01T00:00:00.000Z"),
         suspendedAt: null,

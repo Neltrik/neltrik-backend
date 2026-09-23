@@ -86,6 +86,7 @@ describe("AuthenticationGuard", () => {
             roleCode: "ADMIN",
             emailVerified: false,
             sessionId: "session-id",
+            userState: { status: "ACTIVE" },
         });
         sessionValidator.validate.mockResolvedValue(false);
         await expect(guard.canActivate(context)).rejects.toThrow(
@@ -105,6 +106,7 @@ describe("AuthenticationGuard", () => {
             roleCode: "ADMIN",
             emailVerified: false,
             sessionId: "session-id",
+            userState: { status: "ACTIVE" },
         });
         sessionValidator.validate.mockResolvedValue(true);
         await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -199,6 +201,7 @@ describe("AuthenticationGuard", () => {
             roleCode: "ADMIN",
             emailVerified: true,
             sessionId: "session-id",
+            userState: { status: "ACTIVE" },
         });
         sessionValidator.validate.mockResolvedValue(false);
         await expect(guard.canActivate(context)).rejects.toThrow(

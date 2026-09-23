@@ -3,7 +3,7 @@ import { type Request } from "express";
 
 import { UnauthorizedError } from "@/shared/errors";
 
-import { type UserPayload } from "./type";
+import type { UserPayload, UserState } from "./type";
 
 export const CurrentUser = createParamDecorator((data: keyof UserPayload | undefined, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<Request>();
@@ -17,4 +17,4 @@ export const CurrentUser = createParamDecorator((data: keyof UserPayload | undef
     return user;
 });
 
-export { UserPayload };
+export { UserPayload, UserState };

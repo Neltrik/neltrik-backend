@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-import { USER_STATUS, type UserStatus } from "../../../domain/types";
+import { RESOURCE_STATUS, type ResourceStatus } from "@/types/index";
 
 class GetUsersRoleResultDto {
     @ApiProperty({
@@ -46,8 +46,8 @@ export class GetUsersResultDto {
     role!: GetUsersRoleResultDto;
 
     @ApiProperty({
-        enum: USER_STATUS,
-        example: USER_STATUS.ACTIVE,
+        enum: RESOURCE_STATUS,
+        example: RESOURCE_STATUS.ACTIVE,
     })
-    status!: UserStatus;
+    status!: ResourceStatus;
 }

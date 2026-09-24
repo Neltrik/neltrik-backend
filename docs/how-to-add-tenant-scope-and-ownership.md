@@ -37,8 +37,8 @@ Listo. El middleware filtra por `tenantId` automáticamente.
 ```prisma
 model MiModelo {
     id      String  @id @default(uuid()) @db.Uuid
-    ownerId String? @map("owner_id") @db.Uuid
-    owner   User?   @relation(fields: [ownerId], references: [id])
+    ownerId String @map("owner_id") @db.Uuid
+    owner   User   @relation(fields: [ownerId], references: [id])
 }
 ```
 

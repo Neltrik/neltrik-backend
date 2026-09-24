@@ -43,6 +43,7 @@ export class AuthenticationGuard implements CanActivate {
                 roleCode: payload.roleCode,
                 sessionId: payload.sessionId,
                 userState: result.userState,
+                tenantState: result.tenantState,
             };
             request.account = {
                 emailVerified: result.accountState.emailVerified,

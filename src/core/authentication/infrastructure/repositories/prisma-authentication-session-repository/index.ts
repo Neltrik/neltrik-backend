@@ -75,7 +75,12 @@ export class PrismaAuthenticationSessionRepository extends AuthenticationSession
         const session = await this.prisma.tenantClient.authenticationSession.findUnique({
             where: { id },
             include: {
-                owner: { select: { status: true } },
+                owner: {
+                    select: {
+                        status: true,
+                        tenant: { select: { status: true } },
+                    },
+                },
                 authenticationAccount: { select: { emailVerified: true } },
             },
         });
@@ -84,8 +89,9 @@ export class PrismaAuthenticationSessionRepository extends AuthenticationSession
         }
         return {
             session: AuthenticationSessionMapper.toDomain(session),
-            userStatus: session.owner?.status ?? "SUSPENDED",
+            userStatus: session.owner.status,
             emailVerified: session.authenticationAccount.emailVerified,
+            tenantStatus: session.owner.tenant.status,
         };
     }
 }

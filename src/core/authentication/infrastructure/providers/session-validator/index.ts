@@ -15,12 +15,14 @@ export class SessionValidatorProvider implements SessionValidator {
                 isValid: false,
                 userState: { status: "SUSPENDED" },
                 accountState: { emailVerified: false },
+                tenantState: { status: "SUSPENDED" },
             };
         }
         return {
             isValid: true,
             userState: { status: result.userStatus },
             accountState: { emailVerified: result.emailVerified },
+            tenantState: { status: result.tenantStatus },
         };
     }
 }

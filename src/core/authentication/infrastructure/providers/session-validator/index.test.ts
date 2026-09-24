@@ -36,6 +36,7 @@ describe("SessionValidatorProvider", () => {
                 session,
                 userStatus: "ACTIVE",
                 emailVerified: true,
+                tenantStatus: "ACTIVE",
             });
             const result = await provider.resolve("session-id");
             expect(sessionRepository.findByIdWithOwnerState).toHaveBeenCalledWith("session-id");
@@ -66,6 +67,7 @@ describe("SessionValidatorProvider", () => {
                 session,
                 userStatus: "ACTIVE",
                 emailVerified: true,
+                tenantStatus: "ACTIVE",
             });
             const result = await provider.resolve("session-id");
             expect(sessionRepository.findByIdWithOwnerState).toHaveBeenCalledWith("session-id");

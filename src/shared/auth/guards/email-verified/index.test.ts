@@ -64,6 +64,7 @@ describe("EmailVerifiedGuard", () => {
             roleCode: "ADMIN",
             sessionId: "",
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         };
         delete request.account;
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("User not authenticated"));
@@ -78,6 +79,7 @@ describe("EmailVerifiedGuard", () => {
             roleCode: "ADMIN",
             sessionId: "",
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         };
         request.account = { emailVerified: false };
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("Email not verified"));
@@ -92,6 +94,7 @@ describe("EmailVerifiedGuard", () => {
             roleCode: "ADMIN",
             sessionId: "",
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         };
         request.account = { emailVerified: true };
         expect(guard.canActivate(context)).toBe(true);
@@ -137,6 +140,7 @@ describe("EmailVerifiedGuard", () => {
             roleCode: "ADMIN",
             sessionId: "session-id",
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         };
         request.account = { emailVerified: false };
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("Email not verified"));

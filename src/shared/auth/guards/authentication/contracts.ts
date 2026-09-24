@@ -4,6 +4,7 @@ export type SessionResolution = {
     isValid: boolean;
     userState: { status: ResourceStatus };
     accountState: { emailVerified: boolean };
+    tenantState: { status: ResourceStatus };
 };
 
 export abstract class SessionValidator {

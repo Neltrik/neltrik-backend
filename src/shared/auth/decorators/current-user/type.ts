@@ -1,3 +1,4 @@
+import { type TenantState } from "@/shared/tenant";
 import { type ResourceStatus } from "@/types/index";
 
 export type UserState = {
@@ -10,4 +11,5 @@ export type UserPayload = {
     roleCode: string;
     sessionId: string;
     userState: UserState;
+    tenantState: TenantState;
 };

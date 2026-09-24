@@ -12,7 +12,7 @@ import {
 } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 
-import { CurrentUser, Public, SkipEmailVerification, SkipUserState } from "@/shared/auth";
+import { CurrentUser, Public, SkipEmailVerification, SkipTenantState, SkipUserState } from "@/shared/auth";
 import { Permissions, PublicPermission } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -111,6 +111,7 @@ export class InvitationController {
     @Public()
     @SkipEmailVerification()
     @SkipUserState()
+    @SkipTenantState()
     @PublicPermission()
     @Get("validate")
     public async validate(

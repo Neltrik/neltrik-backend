@@ -10,7 +10,7 @@ import {
 } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 
-import { CurrentUser, Public, SkipEmailVerification, SkipUserState } from "@/shared/auth";
+import { CurrentUser, Public, SkipEmailVerification, SkipTenantState, SkipUserState } from "@/shared/auth";
 import { PublicPermission } from "@/shared/authorization";
 import { Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -55,6 +55,7 @@ export class EmailVerificationController {
     @Throttle({ default: { limit: 3, ttl: 3600000 } })
     @SkipEmailVerification()
     @SkipUserState()
+    @SkipTenantState()
     @PublicPermission()
     @Post()
     public async requestVerification(@CurrentUser("userId") userId: string): Promise<void> {
@@ -86,6 +87,7 @@ export class EmailVerificationController {
     @Public()
     @SkipEmailVerification()
     @SkipUserState()
+    @SkipTenantState()
     @PublicPermission()
     @Get()
     public async validateVerification(

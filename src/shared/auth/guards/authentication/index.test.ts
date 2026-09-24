@@ -124,6 +124,7 @@ describe("AuthenticationGuard", () => {
             roleCode: "ADMIN",
             sessionId: "session-id",
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         });
         expect(request.account).toEqual({ emailVerified: false });
     });

@@ -43,6 +43,7 @@ describe("SessionValidatorProvider", () => {
             expect(result).toEqual({
                 isValid: true,
                 userState: { status: "ACTIVE" },
+                tenantState: { status: "ACTIVE" },
                 accountState: { emailVerified: true },
             });
         });
@@ -55,6 +56,7 @@ describe("SessionValidatorProvider", () => {
             expect(result).toEqual({
                 isValid: false,
                 userState: { status: "SUSPENDED" },
+                tenantState: { status: "SUSPENDED" },
                 accountState: { emailVerified: false },
             });
         });
@@ -74,6 +76,7 @@ describe("SessionValidatorProvider", () => {
             expect(result).toEqual({
                 isValid: false,
                 userState: { status: "SUSPENDED" },
+                tenantState: { status: "SUSPENDED" },
                 accountState: { emailVerified: false },
             });
         });

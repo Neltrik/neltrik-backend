@@ -90,6 +90,7 @@ describe("AuthenticationGuard", () => {
             accountState: { emailVerified: false },
             isValid: false,
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         });
         await expect(guard.canActivate(context)).rejects.toThrow(
             new UnauthorizedException("Invalid or revoked session"),
@@ -112,6 +113,7 @@ describe("AuthenticationGuard", () => {
             accountState: { emailVerified: false },
             isValid: true,
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         });
         await expect(guard.canActivate(context)).resolves.toBe(true);
         expect(tokenVerifier.verify).toHaveBeenCalledWith("access-token");
@@ -210,6 +212,7 @@ describe("AuthenticationGuard", () => {
             accountState: { emailVerified: false },
             isValid: false,
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         });
         await expect(guard.canActivate(context)).rejects.toThrow(
             new UnauthorizedException("Invalid or revoked session"),

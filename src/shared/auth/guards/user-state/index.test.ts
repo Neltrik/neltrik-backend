@@ -63,6 +63,7 @@ describe("UserStateGuard", () => {
             roleCode: "ADMIN",
             sessionId: "session-id",
             userState: { status: "SUSPENDED" },
+            tenantState: { status: "ACTIVE" },
         };
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("User is not active"));
     });
@@ -76,6 +77,7 @@ describe("UserStateGuard", () => {
             roleCode: "ADMIN",
             sessionId: "session-id",
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         };
         expect(guard.canActivate(context)).toBe(true);
         expect(reflector.getAllAndOverride).toHaveBeenCalledWith(SKIP_USER_STATE_KEY, [
@@ -116,6 +118,7 @@ describe("UserStateGuard", () => {
             roleCode: "ADMIN",
             sessionId: "session-id",
             userState: { status: "SUSPENDED" },
+            tenantState: { status: "ACTIVE" },
         };
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("User is not active"));
         expect(auditRecorder.record).toHaveBeenCalledWith({

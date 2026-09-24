@@ -81,7 +81,7 @@ export class AuthenticationSession {
         return this.props.authenticationAccountId;
     }
 
-    public get ownerId(): string | null {
+    public get ownerId(): string {
         return this.props.ownerId;
     }
 

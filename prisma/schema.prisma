@@ -256,7 +256,7 @@ model AuthenticationAccount {
 model AuthenticationSession {
   id                      String    @id @default(uuid()) @db.Uuid
   authenticationAccountId String    @map("authentication_account_id") @db.Uuid
-  ownerId                 String?   @map("owner_id") @db.Uuid
+  ownerId                 String    @map("owner_id") @db.Uuid
   refreshTokenHash        String    @map("refresh_token_hash") @db.Text
   expiresAt               DateTime  @map("expires_at")
   refreshTokenExpiresAt   DateTime  @map("refresh_token_expires_at")
@@ -268,7 +268,7 @@ model AuthenticationSession {
   updatedAt               DateTime  @updatedAt @map("updated_at")
 
   authenticationAccount AuthenticationAccount @relation(fields: [authenticationAccountId], references: [id])
-  owner                 User?                 @relation(fields: [ownerId], references: [id])
+  owner                 User                  @relation(fields: [ownerId], references: [id])
 
   @@index([authenticationAccountId])
   @@index([expiresAt])

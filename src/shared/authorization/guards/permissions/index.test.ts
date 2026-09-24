@@ -90,6 +90,7 @@ describe("PermissionsGuard", () => {
             roleCode: "ADMIN",
             sessionId: "",
             userState: { status: "SUSPENDED" },
+            tenantState: { status: "ACTIVE" },
         };
         hasPermissionMock.mockResolvedValueOnce(true).mockResolvedValueOnce(true);
         await expect(guard.canActivate(context)).resolves.toBe(true);
@@ -109,6 +110,7 @@ describe("PermissionsGuard", () => {
             tenantId: "",
             sessionId: "",
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         };
         permissionChecker.hasPermission.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
         await expect(guard.canActivate(context)).rejects.toThrow(
@@ -128,6 +130,7 @@ describe("PermissionsGuard", () => {
             tenantId: "",
             sessionId: "",
             userState: { status: "ACTIVE" },
+            tenantState: { status: "ACTIVE" },
         };
         permissionChecker.hasPermission.mockRejectedValue(new Error("Permission checker error"));
         await expect(guard.canActivate(context)).rejects.toThrow("Permission checker error");
@@ -173,6 +176,7 @@ describe("PermissionsGuard", () => {
             tenantId: "",
             sessionId: "",
             userState: { status: "SUSPENDED" },
+            tenantState: { status: "SUSPENDED" },
         };
         permissionChecker.hasPermission.mockResolvedValue(false);
         await expect(guard.canActivate(context)).rejects.toThrow(

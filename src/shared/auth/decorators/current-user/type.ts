@@ -1,7 +1,10 @@
-import { type TenantState } from "@/shared/tenant";
 import { type ResourceStatus } from "@/types/index";
 
 export type UserState = {
+    status: ResourceStatus;
+};
+
+type TenantState = {
     status: ResourceStatus;
 };
 

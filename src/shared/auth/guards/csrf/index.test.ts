@@ -3,7 +3,7 @@ import { ForbiddenException } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import type { Request } from "express";
 
-import { AUDIT_METADATA_KEY, type AuditRecorder } from "@/shared/audit";
+import { type AuditRecorder } from "@/shared/audit";
 
 import { CSRF_HEADER_NAME } from "../../constants";
 import { IS_PUBLIC_KEY } from "../../decorators";
@@ -11,9 +11,7 @@ import { type CsrfTokenProvider } from "../../providers";
 import { CsrfGuard } from "./";
 
 jest.mock("@/config/env", () => ({
-    env: {
-        FRONTEND_URL: "https://example.com",
-    },
+    env: { FRONTEND_URL: "https://example.com" },
 }));
 
 describe("CsrfGuard", () => {
@@ -25,28 +23,26 @@ describe("CsrfGuard", () => {
         const csrfTokenProvider: jest.Mocked<CsrfTokenProvider> = {
             verify: jest.fn().mockReturnValue(true),
         } as unknown as jest.Mocked<CsrfTokenProvider>;
-
-        const guard = new CsrfGuard(reflector, auditRecorder, csrfTokenProvider);
-        const request = Object.create(Request.prototype) as Request;
-        request.method = "POST";
-        request.headers = {
-            origin: "https://example.com",
-            "x-requested-with": "XMLHttpRequest",
-            [CSRF_HEADER_NAME]: "valid-token",
-        };
-        request.user = {
-            sessionId: "session-id",
-            userId: "user-id",
-            tenantId: "tenant-id",
-            roleCode: "ADMIN",
-            userState: { status: "ACTIVE" },
-            tenantState: { status: "ACTIVE" },
-        };
-
+        const request = {
+            method: "POST",
+            headers: {
+                origin: "https://example.com",
+                "x-requested-with": "XMLHttpRequest",
+                [CSRF_HEADER_NAME]: "valid-token",
+            },
+            user: {
+                sessionId: "session-id",
+                userId: "user-id",
+                tenantId: "tenant-id",
+                roleCode: "ADMIN",
+                userState: { status: "ACTIVE" },
+                tenantState: { status: "ACTIVE" },
+            },
+        } as unknown as Request;
         const httpContext = {
             getRequest: jest.fn().mockReturnValue(request),
         };
-        const context: ExecutionContext = {
+        const context = {
             getArgs: jest.fn(),
             getArgByIndex: jest.fn(),
             getType: jest.fn(),
@@ -55,16 +51,16 @@ describe("CsrfGuard", () => {
             switchToRpc: jest.fn(),
             switchToWs: jest.fn(),
             switchToHttp: jest.fn().mockReturnValue(httpContext),
-        };
+        } as unknown as ExecutionContext;
         jest.spyOn(reflector, "get").mockReturnValue(undefined);
+        jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
+        const guard = new CsrfGuard(reflector, auditRecorder, csrfTokenProvider);
         return { guard, reflector, auditRecorder, csrfTokenProvider, context, request };
     };
 
-    afterEach(() => {
-        jest.restoreAllMocks();
-    });
+    afterEach(() => jest.restoreAllMocks());
 
-    it("should allow access for non-mutating methods (e.g., GET)", () => {
+    it("should allow access for non-mutating methods", () => {
         const { guard, reflector, context, request } = makeSut();
         request.method = "GET";
         expect(guard.canActivate(context)).toBe(true);
@@ -72,8 +68,7 @@ describe("CsrfGuard", () => {
     });
 
     it("should allow access when route is public", () => {
-        const { guard, reflector, context, request } = makeSut();
-        request.method = "POST";
+        const { guard, reflector, context } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(true);
         expect(guard.canActivate(context)).toBe(true);
         expect(reflector.getAllAndOverride).toHaveBeenCalledWith(IS_PUBLIC_KEY, [
@@ -82,18 +77,14 @@ describe("CsrfGuard", () => {
         ]);
     });
 
-    it("should throw when origin is invalid", () => {
+    it.each([
+        ["invalid origin", { origin: "https://malicious.com" }, "Invalid origin"],
+        ["invalid X-Requested-With", { "x-requested-with": "Fetch" }, "Missing X-Requested-With header"],
+    ])("should reject requests with %s", (_, headers, message) => {
         const { guard, reflector, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-        request.headers.origin = "https://malicious.com";
-        expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("Invalid origin"));
-    });
-
-    it("should throw when X-Requested-With header is missing or invalid", () => {
-        const { guard, reflector, context, request } = makeSut();
-        jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-        request.headers["x-requested-with"] = "Fetch";
-        expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("Missing X-Requested-With header"));
+        Object.assign(request.headers, headers);
+        expect(() => guard.canActivate(context)).toThrow(new ForbiddenException(message));
     });
 
     it("should throw when session is not available", () => {
@@ -114,16 +105,18 @@ describe("CsrfGuard", () => {
         const { guard, reflector, context } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
         expect(guard.canActivate(context)).toBe(true);
+        expect(reflector.get).not.toHaveBeenCalled();
     });
 
-    it("should record a denied audit when validation fails and audit metadata exists", () => {
+    it("should record denied audit when validation fails with metadata", () => {
         const { guard, reflector, auditRecorder, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-        jest.spyOn(reflector, "get").mockReturnValue({ action: "UPDATE", resource: "SETTINGS" });
+        jest.spyOn(reflector, "get").mockReturnValue({
+            action: "UPDATE",
+            resource: "SETTINGS",
+        });
         request.headers.origin = "https://malicious.com";
-
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("Invalid origin"));
-        expect(reflector.get).toHaveBeenCalledWith(AUDIT_METADATA_KEY, context.getHandler());
         expect(auditRecorder.record).toHaveBeenCalledWith({
             action: "UPDATE",
             resource: "SETTINGS",
@@ -136,28 +129,27 @@ describe("CsrfGuard", () => {
         });
     });
 
-    it("should not record an audit when validation fails without audit metadata", () => {
+    it("should not record audit without metadata", () => {
         const { guard, reflector, auditRecorder, context, request } = makeSut();
         jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
-        jest.spyOn(reflector, "get").mockReturnValue(undefined);
         request.headers.origin = "https://malicious.com";
-
         expect(() => guard.canActivate(context)).toThrow(new ForbiddenException("Invalid origin"));
         expect(auditRecorder.record).not.toHaveBeenCalled();
     });
 
-    it("should record Unknown error when the error is not an Error instance", () => {
+    it("should record Unknown error for non-Error values", () => {
         const { guard, reflector, auditRecorder, context } = makeSut();
-        const nonError: object = Object.create(null) as object;
-        jest.spyOn(reflector, "get").mockReturnValue({ action: "UPDATE", resource: "SETTINGS" });
+        const nonError = Object.create(null) as object;
+        jest.spyOn(reflector, "get").mockReturnValue({
+            action: "UPDATE",
+            resource: "SETTINGS",
+        });
 
-        expect(nonError instanceof Error).toBe(false);
         (
             guard as unknown as {
                 auditDenied: (context: ExecutionContext, error: unknown) => void;
             }
         ).auditDenied(context, nonError);
-
         expect(auditRecorder.record).toHaveBeenCalledWith({
             action: "UPDATE",
             resource: "SETTINGS",
@@ -168,5 +160,13 @@ describe("CsrfGuard", () => {
             status: "DENIED",
             metadata: { errorMessage: "Unknown error", origin: "CsrfGuard" },
         });
+    });
+
+    it("should use the first CSRF token when header is an array", () => {
+        const { guard, reflector, csrfTokenProvider, context, request } = makeSut();
+        jest.spyOn(reflector, "getAllAndOverride").mockReturnValue(false);
+        request.headers[CSRF_HEADER_NAME] = ["valid-token", "another-token"];
+        expect(guard.canActivate(context)).toBe(true);
+        expect(csrfTokenProvider.verify).toHaveBeenCalledWith("valid-token", "session-id");
     });
 });

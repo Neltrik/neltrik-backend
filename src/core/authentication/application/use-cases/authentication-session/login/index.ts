@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { AuthorizationRoleApi } from "@/core/authorization/api";
 import { UserApi } from "@/core/identity/api";
+import { CsrfTokenProvider } from "@/shared/auth/providers";
 import { IdGenerator } from "@/shared/id-generator";
 
 import { AuthenticationSession } from "../../../../domain/entities";
@@ -18,6 +19,7 @@ export class LoginUseCase {
     constructor(
         private readonly authorizationRoleApi: AuthorizationRoleApi,
         private readonly userApi: UserApi,
+        private readonly csrfTokenProvider: CsrfTokenProvider,
         private readonly idGenerator: IdGenerator,
         private readonly accountRepository: AuthenticationAccountRepository,
         private readonly sessionRepository: AuthenticationSessionRepository,
@@ -62,7 +64,8 @@ export class LoginUseCase {
             tenantId: identityUser.tenantId,
             sessionId: session.id,
         });
-        return { sessionId: session.id, accessToken, refreshToken };
+        const csrfToken = this.csrfTokenProvider.generate(session.id);
+        return { sessionId: session.id, accessToken, refreshToken, csrfToken };
     }
 }
 

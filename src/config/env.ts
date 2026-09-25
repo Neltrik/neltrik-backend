@@ -9,6 +9,8 @@ const envSchema = z.object({
     MAGIC_LINK_BASE_URL: z.url(),
     JWT_REFRESH_TOKEN_EXPIRES_IN: z.coerce.number().int().positive().default(604800),
     JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
+    CSRF_SECRET: z.string().min(32, "CSRF_SECRET must be at least 32 characters"),
+    COOKIE_SAME_SITE: z.enum(["strict", "lax", "none"]).default("strict"),
     SMTP_HOST: z.string().min(1, "SMTP_HOST is required"),
     SMTP_PORT: z.coerce.number().int().positive().default(587),
     SMTP_SECURE: z

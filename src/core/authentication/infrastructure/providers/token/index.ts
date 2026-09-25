@@ -4,10 +4,9 @@ import * as bcrypt from "bcrypt";
 import { randomUUID } from "crypto";
 
 import { env } from "@/config/env";
+import { MAX_AGE } from "@/shared/auth";
 
 import { AccessTokenPayload } from "./type";
-
-const ACCESS_TOKEN_EXPIRATION_MS = 15 * 60 * 1000;
 
 @Injectable()
 export class TokenProvider {
@@ -44,6 +43,6 @@ export class TokenProvider {
     }
 
     public calculateAccessTokenExpiration(): Date {
-        return new Date(Date.now() + ACCESS_TOKEN_EXPIRATION_MS);
+        return new Date(Date.now() + MAX_AGE.ACCESS_TOKEN);
     }
 }

@@ -241,10 +241,12 @@ describe("RefreshTokenUseCase", () => {
 
     it("should propagate refresh token hashing errors", async () => {
         const sut = makeSut();
+        sut.sha256Hasher.hash.mockReset();
         sut.sha256Hasher.hash.mockImplementation(() => {
             throw new Error("Hashing failed");
         });
         await expect(sut.useCase.execute("refresh-token")).rejects.toThrow("Hashing failed");
+        expect(sut.sha256Hasher.hash).toHaveBeenCalledWith("refresh-token");
         expect(sut.sessionRepository.findByRefreshTokenHash).not.toHaveBeenCalled();
     });
 

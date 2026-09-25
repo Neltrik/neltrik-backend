@@ -12,7 +12,8 @@ import {
 import { Throttle } from "@nestjs/throttler";
 import type { Request, Response } from "express";
 
-import { Public, SkipEmailVerification, SkipTenantState, SkipUserState } from "@/shared/auth";
+import { env } from "@/config/env";
+import { COOKIE_NAMES, MAX_AGE, Public, SkipEmailVerification, SkipTenantState, SkipUserState } from "@/shared/auth";
 import { PublicPermission } from "@/shared/authorization";
 import { ApiContract, CookieHelper, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -21,9 +22,6 @@ import { LoginInput, LoginUseCase, LogoutUseCase, RefreshTokenUseCase } from "..
 import { LoginRequestDto, LoginResponseDto } from "../../dto";
 import { AUTH_MESSAGES } from "../../messages";
 import { loginSchema } from "../../schemas";
-
-const MAX_AGE_REFRESH_TOKEN = 7 * 24 * 60 * 60 * 1000;
-const MAX_AGE_ACCESS_TOKEN = 15 * 60 * 1000;
 
 @ApiTags("Authentication")
 @Controller("auth")
@@ -80,18 +78,7 @@ export class AuthController {
             input.userAgent = body.userAgent;
         }
         const result = await this.loginUseCase.execute(input);
-        res.cookie("accessToken", result.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: MAX_AGE_ACCESS_TOKEN,
-        });
-        res.cookie("refreshToken", result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: MAX_AGE_REFRESH_TOKEN,
-        });
+        this.setAuthCookies(res, result);
         return { sessionId: result.sessionId };
     }
 
@@ -127,20 +114,9 @@ export class AuthController {
     @PublicPermission()
     @Post("refresh")
     public async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
-        const refreshToken = CookieHelper.get(req, "refreshToken");
+        const refreshToken = CookieHelper.get(req, COOKIE_NAMES.REFRESH_TOKEN);
         const result = await this.refreshTokenUseCase.execute(refreshToken);
-        res.cookie("accessToken", result.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: MAX_AGE_ACCESS_TOKEN,
-        });
-        res.cookie("refreshToken", result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: MAX_AGE_REFRESH_TOKEN,
-        });
+        this.setAuthCookies(res, result);
     }
 
     @ApiOperation({
@@ -173,19 +149,51 @@ export class AuthController {
     @PublicPermission()
     @Post("logout")
     public async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response): Promise<void> {
-        const refreshToken = CookieHelper.get(req, "refreshToken");
+        const refreshToken = CookieHelper.get(req, COOKIE_NAMES.REFRESH_TOKEN);
         await this.logoutUseCase.execute(refreshToken);
-        res.cookie("accessToken", "", {
+        const secure = process.env.NODE_ENV === "production" || env.COOKIE_SAME_SITE === "none";
+        res.cookie(COOKIE_NAMES.ACCESS_TOKEN, "", {
             maxAge: 0,
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            secure,
+            sameSite: env.COOKIE_SAME_SITE,
         });
-        res.cookie("refreshToken", "", {
+        res.cookie(COOKIE_NAMES.REFRESH_TOKEN, "", {
             maxAge: 0,
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
+            secure,
+            sameSite: env.COOKIE_SAME_SITE,
+        });
+        res.cookie(COOKIE_NAMES.CSRF_TOKEN, "", {
+            maxAge: 0,
+            httpOnly: false,
+            secure,
+            sameSite: env.COOKIE_SAME_SITE,
+        });
+    }
+
+    private setAuthCookies(
+        res: Response,
+        result: { accessToken: string; refreshToken: string; csrfToken: string },
+    ): void {
+        const secure = process.env.NODE_ENV === "production" || env.COOKIE_SAME_SITE === "none";
+        res.cookie(COOKIE_NAMES.ACCESS_TOKEN, result.accessToken, {
+            httpOnly: true,
+            secure,
+            sameSite: env.COOKIE_SAME_SITE,
+            maxAge: MAX_AGE.ACCESS_TOKEN,
+        });
+        res.cookie(COOKIE_NAMES.REFRESH_TOKEN, result.refreshToken, {
+            httpOnly: true,
+            secure,
+            sameSite: env.COOKIE_SAME_SITE,
+            maxAge: MAX_AGE.REFRESH_TOKEN,
+        });
+        res.cookie(COOKIE_NAMES.CSRF_TOKEN, result.csrfToken, {
+            httpOnly: false,
+            secure,
+            sameSite: env.COOKIE_SAME_SITE,
+            maxAge: MAX_AGE.ACCESS_TOKEN,
         });
     }
 }

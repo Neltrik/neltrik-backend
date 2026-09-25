@@ -5,6 +5,7 @@ import { Request } from "express";
 import { AUDIT_METADATA_KEY, type AuditMetadata, AuditRecorder } from "@/shared/audit";
 import { CookieHelper } from "@/shared/http";
 
+import { COOKIE_NAMES } from "../../constants";
 import { IS_PUBLIC_KEY } from "../../decorators";
 import { TokenVerifier } from "../../providers";
 import { SessionValidator } from "./contracts";
@@ -28,7 +29,7 @@ export class AuthenticationGuard implements CanActivate {
                 return true;
             }
             const request = context.switchToHttp().getRequest<Request>();
-            const token = CookieHelper.get(request, "accessToken");
+            const token = CookieHelper.get(request, COOKIE_NAMES.ACCESS_TOKEN);
             if (!token) {
                 throw new UnauthorizedException("Access token not found");
             }

@@ -1,3 +1,5 @@
+import { CsrfTokenProvider } from "@/shared/auth/providers";
+
 import { Sha256Hasher, TokenProvider } from "../../infrastructure/providers";
 import { EmailPasswordProviderStrategy, ProviderAuthenticationStrategyFactory } from "../../infrastructure/strategies";
 
@@ -35,4 +37,13 @@ export class Sha256HasherSpy extends Sha256Hasher {
     }
 
     public override hash = jest.fn();
+}
+
+export class CsrfTokenProviderSpy extends CsrfTokenProvider {
+    constructor() {
+        super();
+    }
+
+    public override generate = jest.fn();
+    public override verify = jest.fn();
 }

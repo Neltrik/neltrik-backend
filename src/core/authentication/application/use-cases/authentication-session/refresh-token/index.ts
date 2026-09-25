@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 
 import { AuthorizationRoleApi } from "@/core/authorization/api";
 import { UserApi } from "@/core/identity/api";
+import { CsrfTokenProvider } from "@/shared/auth/providers";
 
 import {
     AuthenticationAccountNotFoundError,
@@ -19,6 +20,7 @@ export class RefreshTokenUseCase {
     constructor(
         private readonly authorizationRoleApi: AuthorizationRoleApi,
         private readonly userApi: UserApi,
+        private readonly csrfTokenProvider: CsrfTokenProvider,
         private readonly accountRepository: AuthenticationAccountRepository,
         private readonly sessionRepository: AuthenticationSessionRepository,
         private readonly sha256Hasher: Sha256Hasher,
@@ -59,8 +61,9 @@ export class RefreshTokenUseCase {
         const newRefreshToken = this.tokenProvider.generateRefreshToken();
         const newRefreshTokenHash = this.sha256Hasher.hash(newRefreshToken);
         const newRefreshTokenExpiresAt = this.tokenProvider.calculateRefreshTokenExpiration();
+        const csrfToken = this.csrfTokenProvider.generate(session.id);
         session.renew(newRefreshTokenHash, session.expiresAt, ExpirationDate.create(newRefreshTokenExpiresAt));
         await this.sessionRepository.update(session);
-        return { accessToken, refreshToken: newRefreshToken };
+        return { accessToken, refreshToken: newRefreshToken, csrfToken };
     }
 }

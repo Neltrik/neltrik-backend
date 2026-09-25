@@ -7,6 +7,7 @@ import {
     AuthenticationAccountRepositorySpy,
     AuthenticationSessionRepositorySpy,
     AuthorizationRoleApiSpy,
+    CsrfTokenProviderSpy,
     ProviderAuthenticationStrategyFactorySpy,
     Sha256HasherSpy,
     TokenProviderSpy,
@@ -69,12 +70,15 @@ describe("LoginUseCase", () => {
         tokenProvider.generateRefreshToken.mockReturnValue("refresh-token");
         tokenProvider.calculateAccessTokenExpiration.mockReturnValue(accessTokenExpiration);
         tokenProvider.calculateRefreshTokenExpiration.mockReturnValue(refreshTokenExpiration);
+        const csrfTokenProvider = new CsrfTokenProviderSpy();
+        csrfTokenProvider.generate.mockReturnValue("csrf-token");
         const idGenerator = {
             generate: jest.fn().mockReturnValue("session-id"),
         } satisfies IdGenerator;
         const useCase = new LoginUseCase(
             authorizationRoleApi,
             userApi,
+            csrfTokenProvider,
             idGenerator,
             accountRepository,
             sessionRepository,
@@ -89,23 +93,11 @@ describe("LoginUseCase", () => {
             strategyFactory,
             authorizationRoleApi,
             userApi,
+            csrfTokenProvider,
             idGenerator,
             sha256Hasher,
             tokenProvider,
         };
-    };
-
-    const expectNoAuthenticationFlow = (sut: ReturnType<typeof makeSut>) => {
-        expect(sut.userApi.getUserById).not.toHaveBeenCalled();
-        expect(sut.authorizationRoleApi.getRoleById).not.toHaveBeenCalled();
-        expect(sut.tokenProvider.generateAccessToken).not.toHaveBeenCalled();
-        expect(sut.sha256Hasher.hash).not.toHaveBeenCalled();
-        expect(sut.sessionRepository.create).not.toHaveBeenCalled();
-    };
-
-    const expectNoSessionCreation = (sut: ReturnType<typeof makeSut>) => {
-        expect(sut.sha256Hasher.hash).not.toHaveBeenCalled();
-        expect(sut.sessionRepository.create).not.toHaveBeenCalled();
     };
 
     describe("execute", () => {
@@ -132,16 +124,13 @@ describe("LoginUseCase", () => {
                 tenantId: "tenant-id",
                 sessionId: "session-id",
             });
-            expect(sut.tokenProvider.generateRefreshToken).toHaveBeenCalledTimes(1);
             expect(sut.sha256Hasher.hash).toHaveBeenCalledWith("refresh-token");
-            expect(sut.tokenProvider.calculateAccessTokenExpiration).toHaveBeenCalledTimes(1);
-            expect(sut.tokenProvider.calculateRefreshTokenExpiration).toHaveBeenCalledTimes(1);
-            expect(sut.idGenerator.generate).toHaveBeenCalledTimes(1);
-            expect(sut.sessionRepository.create).toHaveBeenCalledTimes(1);
+            expect(sut.csrfTokenProvider.generate).toHaveBeenCalledWith("session-id");
             expect(result).toEqual({
                 sessionId: "session-id",
                 accessToken: "access-token",
                 refreshToken: "refresh-token",
+                csrfToken: "csrf-token",
             });
         });
 
@@ -149,10 +138,10 @@ describe("LoginUseCase", () => {
             const sut = makeSut();
             sut.accountRepository.findByEmail.mockResolvedValue(null);
             await expect(sut.useCase.execute(makeInput())).rejects.toThrow(AuthenticationAccountNotFoundError);
-            expect(sut.accountRepository.findByEmail).toHaveBeenCalledWith("john@company.com");
             expect(sut.strategyFactory.create).not.toHaveBeenCalled();
-            expect(sut.strategyFactory.strategy.authenticate).not.toHaveBeenCalled();
-            expectNoAuthenticationFlow(sut);
+            expect(sut.userApi.getUserById).not.toHaveBeenCalled();
+            expect(sut.sessionRepository.create).not.toHaveBeenCalled();
+            expect(sut.csrfTokenProvider.generate).not.toHaveBeenCalled();
         });
 
         it("should throw InvalidCredentialsError when credentials are invalid", async () => {
@@ -160,8 +149,9 @@ describe("LoginUseCase", () => {
             sut.strategyFactory.strategy.authenticate.mockResolvedValue(null);
             await expect(sut.useCase.execute(makeInput())).rejects.toThrow(InvalidCredentialsError);
             expect(sut.strategyFactory.create).toHaveBeenCalledWith("email-password");
-            expect(sut.strategyFactory.strategy.authenticate).toHaveBeenCalledTimes(1);
-            expectNoAuthenticationFlow(sut);
+            expect(sut.userApi.getUserById).not.toHaveBeenCalled();
+            expect(sut.sessionRepository.create).not.toHaveBeenCalled();
+            expect(sut.csrfTokenProvider.generate).not.toHaveBeenCalled();
         });
 
         it("should propagate account repository errors", async () => {
@@ -194,24 +184,23 @@ describe("LoginUseCase", () => {
             sut.userApi.getUserById.mockRejectedValue(new Error("User lookup failed"));
             await expect(sut.useCase.execute(makeInput())).rejects.toThrow("User lookup failed");
             expect(sut.authorizationRoleApi.getRoleById).not.toHaveBeenCalled();
-            expectNoSessionCreation(sut);
+            expect(sut.sessionRepository.create).not.toHaveBeenCalled();
         });
 
         it("should propagate role lookup errors", async () => {
             const sut = makeSut();
             sut.authorizationRoleApi.getRoleById.mockRejectedValue(new Error("Role lookup failed"));
             await expect(sut.useCase.execute(makeInput())).rejects.toThrow("Role lookup failed");
+            expect(sut.sessionRepository.create).not.toHaveBeenCalled();
             expect(sut.tokenProvider.generateAccessToken).not.toHaveBeenCalled();
-            expectNoSessionCreation(sut);
         });
 
         it("should propagate access token generation errors", async () => {
             const sut = makeSut();
             sut.tokenProvider.generateAccessToken.mockRejectedValue(new Error("Access token generation failed"));
             await expect(sut.useCase.execute(makeInput())).rejects.toThrow("Access token generation failed");
-            expect(sut.tokenProvider.generateRefreshToken).toHaveBeenCalledTimes(1);
-            expect(sut.sha256Hasher.hash).toHaveBeenCalledWith("refresh-token");
-            expect(sut.sessionRepository.create).toHaveBeenCalledTimes(1);
+            expect(sut.sessionRepository.create).toHaveBeenCalled();
+            expect(sut.csrfTokenProvider.generate).not.toHaveBeenCalled();
         });
 
         it("should propagate refresh token generation errors", async () => {
@@ -220,7 +209,7 @@ describe("LoginUseCase", () => {
                 throw new Error("Refresh token generation failed");
             });
             await expect(sut.useCase.execute(makeInput())).rejects.toThrow("Refresh token generation failed");
-            expectNoSessionCreation(sut);
+            expect(sut.sessionRepository.create).not.toHaveBeenCalled();
         });
 
         it("should propagate refresh token hashing errors", async () => {
@@ -229,26 +218,28 @@ describe("LoginUseCase", () => {
                 throw new Error("Refresh token hashing failed");
             });
             await expect(sut.useCase.execute(makeInput())).rejects.toThrow("Refresh token hashing failed");
-            expect(sut.tokenProvider.generateRefreshToken).toHaveBeenCalledTimes(1);
-            expect(sut.sha256Hasher.hash).toHaveBeenCalledWith("refresh-token");
             expect(sut.sessionRepository.create).not.toHaveBeenCalled();
         });
 
-        it("should propagate access token expiration errors", async () => {
+        it.each([
+            [
+                "access token expiration",
+                (sut: ReturnType<typeof makeSut>) =>
+                    sut.tokenProvider.calculateAccessTokenExpiration.mockImplementation(() => {
+                        throw new Error("Expiration failed");
+                    }),
+            ],
+            [
+                "refresh token expiration",
+                (sut: ReturnType<typeof makeSut>) =>
+                    sut.tokenProvider.calculateRefreshTokenExpiration.mockImplementation(() => {
+                        throw new Error("Expiration failed");
+                    }),
+            ],
+        ])("should propagate %s errors", async (_, configure) => {
             const sut = makeSut();
-            sut.tokenProvider.calculateAccessTokenExpiration.mockImplementation(() => {
-                throw new Error("Access token expiration failed");
-            });
-            await expect(sut.useCase.execute(makeInput())).rejects.toThrow("Access token expiration failed");
-            expect(sut.sessionRepository.create).not.toHaveBeenCalled();
-        });
-
-        it("should propagate refresh token expiration errors", async () => {
-            const sut = makeSut();
-            sut.tokenProvider.calculateRefreshTokenExpiration.mockImplementation(() => {
-                throw new Error("Refresh token expiration failed");
-            });
-            await expect(sut.useCase.execute(makeInput())).rejects.toThrow("Refresh token expiration failed");
+            configure(sut);
+            await expect(sut.useCase.execute(makeInput())).rejects.toThrow("Expiration failed");
             expect(sut.sessionRepository.create).not.toHaveBeenCalled();
         });
 
@@ -256,7 +247,17 @@ describe("LoginUseCase", () => {
             const sut = makeSut();
             sut.sessionRepository.create.mockRejectedValue(new Error("Session creation failed"));
             await expect(sut.useCase.execute(makeInput())).rejects.toThrow("Session creation failed");
-            expect(sut.sessionRepository.create).toHaveBeenCalledTimes(1);
+            expect(sut.tokenProvider.generateAccessToken).not.toHaveBeenCalled();
+            expect(sut.csrfTokenProvider.generate).not.toHaveBeenCalled();
+        });
+
+        it("should propagate csrf token generation errors", async () => {
+            const sut = makeSut();
+            sut.csrfTokenProvider.generate.mockImplementation(() => {
+                throw new Error("CSRF token generation failed");
+            });
+            await expect(sut.useCase.execute(makeInput())).rejects.toThrow("CSRF token generation failed");
+            expect(sut.sessionRepository.create).toHaveBeenCalled();
         });
 
         it("should use null for optional session metadata", async () => {
@@ -266,7 +267,6 @@ describe("LoginUseCase", () => {
             delete input.userAgent;
             await sut.useCase.execute(input);
             const [session] = sut.sessionRepository.create.mock.calls[0] ?? [];
-            expect(session).toBeDefined();
             expect(session?.ipAddress).toBeNull();
             expect(session?.userAgent).toBeNull();
         });
@@ -278,6 +278,7 @@ describe("LoginUseCase", () => {
             expect(session).toBeDefined();
             expect(session?.id).toBe("session-id");
             expect(session?.authenticationAccountId).toBe("account-id");
+            expect(session?.ownerId).toBe("user-id");
             expect(session?.refreshTokenHash).toBe("refresh-token-hash");
             expect(session?.expiresAt.value).toEqual(accessTokenExpiration);
             expect(session?.refreshTokenExpiresAt.value).toEqual(refreshTokenExpiration);

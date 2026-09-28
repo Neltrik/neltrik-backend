@@ -83,9 +83,9 @@ export class UserController {
     @Permissions("USER_UPDATE")
     @Patch("users/:id")
     public async changeRole(
-        @Param(new ZodValidationPipe(changeRoleUserSchema))
+        @Param(new ZodValidationPipe(changeRoleUserParamsSchema))
         params: UpdateUserParamsDto,
-        @Body(new ZodValidationPipe(changeRoleUserParamsSchema))
+        @Body(new ZodValidationPipe(changeRoleUserSchema))
         body: ChangeRoleUserRequestDto,
     ): Promise<UpdateUserResultDto> {
         const input: ChangeRoleUserInput = {

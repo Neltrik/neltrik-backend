@@ -254,7 +254,7 @@ Representa el propósito del archivo.
 
 - Un archivo archivado conserva sus `FileVersion` y sus `AntivirusScan`.
 
-- Un archivo archivado no consume de la `FileQuota` del `Tenant`.
+- Un archivo archivado sigue consumiendo de la `FileQuota` del `Tenant`, porque el binario sigue almacenado.
 
 - El archivado solo puede ser realizado por un actor autorizado.
 

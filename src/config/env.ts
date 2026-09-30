@@ -20,6 +20,12 @@ const envSchema = z.object({
     SMTP_USER: z.email("SMTP_USER must be a valid email"),
     SMTP_PASSWORD: z.string().min(1, "SMTP_PASSWORD is required"),
     SMTP_FROM: z.string().min(1, "SMTP_FROM is required"),
+    B2_ENDPOINT: z.url(),
+    B2_REGION: z.string().min(1, "B2_REGION is required"),
+    B2_BUCKET: z.string().min(1, "B2_BUCKET is required"),
+    B2_ACCESS_KEY_ID: z.string().min(1, "B2_ACCESS_KEY_ID is required"),
+    B2_SECRET_ACCESS_KEY: z.string().min(1, "B2_SECRET_ACCESS_KEY is required"),
+    STORAGE_DRIVER: z.enum(["local", "b2"]).default("local"),
 });
 
 export const env = Object.freeze(envSchema.parse(process.env));

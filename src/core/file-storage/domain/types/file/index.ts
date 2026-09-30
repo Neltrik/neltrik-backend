@@ -1,3 +1,5 @@
+import type { PaginationInput } from "@/shared/pagination";
+
 import { type FileVersion } from "../../value-objects";
 
 export const ANTIVIRUS_SCAN_STATUS = {
@@ -18,7 +20,6 @@ export const FILE_STATUS = {
     PENDING: "PENDING",
     READY: "READY",
     INFECTED: "INFECTED",
-    ARCHIVED: "ARCHIVED",
     DELETED: "DELETED",
 } as const;
 export type FileStatus = (typeof FILE_STATUS)[keyof typeof FILE_STATUS];
@@ -39,4 +40,29 @@ export interface FileProps {
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
+}
+
+interface PersistedAntivirusScan {
+    status: AntivirusScanStatus;
+    engine: string;
+    result: string | null;
+    scannedAt: string;
+}
+
+export interface PersistedFileVersion {
+    version: number;
+    storageKey: string;
+    size: number;
+    checksum: string;
+    scans: PersistedAntivirusScan[];
+    createdAt: string;
+}
+
+export interface FindManyFilesParams extends PaginationInput {
+    tenantId: string;
+    ownerId?: string;
+    resourceType?: string;
+    resourceId?: string;
+    purpose?: FilePurpose;
+    status?: FileStatus;
 }

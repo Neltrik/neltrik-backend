@@ -26,7 +26,6 @@ Un `File` no conoce el significado de negocio de su contenido: solo conoce su `p
 | `versions`     | Historial de versiones del archivo.                                   |
 | `createdAt`    | Fecha de creación del archivo.                                        |
 | `updatedAt`    | Fecha de la última actualización del archivo.                         |
-| `archivedAt`   | Fecha en la que el archivo fue archivado, cuando aplique.             |
 | `deletedAt`    | Fecha en la que el archivo fue eliminado lógicamente, cuando aplique. |
 
 ## Consideraciones
@@ -37,7 +36,7 @@ Un `File` no conoce el significado de negocio de su contenido: solo conoce su `p
 
 - El archivo se asocia a un recurso externo mediante una referencia polimórfica (`resourceType` + `resourceId`), sin FK.
 
-- El archivo contiene una o más `FileVersion`, que representan su historial de reemplazos.
+- El archivo contiene una o más `FileVersion`, que representan su historial de versiones. Cada reemplazo agrega una nueva `FileVersion` al mismo `File`.
 
 - Cada `FileVersion` contiene uno o más `AntivirusScan`, que representan su historial de escaneos.
 
@@ -163,7 +162,6 @@ Representa el estado actual del archivo.
 | `PENDING`  | El archivo fue creado y está esperando confirmación o escaneo. |
 | `READY`    | El archivo está disponible para ser servido.                   |
 | `INFECTED` | El archivo fue marcado como malicioso y no puede servirse.     |
-| `ARCHIVED` | El archivo fue reemplazado por una versión nueva.              |
 | `DELETED`  | El archivo fue eliminado lógicamente.                          |
 
 ### AntivirusScanStatus
@@ -223,44 +221,19 @@ Representa el propósito del archivo.
 ## 4.2 Reemplazo
 
 - Solo un archivo con estado `READY` puede reemplazarse.
-
-- El reemplazo genera una nueva `FileVersion` y archiva la versión anterior.
-
-- El reemplazo crea un `File` nuevo con estado `PENDING`.
-
-- El `File` anterior cambia su estado a `ARCHIVED`.
-
-- El `File` anterior registra su fecha en `archivedAt`.
-
-- El `File` nuevo hereda `tenantId`, `ownerId`, `purpose`, `resourceType` y `resourceId` del `File` anterior.
-
-- El `File` nuevo inicia con una `FileVersion` número `1`.
-
-- El `File` nuevo pasa por el mismo flujo de validación y escaneo que un archivo recién creado.
-
-- El `File` nuevo consume de la `FileQuota` del `Tenant`.
-
+- El reemplazo agrega una nueva `FileVersion` al mismo `File`.
+- La nueva `FileVersion` incrementa el número de versión respecto a la anterior.
+- El `File` mantiene su estado `READY`.
+- El `File` mantiene su `tenantId`, `ownerId`, `purpose`, `resourceType` y `resourceId`.
+- El `File` actualiza su `size` al tamaño de la nueva versión.
+- El `File` actualiza su `checksum` al de la nueva versión.
+- La nueva `FileVersion` pasa por el mismo flujo de validación y escaneo que una versión inicial.
+- El reemplazo consume de la `FileQuota` del `Tenant` por la diferencia de tamaño entre la versión nueva y la anterior.
 - El reemplazo solo puede ser realizado por un actor autorizado.
 
-## 4.3 Archivado
+## 4.3 Eliminación
 
-- Solo un archivo con estado `READY` puede archivarse.
-
-- Al archivar un archivo, su estado cambia a `ARCHIVED`.
-
-- Al archivar un archivo, el sistema registra la fecha en `archivedAt`.
-
-- Un archivo archivado no puede servirse.
-
-- Un archivo archivado conserva sus `FileVersion` y sus `AntivirusScan`.
-
-- Un archivo archivado sigue consumiendo de la `FileQuota` del `Tenant`, porque el binario sigue almacenado.
-
-- El archivado solo puede ser realizado por un actor autorizado.
-
-## 4.4 Eliminación
-
-- Solo un archivo con estado `READY` o `ARCHIVED` puede eliminarse.
+- Solo un archivo con estado `READY` puede eliminarse.
 
 - Al eliminar un archivo, su estado cambia a `DELETED`.
 
@@ -276,7 +249,7 @@ Representa el propósito del archivo.
 
 - La eliminación solo puede ser realizada por un actor autorizado.
 
-## 4.5 Descarga
+## 4.4 Descarga
 
 - Solo un archivo con estado `READY` puede descargarse.
 
@@ -290,16 +263,12 @@ Representa el propósito del archivo.
 
 - La descarga no modifica la `FileQuota` del `Tenant`.
 
-## 4.6 Campos actualizables
+## 4.5 Campos actualizables
 
 Los siguientes campos pueden modificarse según el caso de uso y el nivel de autorización correspondiente:
 
 - `name`
-
-- `purpose`
-
 - `resourceType`
-
 - `resourceId`
 
 > **Nota:** La actualización de metadata no forma parte del MVP. Se documenta para dejar constancia de qué campos serían modificables en el futuro.
@@ -318,13 +287,11 @@ Los siguientes campos no pueden modificarse mediante ningún caso de uso del dom
 
 - `mimeType`
 
-- `size`
-
 - `versions`
 
 - `createdAt`
 
-## 4.7 Restricciones generales
+## 4.6 Restricciones generales
 
 - Solo actores autorizados pueden ejecutar operaciones sobre archivos.
 
@@ -332,7 +299,7 @@ Los siguientes campos no pueden modificarse mediante ningún caso de uso del dom
 
 - Ningún archivo puede ser accedido por un actor de otro `Tenant`, excepto `PlatformAdmin`.
 
-- La eliminación de archivos es lógica por defecto. La eliminación física del binario puede ejecutarse posteriormente por políticas de costo o retención, usando deletedAt como referencia.
+- La eliminación de archivos es lógica por defecto. La eliminación física del binario puede ejecutarse posteriormente por políticas de costo o retención, usando `deletedAt` como referencia.
 
 - Toda operación sobre un archivo debe respetar las 8 capas de autorización del sistema.
 
@@ -370,7 +337,6 @@ files
 | `versions`      | `JSONB`        | ❌   | `NOT NULL`          | Historial de `FileVersion` |
 | `created_at`    | `TIMESTAMP`    | ❌   | `NOW()`             |                            |
 | `updated_at`    | `TIMESTAMP`    | ❌   | `NOW()`             |                            |
-| `archived_at`   | `TIMESTAMP`    | ✅   | `NULL`              |                            |
 | `deleted_at`    | `TIMESTAMP`    | ✅   | `NULL`              |
 
 > **Nota:** El valor `PENDING` se define en la entidad **File** al momento de su creación. El `default` en la base de datos actúa únicamente como red de seguridad.
@@ -386,8 +352,6 @@ files
 - `status` inicia con el valor `PENDING`.
 
 - `versions` debe contener al menos una `FileVersion`.
-
-- `archived_at` solo debe contener un valor cuando el archivo se encuentre en estado `ARCHIVED`.
 
 - `deleted_at` solo debe contener un valor cuando el archivo se encuentre en estado `DELETED`.
 

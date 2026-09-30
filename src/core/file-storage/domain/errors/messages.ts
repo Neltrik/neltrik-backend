@@ -1,0 +1,27 @@
+export const ERROR_MESSAGES = {
+    INVALID_ANTIVIRUS_SCAN: "Antivirus scan is invalid",
+    INVALID_FILE_VERSION: "File version is invalid",
+    FILE_ALREADY_DELETED: "File has already been deleted",
+    EMPTY_FILE_NAME: "File name cannot be empty",
+    INVALID_FILE_EXTENSION: "File extension is invalid",
+    INVALID_MIME_TYPE: "MIME type is invalid",
+    INVALID_FILE_PURPOSE: "File purpose is invalid",
+    INVALID_FILE_SIZE: "File size is invalid",
+    INVALID_FILE_STATUS: "File status is invalid",
+    FILE_NOT_READY: "File is not ready",
+    INVALID_FILE_VERSIONS: "File versions are invalid",
+} as const;
+
+export const DOMAIN_ERROR_CODES = {
+    INVALID_ANTIVIRUS_SCAN: "INVALID_ANTIVIRUS_SCAN",
+    INVALID_FILE_VERSION: "INVALID_FILE_VERSION",
+    FILE_ALREADY_DELETED: "FILE_ALREADY_DELETED",
+    EMPTY_FILE_NAME: "EMPTY_FILE_NAME",
+    INVALID_FILE_EXTENSION: "INVALID_FILE_EXTENSION",
+    INVALID_MIME_TYPE: "INVALID_MIME_TYPE",
+    INVALID_FILE_PURPOSE: "INVALID_FILE_PURPOSE",
+    INVALID_FILE_SIZE: "INVALID_FILE_SIZE",
+    INVALID_FILE_STATUS: "INVALID_FILE_STATUS",
+    FILE_NOT_READY: "FILE_NOT_READY",
+    INVALID_FILE_VERSIONS: "INVALID_FILE_VERSIONS",
+} as const;

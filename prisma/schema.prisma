@@ -340,3 +340,38 @@ model AuditEvent {
   @@index([tenantId, createdAt])
   @@map("audit_events")
 }
+
+enum FileStatus {
+  PENDING
+  READY
+  INFECTED
+  ARCHIVED
+  DELETED
+}
+
+model File {
+  id           String     @id @db.Uuid
+  tenantId     String     @map("tenant_id") @db.Uuid
+  ownerId      String     @map("owner_id") @db.Uuid
+  name         String     @db.VarChar(255)
+  extension    String     @db.VarChar(20)
+  mimeType     String     @map("mime_type") @db.VarChar(100)
+  size         BigInt
+  purpose      String     @db.VarChar(50)
+  status       FileStatus @default(PENDING)
+  resourceType String     @map("resource_type") @db.VarChar(50)
+  resourceId   String     @map("resource_id") @db.Uuid
+  versions     Json
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+  archivedAt   DateTime?  @map("archived_at")
+  deletedAt    DateTime?  @map("deleted_at")
+
+  @@unique([tenantId, resourceType, resourceId, purpose])
+  @@index([tenantId])
+  @@index([ownerId])
+  @@index([resourceType, resourceId])
+  @@index([tenantId, status])
+  @@index([tenantId, purpose])
+  @@map("files")
+}

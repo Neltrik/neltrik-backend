@@ -345,7 +345,6 @@ enum FileStatus {
   PENDING
   READY
   INFECTED
-  ARCHIVED
   DELETED
 }
 
@@ -364,7 +363,6 @@ model File {
   versions     Json
   createdAt    DateTime   @default(now()) @map("created_at")
   updatedAt    DateTime   @updatedAt @map("updated_at")
-  archivedAt   DateTime?  @map("archived_at")
   deletedAt    DateTime?  @map("deleted_at")
 
   @@unique([tenantId, resourceType, resourceId, purpose])

@@ -26,6 +26,7 @@ const envSchema = z.object({
     B2_ACCESS_KEY_ID: z.string().min(1, "B2_ACCESS_KEY_ID is required"),
     B2_SECRET_ACCESS_KEY: z.string().min(1, "B2_SECRET_ACCESS_KEY is required"),
     STORAGE_DRIVER: z.enum(["local", "b2"]).default("local"),
+    STORAGE_SIGNED_URL_TTL_SECONDS: z.coerce.number().int().positive().default(900),
 });
 
 export const env = Object.freeze(envSchema.parse(process.env));

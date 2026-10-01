@@ -2,15 +2,14 @@ import { Injectable } from "@nestjs/common";
 
 import { FileNotFoundError } from "../../../../domain/errors";
 import { FileRepository } from "../../../../domain/interfaces";
-import { GetFileInput } from "./input";
 import { GetFileOutput } from "./output";
 
 @Injectable()
 export class GetFileUseCase {
     constructor(private readonly fileRepository: FileRepository) {}
 
-    public async execute(input: GetFileInput): Promise<GetFileOutput> {
-        const file = await this.fileRepository.findById(input.fileId);
+    public async execute(fileId: string): Promise<GetFileOutput> {
+        const file = await this.fileRepository.findById(fileId);
         if (!file) {
             throw new FileNotFoundError();
         }

@@ -220,7 +220,7 @@ Representa el propósito del archivo.
 
 ## 4.2 Reemplazo
 
-- Solo un archivo con estado `READY` puede reemplazarse.
+- Solo un archivo con estado `READY` o `INFECTED` puede reemplazarse.
 - El reemplazo agrega una nueva `FileVersion` al mismo `File`.
 - La nueva `FileVersion` incrementa el número de versión respecto a la anterior.
 - El `File` mantiene su estado `READY`.

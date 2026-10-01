@@ -93,7 +93,7 @@ export class File {
         if (this.props.deletedAt !== null) {
             throw new FileAlreadyDeletedError();
         }
-        if (this.props.status !== FILE_STATUS.READY) {
+        if (this.props.status !== FILE_STATUS.READY && this.props.status !== FILE_STATUS.INFECTED) {
             throw new FileNotReadyError();
         }
         this.props.status = FILE_STATUS.DELETED;

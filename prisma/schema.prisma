@@ -326,7 +326,7 @@ model AuditEvent {
   action     String      @db.VarChar(100)
   resource   String      @db.VarChar(100)
   resourceId String?     @map("resource_id") @db.Uuid
-  metadata   Json        @default(dbgenerated("'{}'::jsonb"))
+  metadata   Json        @default("{}")
   ipAddress  String?     @map("ip_address") @db.VarChar(45)
   userAgent  String?     @map("user_agent") @db.Text
   status     AuditStatus
@@ -365,11 +365,21 @@ model File {
   updatedAt    DateTime   @updatedAt @map("updated_at")
   deletedAt    DateTime?  @map("deleted_at")
 
-  @@unique([tenantId, resourceType, resourceId, purpose])
   @@index([tenantId])
   @@index([ownerId])
   @@index([resourceType, resourceId])
   @@index([tenantId, status])
   @@index([tenantId, purpose])
   @@map("files")
+}
+
+model FileQuota {
+  id         String   @id @db.Uuid
+  tenantId   String   @unique @map("tenant_id") @db.Uuid
+  limitBytes BigInt   @map("limit_bytes")
+  usedBytes  BigInt   @default(0) @map("used_bytes")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  @@map("file_quotas")
 }

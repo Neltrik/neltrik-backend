@@ -3,11 +3,8 @@ import { FileNotFoundError } from "../../../../domain/errors";
 import { FileVersion } from "../../../../domain/value-objects";
 import { FileRepositorySpy } from "../../../../test-doubles";
 import { GetFileUseCase } from "./index";
-import type { GetFileInput } from "./input";
 
-const makeInput = (): GetFileInput => ({
-    fileId: "file-id",
-});
+const makeInput = (): string => "file-id";
 
 const makeFile = (): File => {
     const createdAt = new Date("2025-01-01T00:00:00.000Z");

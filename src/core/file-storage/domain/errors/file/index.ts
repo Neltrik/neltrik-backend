@@ -6,4 +6,5 @@ export * from "./invalid-purpose";
 export * from "./invalid-size";
 export * from "./invalid-status";
 export * from "./invalid-versions";
+export * from "./not-found";
 export * from "./not-ready";

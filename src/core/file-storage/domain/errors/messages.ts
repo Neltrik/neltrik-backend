@@ -10,6 +10,7 @@ export const ERROR_MESSAGES = {
     INVALID_FILE_STATUS: "File status is invalid",
     FILE_NOT_READY: "File is not ready",
     INVALID_FILE_VERSIONS: "File versions are invalid",
+    FILE_NOT_FOUND: "File not found",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -24,4 +25,5 @@ export const DOMAIN_ERROR_CODES = {
     INVALID_FILE_STATUS: "INVALID_FILE_STATUS",
     FILE_NOT_READY: "FILE_NOT_READY",
     INVALID_FILE_VERSIONS: "INVALID_FILE_VERSIONS",
+    FILE_NOT_FOUND: "FILE_NOT_FOUND",
 } as const;

@@ -11,6 +11,9 @@ export const ERROR_MESSAGES = {
     FILE_NOT_READY: "File is not ready",
     INVALID_FILE_VERSIONS: "File versions are invalid",
     FILE_NOT_FOUND: "File not found",
+    INVALID_QUOTA_LIMIT: "Quota limit is invalid",
+    INVALID_QUOTA_USAGE: "Quota usage is invalid",
+    FILE_QUOTA_EXCEEDED: "File quota has been exceeded",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -26,4 +29,7 @@ export const DOMAIN_ERROR_CODES = {
     FILE_NOT_READY: "FILE_NOT_READY",
     INVALID_FILE_VERSIONS: "INVALID_FILE_VERSIONS",
     FILE_NOT_FOUND: "FILE_NOT_FOUND",
+    INVALID_QUOTA_LIMIT: "INVALID_QUOTA_LIMIT",
+    INVALID_QUOTA_USAGE: "INVALID_QUOTA_USAGE",
+    FILE_QUOTA_EXCEEDED: "FILE_QUOTA_EXCEEDED",
 } as const;

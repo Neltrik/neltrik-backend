@@ -2,9 +2,9 @@ import { Module } from "@nestjs/common";
 
 import { env } from "@/config/index";
 
-import { FileRepository, FileStoragePort } from "./domain/interfaces";
+import { FileQuotaRepository, FileRepository, FileStoragePort } from "./domain/interfaces";
 import { B2FileStorageAdapter, LocalFileStorageAdapter } from "./infrastructure/providers";
-import { PrismaFileRepository } from "./infrastructure/repositories";
+import { PrismaFileQuotaRepository, PrismaFileRepository } from "./infrastructure/repositories";
 
 @Module({
     providers: [
@@ -14,6 +14,10 @@ import { PrismaFileRepository } from "./infrastructure/repositories";
         {
             provide: FileRepository,
             useClass: PrismaFileRepository,
+        },
+        {
+            provide: FileQuotaRepository,
+            useClass: PrismaFileQuotaRepository,
         },
         {
             provide: FileStoragePort,

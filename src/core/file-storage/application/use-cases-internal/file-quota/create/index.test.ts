@@ -50,7 +50,7 @@ describe("CreateOrGetQuotaUseCase", () => {
         expect(result.tenantId).toBe("tenant-id");
         expect(result.limitBytes).toBe(DEFAULT_FILE_QUOTA_LIMIT_BYTES);
         expect(result.usedBytes).toBe(0);
-        expect(result.getAvailableBytes).toBe(DEFAULT_FILE_QUOTA_LIMIT_BYTES);
+        expect(result.getAvailableBytes()).toBe(DEFAULT_FILE_QUOTA_LIMIT_BYTES);
     });
 
     it("should initialize the quota with the current date", async () => {

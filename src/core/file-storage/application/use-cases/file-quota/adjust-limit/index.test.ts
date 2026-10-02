@@ -4,12 +4,14 @@ import { FileQuotaRepositorySpy } from "../../../../test-doubles";
 import { MIN_FILE_QUOTA_LIMIT_BYTES } from "../../../constants";
 import { AdjustQuotaLimitUseCase } from "./index";
 
+const VALID_NEW_LIMIT = MIN_FILE_QUOTA_LIMIT_BYTES + 10_000;
+
 const makeQuota = (): FileQuota => {
     const createdAt = new Date("2025-01-01T00:00:00.000Z");
     return FileQuota.restore({
         id: "quota-id",
         tenantId: "tenant-id",
-        limitBytes: 10_000,
+        limitBytes: VALID_NEW_LIMIT,
         usedBytes: 2_000,
         createdAt,
         updatedAt: createdAt,
@@ -27,20 +29,21 @@ describe("AdjustQuotaLimitUseCase", () => {
         const { useCase, fileQuotaRepository } = makeSut();
         const mockQuota = makeQuota();
         fileQuotaRepository.findByTenantId.mockResolvedValue(mockQuota);
-        fileQuotaRepository.update.mockResolvedValue();
-        const result = await useCase.execute({ tenantId: "tenant-id", newLimitBytes: 20_000 });
+        fileQuotaRepository.update.mockResolvedValue(undefined);
+        const newLimitBytes = VALID_NEW_LIMIT + 10_000;
+        const result = await useCase.execute({ tenantId: "tenant-id", newLimitBytes });
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledTimes(1);
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledWith("tenant-id");
         expect(fileQuotaRepository.update).toHaveBeenCalledTimes(1);
         expect(fileQuotaRepository.update).toHaveBeenCalledWith(mockQuota);
-        expect(mockQuota.limitBytes).toBe(20_000);
+        expect(mockQuota.limitBytes).toBe(newLimitBytes);
         expect(result).toBe(mockQuota);
     });
 
     it("should throw FileQuotaNotFoundError when quota does not exist", async () => {
         const { useCase, fileQuotaRepository } = makeSut();
         fileQuotaRepository.findByTenantId.mockResolvedValue(null);
-        await expect(useCase.execute({ tenantId: "tenant-id", newLimitBytes: 20_000 })).rejects.toThrow(
+        await expect(useCase.execute({ tenantId: "tenant-id", newLimitBytes: VALID_NEW_LIMIT })).rejects.toThrow(
             FileQuotaNotFoundError,
         );
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledTimes(1);
@@ -58,14 +61,14 @@ describe("AdjustQuotaLimitUseCase", () => {
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledTimes(1);
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledWith("tenant-id");
         expect(fileQuotaRepository.update).not.toHaveBeenCalled();
-        expect(mockQuota.limitBytes).toBe(10_000);
+        expect(mockQuota.limitBytes).toBe(VALID_NEW_LIMIT);
     });
 
     it("should allow the minimum quota limit", async () => {
         const { useCase, fileQuotaRepository } = makeSut();
         const mockQuota = makeQuota();
         fileQuotaRepository.findByTenantId.mockResolvedValue(mockQuota);
-        fileQuotaRepository.update.mockResolvedValue();
+        fileQuotaRepository.update.mockResolvedValue(undefined);
         const result = await useCase.execute({
             tenantId: "tenant-id",
             newLimitBytes: MIN_FILE_QUOTA_LIMIT_BYTES,
@@ -79,7 +82,7 @@ describe("AdjustQuotaLimitUseCase", () => {
     it("should propagate repository errors when finding quota", async () => {
         const { useCase, fileQuotaRepository } = makeSut();
         fileQuotaRepository.findByTenantId.mockRejectedValue(new Error("Database error"));
-        await expect(useCase.execute({ tenantId: "tenant-id", newLimitBytes: 20_000 })).rejects.toThrow(
+        await expect(useCase.execute({ tenantId: "tenant-id", newLimitBytes: VALID_NEW_LIMIT })).rejects.toThrow(
             "Database error",
         );
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledTimes(1);
@@ -91,12 +94,11 @@ describe("AdjustQuotaLimitUseCase", () => {
         const mockQuota = makeQuota();
         fileQuotaRepository.findByTenantId.mockResolvedValue(mockQuota);
         fileQuotaRepository.update.mockRejectedValue(new Error("Database error"));
-        await expect(useCase.execute({ tenantId: "tenant-id", newLimitBytes: 20_000 })).rejects.toThrow(
-            "Database error",
-        );
+        const newLimitBytes = VALID_NEW_LIMIT + 10_000;
+        await expect(useCase.execute({ tenantId: "tenant-id", newLimitBytes })).rejects.toThrow("Database error");
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledTimes(1);
         expect(fileQuotaRepository.update).toHaveBeenCalledTimes(1);
         expect(fileQuotaRepository.update).toHaveBeenCalledWith(mockQuota);
-        expect(mockQuota.limitBytes).toBe(20_000);
+        expect(mockQuota.limitBytes).toBe(newLimitBytes);
     });
 });

@@ -1,5 +1,5 @@
 import { FileQuota } from "../../../../domain/entities";
-import { FileQuotaNotFoundError } from "../../../../domain/errors";
+import { FileQuotaExceededError, FileQuotaNotFoundError } from "../../../../domain/errors";
 import { FileQuotaRepositorySpy } from "../../../../test-doubles";
 import { IncrementQuotaUseCase } from "./index";
 import type { IncrementQuotaInput } from "./input";
@@ -62,7 +62,7 @@ describe("IncrementQuotaUseCase", () => {
             updatedAt: new Date("2025-01-01T00:00:00.000Z"),
         });
         fileQuotaRepository.findByTenantId.mockResolvedValue(mockQuota);
-        await expect(useCase.execute({ tenantId: "tenant-id", size: 1_001 })).rejects.toThrow("File quota exceeded");
+        await expect(useCase.execute({ tenantId: "tenant-id", size: 1_001 })).rejects.toThrow(FileQuotaExceededError);
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledTimes(1);
         expect(fileQuotaRepository.update).not.toHaveBeenCalled();
         expect(mockQuota.usedBytes).toBe(9_000);

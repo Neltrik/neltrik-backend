@@ -14,6 +14,8 @@ export const ERROR_MESSAGES = {
     INVALID_QUOTA_LIMIT: "Quota limit is invalid",
     INVALID_QUOTA_USAGE: "Quota usage is invalid",
     FILE_QUOTA_EXCEEDED: "File quota has been exceeded",
+    FILE_QUOTA_NOT_FOUND: "File quota not found",
+    QUOTA_LIMIT_BELOW_MINIMUM: "The quota limit cannot be below the configured minimum.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -32,4 +34,6 @@ export const DOMAIN_ERROR_CODES = {
     INVALID_QUOTA_LIMIT: "INVALID_QUOTA_LIMIT",
     INVALID_QUOTA_USAGE: "INVALID_QUOTA_USAGE",
     FILE_QUOTA_EXCEEDED: "FILE_QUOTA_EXCEEDED",
+    FILE_QUOTA_NOT_FOUND: "FILE_QUOTA_NOT_FOUND",
+    QUOTA_LIMIT_BELOW_MINIMUM: "QUOTA_LIMIT_BELOW_MINIMUM",
 } as const;

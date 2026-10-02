@@ -233,7 +233,7 @@ Representa el propósito del archivo.
 
 ## 4.3 Eliminación
 
-- Solo un archivo con estado `READY` puede eliminarse.
+- Solo un archivo con estado `READY` o `INFECTED` puede eliminarse.
 
 - Al eliminar un archivo, su estado cambia a `DELETED`.
 

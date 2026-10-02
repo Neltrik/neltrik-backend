@@ -67,15 +67,11 @@ La relación entre un `File` y su `FileQuota` es indirecta, a través del `Tenan
 
 > **Nota:** La administración del **Tenant** pertenece al dominio **Tenant**. La entidad **FileQuota** únicamente mantiene una referencia (`tenantId`) a dicho dominio, sin acoplamiento estructural.
 
-> **Nota:** La **FileQuota** es raíz de su propio agregado. No contiene value objects ni entidades internas.
-
-> **Nota:** La **FileQuota** es creada on-demand: se crea la primera vez que un **File** del **Tenant** se sube. No se crea al crear el **Tenant**.
-
 > **Nota:** El campo `usedBytes` se actualiza de la siguiente manera:
 >
-> - Incrementa cuando un **File** del **Tenant** se crea (upload) o se reemplaza.
+> - Incrementa cuando un **File** del **Tenant** se crea (upload) o se reemplaza, sumando el size de la nueva **FileVersion**.
 >
-> - Decrementa cuando un **File** del **Tenant** se elimina lógicamente (`status = DELETED`) o físicamente (borrado del binario).
+> - Decrementa cuando un **File** del **Tenant** se elimina lógicamente (status = DELETED), restando la suma de los size de todas las versiones del **File**.
 >
 > - No se modifica en operaciones de descarga, archivado ni consulta.
 >
@@ -103,6 +99,8 @@ La entidad **FileQuota** no utiliza tipos enumerados (Enums) para el MVP.
 
 - El incremento corresponde al `size` de la `FileVersion` que se está subiendo.
 
+- En un reemplazo, el incremento es el `size` de la nueva `FileVersion`. Las versiones anteriores no se descuentan, porque siguen almacenadas y consumiendo espacio.
+
 - El incremento se ejecuta en la misma transacción que la creación del `File`.
 
 - El incremento solo puede ser ejecutado por el sistema, no por un actor.
@@ -111,7 +109,7 @@ La entidad **FileQuota** no utiliza tipos enumerados (Enums) para el MVP.
 
 - El uso (`usedBytes`) se decrementa cuando un `File` del `Tenant` pasa a estado `DELETED` (eliminación lógica).
 
-- El decremento corresponde al `size` de la `FileVersion` que estaba activa.
+- El decremento corresponde a la suma de los `size` de todas las `FileVersion` del `File` que se elimina.
 
 - El decremento se ejecuta en la misma transacción que la eliminación del `File`.
 

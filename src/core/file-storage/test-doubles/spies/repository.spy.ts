@@ -1,5 +1,5 @@
-import type { File } from "../../domain/entities";
-import { FileRepository } from "../../domain/interfaces";
+import type { File, FileQuota } from "../../domain/entities";
+import { FileQuotaRepository, FileRepository } from "../../domain/interfaces";
 import type { FilePurpose, FindManyFilesParams } from "../../domain/types";
 
 export class FileRepositorySpy extends FileRepository {
@@ -9,4 +9,10 @@ export class FileRepositorySpy extends FileRepository {
     public findByResourceAndPurpose = jest.fn<Promise<File | null>, [string, string, string, FilePurpose]>();
     public findMany = jest.fn<Promise<File[]>, [FindManyFilesParams]>();
     public update = jest.fn<Promise<void>, [File]>();
+}
+
+export class FileQuotaRepositorySpy extends FileQuotaRepository {
+    public create = jest.fn<Promise<void>, [FileQuota]>();
+    public findByTenantId = jest.fn<Promise<FileQuota | null>, [string]>();
+    public update = jest.fn<Promise<void>, [FileQuota]>();
 }

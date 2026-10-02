@@ -2,13 +2,22 @@ import { Module } from "@nestjs/common";
 
 import { env } from "@/config/index";
 
+import {
+    CreateOrGetQuotaUseCase,
+    DecrementQuotaUseCase,
+    IncrementQuotaUseCase,
+    VerifyQuotaLimitUseCase,
+} from "./application/use-cases-internal";
 import { FileQuotaRepository, FileRepository, FileStoragePort } from "./domain/interfaces";
 import { B2FileStorageAdapter, LocalFileStorageAdapter } from "./infrastructure/providers";
 import { PrismaFileQuotaRepository, PrismaFileRepository } from "./infrastructure/repositories";
 
 @Module({
     providers: [
-        PrismaFileRepository,
+        CreateOrGetQuotaUseCase,
+        DecrementQuotaUseCase,
+        IncrementQuotaUseCase,
+        VerifyQuotaLimitUseCase,
         LocalFileStorageAdapter,
         B2FileStorageAdapter,
         {

@@ -3,7 +3,16 @@ import { PrismaClient } from "@prisma/client";
 
 import { TenantContextService } from "./tenant-isolation";
 
-const TENANT_MODELS = ["User", "Role", "Permission", "TenantRoleConfiguration", "Invitation", "AuditEvent"] as const;
+const TENANT_MODELS = [
+    "User",
+    "Role",
+    "Permission",
+    "TenantRoleConfiguration",
+    "Invitation",
+    "AuditEvent",
+    "File",
+    "FileQuota",
+] as const;
 const OWNERSHIP_MODELS = ["AuthenticationSession"] as const;
 
 type TenantModel = (typeof TENANT_MODELS)[number];

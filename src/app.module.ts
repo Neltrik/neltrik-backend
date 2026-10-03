@@ -8,6 +8,7 @@ import Redis from "ioredis";
 import { AuditModule } from "./core/audit/audit.module";
 import { AuthenticationModule } from "./core/authentication/authentication.module";
 import { AuthorizationModule } from "./core/authorization/authorization.module";
+import { FileStorageModule } from "./core/file-storage/file-storage.module";
 import { IdentityModule } from "./core/identity/identity.module";
 import { TenantModule } from "./core/tenant/tenant.module";
 import { AtsModule } from "./modules/ats/ats.module";
@@ -46,6 +47,7 @@ import { SanitizationModule } from "./shared/sanitization";
         AuditModule,
         AuthenticationModule,
         AuthorizationModule,
+        FileStorageModule,
         IdentityModule,
         TenantModule,
         AtsModule,

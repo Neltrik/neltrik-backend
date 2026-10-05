@@ -1,7 +1,7 @@
 import { FileQuota } from "../../../../domain/entities";
 import { FileQuotaNotFoundError, InvalidQuotaUsageError } from "../../../../domain/errors";
 import { FileQuotaRepositorySpy } from "../../../../test-doubles";
-import { DecrementQuotaUseCase } from "./index";
+import { DecrementQuotaInternalUseCase } from "./index";
 import type { DecrementQuotaInput } from "./input";
 
 const makeInput = (): DecrementQuotaInput => ({ tenantId: "tenant-id", size: 500 });
@@ -18,10 +18,10 @@ const makeQuota = (): FileQuota => {
     });
 };
 
-describe("DecrementQuotaUseCase", () => {
+describe("DecrementQuotaInternalUseCase", () => {
     const makeSut = () => {
         const fileQuotaRepository = new FileQuotaRepositorySpy();
-        const useCase = new DecrementQuotaUseCase(fileQuotaRepository);
+        const useCase = new DecrementQuotaInternalUseCase(fileQuotaRepository);
         return { useCase, fileQuotaRepository };
     };
 

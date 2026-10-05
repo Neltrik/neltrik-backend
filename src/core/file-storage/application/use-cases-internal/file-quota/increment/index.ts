@@ -6,7 +6,7 @@ import { FileQuotaRepository } from "../../../../domain/interfaces";
 import { type IncrementQuotaInput } from "./input";
 
 @Injectable()
-export class IncrementQuotaUseCase {
+export class IncrementQuotaInternalUseCase {
     constructor(private readonly fileQuotaRepository: FileQuotaRepository) {}
 
     public async execute(input: IncrementQuotaInput): Promise<FileQuota> {

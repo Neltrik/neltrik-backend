@@ -2,7 +2,7 @@ import { File, FileQuota } from "../../../../domain/entities";
 import { FileNotFoundError } from "../../../../domain/errors";
 import { FileVersion } from "../../../../domain/value-objects";
 import { FileQuotaRepositorySpy, FileRepositorySpy, TransactionManagerSpy } from "../../../../test-doubles";
-import { DecrementQuotaUseCase } from "../../../use-cases-internal";
+import { DecrementQuotaInternalUseCase } from "../../../use-cases-internal";
 import { DeleteFileUseCase } from "./index";
 
 const makeFile = (): File => {
@@ -50,8 +50,8 @@ describe("DeleteFileUseCase", () => {
         const fileRepository = new FileRepositorySpy();
         const fileQuotaRepository = new FileQuotaRepositorySpy();
         const transactionManager = new TransactionManagerSpy();
-        const decrementQuotaUseCase = new DecrementQuotaUseCase(fileQuotaRepository);
-        const useCase = new DeleteFileUseCase(fileRepository, decrementQuotaUseCase, transactionManager);
+        const decrementQuotaInternalUseCase = new DecrementQuotaInternalUseCase(fileQuotaRepository);
+        const useCase = new DeleteFileUseCase(fileRepository, decrementQuotaInternalUseCase, transactionManager);
         const file = makeFile();
         const quota = makeFileQuota();
         fileRepository.findById.mockResolvedValue(file);

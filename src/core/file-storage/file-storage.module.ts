@@ -4,10 +4,10 @@ import { env } from "@/config/index";
 
 import { AdjustQuotaLimitUseCase, GetFileQuotaUseCase } from "./application/use-cases";
 import {
-    CreateOrGetQuotaUseCase,
-    DecrementQuotaUseCase,
-    IncrementQuotaUseCase,
-    VerifyQuotaLimitUseCase,
+    CreateOrGetQuotaInternalUseCase,
+    DecrementQuotaInternalUseCase,
+    IncrementQuotaInternalUseCase,
+    VerifyQuotaLimitInternalUseCase,
 } from "./application/use-cases-internal";
 import { FileQuotaRepository, FileRepository, FileStoragePort } from "./domain/interfaces";
 import { B2FileStorageAdapter, LocalFileStorageAdapter } from "./infrastructure/providers";
@@ -19,10 +19,10 @@ import { FileStorageQuotaController } from "./presentation/controllers";
     providers: [
         AdjustQuotaLimitUseCase,
         GetFileQuotaUseCase,
-        CreateOrGetQuotaUseCase,
-        DecrementQuotaUseCase,
-        IncrementQuotaUseCase,
-        VerifyQuotaLimitUseCase,
+        CreateOrGetQuotaInternalUseCase,
+        DecrementQuotaInternalUseCase,
+        IncrementQuotaInternalUseCase,
+        VerifyQuotaLimitInternalUseCase,
         LocalFileStorageAdapter,
         B2FileStorageAdapter,
         FileStorageQuotaController,

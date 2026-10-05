@@ -7,7 +7,7 @@ import { FileQuotaRepository } from "../../../../domain/interfaces";
 import { DEFAULT_FILE_QUOTA_LIMIT_BYTES } from "../../../constants";
 
 @Injectable()
-export class CreateOrGetQuotaUseCase {
+export class CreateOrGetQuotaInternalUseCase {
     constructor(
         private readonly fileQuotaRepository: FileQuotaRepository,
         private readonly idGenerator: IdGenerator,

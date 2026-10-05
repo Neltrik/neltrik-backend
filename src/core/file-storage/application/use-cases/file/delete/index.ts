@@ -4,14 +4,14 @@ import { TransactionManager } from "@/shared/transaction";
 
 import { FileNotFoundError } from "../../../../domain/errors";
 import { FileRepository } from "../../../../domain/interfaces";
-import { DecrementQuotaUseCase } from "../../../use-cases-internal";
+import { DecrementQuotaInternalUseCase } from "../../../use-cases-internal";
 import { DeleteFileOutput } from "./output";
 
 @Injectable()
 export class DeleteFileUseCase {
     constructor(
         private readonly fileRepository: FileRepository,
-        private readonly decrementQuotaUseCase: DecrementQuotaUseCase,
+        private readonly decrementQuotaInternalUseCase: DecrementQuotaInternalUseCase,
         private readonly transactionManager: TransactionManager,
     ) {}
 
@@ -23,7 +23,10 @@ export class DeleteFileUseCase {
             }
             file.delete();
             await this.fileRepository.update(file, context);
-            await this.decrementQuotaUseCase.execute({ tenantId: file.tenantId, size: file.getTotalSize() }, context);
+            await this.decrementQuotaInternalUseCase.execute(
+                { tenantId: file.tenantId, size: file.getTotalSize() },
+                context,
+            );
             return { id: file.id };
         });
     }

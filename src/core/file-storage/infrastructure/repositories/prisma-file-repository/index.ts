@@ -1,7 +1,9 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/prisma/index";
 import { withPaginationArgs } from "@/shared/pagination";
+import { TransactionContext } from "@/shared/transaction";
 
 import { File } from "../../../domain/entities";
 import { FileRepository } from "../../../domain/interfaces";
@@ -73,8 +75,9 @@ export class PrismaFileRepository extends FileRepository {
         return files.map((file) => FileMapper.toDomain(file));
     }
 
-    public async update(file: File): Promise<void> {
-        await this.prisma.tenantClient.file.update({
+    public async update(file: File, context?: TransactionContext): Promise<void> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
+        await prisma.file.update({
             where: { id: file.id },
             data: FileMapper.toPersistence(file),
         });

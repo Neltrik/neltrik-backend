@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/prisma/index";
+import { TransactionContext } from "@/shared/transaction";
 
 import { FileQuota } from "../../../domain/entities";
 import { FileQuotaRepository } from "../../../domain/interfaces";
@@ -26,8 +28,9 @@ export class PrismaFileQuotaRepository extends FileQuotaRepository {
         return FileQuotaMapper.toDomain(quota);
     }
 
-    public async update(quota: FileQuota): Promise<void> {
-        await this.prisma.tenantClient.fileQuota.update({
+    public async update(quota: FileQuota, context?: TransactionContext): Promise<void> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
+        await prisma.fileQuota.update({
             where: { id: quota.id },
             data: FileQuotaMapper.toPersistence(quota),
         });

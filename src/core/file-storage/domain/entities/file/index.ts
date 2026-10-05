@@ -126,6 +126,10 @@ export class File {
         this.props.updatedAt = new Date();
     }
 
+    public getTotalSize(): number {
+        return this.props.versions.reduce((sum, version) => sum + version.getSize(), 0);
+    }
+
     public get id(): string {
         return this.props.id;
     }

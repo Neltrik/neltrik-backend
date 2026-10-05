@@ -9,8 +9,22 @@ import {
     IncrementQuotaInternalUseCase,
     VerifyQuotaLimitInternalUseCase,
 } from "./application/use-cases-internal";
-import { FileQuotaRepository, FileRepository, FileStoragePort } from "./domain/interfaces";
-import { B2FileStorageAdapter, LocalFileStorageAdapter } from "./infrastructure/providers";
+import { FileValidationService } from "./application/validation";
+import {
+    AntivirusPort,
+    ChecksumGenerator,
+    FileQuotaRepository,
+    FileRepository,
+    FileStoragePort,
+    MagicBytesDetector,
+} from "./domain/interfaces";
+import {
+    B2FileStorageAdapter,
+    FileTypeMagicBytesDetector,
+    LocalFileStorageAdapter,
+    NodeChecksumGenerator,
+    StubAntivirusAdapter,
+} from "./infrastructure/providers";
 import { PrismaFileQuotaRepository, PrismaFileRepository } from "./infrastructure/repositories";
 import { FileStorageQuotaController } from "./presentation/controllers";
 
@@ -23,9 +37,9 @@ import { FileStorageQuotaController } from "./presentation/controllers";
         DecrementQuotaInternalUseCase,
         IncrementQuotaInternalUseCase,
         VerifyQuotaLimitInternalUseCase,
+        FileValidationService,
         LocalFileStorageAdapter,
         B2FileStorageAdapter,
-        FileStorageQuotaController,
         {
             provide: FileRepository,
             useClass: PrismaFileRepository,
@@ -41,7 +55,18 @@ import { FileStorageQuotaController } from "./presentation/controllers";
             },
             inject: [LocalFileStorageAdapter, B2FileStorageAdapter],
         },
+        {
+            provide: ChecksumGenerator,
+            useClass: NodeChecksumGenerator,
+        },
+        {
+            provide: AntivirusPort,
+            useClass: StubAntivirusAdapter,
+        },
+        {
+            provide: MagicBytesDetector,
+            useClass: FileTypeMagicBytesDetector,
+        },
     ],
-    exports: [FileRepository, FileStoragePort],
 })
 export class FileStorageModule {}

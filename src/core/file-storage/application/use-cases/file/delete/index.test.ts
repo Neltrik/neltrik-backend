@@ -51,7 +51,7 @@ describe("DeleteFileUseCase", () => {
         const fileQuotaRepository = new FileQuotaRepositorySpy();
         const transactionManager = new TransactionManagerSpy();
         const decrementQuotaInternalUseCase = new DecrementQuotaInternalUseCase(fileQuotaRepository);
-        const useCase = new DeleteFileUseCase(fileRepository, decrementQuotaInternalUseCase, transactionManager);
+        const useCase = new DeleteFileUseCase(transactionManager, fileRepository, decrementQuotaInternalUseCase);
         const file = makeFile();
         const quota = makeFileQuota();
         fileRepository.findById.mockResolvedValue(file);

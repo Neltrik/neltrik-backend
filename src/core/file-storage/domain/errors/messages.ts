@@ -16,6 +16,7 @@ export const ERROR_MESSAGES = {
     FILE_QUOTA_EXCEEDED: "File quota has been exceeded",
     FILE_QUOTA_NOT_FOUND: "File quota not found",
     QUOTA_LIMIT_BELOW_MINIMUM: "The quota limit cannot be below the configured minimum.",
+    FILE_MIME_TYPE_MISMATCH: "The file content does not match the declared MIME type.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -36,4 +37,5 @@ export const DOMAIN_ERROR_CODES = {
     FILE_QUOTA_EXCEEDED: "FILE_QUOTA_EXCEEDED",
     FILE_QUOTA_NOT_FOUND: "FILE_QUOTA_NOT_FOUND",
     QUOTA_LIMIT_BELOW_MINIMUM: "QUOTA_LIMIT_BELOW_MINIMUM",
+    FILE_MIME_TYPE_MISMATCH: "FILE_MIME_TYPE_MISMATCH",
 } as const;

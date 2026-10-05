@@ -3,16 +3,16 @@ import type { IdGenerator } from "@/shared/id-generator";
 import { FileQuota } from "../../../../domain/entities";
 import { FileQuotaRepositorySpy } from "../../../../test-doubles";
 import { DEFAULT_FILE_QUOTA_LIMIT_BYTES } from "../../../constants";
-import { CreateOrGetQuotaUseCase } from "./index";
+import { CreateOrGetQuotaInternalUseCase } from "./index";
 
-describe("CreateOrGetQuotaUseCase", () => {
+describe("CreateOrGetQuotaInternalUseCase", () => {
     const makeSut = () => {
         const fileQuotaRepository = new FileQuotaRepositorySpy();
         const generateMock = jest.fn().mockReturnValue("quota-id");
         const idGenerator = {
             generate: generateMock,
         } satisfies IdGenerator;
-        const useCase = new CreateOrGetQuotaUseCase(fileQuotaRepository, idGenerator);
+        const useCase = new CreateOrGetQuotaInternalUseCase(fileQuotaRepository, idGenerator);
         return { useCase, fileQuotaRepository, generateMock };
     };
 

@@ -1,7 +1,7 @@
 import { FileQuota } from "../../../../domain/entities";
 import { FileQuotaNotFoundError } from "../../../../domain/errors";
 import { FileQuotaRepositorySpy } from "../../../../test-doubles";
-import { VerifyQuotaLimitUseCase } from "./index";
+import { VerifyQuotaLimitInternalUseCase } from "./index";
 import type { VerifyQuotaLimitInput } from "./input";
 
 const makeInput = (): VerifyQuotaLimitInput => ({
@@ -21,10 +21,10 @@ const makeQuota = (): FileQuota => {
     });
 };
 
-describe("VerifyQuotaLimitUseCase", () => {
+describe("VerifyQuotaLimitInternalUseCase", () => {
     const makeSut = () => {
         const fileQuotaRepository = new FileQuotaRepositorySpy();
-        const useCase = new VerifyQuotaLimitUseCase(fileQuotaRepository);
+        const useCase = new VerifyQuotaLimitInternalUseCase(fileQuotaRepository);
         return { useCase, fileQuotaRepository };
     };
 

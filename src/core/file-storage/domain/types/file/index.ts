@@ -59,10 +59,10 @@ export interface PersistedFileVersion {
 }
 
 export interface FindManyFilesParams extends PaginationInput {
-    tenantId: string;
-    ownerId?: string;
-    resourceType?: string;
-    resourceId?: string;
-    purpose?: FilePurpose;
-    status?: FileStatus;
+    tenantId?: string | undefined;
+    ownerId?: string | undefined;
+    resourceType?: string | undefined;
+    resourceId?: string | undefined;
+    purpose?: FilePurpose | undefined;
+    status?: FileStatus | undefined;
 }

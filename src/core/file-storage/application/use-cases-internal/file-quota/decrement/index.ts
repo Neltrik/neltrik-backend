@@ -8,7 +8,7 @@ import { FileQuotaRepository } from "../../../../domain/interfaces";
 import { type DecrementQuotaInput } from "./input";
 
 @Injectable()
-export class DecrementQuotaUseCase {
+export class DecrementQuotaInternalUseCase {
     constructor(private readonly fileQuotaRepository: FileQuotaRepository) {}
 
     public async execute(input: DecrementQuotaInput, context?: TransactionContext): Promise<FileQuota> {

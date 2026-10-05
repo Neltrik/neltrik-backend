@@ -62,12 +62,15 @@ export class PrismaFileRepository extends FileRepository {
     public async findMany(params: FindManyFilesParams): Promise<File[]> {
         const files = await this.prisma.tenantClient.file.findMany({
             where: {
-                tenantId: params.tenantId,
+                ...(params.tenantId && { tenantId: params.tenantId }),
                 ...(params.ownerId && { ownerId: params.ownerId }),
                 ...(params.resourceType && { resourceType: params.resourceType }),
                 ...(params.resourceId && { resourceId: params.resourceId }),
                 ...(params.purpose && { purpose: params.purpose }),
-                ...(params.status && { status: params.status }),
+                status:
+                    params.status && params.status !== FILE_STATUS.DELETED
+                        ? params.status
+                        : { not: FILE_STATUS.DELETED },
             },
             orderBy: [{ createdAt: "desc" }, { id: "desc" }],
             ...withPaginationArgs({ cursor: params.cursor, limit: params.limit }),

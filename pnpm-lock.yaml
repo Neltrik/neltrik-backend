@@ -56,6 +56,9 @@ dependencies:
   dotenv:
     specifier: ^17.4.2
     version: 17.4.2
+  file-type:
+    specifier: ^21.3.4
+    version: 21.3.4
   helmet:
     specifier: ^8.2.0
     version: 8.2.0

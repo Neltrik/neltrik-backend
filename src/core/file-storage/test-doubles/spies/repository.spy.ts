@@ -1,5 +1,5 @@
 import type { File, FileQuota } from "../../domain/entities";
-import { FileQuotaRepository, FileRepository } from "../../domain/interfaces";
+import { FileQuotaRepository, FileRepository, MagicBytesDetector } from "../../domain/interfaces";
 import type { FilePurpose, FindManyFilesParams } from "../../domain/types";
 
 export class FileRepositorySpy extends FileRepository {
@@ -15,4 +15,8 @@ export class FileQuotaRepositorySpy extends FileQuotaRepository {
     public create = jest.fn<Promise<void>, [FileQuota]>();
     public findByTenantId = jest.fn<Promise<FileQuota | null>, [string]>();
     public update = jest.fn<Promise<void>, [FileQuota]>();
+}
+
+export class MagicBytesDetectorSpy extends MagicBytesDetector {
+    public detect = jest.fn<Promise<string | null>, [Buffer]>();
 }

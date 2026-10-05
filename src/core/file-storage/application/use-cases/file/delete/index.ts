@@ -10,9 +10,9 @@ import { DeleteFileOutput } from "./output";
 @Injectable()
 export class DeleteFileUseCase {
     constructor(
+        private readonly transactionManager: TransactionManager,
         private readonly fileRepository: FileRepository,
         private readonly decrementQuotaInternalUseCase: DecrementQuotaInternalUseCase,
-        private readonly transactionManager: TransactionManager,
     ) {}
 
     public async execute(fileId: string): Promise<DeleteFileOutput> {

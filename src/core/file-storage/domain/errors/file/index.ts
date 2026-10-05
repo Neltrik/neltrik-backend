@@ -1,6 +1,7 @@
 export * from "./already-deleted";
 export * from "./empty-name";
 export * from "./invalid-extension";
+export * from "./invalid-file-magic-bytes";
 export * from "./invalid-mime-type";
 export * from "./invalid-purpose";
 export * from "./invalid-size";

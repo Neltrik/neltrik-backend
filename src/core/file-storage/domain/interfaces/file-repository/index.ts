@@ -1,3 +1,5 @@
+import type { TransactionContext } from "@/shared/transaction";
+
 import type { File } from "../../entities";
 import type { FilePurpose, FindManyFilesParams } from "../../types";
 
@@ -12,5 +14,5 @@ export abstract class FileRepository {
         purpose: FilePurpose,
     ): Promise<File | null>;
     abstract findMany(params: FindManyFilesParams): Promise<File[]>;
-    abstract update(file: File): Promise<void>;
+    abstract update(file: File, context?: TransactionContext): Promise<void>;
 }

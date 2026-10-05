@@ -4,10 +4,7 @@ import { FileQuotaRepositorySpy } from "../../../../test-doubles";
 import { DecrementQuotaUseCase } from "./index";
 import type { DecrementQuotaInput } from "./input";
 
-const makeInput = (): DecrementQuotaInput => ({
-    tenantId: "tenant-id",
-    size: 500,
-});
+const makeInput = (): DecrementQuotaInput => ({ tenantId: "tenant-id", size: 500 });
 
 const makeQuota = (): FileQuota => {
     const createdAt = new Date("2025-01-01T00:00:00.000Z");
@@ -37,7 +34,7 @@ describe("DecrementQuotaUseCase", () => {
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledTimes(1);
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledWith("tenant-id");
         expect(fileQuotaRepository.update).toHaveBeenCalledTimes(1);
-        expect(fileQuotaRepository.update).toHaveBeenCalledWith(mockQuota);
+        expect(fileQuotaRepository.update).toHaveBeenCalledWith(mockQuota, undefined);
         expect(mockQuota.usedBytes).toBe(1_500);
         expect(result).toBe(mockQuota);
     });
@@ -50,7 +47,7 @@ describe("DecrementQuotaUseCase", () => {
         const result = await useCase.execute({ tenantId: "tenant-id", size: 2_000 });
         expect(mockQuota.usedBytes).toBe(0);
         expect(fileQuotaRepository.update).toHaveBeenCalledTimes(1);
-        expect(fileQuotaRepository.update).toHaveBeenCalledWith(mockQuota);
+        expect(fileQuotaRepository.update).toHaveBeenCalledWith(mockQuota, undefined);
         expect(result).toBe(mockQuota);
     });
 
@@ -89,7 +86,18 @@ describe("DecrementQuotaUseCase", () => {
         await expect(useCase.execute(makeInput())).rejects.toThrow("Database error");
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledTimes(1);
         expect(fileQuotaRepository.update).toHaveBeenCalledTimes(1);
-        expect(fileQuotaRepository.update).toHaveBeenCalledWith(mockQuota);
+        expect(fileQuotaRepository.update).toHaveBeenCalledWith(mockQuota, undefined);
         expect(mockQuota.usedBytes).toBe(1_500);
+    });
+
+    it("should pass the transaction context to the repository", async () => {
+        const { useCase, fileQuotaRepository } = makeSut();
+        const mockQuota = makeQuota();
+        const context = { get: jest.fn() };
+        fileQuotaRepository.findByTenantId.mockResolvedValue(mockQuota);
+        fileQuotaRepository.update.mockResolvedValue(undefined);
+        await useCase.execute(makeInput(), context);
+        expect(fileQuotaRepository.update).toHaveBeenCalledTimes(1);
+        expect(fileQuotaRepository.update).toHaveBeenCalledWith(mockQuota, context);
     });
 });

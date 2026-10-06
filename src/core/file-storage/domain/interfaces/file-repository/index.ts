@@ -4,7 +4,7 @@ import type { File } from "../../entities";
 import type { FilePurpose, FindManyFilesParams } from "../../types";
 
 export abstract class FileRepository {
-    abstract create(file: File): Promise<void>;
+    abstract create(file: File, context?: TransactionContext): Promise<void>;
     abstract findById(id: string): Promise<File | null>;
     abstract findByResource(tenantId: string, resourceType: string, resourceId: string): Promise<File[]>;
     abstract findByResourceAndPurpose(

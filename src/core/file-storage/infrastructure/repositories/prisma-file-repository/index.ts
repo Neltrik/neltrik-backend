@@ -16,10 +16,9 @@ export class PrismaFileRepository extends FileRepository {
         super();
     }
 
-    public async create(file: File): Promise<void> {
-        await this.prisma.tenantClient.file.create({
-            data: FileMapper.toPersistence(file),
-        });
+    public async create(file: File, context?: TransactionContext): Promise<void> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
+        await prisma.file.create({ data: FileMapper.toPersistence(file) });
     }
 
     public async findById(id: string): Promise<File | null> {

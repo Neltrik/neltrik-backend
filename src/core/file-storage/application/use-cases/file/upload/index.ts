@@ -87,6 +87,9 @@ export class UploadFileUseCase {
         return this.transactionManager.execute(async (context) => {
             const now = new Date();
             const version = FileVersion.createInitial({
+                name: input.name,
+                extension: input.extension,
+                mimeType: input.mimeType,
                 storageKey: prepared.storageKey,
                 size: input.size,
                 checksum: prepared.checksum,

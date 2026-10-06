@@ -4,6 +4,9 @@ import type { AntivirusScan } from "../antivirus-scan";
 export class FileVersion {
     private constructor(
         private readonly version: number,
+        private readonly name: string,
+        private readonly extension: string,
+        private readonly mimeType: string,
         private readonly storageKey: string,
         private readonly size: number,
         private readonly checksum: string,
@@ -13,6 +16,9 @@ export class FileVersion {
 
     public static create(params: {
         version: number;
+        name: string;
+        extension: string;
+        mimeType: string;
         storageKey: string;
         size: number;
         checksum: string;
@@ -20,12 +26,18 @@ export class FileVersion {
         createdAt: Date;
     }): FileVersion {
         FileVersion.ensureVersion(params.version);
+        FileVersion.ensureName(params.name);
+        FileVersion.ensureExtension(params.extension);
+        FileVersion.ensureMimeType(params.mimeType);
         FileVersion.ensureStorageKey(params.storageKey);
         FileVersion.ensureSize(params.size);
         FileVersion.ensureChecksum(params.checksum);
         FileVersion.ensureCreatedAt(params.createdAt);
         return new FileVersion(
             params.version,
+            params.name,
+            params.extension,
+            params.mimeType,
             params.storageKey,
             params.size,
             params.checksum,
@@ -35,6 +47,9 @@ export class FileVersion {
     }
 
     public static createInitial(params: {
+        name: string;
+        extension: string;
+        mimeType: string;
         storageKey: string;
         size: number;
         checksum: string;
@@ -43,6 +58,9 @@ export class FileVersion {
     }): FileVersion {
         return FileVersion.create({
             version: 1,
+            name: params.name,
+            extension: params.extension,
+            mimeType: params.mimeType,
             storageKey: params.storageKey,
             size: params.size,
             checksum: params.checksum,
@@ -53,6 +71,24 @@ export class FileVersion {
 
     private static ensureVersion(version: number): void {
         if (!Number.isInteger(version) || version < 1) {
+            throw new InvalidFileVersionError();
+        }
+    }
+
+    private static ensureName(name: string): void {
+        if (typeof name !== "string" || name.trim().length === 0) {
+            throw new InvalidFileVersionError();
+        }
+    }
+
+    private static ensureExtension(extension: string): void {
+        if (typeof extension !== "string" || extension.trim().length === 0) {
+            throw new InvalidFileVersionError();
+        }
+    }
+
+    private static ensureMimeType(mimeType: string): void {
+        if (typeof mimeType !== "string" || mimeType.trim().length === 0) {
             throw new InvalidFileVersionError();
         }
     }
@@ -83,6 +119,18 @@ export class FileVersion {
 
     public getVersion(): number {
         return this.version;
+    }
+
+    public getName(): string {
+        return this.name;
+    }
+
+    public getExtension(): string {
+        return this.extension;
+    }
+
+    public getMimeType(): string {
+        return this.mimeType;
     }
 
     public getStorageKey(): string {
@@ -121,6 +169,9 @@ export class FileVersion {
     public withScan(scan: AntivirusScan): FileVersion {
         return new FileVersion(
             this.version,
+            this.name,
+            this.extension,
+            this.mimeType,
             this.storageKey,
             this.size,
             this.checksum,
@@ -132,6 +183,9 @@ export class FileVersion {
     public equals(other: FileVersion): boolean {
         if (
             this.version !== other.version ||
+            this.name !== other.name ||
+            this.extension !== other.extension ||
+            this.mimeType !== other.mimeType ||
             this.storageKey !== other.storageKey ||
             this.size !== other.size ||
             this.checksum !== other.checksum ||

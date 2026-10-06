@@ -102,7 +102,7 @@ export class File {
     }
 
     public addVersion(version: FileVersion): void {
-        if (this.props.status !== FILE_STATUS.READY) {
+        if (this.props.status !== FILE_STATUS.READY && this.props.status !== FILE_STATUS.INFECTED) {
             throw new FileNotReadyError();
         }
         const latest = this.getLatestVersion();
@@ -110,6 +110,9 @@ export class File {
             throw new InvalidFileVersionsError();
         }
         this.props.versions.push(version);
+        this.props.name = version.getName();
+        this.props.extension = version.getExtension();
+        this.props.mimeType = version.getMimeType();
         this.props.size = version.getSize();
         this.props.updatedAt = new Date();
     }

@@ -9,16 +9,19 @@ import { GetDownloadUrlUseCase } from "./index";
 const makeFile = (): File => {
     const createdAt = new Date("2025-01-01T00:00:00.000Z");
     const version = FileVersion.createInitial({
-        storageKey: "files/file-id/v1",
+        storageKey: "files/file-id/v1/document.pdf",
         size: 1024,
         checksum: "checksum",
         createdAt,
+        name: "document.pdf",
+        extension: "pdf",
+        mimeType: "application/pdf",
     });
     return File.create({
         id: "file-id",
         tenantId: "tenant-id",
         ownerId: "owner-id",
-        name: "document",
+        name: "document.pdf",
         extension: "pdf",
         mimeType: "application/pdf",
         size: 1024,
@@ -51,7 +54,10 @@ describe("GetDownloadUrlUseCase", () => {
         expect(fileRepository.findById).toHaveBeenCalledTimes(1);
         expect(fileRepository.findById).toHaveBeenCalledWith("file-id");
         expect(storagePort.getSignedUrl).toHaveBeenCalledTimes(1);
-        expect(storagePort.getSignedUrl).toHaveBeenCalledWith("files/file-id/v1", env.STORAGE_SIGNED_URL_TTL_SECONDS);
+        expect(storagePort.getSignedUrl).toHaveBeenCalledWith(
+            "files/file-id/v1/document.pdf",
+            env.STORAGE_SIGNED_URL_TTL_SECONDS,
+        );
         expect(result).toEqual({
             url: signedUrl,
             expiresIn: env.STORAGE_SIGNED_URL_TTL_SECONDS,
@@ -132,6 +138,9 @@ describe("GetDownloadUrlUseCase", () => {
         await expect(useCase.execute("file-id")).rejects.toThrow("Storage error");
         expect(fileRepository.findById).toHaveBeenCalledTimes(1);
         expect(storagePort.getSignedUrl).toHaveBeenCalledTimes(1);
-        expect(storagePort.getSignedUrl).toHaveBeenCalledWith("files/file-id/v1", env.STORAGE_SIGNED_URL_TTL_SECONDS);
+        expect(storagePort.getSignedUrl).toHaveBeenCalledWith(
+            "files/file-id/v1/document.pdf",
+            env.STORAGE_SIGNED_URL_TTL_SECONDS,
+        );
     });
 });

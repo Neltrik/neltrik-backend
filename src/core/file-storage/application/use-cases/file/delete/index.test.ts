@@ -7,9 +7,11 @@ import { DeleteFileUseCase } from "./index";
 
 const makeFile = (): File => {
     const createdAt = new Date("2025-01-01T00:00:00.000Z");
-
     const version = FileVersion.createInitial({
-        storageKey: "files/file-id/v1",
+        name: "document",
+        extension: "pdf",
+        mimeType: "application/pdf",
+        storageKey: "files/file-id/v1/document.pdf",
         size: 1024,
         checksum: "checksum",
         createdAt,

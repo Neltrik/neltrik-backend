@@ -20,6 +20,9 @@ export class FileMapper {
             resourceId: file.resourceId,
             versions: file.versions.map((version) => ({
                 version: version.getVersion(),
+                name: version.getName(),
+                extension: version.getExtension(),
+                mimeType: version.getMimeType(),
                 storageKey: version.getStorageKey(),
                 size: version.getSize(),
                 checksum: version.getChecksum(),
@@ -54,6 +57,9 @@ export class FileMapper {
             versions: versions.map((item) =>
                 FileVersion.create({
                     version: item.version,
+                    name: item.name,
+                    extension: item.extension,
+                    mimeType: item.mimeType,
                     storageKey: item.storageKey,
                     size: item.size,
                     checksum: item.checksum,

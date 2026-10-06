@@ -2,7 +2,17 @@ import { Module } from "@nestjs/common";
 
 import { env } from "@/config/index";
 
-import { AdjustQuotaLimitUseCase, GetFileQuotaUseCase } from "./application/use-cases";
+import { CompensatingOperationService } from "./application/compensation";
+import {
+    AdjustQuotaLimitUseCase,
+    DeleteFileUseCase,
+    GetDownloadUrlUseCase,
+    GetFileQuotaUseCase,
+    GetFileUseCase,
+    ListFilesUseCase,
+    ReplaceFileUseCase,
+    UploadFileUseCase,
+} from "./application/use-cases";
 import {
     CreateOrGetQuotaInternalUseCase,
     DecrementQuotaInternalUseCase,
@@ -33,11 +43,18 @@ import { FileStorageQuotaController } from "./presentation/controllers";
     providers: [
         AdjustQuotaLimitUseCase,
         GetFileQuotaUseCase,
+        GetFileUseCase,
+        ListFilesUseCase,
+        DeleteFileUseCase,
+        UploadFileUseCase,
+        ReplaceFileUseCase,
+        GetDownloadUrlUseCase,
         CreateOrGetQuotaInternalUseCase,
         DecrementQuotaInternalUseCase,
         IncrementQuotaInternalUseCase,
         VerifyQuotaLimitInternalUseCase,
         FileValidationService,
+        CompensatingOperationService,
         LocalFileStorageAdapter,
         B2FileStorageAdapter,
         {

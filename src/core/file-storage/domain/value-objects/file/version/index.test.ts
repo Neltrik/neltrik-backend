@@ -7,6 +7,9 @@ describe("FileVersion", () => {
     const scan = AntivirusScan.clean("ClamAV", createdAt);
     const validParams = {
         version: 1,
+        name: "document",
+        extension: "pdf",
+        mimeType: "application/pdf",
         storageKey: "files/document.pdf",
         size: 1024,
         checksum: "sha256:abc123",
@@ -16,6 +19,9 @@ describe("FileVersion", () => {
     it("should create an initial file version with scans", () => {
         const fileVersion = FileVersion.createInitial({ ...validParams, scans: [scan] });
         expect(fileVersion.getVersion()).toBe(1);
+        expect(fileVersion.getName()).toBe("document");
+        expect(fileVersion.getExtension()).toBe("pdf");
+        expect(fileVersion.getMimeType()).toBe("application/pdf");
         expect(fileVersion.getScans()).toEqual([scan]);
     });
 
@@ -27,6 +33,9 @@ describe("FileVersion", () => {
     it("should create a valid file version", () => {
         const fileVersion = FileVersion.create(validParams);
         expect(fileVersion.getVersion()).toBe(1);
+        expect(fileVersion.getName()).toBe("document");
+        expect(fileVersion.getExtension()).toBe("pdf");
+        expect(fileVersion.getMimeType()).toBe("application/pdf");
         expect(fileVersion.getStorageKey()).toBe("files/document.pdf");
         expect(fileVersion.getSize()).toBe(1024);
         expect(fileVersion.getChecksum()).toBe("sha256:abc123");
@@ -50,6 +59,27 @@ describe("FileVersion", () => {
         expect(() => FileVersion.create({ ...validParams, version: 0 })).toThrow(InvalidFileVersionError);
         expect(() => FileVersion.create({ ...validParams, version: -1 })).toThrow(InvalidFileVersionError);
         expect(() => FileVersion.create({ ...validParams, version: 1.5 })).toThrow(InvalidFileVersionError);
+    });
+
+    it.each([
+        ["", "empty string"],
+        ["   ", "whitespace string"],
+    ])("should throw InvalidFileVersionError for invalid name: %s", (name) => {
+        expect(() => FileVersion.create({ ...validParams, name })).toThrow(InvalidFileVersionError);
+    });
+
+    it.each([
+        ["", "empty string"],
+        ["   ", "whitespace string"],
+    ])("should throw InvalidFileVersionError for invalid extension: %s", (extension) => {
+        expect(() => FileVersion.create({ ...validParams, extension })).toThrow(InvalidFileVersionError);
+    });
+
+    it.each([
+        ["", "empty string"],
+        ["   ", "whitespace string"],
+    ])("should throw InvalidFileVersionError for invalid mime type: %s", (mimeType) => {
+        expect(() => FileVersion.create({ ...validParams, mimeType })).toThrow(InvalidFileVersionError);
     });
 
     it("should throw InvalidFileVersionError for invalid storage key", () => {
@@ -130,6 +160,10 @@ describe("FileVersion", () => {
     it("should return false when file versions have different properties", () => {
         const first = FileVersion.create(validParams);
         expect(first.equals(FileVersion.create({ ...validParams, version: 2 }))).toBe(false);
+        expect(first.equals(FileVersion.create({ ...validParams, name: "other-document" }))).toBe(false);
+        expect(first.equals(FileVersion.create({ ...validParams, extension: "txt" }))).toBe(false);
+
+        expect(first.equals(FileVersion.create({ ...validParams, mimeType: "text/plain" }))).toBe(false);
         expect(first.equals(FileVersion.create({ ...validParams, size: 2048 }))).toBe(false);
         expect(first.equals(FileVersion.create({ ...validParams, checksum: "different" }))).toBe(false);
         expect(
@@ -138,10 +172,7 @@ describe("FileVersion", () => {
     });
 
     it("should return false when file versions have different scans", () => {
-        const first = FileVersion.create({
-            ...validParams,
-            scans: [scan],
-        });
+        const first = FileVersion.create({ ...validParams, scans: [scan] });
         const second = FileVersion.create({
             ...validParams,
             scans: [AntivirusScan.infected("ClamAV", "Malware", createdAt)],

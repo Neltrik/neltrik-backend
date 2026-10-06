@@ -51,6 +51,9 @@ interface PersistedAntivirusScan {
 
 export interface PersistedFileVersion {
     version: number;
+    name: string;
+    extension: string;
+    mimeType: string;
     storageKey: string;
     size: number;
     checksum: string;

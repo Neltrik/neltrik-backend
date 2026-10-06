@@ -20,6 +20,9 @@ const createProps = (): FileProps => {
         size: 1024,
         checksum: "sha256:abc123",
         createdAt,
+        name: "document",
+        extension: "pdf",
+        mimeType: "application/pdf",
     });
     return {
         id: "file-id",
@@ -88,6 +91,9 @@ describe("File", () => {
             checksum: "sha256:abc123",
             scans: [scan],
             createdAt: props.createdAt,
+            name: "document",
+            extension: "pdf",
+            mimeType: "application/pdf",
         });
         const file = File.restore({ ...props, versions: [version] });
         expect(file.isClean()).toBe(true);
@@ -221,6 +227,9 @@ describe("Mutations", () => {
             size: 2048,
             checksum: "sha256:def456",
             createdAt: new Date(),
+            name: "document",
+            extension: "pdf",
+            mimeType: "application/pdf",
         });
         file.addVersion(version);
         expect(file.versions).toHaveLength(2);
@@ -243,8 +252,30 @@ describe("Mutations", () => {
             size: 2048,
             checksum: "sha256:def456",
             createdAt: new Date(),
+            name: "document",
+            extension: "pdf",
+            mimeType: "application/pdf",
         });
         expect(() => file.addVersion(version)).toThrow(InvalidFileVersionsError);
+    });
+
+    it("should return the total size of all versions", () => {
+        const props = createProps();
+        const version2 = FileVersion.create({
+            version: 2,
+            storageKey: "files/document-v2.pdf",
+            size: 2048,
+            checksum: "sha256:def456",
+            createdAt: new Date(),
+            name: "document",
+            extension: "pdf",
+            mimeType: "application/pdf",
+        });
+        const file = File.restore({
+            ...props,
+            versions: [...props.versions, version2],
+        });
+        expect(file.getTotalSize()).toBe(3072);
     });
 });
 

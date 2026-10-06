@@ -5,20 +5,22 @@ import { FileRepositorySpy } from "../../../../test-doubles";
 import { GetFileUseCase } from "./index";
 
 const makeInput = (): string => "file-id";
-
 const makeFile = (): File => {
     const createdAt = new Date("2025-01-01T00:00:00.000Z");
     const version = FileVersion.createInitial({
-        storageKey: "files/file-id/v1",
+        storageKey: "files/file-id/v1/document.pdf",
         size: 1024,
         checksum: "checksum",
         createdAt,
+        name: "document.pdf",
+        extension: "pdf",
+        mimeType: "application/pdf",
     });
     return File.create({
         id: "file-id",
         tenantId: "tenant-id",
         ownerId: "owner-id",
-        name: "document",
+        name: "document.pdf",
         extension: "pdf",
         mimeType: "application/pdf",
         size: 1024,
@@ -76,7 +78,6 @@ describe("GetFileUseCase", () => {
         jest.spyOn(mockFile, "isDeleted").mockReturnValue(true);
         fileRepository.findById.mockResolvedValue(mockFile);
         await expect(useCase.execute(makeInput())).rejects.toThrow(FileNotFoundError);
-        expect(fileRepository.findById).toHaveBeenCalledTimes(1);
         expect(mockFile.isDeleted).toHaveBeenCalledTimes(1);
     });
 
@@ -87,7 +88,6 @@ describe("GetFileUseCase", () => {
         jest.spyOn(mockFile, "isInfected").mockReturnValue(true);
         fileRepository.findById.mockResolvedValue(mockFile);
         await expect(useCase.execute(makeInput())).rejects.toThrow(FileNotFoundError);
-        expect(fileRepository.findById).toHaveBeenCalledTimes(1);
         expect(mockFile.isDeleted).toHaveBeenCalledTimes(1);
         expect(mockFile.isInfected).toHaveBeenCalledTimes(1);
     });

@@ -108,6 +108,9 @@ Representa una versión concreta del binario de un `File`. Cada reemplazo genera
 | Campo        | Descripción                                          |
 | ------------ | ---------------------------------------------------- |
 | `version`    | Número de versión incremental.                       |
+| `name`       | Nombre original del archivo en esta versión.         |
+| `extension`  | Extensión derivada del nombre.                       |
+| `mimeType`   | Tipo MIME del archivo en esta versión.               |
 | `storageKey` | Clave única del binario en el proveedor de storage.  |
 | `size`       | Tamaño del binario en bytes.                         |
 | `checksum`   | Hash SHA-256 del binario, para verificar integridad. |
@@ -118,6 +121,8 @@ Representa una versión concreta del binario de un `File`. Cada reemplazo genera
 
 - La versión inicial de un `File` es la número `1`.
 
+- Toda `FileVersion` posee su propio `name`, `extension` y `mimeType`.
+
 - Toda `FileVersion` posee una `storageKey` única en el proveedor de storage.
 
 - Toda `FileVersion` posee un `checksum` que permite verificar integridad y detectar duplicados.
@@ -127,6 +132,8 @@ Representa una versión concreta del binario de un `File`. Cada reemplazo genera
 - Las `FileVersion` no se eliminan mientras el `File` exista.
 
 - Las `FileVersion` son inmutables una vez creadas.
+
+- El `File` actualiza sus campos `name`, `extension` y `mimeType` al de la versión actual.
 
 ### AntivirusScan
 
@@ -223,12 +230,13 @@ Representa el propósito del archivo.
 - Solo un archivo con estado `READY` o `INFECTED` puede reemplazarse.
 - El reemplazo agrega una nueva `FileVersion` al mismo `File`.
 - La nueva `FileVersion` incrementa el número de versión respecto a la anterior.
-- El `File` mantiene su estado `READY`.
+- El `File` mantiene su estado `READY` o `INFECTED`.
 - El `File` mantiene su `tenantId`, `ownerId`, `purpose`, `resourceType` y `resourceId`.
+- El `File` actualiza su `name`, `extension` y `mimeType` al de la nueva versión.
 - El `File` actualiza su `size` al tamaño de la nueva versión.
 - El `File` actualiza su `checksum` al de la nueva versión.
 - La nueva `FileVersion` pasa por el mismo flujo de validación y escaneo que una versión inicial.
-- El reemplazo consume de la `FileQuota` del `Tenant` por la diferencia de tamaño entre la versión nueva y la anterior.
+- El reemplazo consume de la `FileQuota` del `Tenant` por el `size` de la nueva versión.
 - El reemplazo solo puede ser realizado por un actor autorizado.
 
 ## 4.3 Eliminación

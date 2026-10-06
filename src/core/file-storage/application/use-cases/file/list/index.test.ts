@@ -11,6 +11,9 @@ const makeFile = (id: string): File => {
         size: 1024,
         checksum: `checksum-${id}`,
         createdAt,
+        name: `document-${id}`,
+        extension: "pdf",
+        mimeType: "application/pdf",
     });
     return File.create({
         id,

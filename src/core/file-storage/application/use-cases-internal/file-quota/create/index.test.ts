@@ -12,7 +12,7 @@ describe("CreateOrGetQuotaInternalUseCase", () => {
         const idGenerator = {
             generate: generateMock,
         } satisfies IdGenerator;
-        const useCase = new CreateOrGetQuotaInternalUseCase(fileQuotaRepository, idGenerator);
+        const useCase = new CreateOrGetQuotaInternalUseCase(idGenerator, fileQuotaRepository);
         return { useCase, fileQuotaRepository, generateMock };
     };
 

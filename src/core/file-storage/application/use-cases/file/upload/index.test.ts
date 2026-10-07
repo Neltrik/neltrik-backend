@@ -12,7 +12,11 @@ import {
     TransactionManagerSpy,
 } from "../../../../test-doubles";
 import { CompensatingOperationService } from "../../../compensation";
-import { IncrementQuotaInternalUseCase, VerifyQuotaLimitInternalUseCase } from "../../../use-cases-internal";
+import {
+    CreateOrGetQuotaInternalUseCase,
+    IncrementQuotaInternalUseCase,
+    VerifyQuotaLimitInternalUseCase,
+} from "../../../use-cases-internal";
 import { FileValidationService } from "../../../validation";
 import { UploadFileUseCase } from "./index";
 import type { UploadFileInput } from "./input";
@@ -43,30 +47,32 @@ describe("UploadFileUseCase", () => {
         };
         const fileValidationService = new FileValidationService(magicBytesDetector);
         jest.spyOn(fileValidationService, "validate").mockResolvedValue(undefined);
-        const fileQuotaRepository = new FileQuotaRepositorySpy();
-        const verifyQuotaLimitInternalUseCase = new VerifyQuotaLimitInternalUseCase(fileQuotaRepository);
-        const verifyQuotaLimitSpy = jest.spyOn(verifyQuotaLimitInternalUseCase, "execute");
-        verifyQuotaLimitSpy.mockResolvedValue(true);
-        const incrementQuotaInternalUseCase = new IncrementQuotaInternalUseCase(fileQuotaRepository);
-        const incrementQuotaSpy = jest.spyOn(incrementQuotaInternalUseCase, "execute");
-        incrementQuotaSpy.mockResolvedValue(undefined as never);
         const generateMock = jest.fn().mockReturnValue("file-id");
         const idGenerator = {
             generate: generateMock,
         } satisfies IdGenerator;
+        const fileQuotaRepository = new FileQuotaRepositorySpy();
+        const verifyQuotaLimitInternalUseCase = new VerifyQuotaLimitInternalUseCase(fileQuotaRepository);
+        const verifyQuotaLimitSpy = jest.spyOn(verifyQuotaLimitInternalUseCase, "execute");
+        verifyQuotaLimitSpy.mockResolvedValue(true);
+        const createOrGetQuotaInternalUseCase = new CreateOrGetQuotaInternalUseCase(idGenerator, fileQuotaRepository);
+        const incrementQuotaInternalUseCase = new IncrementQuotaInternalUseCase(fileQuotaRepository);
+        const incrementQuotaSpy = jest.spyOn(incrementQuotaInternalUseCase, "execute");
+        incrementQuotaSpy.mockResolvedValue(undefined as never);
         const transactionManager = new TransactionManagerSpy();
         const compensatingOperation = new CompensatingOperationService();
         const useCase = new UploadFileUseCase(
-            fileRepository,
-            storagePort,
-            checksumGenerator,
-            antivirusPort,
-            fileValidationService,
-            verifyQuotaLimitInternalUseCase,
-            incrementQuotaInternalUseCase,
             idGenerator,
             transactionManager,
+            antivirusPort,
+            checksumGenerator,
+            fileRepository,
+            storagePort,
             compensatingOperation,
+            createOrGetQuotaInternalUseCase,
+            incrementQuotaInternalUseCase,
+            verifyQuotaLimitInternalUseCase,
+            fileValidationService,
         );
         return {
             useCase,
@@ -85,7 +91,7 @@ describe("UploadFileUseCase", () => {
     it("should upload a clean file successfully", async () => {
         const { useCase, fileRepository, storagePort, antivirusPort, generateMock, transactionManager } = makeSut();
         const result = await useCase.execute(makeInput());
-        expect(generateMock).toHaveBeenCalledTimes(1);
+        expect(generateMock).toHaveBeenCalledTimes(2);
         expect(storagePort.upload).toHaveBeenCalledWith(
             "tenants/tenant-id/files/file-id/v1/document.pdf",
             Buffer.from("file-content"),

@@ -36,10 +36,10 @@ import {
     StubAntivirusAdapter,
 } from "./infrastructure/providers";
 import { PrismaFileQuotaRepository, PrismaFileRepository } from "./infrastructure/repositories";
-import { FileStorageQuotaController } from "./presentation/controllers";
+import { FileController, FileStorageQuotaController } from "./presentation/controllers";
 
 @Module({
-    controllers: [FileStorageQuotaController],
+    controllers: [FileController, FileStorageQuotaController],
     providers: [
         AdjustQuotaLimitUseCase,
         GetFileQuotaUseCase,

@@ -2,6 +2,7 @@
 import { type UserPayload } from "@/shared/auth";
 
 import "express";
+import "multer";
 
 declare module "express" {
     interface Request {

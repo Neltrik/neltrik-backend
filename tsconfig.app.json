@@ -45,7 +45,7 @@
             "@/types/*": ["src/types/*"]
         },
 
-        "types": ["node"]
+        "types": ["node", "express", "multer"]
     },
     "include": ["src/**/*.ts"],
     "exclude": ["node_modules", "dist", "scripts", "**/*.test.ts", "**/test-doubles/**"]

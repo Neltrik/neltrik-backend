@@ -116,6 +116,7 @@ src/
         ├── api/
         ├── application/
         │   ├── use-cases/
+        │   ├── use-cases-internal/
         │   └── use-cases-ohs/
         ├── docs/
         |
@@ -222,6 +223,10 @@ La carpeta `application/use-cases/` contiene los casos de uso utilizados por la 
 La carpeta `application/use-cases-ohs/` contiene exclusivamente los casos de uso utilizados por la capa `api/` para exponer capacidades del módulo a otros módulos.
 
 Un `UseCaseOhs` no debe depender de otro `OhsApi`. La comunicación intermodular debe realizarse a través del `api/` correspondiente, evitando cadenas de dependencias entre casos de uso OHS.
+
+La carpeta `application/use-cases-internal/` contiene exclusivamente casos de uso utilizados por otros casos de uso de la misma capa de Application. Su propósito es encapsular operaciones reutilizables que forman parte de la composición interna de los procesos de aplicación.
+
+Los `UseCaseInternal` no deben ser utilizados directamente por Presentation, `api/` y `presentation/` ni cualquier otra capa. Tampoco representan capacidades públicas del módulo ni mecanismos de comunicación intermodular.
 
 ## Dependencias circulares
 

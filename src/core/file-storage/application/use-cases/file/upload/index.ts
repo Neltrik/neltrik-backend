@@ -8,7 +8,11 @@ import { FileAlreadyExistsError, FileQuotaExceededError } from "../../../../doma
 import { AntivirusPort, ChecksumGenerator, FileRepository, FileStoragePort } from "../../../../domain/interfaces";
 import { FileVersion } from "../../../../domain/value-objects";
 import { CompensatingOperationService } from "../../../compensation";
-import { IncrementQuotaInternalUseCase, VerifyQuotaLimitInternalUseCase } from "../../../use-cases-internal";
+import {
+    CreateOrGetQuotaInternalUseCase,
+    IncrementQuotaInternalUseCase,
+    VerifyQuotaLimitInternalUseCase,
+} from "../../../use-cases-internal";
 import { FileValidationService } from "../../../validation";
 import { UploadFileInput } from "./input";
 import { UploadFileOutput } from "./output";
@@ -22,16 +26,17 @@ interface PreparedUpload {
 @Injectable()
 export class UploadFileUseCase {
     constructor(
-        private readonly fileRepository: FileRepository,
-        private readonly storagePort: FileStoragePort,
-        private readonly checksumGenerator: ChecksumGenerator,
-        private readonly antivirusPort: AntivirusPort,
-        private readonly fileValidationService: FileValidationService,
-        private readonly verifyQuotaLimitInternalUseCase: VerifyQuotaLimitInternalUseCase,
-        private readonly incrementQuotaInternalUseCase: IncrementQuotaInternalUseCase,
         private readonly idGenerator: IdGenerator,
         private readonly transactionManager: TransactionManager,
+        private readonly antivirusPort: AntivirusPort,
+        private readonly checksumGenerator: ChecksumGenerator,
+        private readonly fileRepository: FileRepository,
+        private readonly storagePort: FileStoragePort,
         private readonly compensatingOperation: CompensatingOperationService,
+        private readonly createOrGetQuotaInternalUseCase: CreateOrGetQuotaInternalUseCase,
+        private readonly incrementQuotaInternalUseCase: IncrementQuotaInternalUseCase,
+        private readonly verifyQuotaLimitInternalUseCase: VerifyQuotaLimitInternalUseCase,
+        private readonly fileValidationService: FileValidationService,
     ) {}
 
     public async execute(input: UploadFileInput): Promise<UploadFileOutput> {
@@ -58,6 +63,7 @@ export class UploadFileUseCase {
         if (existing) {
             throw new FileAlreadyExistsError();
         }
+        await this.createOrGetQuotaInternalUseCase.execute(input.tenantId);
         const canAccommodate = await this.verifyQuotaLimitInternalUseCase.execute({
             tenantId: input.tenantId,
             size: input.size,

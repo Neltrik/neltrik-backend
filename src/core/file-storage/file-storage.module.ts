@@ -1,6 +1,7 @@
-import { Module } from "@nestjs/common";
+import { HttpStatus, Module, OnModuleInit } from "@nestjs/common";
 
 import { env } from "@/config/index";
+import { DomainStatusRegistry } from "@/shared/http";
 
 import { CompensatingOperationService } from "./application/compensation";
 import {
@@ -20,6 +21,7 @@ import {
     VerifyQuotaLimitInternalUseCase,
 } from "./application/use-cases-internal";
 import { FileValidationService } from "./application/validation";
+import { DOMAIN_ERROR_CODES } from "./domain/errors";
 import {
     AntivirusPort,
     ChecksumGenerator,
@@ -86,4 +88,9 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
         },
     ],
 })
-export class FileStorageModule {}
+export class FileStorageModule implements OnModuleInit {
+    public onModuleInit(): void {
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_NOT_FOUND, HttpStatus.NOT_FOUND);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_QUOTA_NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+}

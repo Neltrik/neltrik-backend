@@ -19,6 +19,7 @@ import { PermissionsGuard } from "./shared/authorization";
 import { ErrorsModule } from "./shared/errors/errors.module";
 import { HttpModule } from "./shared/http";
 import { IdGeneratorModule } from "./shared/id-generator";
+import { JobsModule } from "./shared/jobs/jobs.module";
 import { SanitizationModule } from "./shared/sanitization";
 
 @Module({
@@ -43,6 +44,7 @@ import { SanitizationModule } from "./shared/sanitization";
         ErrorsModule,
         AuthModule,
         IdGeneratorModule,
+        JobsModule,
         SanitizationModule,
         AuditModule,
         AuthenticationModule,

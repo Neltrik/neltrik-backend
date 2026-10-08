@@ -20,6 +20,12 @@ const envSchema = z.object({
     SMTP_USER: z.email("SMTP_USER must be a valid email"),
     SMTP_PASSWORD: z.string().min(1, "SMTP_PASSWORD is required"),
     SMTP_FROM: z.string().min(1, "SMTP_FROM is required"),
+    REDIS_URL: z
+        .string()
+        .min(1, "REDIS_URL is required")
+        .refine((value) => value.startsWith("redis://") || value.startsWith("rediss://"), {
+            message: "REDIS_URL must start with redis:// or rediss://",
+        }),
     B2_ENDPOINT: z.url(),
     B2_REGION: z.string().min(1, "B2_REGION is required"),
     B2_BUCKET: z.string().min(1, "B2_BUCKET is required"),

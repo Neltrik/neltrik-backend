@@ -1,10 +1,10 @@
 import type { IdGenerator } from "@/shared/id-generator";
+import { type JobScheduler } from "@/shared/jobs";
 
 import { type File } from "../../../../domain/entities";
 import { FileAlreadyExistsError, FileQuotaExceededError } from "../../../../domain/errors";
-import { AntivirusScan } from "../../../../domain/value-objects";
+import { buildFileScanJobId, FILE_SCAN_JOB, FILE_SCAN_QUEUE } from "../../../../domain/types";
 import {
-    AntivirusPortSpy,
     ChecksumGeneratorSpy,
     FileQuotaRepositorySpy,
     FileRepositorySpy,
@@ -40,8 +40,6 @@ describe("UploadFileUseCase", () => {
         const storagePort = new FileStoragePortSpy();
         const checksumGenerator = new ChecksumGeneratorSpy();
         checksumGenerator.generate.mockResolvedValue("checksum-123");
-        const antivirusPort = new AntivirusPortSpy();
-        antivirusPort.scan.mockResolvedValue(AntivirusScan.clean("stub", new Date()));
         const magicBytesDetector = {
             detect: jest.fn().mockResolvedValue("application/pdf"),
         };
@@ -61,10 +59,13 @@ describe("UploadFileUseCase", () => {
         incrementQuotaSpy.mockResolvedValue(undefined as never);
         const transactionManager = new TransactionManagerSpy();
         const compensatingOperation = new CompensatingOperationService();
+        const jobScheduler = {
+            enqueue: jest.fn().mockResolvedValue(undefined),
+        } as unknown as JobScheduler;
         const useCase = new UploadFileUseCase(
             idGenerator,
+            jobScheduler,
             transactionManager,
-            antivirusPort,
             checksumGenerator,
             fileRepository,
             storagePort,
@@ -79,17 +80,17 @@ describe("UploadFileUseCase", () => {
             fileRepository,
             storagePort,
             checksumGenerator,
-            antivirusPort,
             fileValidationService,
             verifyQuotaLimitSpy,
             incrementQuotaSpy,
             generateMock,
             transactionManager,
+            jobScheduler,
         };
     };
 
     it("should upload a clean file successfully", async () => {
-        const { useCase, fileRepository, storagePort, antivirusPort, generateMock, transactionManager } = makeSut();
+        const { useCase, fileRepository, storagePort, generateMock, transactionManager } = makeSut();
         const result = await useCase.execute(makeInput());
         expect(generateMock).toHaveBeenCalledTimes(2);
         expect(storagePort.upload).toHaveBeenCalledWith(
@@ -97,7 +98,6 @@ describe("UploadFileUseCase", () => {
             Buffer.from("file-content"),
             "application/pdf",
         );
-        expect(antivirusPort.scan).toHaveBeenCalledWith(Buffer.from("file-content"));
         expect(fileRepository.create).toHaveBeenCalledTimes(1);
         expect(transactionManager.executeCalls).toBe(1);
         expect(result).toMatchObject({
@@ -105,7 +105,7 @@ describe("UploadFileUseCase", () => {
             tenantId: "tenant-id",
             ownerId: "owner-id",
             name: "document.pdf",
-            status: "READY",
+            status: "PENDING",
         });
     });
 
@@ -174,19 +174,25 @@ describe("UploadFileUseCase", () => {
         expect(storagePort.upload).not.toHaveBeenCalled();
     });
 
-    it("should propagate antivirus errors", async () => {
-        const { useCase, antivirusPort, fileRepository } = makeSut();
-        antivirusPort.scan.mockRejectedValue(new Error("Antivirus unavailable"));
-        await expect(useCase.execute(makeInput())).rejects.toThrow("Antivirus unavailable");
-        expect(fileRepository.create).not.toHaveBeenCalled();
+    it("should enqueue a scan job after uploading the file", async () => {
+        const { useCase, jobScheduler, fileRepository } = makeSut();
+        const result = await useCase.execute(makeInput());
+        expect(result.status).toBe("PENDING");
+        expect(fileRepository.create).toHaveBeenCalledTimes(1);
+        expect(jobScheduler.enqueue).toHaveBeenCalledTimes(1);
+        expect(jobScheduler.enqueue).toHaveBeenCalledWith(
+            FILE_SCAN_QUEUE,
+            FILE_SCAN_JOB,
+            { tenantId: "tenant-id", fileId: "file-id", version: 1 },
+            expect.objectContaining({ jobId: buildFileScanJobId("file-id", 1) }),
+        );
     });
 
-    it("should mark the file as infected when antivirus detects a threat", async () => {
-        const { useCase, antivirusPort } = makeSut();
-        const scan = AntivirusScan.clean("stub", new Date());
-        jest.spyOn(scan, "isClean").mockReturnValue(false);
-        antivirusPort.scan.mockResolvedValue(scan);
+    it("should keep the file pending until the antivirus job scans it", async () => {
+        const { useCase, fileRepository, jobScheduler } = makeSut();
         const result = await useCase.execute(makeInput());
-        expect(result.status).toBe("INFECTED");
+        expect(result.status).toBe("PENDING");
+        expect(fileRepository.create).toHaveBeenCalledTimes(1);
+        expect(jobScheduler.enqueue).toHaveBeenCalledTimes(1);
     });
 });

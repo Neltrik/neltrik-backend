@@ -18,6 +18,7 @@ export const ERROR_MESSAGES = {
     QUOTA_LIMIT_BELOW_MINIMUM: "The quota limit cannot be below the configured minimum.",
     FILE_MIME_TYPE_MISMATCH: "The file content does not match the declared MIME type.",
     FILE_ALREADY_EXISTS: "File already exists",
+    FILE_VERSION_NOT_FOUND: "File version not found",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -40,4 +41,5 @@ export const DOMAIN_ERROR_CODES = {
     QUOTA_LIMIT_BELOW_MINIMUM: "QUOTA_LIMIT_BELOW_MINIMUM",
     FILE_MIME_TYPE_MISMATCH: "FILE_MIME_TYPE_MISMATCH",
     FILE_ALREADY_EXISTS: "FILE_ALREADY_EXISTS",
+    FILE_VERSION_NOT_FOUND: "FILE_VERSION_NOT_FOUND",
 } as const;

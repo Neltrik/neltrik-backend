@@ -1,10 +1,12 @@
 import { Injectable } from "@nestjs/common";
 
+import { JobScheduler } from "@/shared/jobs";
 import { TransactionManager } from "@/shared/transaction";
 
 import { File } from "../../../../domain/entities";
 import { FileNotFoundError, FileQuotaExceededError, InvalidFileStatusError } from "../../../../domain/errors";
-import { AntivirusPort, ChecksumGenerator, FileRepository, FileStoragePort } from "../../../../domain/interfaces";
+import { ChecksumGenerator, FileRepository, FileStoragePort } from "../../../../domain/interfaces";
+import { buildFileScanJobId, FILE_SCAN_JOB, FILE_SCAN_JOB_OPTIONS, FILE_SCAN_QUEUE } from "../../../../domain/types";
 import { FileVersion } from "../../../../domain/value-objects";
 import { CompensatingOperationService } from "../../../compensation";
 import { IncrementQuotaInternalUseCase, VerifyQuotaLimitInternalUseCase } from "../../../use-cases-internal";
@@ -21,8 +23,8 @@ interface PreparedReplace {
 @Injectable()
 export class ReplaceFileUseCase {
     constructor(
+        private readonly jobScheduler: JobScheduler,
         private readonly transactionManager: TransactionManager,
-        private readonly antivirusPort: AntivirusPort,
         private readonly checksumGenerator: ChecksumGenerator,
         private readonly fileRepository: FileRepository,
         private readonly storagePort: FileStoragePort,
@@ -79,12 +81,11 @@ export class ReplaceFileUseCase {
         return this.compensatingOperation.execute(
             () => this.storagePort.upload(prepared.storageKey, input.buffer, input.mimeType),
             () => this.storagePort.delete(prepared.storageKey),
-            async () => this.scanAndPersist(input, file, prepared),
+            async () => this.persistAndEnqueue(input, file, prepared),
         );
     }
 
-    private async scanAndPersist(input: ReplaceFileInput, file: File, prepared: PreparedReplace): Promise<File> {
-        const scan = await this.antivirusPort.scan(input.buffer);
+    private async persistAndEnqueue(input: ReplaceFileInput, file: File, prepared: PreparedReplace): Promise<File> {
         return this.transactionManager.execute(async (context) => {
             const now = new Date();
             const version = FileVersion.create({
@@ -95,12 +96,18 @@ export class ReplaceFileUseCase {
                 storageKey: prepared.storageKey,
                 size: input.size,
                 checksum: prepared.checksum,
-                scans: [scan],
+                scans: [],
                 createdAt: now,
             });
             file.addVersion(version);
             await this.fileRepository.update(file, context);
             await this.incrementQuotaInternalUseCase.execute({ tenantId: file.tenantId, size: input.size }, context);
+            await this.jobScheduler.enqueue(
+                FILE_SCAN_QUEUE,
+                FILE_SCAN_JOB,
+                { tenantId: file.tenantId, fileId: file.id, version: prepared.nextVersion },
+                { ...FILE_SCAN_JOB_OPTIONS, jobId: buildFileScanJobId(file.id, prepared.nextVersion) },
+            );
             return file;
         });
     }

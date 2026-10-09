@@ -1,8 +1,9 @@
+import { type JobScheduler } from "@/shared/jobs";
+
 import { File } from "../../../../domain/entities";
 import { FileNotFoundError, FileQuotaExceededError, InvalidFileStatusError } from "../../../../domain/errors";
-import { AntivirusScan, FileVersion } from "../../../../domain/value-objects";
+import { FileVersion } from "../../../../domain/value-objects";
 import {
-    AntivirusPortSpy,
     ChecksumGeneratorSpy,
     FileQuotaRepositorySpy,
     FileRepositorySpy,
@@ -56,8 +57,6 @@ const makeFile = (): File => {
 describe("ReplaceFileUseCase", () => {
     const makeSut = () => {
         const transactionManager = new TransactionManagerSpy();
-        const antivirusPort = new AntivirusPortSpy();
-        antivirusPort.scan.mockResolvedValue(AntivirusScan.clean("stub", new Date()));
         const checksumGenerator = new ChecksumGeneratorSpy();
         checksumGenerator.generate.mockResolvedValue("new-checksum");
         const fileRepository = new FileRepositorySpy();
@@ -75,9 +74,12 @@ describe("ReplaceFileUseCase", () => {
         const fileValidationService = new FileValidationService(magicBytesDetector);
         jest.spyOn(fileValidationService, "validate").mockResolvedValue(undefined);
         const compensatingOperation = new CompensatingOperationService();
+        const jobScheduler = {
+            enqueue: jest.fn().mockResolvedValue(undefined),
+        } as unknown as JobScheduler;
         const useCase = new ReplaceFileUseCase(
+            jobScheduler,
             transactionManager,
-            antivirusPort,
             checksumGenerator,
             fileRepository,
             storagePort,
@@ -89,27 +91,25 @@ describe("ReplaceFileUseCase", () => {
         return {
             useCase,
             transactionManager,
-            antivirusPort,
             checksumGenerator,
             fileRepository,
             storagePort,
             verifyQuotaLimitSpy,
             incrementQuotaSpy,
             fileValidationService,
+            jobScheduler,
         };
     };
 
     it("should replace the file successfully", async () => {
-        const { useCase, fileRepository, storagePort, antivirusPort, transactionManager } = makeSut();
-        const file = makeFile();
-        fileRepository.findById.mockResolvedValue(file);
+        const { useCase, fileRepository, storagePort, transactionManager } = makeSut();
+        fileRepository.findById.mockResolvedValue(makeFile());
         const result = await useCase.execute(makeInput());
         expect(storagePort.upload).toHaveBeenCalledWith(
             "tenants/tenant-id/files/file-id/v2/document-v2.pdf",
             Buffer.from("new-file-content"),
             "application/pdf",
         );
-        expect(antivirusPort.scan).toHaveBeenCalledWith(Buffer.from("new-file-content"));
         expect(fileRepository.update).toHaveBeenCalledTimes(1);
         expect(transactionManager.executeCalls).toBe(1);
         expect(result).toMatchObject({
@@ -117,7 +117,7 @@ describe("ReplaceFileUseCase", () => {
             tenantId: "tenant-id",
             ownerId: "owner-id",
             name: "document-v2.pdf",
-            status: "READY",
+            status: "PENDING",
         });
     });
 
@@ -202,13 +202,14 @@ describe("ReplaceFileUseCase", () => {
         expect(storagePort.upload).not.toHaveBeenCalled();
     });
 
-    it("should propagate antivirus errors", async () => {
-        const { useCase, fileRepository, antivirusPort, storagePort } = makeSut();
+    it("should propagate antivirus scheduling errors", async () => {
+        const { useCase, fileRepository, storagePort, jobScheduler } = makeSut();
         fileRepository.findById.mockResolvedValue(makeFile());
-        antivirusPort.scan.mockRejectedValue(new Error("Antivirus unavailable"));
+        jest.spyOn(jobScheduler, "enqueue").mockRejectedValue(new Error("Antivirus unavailable"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("Antivirus unavailable");
-        expect(fileRepository.update).not.toHaveBeenCalled();
         expect(storagePort.upload).toHaveBeenCalledTimes(1);
+        expect(fileRepository.update).toHaveBeenCalledTimes(1);
+        expect(jobScheduler.enqueue).toHaveBeenCalledTimes(1);
     });
 
     it("should use the next version in the storage key", async () => {

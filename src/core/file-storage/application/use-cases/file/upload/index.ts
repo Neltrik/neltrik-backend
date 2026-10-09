@@ -1,11 +1,13 @@
 import { Injectable } from "@nestjs/common";
 
 import { IdGenerator } from "@/shared/id-generator";
+import { JobScheduler } from "@/shared/jobs";
 import { TransactionManager } from "@/shared/transaction";
 
 import { File } from "../../../../domain/entities";
 import { FileAlreadyExistsError, FileQuotaExceededError } from "../../../../domain/errors";
-import { AntivirusPort, ChecksumGenerator, FileRepository, FileStoragePort } from "../../../../domain/interfaces";
+import { ChecksumGenerator, FileRepository, FileStoragePort } from "../../../../domain/interfaces";
+import { buildFileScanJobId, FILE_SCAN_JOB, FILE_SCAN_JOB_OPTIONS, FILE_SCAN_QUEUE } from "../../../../domain/types";
 import { FileVersion } from "../../../../domain/value-objects";
 import { CompensatingOperationService } from "../../../compensation";
 import {
@@ -27,8 +29,8 @@ interface PreparedUpload {
 export class UploadFileUseCase {
     constructor(
         private readonly idGenerator: IdGenerator,
+        private readonly jobScheduler: JobScheduler,
         private readonly transactionManager: TransactionManager,
-        private readonly antivirusPort: AntivirusPort,
         private readonly checksumGenerator: ChecksumGenerator,
         private readonly fileRepository: FileRepository,
         private readonly storagePort: FileStoragePort,
@@ -84,12 +86,11 @@ export class UploadFileUseCase {
         return this.compensatingOperation.execute(
             () => this.storagePort.upload(prepared.storageKey, input.buffer, input.mimeType),
             () => this.storagePort.delete(prepared.storageKey),
-            async () => this.scanAndPersist(input, prepared),
+            async () => this.persistAndEnqueue(input, prepared),
         );
     }
 
-    private async scanAndPersist(input: UploadFileInput, prepared: PreparedUpload): Promise<File> {
-        const scan = await this.antivirusPort.scan(input.buffer);
+    private async persistAndEnqueue(input: UploadFileInput, prepared: PreparedUpload): Promise<File> {
         return this.transactionManager.execute(async (context) => {
             const now = new Date();
             const version = FileVersion.createInitial({
@@ -99,7 +100,7 @@ export class UploadFileUseCase {
                 storageKey: prepared.storageKey,
                 size: input.size,
                 checksum: prepared.checksum,
-                scans: [scan],
+                scans: [],
                 createdAt: now,
             });
             const file = File.create({
@@ -116,13 +117,14 @@ export class UploadFileUseCase {
                 versions: [version],
                 createdAt: now,
             });
-            if (scan.isClean()) {
-                file.markReady();
-            } else {
-                file.markInfected();
-            }
             await this.fileRepository.create(file, context);
             await this.incrementQuotaInternalUseCase.execute({ tenantId: input.tenantId, size: input.size }, context);
+            await this.jobScheduler.enqueue(
+                FILE_SCAN_QUEUE,
+                FILE_SCAN_JOB,
+                { tenantId: input.tenantId, fileId: file.id, version: 1 },
+                { ...FILE_SCAN_JOB_OPTIONS, jobId: buildFileScanJobId(file.id, 1) },
+            );
             return file;
         });
     }

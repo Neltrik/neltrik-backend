@@ -26,7 +26,7 @@ import {
 import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser } from "@/shared/auth";
-import { Permissions, PublicPermission } from "@/shared/authorization";
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ResponsePayload } from "@/shared/pagination";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -81,8 +81,7 @@ export class FileController {
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_CREATED, message: FILE_MESSAGES.CREATED })
     @Throttle({ default: { limit: 20, ttl: 900000 } })
-    // @Permissions("ADMIN_FILE_CREATE")
-    @PublicPermission()
+    @Permissions("ADMIN_FILE_CREATE")
     @Post()
     @UseInterceptors(FileInterceptor("file"))
     public async upload(
@@ -202,8 +201,7 @@ export class FileController {
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_UPDATED, message: FILE_MESSAGES.UPDATED })
     @Throttle({ default: { limit: 20, ttl: 900000 } })
-    // @Permissions("ADMIN_FILE_UPDATE")
-    @PublicPermission()
+    @Permissions("ADMIN_FILE_UPDATE")
     @Put(":fileId")
     @UseInterceptors(FileInterceptor("file"))
     public async replace(

@@ -10,7 +10,7 @@ import {
     InvalidMimeTypeError,
 } from "../../errors";
 import { FILE_PURPOSE, FILE_STATUS, type FileProps, type FilePurpose, type FileStatus } from "../../types";
-import { type FileVersion } from "../../value-objects";
+import { type AntivirusScan, type FileVersion } from "../../value-objects";
 
 export class File {
     private props: FileProps;
@@ -114,6 +114,17 @@ export class File {
         this.props.extension = version.getExtension();
         this.props.mimeType = version.getMimeType();
         this.props.size = version.getSize();
+        this.props.status = FILE_STATUS.PENDING;
+        this.props.updatedAt = new Date();
+    }
+
+    public addScanToLatestVersion(scan: AntivirusScan): void {
+        const latest = this.getLatestVersion();
+        if (latest === null) {
+            throw new InvalidFileVersionsError();
+        }
+        const updated = latest.withScan(scan);
+        this.props.versions = [...this.props.versions.slice(0, -1), updated];
         this.props.updatedAt = new Date();
     }
 

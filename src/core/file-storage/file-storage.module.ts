@@ -4,6 +4,7 @@ import { env } from "@/config/index";
 import { DomainStatusRegistry } from "@/shared/http";
 
 import { CompensatingOperationService } from "./application/compensation";
+import { ScanFileJobsUseCase } from "./application/jobs";
 import {
     AdjustQuotaLimitUseCase,
     DeleteFileUseCase,
@@ -30,6 +31,7 @@ import {
     FileStoragePort,
     MagicBytesDetector,
 } from "./domain/interfaces";
+import { ScanFileHandler } from "./infrastructure/jobs";
 import {
     B2FileStorageAdapter,
     FileTypeMagicBytesDetector,
@@ -43,6 +45,7 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
 @Module({
     controllers: [FileController, FileStorageQuotaController],
     providers: [
+        ScanFileJobsUseCase,
         AdjustQuotaLimitUseCase,
         GetFileQuotaUseCase,
         GetFileUseCase,
@@ -58,6 +61,7 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
         FileValidationService,
         CompensatingOperationService,
         LocalFileStorageAdapter,
+        ScanFileHandler,
         B2FileStorageAdapter,
         {
             provide: FileRepository,
@@ -92,5 +96,6 @@ export class FileStorageModule implements OnModuleInit {
     public onModuleInit(): void {
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_QUOTA_NOT_FOUND, HttpStatus.NOT_FOUND);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_VERSION_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 }

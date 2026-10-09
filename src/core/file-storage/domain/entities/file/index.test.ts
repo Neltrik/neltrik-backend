@@ -277,6 +277,26 @@ describe("Mutations", () => {
         });
         expect(file.getTotalSize()).toBe(3072);
     });
+
+    it("should add a scan to the latest version", () => {
+        const props = createProps();
+        const file = File.restore(props);
+        const scan = AntivirusScan.clean("ClamAV", new Date("2025-01-02T00:00:00.000Z"));
+        const previousUpdatedAt = file.updatedAt;
+        file.addScanToLatestVersion(scan);
+        const latestVersion = file.getLatestVersion();
+        expect(latestVersion).not.toBeNull();
+        expect(latestVersion!.isClean()).toBe(true);
+        expect(file.updatedAt.getTime()).toBeGreaterThanOrEqual(previousUpdatedAt.getTime());
+    });
+
+    it("should throw InvalidFileVersionsError when the latest version is null", () => {
+        const file = File.restore(createProps());
+        const scan = AntivirusScan.clean("ClamAV", new Date("2025-01-02T00:00:00.000Z"));
+        (file as unknown as { props: FileProps }).props.versions = [];
+        expect(file.getLatestVersion()).toBeNull();
+        expect(() => file.addScanToLatestVersion(scan)).toThrow(InvalidFileVersionsError);
+    });
 });
 
 describe("Status helpers", () => {

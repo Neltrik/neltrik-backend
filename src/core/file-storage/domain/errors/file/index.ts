@@ -10,3 +10,4 @@ export * from "./invalid-status";
 export * from "./invalid-versions";
 export * from "./not-found";
 export * from "./not-ready";
+export * from "./version-not-found";

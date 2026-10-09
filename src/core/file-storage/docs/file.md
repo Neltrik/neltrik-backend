@@ -230,7 +230,7 @@ Representa el propósito del archivo.
 - Solo un archivo con estado `READY` o `INFECTED` puede reemplazarse.
 - El reemplazo agrega una nueva `FileVersion` al mismo `File`.
 - La nueva `FileVersion` incrementa el número de versión respecto a la anterior.
-- El `File` mantiene su estado `READY` o `INFECTED`.
+- El `File` vuelve a `PENDING` hasta que la nueva FileVersion sea escaneada. Una vez escaneada, transiciona a `READY` o `INFECTED` según el resultado del escaneo.
 - El `File` mantiene su `tenantId`, `ownerId`, `purpose`, `resourceType` y `resourceId`.
 - El `File` actualiza su `name`, `extension` y `mimeType` al de la nueva versión.
 - El `File` actualiza su `size` al tamaño de la nueva versión.

@@ -11,6 +11,8 @@
         "start:dev": "nest start --watch",
         "start:debug": "nest start --debug --watch",
         "start:prod": "node dist/main",
+        "start:worker:dev": "nest start --watch --entryFile worker",
+        "start:worker:prod": "node dist/worker",
         "lint": "eslint . --max-warnings=0",
         "lint:fix": "eslint . --fix",
         "format": "prettier . --write",

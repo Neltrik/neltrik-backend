@@ -1,1 +1,2 @@
-export * from "./get-tenant";
+export * from "./get";
+export * from "./list";

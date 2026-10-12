@@ -33,6 +33,10 @@ const envSchema = z.object({
     B2_SECRET_ACCESS_KEY: z.string().min(1, "B2_SECRET_ACCESS_KEY is required"),
     STORAGE_DRIVER: z.enum(["local", "b2"]).default("local"),
     STORAGE_SIGNED_URL_TTL_SECONDS: z.coerce.number().int().positive().default(900),
+    ANTIVIRUS_DRIVER: z.enum(["stub", "clamav"]).default("stub"),
+    CLAMAV_HOST: z.string().min(1, "CLAMAV_HOST is required").default("localhost"),
+    CLAMAV_PORT: z.coerce.number().int().positive().default(3310),
+    CLAMAV_TIMEOUT_MS: z.coerce.number().int().positive().default(60000),
 });
 
 export const env = Object.freeze(envSchema.parse(process.env));

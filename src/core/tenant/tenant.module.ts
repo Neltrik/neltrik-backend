@@ -19,6 +19,7 @@ import {
 import {
     ConsumeInvitationOhsUseCase,
     GetTenantOhsUseCase,
+    ListTenantsOhsUseCase,
     ValidateInvitationOhsUseCase,
 } from "./application/use-cases-ohs";
 import { InvitationRepository, TenantRepository } from "./domain/interfaces";
@@ -45,6 +46,7 @@ import { InvitationController, TenantController } from "./presentation/controlle
         ValidateInvitationUseCase,
         ConsumeInvitationOhsUseCase,
         GetTenantOhsUseCase,
+        ListTenantsOhsUseCase,
         ValidateInvitationOhsUseCase,
         SlugGenerator,
         InvitationDeliveryStrategyFactory,

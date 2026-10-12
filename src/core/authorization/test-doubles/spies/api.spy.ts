@@ -4,7 +4,7 @@ import type {
     RegisterUserRequestDto,
     RegisterUserResultDto,
 } from "@/core/identity/api";
-import { TenantApi } from "@/core/tenant/api";
+import { TenantApi, type TenantResultDto } from "@/core/tenant/api";
 
 export class AuthorizationRoleApiSpy {
     public getRolesByTenantId = jest.fn();
@@ -16,6 +16,7 @@ export class AuthorizationRoleApiSpy {
 export class TenantApiSpy extends TenantApi {
     public validate = jest.fn<Promise<void>, [string]>();
     public isPlatformTenant = jest.fn<Promise<boolean>, [string]>();
+    public list = jest.fn<Promise<TenantResultDto[]>, [void]>();
 }
 
 export class UserApiSpy {

@@ -34,6 +34,8 @@ import {
 import { ScanFileHandler } from "./infrastructure/jobs";
 import {
     B2FileStorageAdapter,
+    ClamavAntivirusAdapter,
+    ClamavClient,
     FileTypeMagicBytesDetector,
     LocalFileStorageAdapter,
     NodeChecksumGenerator,
@@ -64,6 +66,12 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
         ScanFileHandler,
         B2FileStorageAdapter,
         {
+            provide: ClamavClient,
+            useFactory: (): ClamavClient => new ClamavClient(env.CLAMAV_HOST, env.CLAMAV_PORT, env.CLAMAV_TIMEOUT_MS),
+        },
+        ClamavAntivirusAdapter,
+        StubAntivirusAdapter,
+        {
             provide: FileRepository,
             useClass: PrismaFileRepository,
         },
@@ -84,7 +92,10 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
         },
         {
             provide: AntivirusPort,
-            useClass: StubAntivirusAdapter,
+            useFactory: (stub: StubAntivirusAdapter, clamav: ClamavAntivirusAdapter): AntivirusPort => {
+                return env.ANTIVIRUS_DRIVER === "clamav" ? clamav : stub;
+            },
+            inject: [StubAntivirusAdapter, ClamavAntivirusAdapter],
         },
         {
             provide: MagicBytesDetector,

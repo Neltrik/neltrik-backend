@@ -4,12 +4,13 @@ import type { FilePurpose, FindManyFilesParams } from "../../domain/types";
 
 export class FileRepositorySpy extends FileRepository {
     public create = jest.fn<Promise<void>, [File]>();
+    public update = jest.fn<Promise<void>, [File]>();
     public findById = jest.fn<Promise<File | null>, [string]>();
     public findByResource = jest.fn<Promise<File[]>, [string, string, string]>();
     public findByResourceAndPurpose = jest.fn<Promise<File | null>, [string, string, string, FilePurpose]>();
     public findMany = jest.fn<Promise<File[]>, [FindManyFilesParams]>();
     public findAllByTenant = jest.fn<Promise<File[]>, [string]>();
-    public update = jest.fn<Promise<void>, [File]>();
+    public findDeletedBefore = jest.fn<Promise<File[]>, [string, Date]>();
 }
 
 export class FileQuotaRepositorySpy extends FileQuotaRepository {

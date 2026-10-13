@@ -42,6 +42,12 @@ const envSchema = z.object({
         .default("true")
         .transform((value) => value === "true"),
     RECONCILE_CRON: z.string().min(1, "RECONCILE_CRON is required").default("0 3 * * *"),
+    FILE_DELETION_GRACE_DAYS: z.coerce.number().int().positive().default(30),
+    FILE_DELETION_CRON: z.string().min(1, "FILE_DELETION_CRON is required").default("0 4 * * *"),
+    FILE_DELETION_DRY_RUN: z
+        .string()
+        .default("true")
+        .transform((value) => value === "true"),
 });
 
 export const env = Object.freeze(envSchema.parse(process.env));

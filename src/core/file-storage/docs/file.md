@@ -257,6 +257,16 @@ Representa el propósito del archivo.
 
 - La eliminación solo puede ser realizada por un actor autorizado.
 
+- El job de eliminación física borra los binarios de un `File` en estado `DELETED`
+
+    después de un período de gracia configurable (default: 30 días).
+
+- El job borra los binarios de todas las `FileVersion` del `File`.
+
+- El registro del `File` en la base de datos se conserva como histórico.
+
+- El job no reprocesa `File`s cuyos binarios ya no existen en el storage.
+
 ## 4.4 Descarga
 
 - Solo un archivo con estado `READY` puede descargarse.

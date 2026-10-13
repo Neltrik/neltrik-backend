@@ -6,6 +6,8 @@ export const RECONCILE_STORAGE_QUEUE = "file-reconcile-storage";
 export const RECONCILE_STORAGE_JOB = "reconcile-storage";
 export const PURGE_DELETED_FILES_QUEUE = "file-purge-deleted";
 export const PURGE_DELETED_FILES_JOB = "purge-deleted-files";
+export const RESCAN_FILES_QUEUE = "file-rescan";
+export const RESCAN_FILES_JOB = "rescan-files";
 
 export type ScanFilePayload = JobPayload & {
     tenantId: string;

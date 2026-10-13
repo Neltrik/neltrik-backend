@@ -6,7 +6,12 @@ import { DomainStatusRegistry } from "@/shared/http";
 import { JobScheduler } from "@/shared/jobs";
 
 import { CompensatingOperationService } from "./application/compensation";
-import { PurgeDeletedFilesJobsUseCase, ReconcileStorageJobsUseCase, ScanFileJobsUseCase } from "./application/jobs";
+import {
+    PurgeDeletedFilesJobsUseCase,
+    ReconcileStorageJobsUseCase,
+    RescanFilesJobsUseCase,
+    ScanFileJobsUseCase,
+} from "./application/jobs";
 import {
     AdjustQuotaLimitUseCase,
     DeleteFileUseCase,
@@ -38,8 +43,15 @@ import {
     PURGE_DELETED_FILES_QUEUE,
     RECONCILE_STORAGE_JOB,
     RECONCILE_STORAGE_QUEUE,
+    RESCAN_FILES_JOB,
+    RESCAN_FILES_QUEUE,
 } from "./domain/types";
-import { PurgeDeletedFilesHandler, ReconcileStorageHandler, ScanFileHandler } from "./infrastructure/jobs";
+import {
+    PurgeDeletedFilesHandler,
+    ReconcileStorageHandler,
+    RescanFilesHandler,
+    ScanFileHandler,
+} from "./infrastructure/jobs";
 import {
     B2FileStorageAdapter,
     ClamavAntivirusAdapter,
@@ -58,6 +70,7 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
         ScanFileJobsUseCase,
         ReconcileStorageJobsUseCase,
         PurgeDeletedFilesJobsUseCase,
+        RescanFilesJobsUseCase,
         AdjustQuotaLimitUseCase,
         GetFileQuotaUseCase,
         GetFileUseCase,
@@ -76,6 +89,7 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
         ScanFileHandler,
         PurgeDeletedFilesHandler,
         ReconcileStorageHandler,
+        RescanFilesHandler,
         B2FileStorageAdapter,
         {
             provide: ClamavClient,
@@ -135,7 +149,6 @@ export class FileStorageModule implements OnModuleInit {
                 backoff: { type: "exponential", delayMs: 5000 },
             },
         );
-
         await this.jobScheduler.schedule(
             PURGE_DELETED_FILES_QUEUE,
             PURGE_DELETED_FILES_JOB,
@@ -143,6 +156,17 @@ export class FileStorageModule implements OnModuleInit {
             { pattern: env.FILE_DELETION_CRON },
             {
                 jobId: "purge-deleted-files-recurring",
+                attempts: 3,
+                backoff: { type: "exponential", delayMs: 5000 },
+            },
+        );
+        await this.jobScheduler.schedule(
+            RESCAN_FILES_QUEUE,
+            RESCAN_FILES_JOB,
+            {},
+            { pattern: env.RESCAN_CRON },
+            {
+                jobId: "rescan-files-recurring",
                 attempts: 3,
                 backoff: { type: "exponential", delayMs: 5000 },
             },

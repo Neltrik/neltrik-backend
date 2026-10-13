@@ -110,6 +110,14 @@ export class File {
         this.props.updatedAt = new Date();
     }
 
+    public markAsInfectedByRescan(): void {
+        if (this.props.status !== FILE_STATUS.READY) {
+            throw new InvalidFileStatusError();
+        }
+        this.props.status = FILE_STATUS.INFECTED;
+        this.props.updatedAt = new Date();
+    }
+
     public addVersion(version: FileVersion): void {
         if (this.props.status !== FILE_STATUS.READY && this.props.status !== FILE_STATUS.INFECTED) {
             throw new FileNotReadyError();

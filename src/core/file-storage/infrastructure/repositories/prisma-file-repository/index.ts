@@ -100,4 +100,17 @@ export class PrismaFileRepository extends FileRepository {
         });
         return files.map((file) => FileMapper.toDomain(file));
     }
+
+    public async findReadyForRescan(tenantId: string, before: Date): Promise<File[]> {
+        const files = await this.prisma.tenantClient.file.findMany({
+            where: { tenantId, status: FILE_STATUS.READY },
+            orderBy: [{ updatedAt: "asc" }, { id: "asc" }],
+        });
+        return files
+            .map((file) => FileMapper.toDomain(file))
+            .filter((file) => {
+                const latestScan = file.getLatestVersion()?.getLatestScan();
+                return !latestScan || latestScan.getScannedAt() < before;
+            });
+    }
 }

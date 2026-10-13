@@ -300,6 +300,14 @@ Representa el propósito del archivo.
   exclusivamente sobre los archivos de ese tenant.
 - El job puede ejecutarse en modo dry-run, en cuyo caso detecta las
   inconsistencias pero no modifica nada.
+    - El job de re-escaneo re-escanea `File`s en estado `READY` cuyo último
+      `AntivirusScan` sea mayor a un período configurable (default: 90 días).
+- El nuevo `AntivirusScan` se agrega al array `scans` de la `FileVersion`
+  actual, sin reemplazar los anteriores.
+- Si el nuevo scan resulta `INFECTED`, el `File` transiciona de `READY` a
+  `INFECTED` mediante `File.markAsInfectedByRescan()`.
+- Si el nuevo scan es `CLEAN` o `ERROR`, el `File` permanece `READY`.
+- Los `File`s en estado `INFECTED` no se re-escanean.
 
 ## 4.6 Campos actualizables
 

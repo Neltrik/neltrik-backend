@@ -17,4 +17,5 @@ export abstract class FileRepository {
     abstract findMany(params: FindManyFilesParams): Promise<File[]>;
     abstract findAllByTenant(tenantId: string): Promise<File[]>;
     abstract findDeletedBefore(tenantId: string, before: Date): Promise<File[]>;
+    abstract findReadyForRescan(tenantId: string, before: Date): Promise<File[]>;
 }

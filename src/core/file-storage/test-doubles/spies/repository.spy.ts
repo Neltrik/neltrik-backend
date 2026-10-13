@@ -11,6 +11,7 @@ export class FileRepositorySpy extends FileRepository {
     public findMany = jest.fn<Promise<File[]>, [FindManyFilesParams]>();
     public findAllByTenant = jest.fn<Promise<File[]>, [string]>();
     public findDeletedBefore = jest.fn<Promise<File[]>, [string, Date]>();
+    public findReadyForRescan = jest.fn<Promise<File[]>, [string, Date]>();
 }
 
 export class FileQuotaRepositorySpy extends FileQuotaRepository {

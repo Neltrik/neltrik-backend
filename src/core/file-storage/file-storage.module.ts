@@ -6,7 +6,7 @@ import { DomainStatusRegistry } from "@/shared/http";
 import { JobScheduler } from "@/shared/jobs";
 
 import { CompensatingOperationService } from "./application/compensation";
-import { ReconcileStorageJobsUseCase, ScanFileJobsUseCase } from "./application/jobs";
+import { PurgeDeletedFilesJobsUseCase, ReconcileStorageJobsUseCase, ScanFileJobsUseCase } from "./application/jobs";
 import {
     AdjustQuotaLimitUseCase,
     DeleteFileUseCase,
@@ -33,8 +33,13 @@ import {
     FileStoragePort,
     MagicBytesDetector,
 } from "./domain/interfaces";
-import { RECONCILE_STORAGE_JOB, RECONCILE_STORAGE_QUEUE } from "./domain/types";
-import { ReconcileStorageHandler, ScanFileHandler } from "./infrastructure/jobs";
+import {
+    PURGE_DELETED_FILES_JOB,
+    PURGE_DELETED_FILES_QUEUE,
+    RECONCILE_STORAGE_JOB,
+    RECONCILE_STORAGE_QUEUE,
+} from "./domain/types";
+import { PurgeDeletedFilesHandler, ReconcileStorageHandler, ScanFileHandler } from "./infrastructure/jobs";
 import {
     B2FileStorageAdapter,
     ClamavAntivirusAdapter,
@@ -52,6 +57,7 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
     providers: [
         ScanFileJobsUseCase,
         ReconcileStorageJobsUseCase,
+        PurgeDeletedFilesJobsUseCase,
         AdjustQuotaLimitUseCase,
         GetFileQuotaUseCase,
         GetFileUseCase,
@@ -68,6 +74,7 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
         CompensatingOperationService,
         LocalFileStorageAdapter,
         ScanFileHandler,
+        PurgeDeletedFilesHandler,
         ReconcileStorageHandler,
         B2FileStorageAdapter,
         {
@@ -124,6 +131,18 @@ export class FileStorageModule implements OnModuleInit {
             { pattern: env.RECONCILE_CRON },
             {
                 jobId: "reconcile-storage-recurring",
+                attempts: 3,
+                backoff: { type: "exponential", delayMs: 5000 },
+            },
+        );
+
+        await this.jobScheduler.schedule(
+            PURGE_DELETED_FILES_QUEUE,
+            PURGE_DELETED_FILES_JOB,
+            {},
+            { pattern: env.FILE_DELETION_CRON },
+            {
+                jobId: "purge-deleted-files-recurring",
                 attempts: 3,
                 backoff: { type: "exponential", delayMs: 5000 },
             },

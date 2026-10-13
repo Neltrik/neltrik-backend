@@ -21,6 +21,14 @@ export class PrismaFileRepository extends FileRepository {
         await prisma.file.create({ data: FileMapper.toPersistence(file) });
     }
 
+    public async update(file: File, context?: TransactionContext): Promise<void> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
+        await prisma.file.update({
+            where: { id: file.id },
+            data: FileMapper.toPersistence(file),
+        });
+    }
+
     public async findById(id: string): Promise<File | null> {
         const file = await this.prisma.tenantClient.file.findUnique({ where: { id } });
         if (!file) {
@@ -85,11 +93,11 @@ export class PrismaFileRepository extends FileRepository {
         return files.map((file) => FileMapper.toDomain(file));
     }
 
-    public async update(file: File, context?: TransactionContext): Promise<void> {
-        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
-        await prisma.file.update({
-            where: { id: file.id },
-            data: FileMapper.toPersistence(file),
+    public async findDeletedBefore(tenantId: string, before: Date): Promise<File[]> {
+        const files = await this.prisma.tenantClient.file.findMany({
+            where: { tenantId, status: FILE_STATUS.DELETED, deletedAt: { lt: before } },
+            orderBy: [{ deletedAt: "asc" }, { id: "asc" }],
         });
+        return files.map((file) => FileMapper.toDomain(file));
     }
 }

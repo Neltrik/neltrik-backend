@@ -5,6 +5,7 @@ import type { FilePurpose, FindManyFilesParams } from "../../types";
 
 export abstract class FileRepository {
     abstract create(file: File, context?: TransactionContext): Promise<void>;
+    abstract update(file: File, context?: TransactionContext): Promise<void>;
     abstract findById(id: string): Promise<File | null>;
     abstract findByResource(tenantId: string, resourceType: string, resourceId: string): Promise<File[]>;
     abstract findByResourceAndPurpose(
@@ -15,5 +16,5 @@ export abstract class FileRepository {
     ): Promise<File | null>;
     abstract findMany(params: FindManyFilesParams): Promise<File[]>;
     abstract findAllByTenant(tenantId: string): Promise<File[]>;
-    abstract update(file: File, context?: TransactionContext): Promise<void>;
+    abstract findDeletedBefore(tenantId: string, before: Date): Promise<File[]>;
 }

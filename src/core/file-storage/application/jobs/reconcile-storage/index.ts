@@ -1,10 +1,12 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 
 import { FileRepository, FileStoragePort } from "../../../domain/interfaces";
 import { ReconcileStorageInput } from "./input";
 
 @Injectable()
 export class ReconcileStorageJobsUseCase {
+    private readonly logger = new Logger(ReconcileStorageJobsUseCase.name);
+
     constructor(
         private readonly fileRepository: FileRepository,
         private readonly storagePort: FileStoragePort,
@@ -29,6 +31,9 @@ export class ReconcileStorageJobsUseCase {
         const orphanFiles = files
             .filter((file) => !file.isDeleted())
             .filter((file) => file.versions.every((version) => !storageKeysSet.has(version.getStorageKey())));
+        this.logger.log(
+            `Tenant ${input.tenantId}: ${orphanBinaries.length} orphan binaries, ${orphanFiles.length} orphan files (dryRun: ${input.dryRun})`,
+        );
         if (input.dryRun) {
             return;
         }

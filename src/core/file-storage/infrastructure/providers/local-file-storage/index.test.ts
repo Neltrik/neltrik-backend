@@ -8,6 +8,7 @@ jest.mock("node:fs/promises", () => ({
     writeFile: jest.fn(),
     readFile: jest.fn(),
     rm: jest.fn(),
+    rmdir: jest.fn(),
     access: jest.fn(),
     readdir: jest.fn(),
 }));
@@ -49,6 +50,24 @@ describe("LocalFileStorageAdapter", () => {
             jest.mocked(fs.rm).mockResolvedValue(undefined);
             await adapter.delete(key);
             expect(fs.rm).toHaveBeenCalledWith(filePath, { force: true });
+        });
+
+        it("should remove empty parent directories after deleting the file", async () => {
+            const adapter = new LocalFileStorageAdapter();
+            jest.mocked(fs.rm).mockResolvedValue(undefined);
+            jest.mocked(fs.rmdir).mockResolvedValue(undefined);
+            await adapter.delete(key);
+            expect(fs.rm).toHaveBeenCalledWith(filePath, { force: true });
+            expect(fs.rmdir).toHaveBeenCalledWith(path.join(basePath, "files"));
+        });
+
+        it("should stop removing parent directories when rmdir fails", async () => {
+            const adapter = new LocalFileStorageAdapter();
+            jest.mocked(fs.rm).mockResolvedValue(undefined);
+            jest.mocked(fs.rmdir).mockRejectedValue(new Error("Directory not empty"));
+            await expect(adapter.delete(key)).resolves.toBeUndefined();
+            expect(fs.rmdir).toHaveBeenCalledTimes(1);
+            expect(fs.rmdir).toHaveBeenCalledWith(path.join(basePath, "files"));
         });
     });
 

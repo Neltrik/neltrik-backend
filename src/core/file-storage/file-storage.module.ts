@@ -122,7 +122,11 @@ export class FileStorageModule implements OnModuleInit {
             RECONCILE_STORAGE_JOB,
             {},
             { pattern: env.RECONCILE_CRON },
-            { jobId: "reconcile-storage-recurring" },
+            {
+                jobId: "reconcile-storage-recurring",
+                attempts: 3,
+                backoff: { type: "exponential", delayMs: 5000 },
+            },
         );
     }
 }

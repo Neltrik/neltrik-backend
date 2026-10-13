@@ -32,6 +32,18 @@ export class LocalFileStorageAdapter extends FileStoragePort {
     public async delete(key: string): Promise<void> {
         const filePath = this.resolvePath(key);
         await fs.rm(filePath, { force: true });
+        await this.removeEmptyParentDirs(path.dirname(filePath));
+    }
+
+    private async removeEmptyParentDirs(dirPath: string): Promise<void> {
+        while (dirPath.startsWith(this.basePath) && dirPath !== this.basePath) {
+            try {
+                await fs.rmdir(dirPath);
+                dirPath = path.dirname(dirPath);
+            } catch {
+                return;
+            }
+        }
     }
 
     public async getSignedUrl(key: string, _ttlSeconds: number): Promise<string> {

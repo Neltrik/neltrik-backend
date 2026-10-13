@@ -2,7 +2,9 @@ import { Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { DiscoveryModule } from "@nestjs/core";
 
+import { AuthorizationModule } from "./core/authorization/authorization.module";
 import { FileStorageModule } from "./core/file-storage/file-storage.module";
+import { TenantModule } from "./core/tenant/tenant.module";
 import { PrismaModule } from "./prisma";
 import { IdGeneratorModule } from "./shared/id-generator";
 import { JobsModule } from "./shared/jobs/jobs.module";
@@ -16,6 +18,8 @@ import { WorkerBootstrap } from "./worker.bootstrap";
         JobsModule,
         IdGeneratorModule,
         FileStorageModule,
+        TenantModule,
+        AuthorizationModule,
     ],
     providers: [WorkerBootstrap],
 })

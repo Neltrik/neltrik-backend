@@ -37,6 +37,11 @@ const envSchema = z.object({
     CLAMAV_HOST: z.string().min(1, "CLAMAV_HOST is required").default("localhost"),
     CLAMAV_PORT: z.coerce.number().int().positive().default(3310),
     CLAMAV_TIMEOUT_MS: z.coerce.number().int().positive().default(60000),
+    RECONCILE_DRY_RUN: z
+        .string()
+        .default("true")
+        .transform((value) => value === "true"),
+    RECONCILE_CRON: z.string().min(1, "RECONCILE_CRON is required").default("0 3 * * *"),
 });
 
 export const env = Object.freeze(envSchema.parse(process.env));

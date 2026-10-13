@@ -4,4 +4,5 @@ export abstract class FileStoragePort {
     abstract delete(key: string): Promise<void>;
     abstract getSignedUrl(key: string, ttlSeconds: number): Promise<string>;
     abstract exists(key: string): Promise<boolean>;
+    abstract list(prefix: string): Promise<string[]>;
 }

@@ -101,6 +101,15 @@ export class File {
         this.props.updatedAt = new Date();
     }
 
+    public markAsOrphan(): void {
+        if (this.props.status === FILE_STATUS.DELETED) {
+            return;
+        }
+        this.props.status = FILE_STATUS.DELETED;
+        this.props.deletedAt = new Date();
+        this.props.updatedAt = new Date();
+    }
+
     public addVersion(version: FileVersion): void {
         if (this.props.status !== FILE_STATUS.READY && this.props.status !== FILE_STATUS.INFECTED) {
             throw new FileNotReadyError();

@@ -7,6 +7,7 @@ export class FileStoragePortSpy extends FileStoragePort {
     public override delete = jest.fn<Promise<void>, [string]>();
     public override getSignedUrl = jest.fn<Promise<string>, [string, number]>();
     public override exists = jest.fn<Promise<boolean>, [string]>();
+    public override list = jest.fn<Promise<string[]>, [string]>();
 }
 
 export class AntivirusPortSpy extends AntivirusPort {

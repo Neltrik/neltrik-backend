@@ -8,6 +8,7 @@ export class FileRepositorySpy extends FileRepository {
     public findByResource = jest.fn<Promise<File[]>, [string, string, string]>();
     public findByResourceAndPurpose = jest.fn<Promise<File | null>, [string, string, string, FilePurpose]>();
     public findMany = jest.fn<Promise<File[]>, [FindManyFilesParams]>();
+    public findAllByTenant = jest.fn<Promise<File[]>, [string]>();
     public update = jest.fn<Promise<void>, [File]>();
 }
 

@@ -5,6 +5,7 @@ import {
     PutObjectCommand,
     S3Client,
 } from "@aws-sdk/client-s3";
+import { ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 import { B2FileStorageAdapter } from "./index";
@@ -110,6 +111,53 @@ describe("B2FileStorageAdapter", () => {
             const command = sendSpy.mock.calls[0]![0] as HeadObjectCommand;
             expect(command).toBeInstanceOf(HeadObjectCommand);
             expect(command.input).toEqual(expect.objectContaining({ Key: "files/document.pdf" }));
+        });
+    });
+
+    describe("list", () => {
+        it("should list files with a normalized prefix", async () => {
+            const { fileStorage, sendSpy } = makeSut();
+            sendSpy.mockResolvedValue({
+                Contents: [{ Key: "files/document.pdf" }, { Key: "files/image.png" }, {}],
+                IsTruncated: false,
+            } as never);
+            await expect(fileStorage.list("files")).resolves.toEqual(["files/document.pdf", "files/image.png"]);
+            expect(sendSpy).toHaveBeenCalledTimes(1);
+            expect(sendSpy.mock.calls[0]![0]).toBeInstanceOf(ListObjectsV2Command);
+            expect(sendSpy.mock.calls[0]![0].input).toEqual(
+                expect.objectContaining({ Prefix: "files/", ContinuationToken: undefined }),
+            );
+        });
+
+        it("should paginate through all files", async () => {
+            const { fileStorage, sendSpy } = makeSut();
+            sendSpy
+                .mockResolvedValueOnce({
+                    Contents: [{ Key: "files/one.pdf" }],
+                    IsTruncated: true,
+                    NextContinuationToken: "next-token",
+                } as never)
+                .mockResolvedValueOnce({
+                    Contents: [{ Key: "files/two.pdf" }],
+                    IsTruncated: false,
+                } as never);
+            await expect(fileStorage.list("files/")).resolves.toEqual(["files/one.pdf", "files/two.pdf"]);
+            expect(sendSpy).toHaveBeenCalledTimes(2);
+            expect(sendSpy.mock.calls[1]![0].input).toEqual(
+                expect.objectContaining({ Prefix: "files/", ContinuationToken: "next-token" }),
+            );
+        });
+
+        it("should return an empty array when there are no files", async () => {
+            const { fileStorage, sendSpy } = makeSut();
+            sendSpy.mockResolvedValue({ IsTruncated: false } as never);
+            await expect(fileStorage.list("files")).resolves.toEqual([]);
+        });
+
+        it("should propagate errors when listing files fails", async () => {
+            const { fileStorage, sendSpy } = makeSut();
+            sendSpy.mockImplementation(() => Promise.reject(new Error("List failed")) as never);
+            await expect(fileStorage.list("files")).rejects.toThrow("List failed");
         });
     });
 });

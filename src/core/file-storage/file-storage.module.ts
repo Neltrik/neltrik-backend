@@ -1,10 +1,12 @@
 import { HttpStatus, Module, OnModuleInit } from "@nestjs/common";
 
 import { env } from "@/config/index";
+import { TenantModule } from "@/core/tenant/tenant.module";
 import { DomainStatusRegistry } from "@/shared/http";
+import { JobScheduler } from "@/shared/jobs";
 
 import { CompensatingOperationService } from "./application/compensation";
-import { ScanFileJobsUseCase } from "./application/jobs";
+import { ReconcileStorageJobsUseCase, ScanFileJobsUseCase } from "./application/jobs";
 import {
     AdjustQuotaLimitUseCase,
     DeleteFileUseCase,
@@ -31,7 +33,8 @@ import {
     FileStoragePort,
     MagicBytesDetector,
 } from "./domain/interfaces";
-import { ScanFileHandler } from "./infrastructure/jobs";
+import { RECONCILE_STORAGE_JOB, RECONCILE_STORAGE_QUEUE } from "./domain/types";
+import { ReconcileStorageHandler, ScanFileHandler } from "./infrastructure/jobs";
 import {
     B2FileStorageAdapter,
     ClamavAntivirusAdapter,
@@ -48,6 +51,7 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
     controllers: [FileController, FileStorageQuotaController],
     providers: [
         ScanFileJobsUseCase,
+        ReconcileStorageJobsUseCase,
         AdjustQuotaLimitUseCase,
         GetFileQuotaUseCase,
         GetFileUseCase,
@@ -64,6 +68,7 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
         CompensatingOperationService,
         LocalFileStorageAdapter,
         ScanFileHandler,
+        ReconcileStorageHandler,
         B2FileStorageAdapter,
         {
             provide: ClamavClient,
@@ -102,11 +107,22 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
             useClass: FileTypeMagicBytesDetector,
         },
     ],
+    imports: [TenantModule],
 })
 export class FileStorageModule implements OnModuleInit {
-    public onModuleInit(): void {
+    constructor(private readonly jobScheduler: JobScheduler) {}
+
+    public async onModuleInit(): Promise<void> {
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_QUOTA_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_VERSION_NOT_FOUND, HttpStatus.NOT_FOUND);
+
+        await this.jobScheduler.schedule(
+            RECONCILE_STORAGE_QUEUE,
+            RECONCILE_STORAGE_JOB,
+            {},
+            { pattern: env.RECONCILE_CRON },
+            { jobId: "reconcile-storage-recurring" },
+        );
     }
 }

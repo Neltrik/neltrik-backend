@@ -77,6 +77,14 @@ export class PrismaFileRepository extends FileRepository {
         return files.map((file) => FileMapper.toDomain(file));
     }
 
+    public async findAllByTenant(tenantId: string): Promise<File[]> {
+        const files = await this.prisma.tenantClient.file.findMany({
+            where: { tenantId },
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        });
+        return files.map((file) => FileMapper.toDomain(file));
+    }
+
     public async update(file: File, context?: TransactionContext): Promise<void> {
         const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
         await prisma.file.update({

@@ -3,6 +3,7 @@ import {
     DeleteObjectCommand,
     GetObjectCommand,
     HeadObjectCommand,
+    ListObjectsV2Command,
     PutObjectCommand,
     S3Client,
 } from "@aws-sdk/client-s3";
@@ -58,5 +59,27 @@ export class B2FileStorageAdapter extends FileStoragePort {
         } catch {
             return false;
         }
+    }
+
+    public async list(prefix: string): Promise<string[]> {
+        const normalizedPrefix = prefix.endsWith("/") ? prefix : `${prefix}/`;
+        const keys: string[] = [];
+        let continuationToken: string | undefined;
+        do {
+            const response = await this.client.send(
+                new ListObjectsV2Command({
+                    Bucket: this.bucket,
+                    Prefix: normalizedPrefix,
+                    ContinuationToken: continuationToken,
+                }),
+            );
+            for (const object of response.Contents ?? []) {
+                if (object.Key) {
+                    keys.push(object.Key);
+                }
+            }
+            continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined;
+        } while (continuationToken);
+        return keys;
     }
 }

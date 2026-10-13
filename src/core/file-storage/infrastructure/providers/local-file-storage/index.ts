@@ -1,3 +1,4 @@
+import { type Dirent } from "node:fs";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 
@@ -44,6 +45,32 @@ export class LocalFileStorageAdapter extends FileStoragePort {
             return true;
         } catch {
             return false;
+        }
+    }
+
+    public async list(prefix: string): Promise<string[]> {
+        const normalizedPrefix = prefix.endsWith("/") ? prefix : `${prefix}/`;
+        const dirPath = this.resolvePath(normalizedPrefix);
+        const keys: string[] = [];
+        await this.walk(dirPath, normalizedPrefix, keys);
+        return keys;
+    }
+
+    private async walk(dirPath: string, prefix: string, keys: string[]): Promise<void> {
+        let entries: Dirent[];
+        try {
+            entries = await fs.readdir(dirPath, { withFileTypes: true });
+        } catch {
+            return;
+        }
+        for (const entry of entries) {
+            const entryPath = path.join(dirPath, entry.name);
+            const entryKey = path.posix.join(prefix, entry.name);
+            if (entry.isDirectory()) {
+                await this.walk(entryPath, entryKey, keys);
+            } else if (entry.isFile()) {
+                keys.push(entryKey);
+            }
         }
     }
 

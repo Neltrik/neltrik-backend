@@ -271,7 +271,27 @@ Representa el propósito del archivo.
 
 - La descarga no modifica la `FileQuota` del `Tenant`.
 
-## 4.5 Campos actualizables
+## 4.5 Reconciliación
+
+- El job de reconciliación es un proceso automático del sistema que mantiene
+  la consistencia entre la base de datos y el proveedor de storage.
+- El job detecta y resuelve dos tipos de inconsistencias:
+    - **Binarios huérfanos**: binarios que existen en el storage pero no tienen
+      registro en la base de datos.
+    - **Registros huérfanos**: `File` cuyo binario no existe en el storage.
+- Un binario huérfano se elimina del storage.
+- Un `File` cuyo binario no existe se marca como `DELETED` mediante
+  `File.markAsOrphan()`, independientemente del estado previo del `File`.
+- La transición a `DELETED` por reconciliación es idempotente: si el `File` ya
+  está `DELETED`, no hace nada.
+- La transición a `DELETED` por reconciliación setea `deletedAt` con la fecha
+  actual.
+- El job respeta el aislamiento multi-tenant: itera por cada tenant y opera
+  exclusivamente sobre los archivos de ese tenant.
+- El job puede ejecutarse en modo dry-run, en cuyo caso detecta las
+  inconsistencias pero no modifica nada.
+
+## 4.6 Campos actualizables
 
 Los siguientes campos pueden modificarse según el caso de uso y el nivel de autorización correspondiente:
 
@@ -299,7 +319,7 @@ Los siguientes campos no pueden modificarse mediante ningún caso de uso del dom
 
 - `createdAt`
 
-## 4.6 Restricciones generales
+## 4.7 Restricciones generales
 
 - Solo actores autorizados pueden ejecutar operaciones sobre archivos.
 

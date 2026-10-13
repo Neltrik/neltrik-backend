@@ -9,6 +9,7 @@ jest.mock("node:fs/promises", () => ({
     readFile: jest.fn(),
     rm: jest.fn(),
     access: jest.fn(),
+    readdir: jest.fn(),
 }));
 
 describe("LocalFileStorageAdapter", () => {
@@ -74,6 +75,30 @@ describe("LocalFileStorageAdapter", () => {
             const result = await adapter.exists(key);
             expect(result).toBe(false);
             expect(fs.access).toHaveBeenCalledWith(filePath);
+        });
+    });
+
+    describe("list", () => {
+        it("should list files recursively with a normalized prefix", async () => {
+            const adapter = new LocalFileStorageAdapter();
+            jest.mocked(fs.readdir)
+                .mockResolvedValueOnce([
+                    { name: "document.pdf", isDirectory: () => false, isFile: () => true },
+                    { name: "nested", isDirectory: () => true, isFile: () => false },
+                ] as never)
+                .mockResolvedValueOnce([{ name: "image.png", isDirectory: () => false, isFile: () => true }] as never);
+            await expect(adapter.list("files")).resolves.toEqual(["files/document.pdf", "files/nested/image.png"]);
+            expect(fs.readdir).toHaveBeenCalledTimes(2);
+            expect(fs.readdir).toHaveBeenNthCalledWith(1, path.join(basePath, "files/"), { withFileTypes: true });
+            expect(fs.readdir).toHaveBeenNthCalledWith(2, path.join(basePath, "files/", "nested"), {
+                withFileTypes: true,
+            });
+        });
+
+        it("should return an empty array when the directory does not exist", async () => {
+            const adapter = new LocalFileStorageAdapter();
+            jest.mocked(fs.readdir).mockRejectedValue(new Error("Directory not found"));
+            await expect(adapter.list("files/")).resolves.toEqual([]);
         });
     });
 });

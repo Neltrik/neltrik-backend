@@ -115,6 +115,27 @@ describe("File", () => {
         (file as unknown as { props: FileProps }).props.versions = [undefined as never];
         expect(file.getLatestVersion()).toBeNull();
     });
+
+    it("should not modify an already deleted file when marking it as orphan", () => {
+        const deletedAt = new Date("2025-01-02T00:00:00.000Z");
+        const updatedAt = new Date("2025-01-03T00:00:00.000Z");
+        const file = File.restore({ ...createProps(), status: FILE_STATUS.DELETED, deletedAt, updatedAt });
+        file.markAsOrphan();
+        expect(file.status).toBe(FILE_STATUS.DELETED);
+        expect(file.deletedAt).toBe(deletedAt);
+        expect(file.updatedAt).toBe(updatedAt);
+    });
+
+    it("should mark a non-deleted file as orphan", () => {
+        const file = File.restore({ ...createProps(), status: FILE_STATUS.READY, deletedAt: null });
+        const before = new Date();
+        file.markAsOrphan();
+        expect(file.status).toBe(FILE_STATUS.DELETED);
+        expect(file.deletedAt).toBeInstanceOf(Date);
+        expect(file.updatedAt).toBeInstanceOf(Date);
+        expect(file.deletedAt!.getTime()).toBeGreaterThanOrEqual(before.getTime());
+        expect(file.updatedAt.getTime()).toBeGreaterThanOrEqual(before.getTime());
+    });
 });
 
 describe("Validations", () => {

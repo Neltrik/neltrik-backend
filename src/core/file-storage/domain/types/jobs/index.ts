@@ -2,6 +2,8 @@ import type { EnqueueOptions, JobPayload } from "@/shared/jobs";
 
 export const FILE_SCAN_QUEUE = "file-scan";
 export const FILE_SCAN_JOB = "scan";
+export const RECONCILE_STORAGE_QUEUE = "file-reconcile-storage";
+export const RECONCILE_STORAGE_JOB = "reconcile-storage";
 
 export type ScanFilePayload = JobPayload & {
     tenantId: string;

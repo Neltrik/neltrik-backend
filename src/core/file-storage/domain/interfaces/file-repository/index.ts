@@ -14,5 +14,6 @@ export abstract class FileRepository {
         purpose: FilePurpose,
     ): Promise<File | null>;
     abstract findMany(params: FindManyFilesParams): Promise<File[]>;
+    abstract findAllByTenant(tenantId: string): Promise<File[]>;
     abstract update(file: File, context?: TransactionContext): Promise<void>;
 }

@@ -48,6 +48,12 @@ const envSchema = z.object({
         .string()
         .default("true")
         .transform((value) => value === "true"),
+    RESCAN_AGE_DAYS: z.coerce.number().int().positive().default(90),
+    RESCAN_CRON: z.string().min(1, "RESCAN_CRON is required").default("0 5 * * *"),
+    RESCAN_DRY_RUN: z
+        .string()
+        .default("true")
+        .transform((value) => value === "true"),
 });
 
 export const env = Object.freeze(envSchema.parse(process.env));

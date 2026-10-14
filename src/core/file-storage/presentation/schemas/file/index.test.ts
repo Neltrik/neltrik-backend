@@ -1,9 +1,11 @@
 import { FILE_PURPOSE, FILE_STATUS } from "../../../domain/types";
 import {
+    changeFileResourceBodySchema,
     deleteFileParamsSchema,
     getDownloadUrlParamsSchema,
     getFileParamsSchema,
     listFilesQuerySchema,
+    renameFileBodySchema,
     replaceFileParamsSchema,
     uploadFileBodySchema,
 } from "./";
@@ -159,5 +161,31 @@ describe("listFilesQuerySchema", () => {
     it("should reject an invalid status", () => {
         const result = listFilesQuerySchema.safeParse({ status: "invalid" });
         expect(result.success).toBe(false);
+    });
+});
+
+describe("renameFileBodySchema", () => {
+    it("should validate a correct payload", () => {
+        expect(renameFileBodySchema.safeParse({ name: "test.pdf" }).success).toBe(true);
+    });
+
+    it("should reject an empty or too long name", () => {
+        expect(renameFileBodySchema.safeParse({ name: "" }).success).toBe(false);
+        expect(renameFileBodySchema.safeParse({ name: "a".repeat(256) }).success).toBe(false);
+    });
+});
+
+describe("changeFileResourceBodySchema", () => {
+    it("should validate a correct payload", () => {
+        expect(changeFileResourceBodySchema.safeParse({ resourceType: "user", resourceId: validUuid }).success).toBe(
+            true,
+        );
+    });
+
+    it("should reject invalid fields", () => {
+        expect(changeFileResourceBodySchema.safeParse({ resourceType: "", resourceId: validUuid }).success).toBe(false);
+        expect(changeFileResourceBodySchema.safeParse({ resourceType: "user", resourceId: "invalid" }).success).toBe(
+            false,
+        );
     });
 });

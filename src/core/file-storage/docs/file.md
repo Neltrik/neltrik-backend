@@ -309,33 +309,36 @@ Representa el propósito del archivo.
 - Si el nuevo scan es `CLEAN` o `ERROR`, el `File` permanece `READY`.
 - Los `File`s en estado `INFECTED` no se re-escanean.
 
-## 4.6 Campos actualizables
+## 4.6 Actualización de metadata
 
-Los siguientes campos pueden modificarse según el caso de uso y el nivel de autorización correspondiente:
+Los siguientes campos pueden modificarse mediante casos de uso del dominio:
 
-- `name`
-- `resourceType`
-- `resourceId`
+- `name`: mediante `RenameFileUseCase`.
+- `resourceType`: mediante `ChangeFileResourceUseCase`.
+- `resourceId`: mediante `ChangeFileResourceUseCase`.
 
-> **Nota:** La actualización de metadata no forma parte del MVP. Se documenta para dejar constancia de qué campos serían modificables en el futuro.
+### Reglas
+
+- Solo un `File` con estado `READY` o `INFECTED` puede actualizar su metadata.
+- Un `File` en `PENDING`, `DELETED` no puede actualizar su metadata.
+- El `ChangeFileResourceUseCase` valida que no exista otro `File` activo con el mismo
+  `(tenantId, resourceType, resourceId, purpose)` antes de aplicar el cambio.
+- La actualización de metadata no modifica el `size` del `File` ni la `FileQuota` del `Tenant`.
+- La actualización de metadata no modifica `extension`, `mimeType`, `versions` ni `checksum`.
+- La actualización de metadata setea `updatedAt` con la fecha actual.
 
 ### Campos no actualizables
 
 Los siguientes campos no pueden modificarse mediante ningún caso de uso del dominio:
 
 - `id`
-
 - `tenantId`
-
 - `ownerId`
-
 - `extension`
-
 - `mimeType`
-
 - `versions`
-
 - `createdAt`
+- `deletedAt`
 
 ## 4.7 Restricciones generales
 

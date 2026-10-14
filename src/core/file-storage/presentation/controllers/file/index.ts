@@ -5,6 +5,7 @@ import {
     Delete,
     Get,
     Param,
+    Patch,
     Post,
     Put,
     Query,
@@ -14,6 +15,7 @@ import {
 import { FileInterceptor } from "@nestjs/platform-express";
 import {
     ApiBadRequestResponse,
+    ApiConflictResponse,
     ApiConsumes,
     ApiForbiddenResponse,
     ApiInternalServerErrorResponse,
@@ -32,38 +34,47 @@ import { ResponsePayload } from "@/shared/pagination";
 import { ZodValidationPipe } from "@/shared/zod";
 
 import {
+    ChangeFileResourceUseCase,
     DeleteFileUseCase,
     GetDownloadUrlUseCase,
     GetFileUseCase,
     ListFilesUseCase,
+    RenameFileUseCase,
     ReplaceFileUseCase,
     UploadFileUseCase,
 } from "../../../application/use-cases";
 import {
+    ChangeFileResourceRequestDto,
     DeleteFileResponseDto,
     GetDownloadUrlResponseDto,
     GetFileResponseDto,
     ListFilesQueryDto,
+    RenameFileRequestDto,
     UploadFileRequestDto,
 } from "../../dto";
 import { FILE_MESSAGES } from "../../messages";
 import {
+    changeFileResourceBodySchema,
     deleteFileParamsSchema,
     getDownloadUrlParamsSchema,
     getFileParamsSchema,
     listFilesQuerySchema,
+    renameFileBodySchema,
     replaceFileParamsSchema,
     uploadFileBodySchema,
 } from "../../schemas";
+import { FileControllerHelper } from "./helper";
 
 @ApiTags("File Storage - Files")
 @Controller("file-storage/files")
 export class FileController {
     constructor(
+        private readonly changeFileResourceUseCase: ChangeFileResourceUseCase,
         private readonly deleteFileUseCase: DeleteFileUseCase,
         private readonly getDownloadUrlUseCase: GetDownloadUrlUseCase,
         private readonly getFileUseCase: GetFileUseCase,
         private readonly listFilesUseCase: ListFilesUseCase,
+        private readonly renameFileUseCase: RenameFileUseCase,
         private readonly replaceFileUseCase: ReplaceFileUseCase,
         private readonly uploadFileUseCase: UploadFileUseCase,
     ) {}
@@ -98,14 +109,14 @@ export class FileController {
             ownerId: userId,
             buffer: file.buffer,
             name: file.originalname,
-            extension: this.extractExtension(file.originalname),
+            extension: FileControllerHelper.extractExtension(file.originalname),
             mimeType: file.mimetype,
             size: file.size,
             purpose: body.purpose,
             resourceType: body.resourceType,
             resourceId: body.resourceId,
         });
-        return this.toFileResponse(output);
+        return FileControllerHelper.toFileResponse(output);
     }
 
     @ApiOperation({
@@ -135,7 +146,7 @@ export class FileController {
             cursor: query.cursor,
             limit: query.limit,
         });
-        return { data: files.map((file) => this.toFileResponse(file)), meta };
+        return { data: files.map((file) => FileControllerHelper.toFileResponse(file)), meta };
     }
 
     @ApiOperation({
@@ -184,7 +195,58 @@ export class FileController {
         @Param(new ZodValidationPipe(getFileParamsSchema)) params: { fileId: string },
     ): Promise<GetFileResponseDto> {
         const output = await this.getFileUseCase.execute(params.fileId);
-        return this.toFileResponse(output);
+        return FileControllerHelper.toFileResponse(output);
+    }
+
+    @ApiOperation({
+        summary: "Rename file",
+        description: "Updates the name of an existing file.",
+    })
+    @ApiContract(GetFileResponseDto)
+    @ApiOkResponse({ description: "Resource updated." })
+    @ApiBadRequestResponse({ description: "Validation failed." })
+    @ApiUnauthorizedResponse({ description: "Unauthorized." })
+    @ApiForbiddenResponse({ description: "Forbidden." })
+    @ApiNotFoundResponse({ description: "File not found." })
+    @ApiInternalServerErrorResponse({ description: "Internal server error." })
+    @Response({ code: RESPONSE_CODES.RESOURCE_UPDATED, message: FILE_MESSAGES.UPDATED })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
+    @Permissions("ADMIN_FILE_UPDATE_METADATA")
+    @Patch(":fileId/name")
+    public async rename(
+        @Param(new ZodValidationPipe(getFileParamsSchema)) params: { fileId: string },
+        @Body(new ZodValidationPipe(renameFileBodySchema)) body: RenameFileRequestDto,
+    ): Promise<GetFileResponseDto> {
+        const output = await this.renameFileUseCase.execute({ fileId: params.fileId, name: body.name });
+        return FileControllerHelper.toFileResponse(output);
+    }
+
+    @ApiOperation({
+        summary: "Change file resource",
+        description: "Updates the external resource associated with an existing file.",
+    })
+    @ApiContract(GetFileResponseDto)
+    @ApiOkResponse({ description: "Resource updated." })
+    @ApiBadRequestResponse({ description: "Validation failed." })
+    @ApiUnauthorizedResponse({ description: "Unauthorized." })
+    @ApiForbiddenResponse({ description: "Forbidden." })
+    @ApiNotFoundResponse({ description: "File not found." })
+    @ApiConflictResponse({ description: "File Conflict" })
+    @ApiInternalServerErrorResponse({ description: "Internal server error." })
+    @Response({ code: RESPONSE_CODES.RESOURCE_UPDATED, message: FILE_MESSAGES.UPDATED })
+    @Throttle({ default: { limit: 20, ttl: 900000 } })
+    @Permissions("ADMIN_FILE_UPDATE_METADATA")
+    @Patch(":fileId/resource")
+    public async changeResource(
+        @Param(new ZodValidationPipe(getFileParamsSchema)) params: { fileId: string },
+        @Body(new ZodValidationPipe(changeFileResourceBodySchema)) body: ChangeFileResourceRequestDto,
+    ): Promise<GetFileResponseDto> {
+        const output = await this.changeFileResourceUseCase.execute({
+            fileId: params.fileId,
+            resourceType: body.resourceType,
+            resourceId: body.resourceId,
+        });
+        return FileControllerHelper.toFileResponse(output);
     }
 
     @ApiOperation({
@@ -215,11 +277,11 @@ export class FileController {
             fileId: params.fileId,
             buffer: file.buffer,
             name: file.originalname,
-            extension: this.extractExtension(file.originalname),
+            extension: FileControllerHelper.extractExtension(file.originalname),
             mimeType: file.mimetype,
             size: file.size,
         });
-        return this.toFileResponse(output);
+        return FileControllerHelper.toFileResponse(output);
     }
 
     @ApiOperation({
@@ -241,32 +303,5 @@ export class FileController {
     ): Promise<DeleteFileResponseDto> {
         const output = await this.deleteFileUseCase.execute(params.fileId);
         return { id: output.id };
-    }
-
-    private extractExtension(filename: string): string {
-        const parts = filename.split(".");
-        if (parts.length < 2) {
-            throw new BadRequestException("File must have an extension.");
-        }
-        return parts[parts.length - 1] ?? "";
-    }
-
-    private toFileResponse(output: GetFileResponseDto): GetFileResponseDto {
-        return {
-            id: output.id,
-            tenantId: output.tenantId,
-            ownerId: output.ownerId,
-            name: output.name,
-            extension: output.extension,
-            mimeType: output.mimeType,
-            size: output.size,
-            purpose: output.purpose,
-            status: output.status,
-            resourceType: output.resourceType,
-            resourceId: output.resourceId,
-            createdAt: output.createdAt,
-            updatedAt: output.updatedAt,
-            deletedAt: output.deletedAt,
-        };
     }
 }

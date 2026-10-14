@@ -4,6 +4,7 @@ import {
     FileNotReadyError,
     InvalidFileExtensionError,
     InvalidFilePurposeError,
+    InvalidFileResourceError,
     InvalidFileSizeError,
     InvalidFileStatusError,
     InvalidFileVersionsError,
@@ -230,17 +231,51 @@ describe("State transitions", () => {
 
 describe("Mutations", () => {
     it("should rename a file and reject an empty name", () => {
-        const file = File.create(createProps());
+        const file = File.restore({ ...createProps(), status: FILE_STATUS.READY });
         file.rename("new-document");
         expect(file.name).toBe("new-document");
         expect(() => file.rename("   ")).toThrow(EmptyFileNameError);
     });
 
+    it.each([
+        ["pending", FILE_STATUS.PENDING],
+        ["deleted", FILE_STATUS.DELETED],
+    ])("should reject renaming a file when its status is %s", (_, status) => {
+        const file = File.restore({
+            ...createProps(),
+            status,
+            deletedAt: status === FILE_STATUS.DELETED ? new Date() : null,
+        });
+        expect(() => file.rename("new-document")).toThrow(FileNotReadyError);
+    });
+
     it("should change the resource", () => {
-        const file = File.create(createProps());
+        const file = File.restore({ ...createProps(), status: FILE_STATUS.READY });
         file.changeResource("TASK", "task-id");
         expect(file.resourceType).toBe("TASK");
         expect(file.resourceId).toBe("task-id");
+    });
+
+    it.each([
+        ["", "task-id"],
+        ["   ", "task-id"],
+        ["TASK", ""],
+        ["TASK", "   "],
+    ])("should reject invalid resource values: resourceType=%s, resourceId=%s", (resourceType, resourceId) => {
+        const file = File.restore({ ...createProps(), status: FILE_STATUS.READY });
+        expect(() => file.changeResource(resourceType, resourceId)).toThrow(InvalidFileResourceError);
+    });
+
+    it.each([
+        ["pending", FILE_STATUS.PENDING],
+        ["deleted", FILE_STATUS.DELETED],
+    ])("should reject changing the resource when the file is %s", (_, status) => {
+        const file = File.restore({
+            ...createProps(),
+            status,
+            deletedAt: status === FILE_STATUS.DELETED ? new Date() : null,
+        });
+        expect(() => file.changeResource("TASK", "task-id")).toThrow(FileNotReadyError);
     });
 
     it("should add the next version to a ready file", () => {

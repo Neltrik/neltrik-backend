@@ -4,6 +4,7 @@ import {
     FileNotReadyError,
     InvalidFileExtensionError,
     InvalidFilePurposeError,
+    InvalidFileResourceError,
     InvalidFileSizeError,
     InvalidFileStatusError,
     InvalidFileVersionsError,
@@ -146,12 +147,24 @@ export class File {
     }
 
     public rename(newName: string): void {
+        if (this.props.status !== FILE_STATUS.READY && this.props.status !== FILE_STATUS.INFECTED) {
+            throw new FileNotReadyError();
+        }
         this.ensureNameIsNotEmpty(newName);
         this.props.name = newName;
         this.props.updatedAt = new Date();
     }
 
     public changeResource(resourceType: string, resourceId: string): void {
+        if (this.props.status !== FILE_STATUS.READY && this.props.status !== FILE_STATUS.INFECTED) {
+            throw new FileNotReadyError();
+        }
+        if (!resourceType || resourceType.trim() === "") {
+            throw new InvalidFileResourceError();
+        }
+        if (!resourceId || resourceId.trim() === "") {
+            throw new InvalidFileResourceError();
+        }
         this.props.resourceType = resourceType;
         this.props.resourceId = resourceId;
         this.props.updatedAt = new Date();

@@ -14,11 +14,13 @@ import {
 } from "./application/jobs";
 import {
     AdjustQuotaLimitUseCase,
+    ChangeFileResourceUseCase,
     DeleteFileUseCase,
     GetDownloadUrlUseCase,
     GetFileQuotaUseCase,
     GetFileUseCase,
     ListFilesUseCase,
+    RenameFileUseCase,
     ReplaceFileUseCase,
     UploadFileUseCase,
 } from "./application/use-cases";
@@ -72,9 +74,11 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
         PurgeDeletedFilesJobsUseCase,
         RescanFilesJobsUseCase,
         AdjustQuotaLimitUseCase,
+        ChangeFileResourceUseCase,
         GetFileQuotaUseCase,
         GetFileUseCase,
         ListFilesUseCase,
+        RenameFileUseCase,
         DeleteFileUseCase,
         UploadFileUseCase,
         ReplaceFileUseCase,

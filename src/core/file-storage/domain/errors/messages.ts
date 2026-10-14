@@ -19,6 +19,7 @@ export const ERROR_MESSAGES = {
     FILE_MIME_TYPE_MISMATCH: "The file content does not match the declared MIME type.",
     FILE_ALREADY_EXISTS: "File already exists",
     FILE_VERSION_NOT_FOUND: "File version not found",
+    INVALID_FILE_RESOURCE: "File resource is invalid",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -42,4 +43,5 @@ export const DOMAIN_ERROR_CODES = {
     FILE_MIME_TYPE_MISMATCH: "FILE_MIME_TYPE_MISMATCH",
     FILE_ALREADY_EXISTS: "FILE_ALREADY_EXISTS",
     FILE_VERSION_NOT_FOUND: "FILE_VERSION_NOT_FOUND",
+    INVALID_FILE_RESOURCE: "INVALID_FILE_RESOURCE",
 } as const;

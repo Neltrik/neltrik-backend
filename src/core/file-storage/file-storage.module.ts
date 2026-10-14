@@ -141,6 +141,7 @@ export class FileStorageModule implements OnModuleInit {
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_QUOTA_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_VERSION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_ALREADY_EXISTS, HttpStatus.CONFLICT);
 
         await this.jobScheduler.schedule(
             RECONCILE_STORAGE_QUEUE,

@@ -33,3 +33,12 @@ export const listFilesQuerySchema = z.object({
     purpose: z.enum([FILE_PURPOSE.CV, FILE_PURPOSE.AVATAR, FILE_PURPOSE.DOCUMENT]).optional(),
     status: z.enum([FILE_STATUS.PENDING, FILE_STATUS.READY, FILE_STATUS.INFECTED, FILE_STATUS.DELETED]).optional(),
 });
+
+export const renameFileBodySchema = z.object({
+    name: z.string().min(1).max(255),
+});
+
+export const changeFileResourceBodySchema = z.object({
+    resourceType: z.string().min(1).max(50),
+    resourceId: z.uuid(),
+});

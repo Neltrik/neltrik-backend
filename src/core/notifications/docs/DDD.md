@@ -202,8 +202,6 @@ Después del análisis del dominio se definieron las siguientes entidades para e
 
 > **Nota:** **NotificationTemplate** es raíz de su propio agregado porque: tiene identidad propia, tiene su propio ciclo de vida (`isActive`, versiones), no depende de `Notification` ni de `NotificationPreference`, y tiene su propio repositorio.
 
-> **Nota:** **Notification Status**, **Notification Channel**, **Notification Locale**, **Notification Payload** y **Notification Recipient** no se modelan como entidades. Se modelan como value objects dentro del agregado `Notification`, ya que no poseen identidad propia ni ciclo de vida independiente.
-
 > **Nota:** **Notification Attempt**, **Notification Retry** y **Notification Provider** no se modelan como entidades. Son atributos de `Notification` o conceptos técnicos de infraestructura.
 
 # Paso 4 — Definir relaciones y reglas de negocio

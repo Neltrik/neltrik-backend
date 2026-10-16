@@ -155,8 +155,9 @@ Representa el canal por el cual se entrega una notificación.
 
 - `PENDING` → `SENT` (envío exitoso por todos los canales).
 - `PENDING` → `FAILED` (fallo en el envío por al menos un canal).
-- `SENT` → estado final, no transiciona.
-- `FAILED` → estado final, no transiciona.
+- `FAILED` → `SENT` (reintento exitoso).
+- `FAILED` → `FAILED` (reintento fallido, actualiza `lastError`).
+- `SENT` → estado final absoluto, no transiciona.
 
 ## 4.5 Campos actualizables
 

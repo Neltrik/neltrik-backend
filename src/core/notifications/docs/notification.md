@@ -207,18 +207,23 @@ notifications
 
 ## 5.2 Columnas
 
-| Columna        | Tipo           | Null | Default             | Observación                                      |
-| -------------- | -------------- | ---- | ------------------- | ------------------------------------------------ |
-| `id`           | `UUID`         | ❌   | `gen_random_uuid()` | PK                                               |
-| `tenant_id`    | `UUID`         | ❌   | —                   | Referencia a `Tenant`                            |
-| `recipient_id` | `UUID`         | ❌   | —                   | Referencia a `User`                              |
-| `code`         | `VARCHAR(100)` | ❌   | —                   | Código del template                              |
-| `status`       | `ENUM`         | ❌   | `PENDING`           | Enum en DB                                       |
-| `channels`     | `VARCHAR[]`    | ❌   | —                   | Canales de entrega                               |
-| `payload`      | `JSONB`        | ❌   | —                   | Datos necesarios para renderizar la notificación |
-| `locale`       | `VARCHAR(10)`  | ❌   | —                   | Idioma y región de la notificación               |
-| `created_at`   | `TIMESTAMP`    | ❌   | `NOW()`             | Fecha de creación                                |
-| `updated_at`   | `TIMESTAMP`    | ❌   | `NOW()`             | Fecha de última actualización                    |
+| Columna           | Tipo           | Null | Default             | Observación                                      |
+| ----------------- | -------------- | ---- | ------------------- | ------------------------------------------------ |
+| `id`              | `UUID`         | ❌   | `gen_random_uuid()` | PK                                               |
+| `tenant_id`       | `UUID`         | ❌   | —                   | Referencia a `Tenant`                            |
+| `recipient_id`    | `UUID`         | ❌   | —                   | Referencia a `User`                              |
+| `recipient_email` | `VARCHAR(255)` | ✅   | NULL                | Requerido si channels incluye `EMAIL`            |
+| `code`            | `VARCHAR(100)` | ❌   | —                   | Código del template                              |
+| `status`          | `ENUM`         | ❌   | `PENDING`           | Enum en DB                                       |
+| `channels`        | `VARCHAR[]`    | ❌   | —                   | Canales de entrega                               |
+| `payload`         | `JSONB`        | ❌   | —                   | Datos necesarios para renderizar la notificación |
+| `locale`          | `VARCHAR(10)`  | ❌   | —                   | Idioma y región de la notificación               |
+| `attempts`        | `INT`          | ❌   | 0                   | Intentos de envío                                |
+| `last_error`      | `TEXT`         | ✅   | NULL                | Último error                                     |
+| `sent_at`         | `TIMESTAMP`    | ✅   | NULL                | Fecha de envío exitoso                           |
+| `read_at`         | `TIMESTAMP`    | ✅   | NULL                | Fecha de lectura (solo IN_APP)                   |
+| `created_at`      | `TIMESTAMP`    | ❌   | `NOW()`             | Fecha de creación                                |
+| `updated_at`      | `TIMESTAMP`    | ❌   | `NOW()`             | Fecha de última actualización                    |
 
 > **Nota:** El valor `PENDING` se define en la entidad **Notification** al momento de su creación. El `default` en la base de datos actúa únicamente como red de seguridad.
 
@@ -241,6 +246,10 @@ notifications
 - `tenant_id` y `recipient_id` son referencias a los dominios **Tenant** e **Identity**, respectivamente, sin implicar acoplamiento estructural entre dominios.
 - `code` no establece una FK hacia `NotificationTemplate`; la asociación se resuelve dinámicamente en tiempo de ejecución.
 - `status` se persiste como enum en la base de datos y se define como enum en TypeScript.
+- `recipient_email` es obligatorio cuando `channels` incluye `EMAIL`.
+- `attempts` inicia con el valor `0`.
+- `sent_at` solo debe contener un valor cuando `status` sea `SENT`.
+- `read_at` solo debe contener un valor cuando `channels` incluya `IN_APP`.
 
 > **Nota:** Los conceptos **NotificationStatus**, **NotificationChannel**, **NotificationPayload**, **NotificationRecipient**, **NotificationLocale** y **NotificationCode** no se modelan como entidades ni como Value Objects. Se representan mediante atributos de la entidad **Notification**, según corresponda, ya que no poseen identidad propia ni ciclo de vida independiente.
 

@@ -12,6 +12,7 @@ const TENANT_MODELS = [
     "AuditEvent",
     "File",
     "FileQuota",
+    "Notification",
 ] as const;
 const OWNERSHIP_MODELS = ["AuthenticationSession"] as const;
 

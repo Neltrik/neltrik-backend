@@ -1,5 +1,7 @@
+import type { PaginationInput } from "@/shared/pagination";
+
 import type { NotificationTemplate } from "../../entities";
-import type { NotificationChannel } from "../../types";
+import type { FindTemplatesByTenantParams, NotificationChannel } from "../../types";
 
 export abstract class NotificationTemplateRepository {
     abstract create(template: NotificationTemplate): Promise<void>;
@@ -18,5 +20,6 @@ export abstract class NotificationTemplateRepository {
         excludeId?: string,
     ): Promise<NotificationTemplate[]>;
     abstract update(template: NotificationTemplate): Promise<void>;
-    abstract findByTenant(tenantId: string): Promise<NotificationTemplate[]>;
+    abstract findByTenantIncludingGlobal(params: FindTemplatesByTenantParams): Promise<NotificationTemplate[]>;
+    abstract findAll(params: PaginationInput): Promise<NotificationTemplate[]>;
 }

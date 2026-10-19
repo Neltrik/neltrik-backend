@@ -13,8 +13,10 @@ import {
 import { ResolveNotificationTemplateInternalUseCase } from "./application/use-cases-internal";
 import { NotificationRepository, NotificationTemplateRepository } from "./domain/interfaces";
 import { PrismaNotificationRepository, PrismaNotificationTemplateRepository } from "./infrastructure/repositories";
+import { TemplateManagementController, TemplateStateController } from "./presentation/controllers";
 
 @Module({
+    controllers: [TemplateManagementController, TemplateStateController],
     providers: [
         ActivateNotificationTemplateUseCase,
         CreateNotificationTemplateUseCase,

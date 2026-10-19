@@ -1,4 +1,4 @@
-import { Controller, Param, Post } from "@nestjs/common";
+import { Controller, Param, Patch } from "@nestjs/common";
 import {
     ApiBadRequestResponse,
     ApiConflictResponse,
@@ -18,18 +18,18 @@ import { ZodValidationPipe } from "@/shared/zod";
 
 import {
     ActivateNotificationTemplateUseCase,
-    DeactivateNotificationTemplateUseCase,
+    DesactivateNotificationTemplateUseCase,
 } from "../../../application/use-cases";
-import { ActivateNotificationTemplateResponseDto, DeactivateNotificationTemplateResponseDto } from "../../dto";
+import { ActivateNotificationTemplateResponseDto, DesactivateNotificationTemplateResponseDto } from "../../dto";
 import { NOTIFICATION_TEMPLATE_MESSAGES } from "../../messages";
-import { activateNotificationTemplateParamsSchema, deactivateNotificationTemplateParamsSchema } from "../../schemas";
+import { activateNotificationTemplateParamsSchema, desactivateNotificationTemplateParamsSchema } from "../../schemas";
 
 @ApiTags("Notifications - Templates")
 @Controller("notifications/templates")
 export class TemplateStateController {
     constructor(
         private readonly activateNotificationTemplateUseCase: ActivateNotificationTemplateUseCase,
-        private readonly deactivateNotificationTemplateUseCase: DeactivateNotificationTemplateUseCase,
+        private readonly desactivateNotificationTemplateUseCase: DesactivateNotificationTemplateUseCase,
     ) {}
 
     @ApiOperation({
@@ -63,7 +63,7 @@ export class TemplateStateController {
         message: NOTIFICATION_TEMPLATE_MESSAGES.ACTIVATED,
     })
     @Permissions("ADMIN_NOTIFICATION_TEMPLATE_UPDATE")
-    @Post(":id/activate")
+    @Patch(":id/activate")
     public async activate(
         @CurrentUser("tenantId") tenantId: string,
         @Param(new ZodValidationPipe(activateNotificationTemplateParamsSchema))
@@ -77,10 +77,10 @@ export class TemplateStateController {
     }
 
     @ApiOperation({
-        summary: "Deactivate notification template",
-        description: "Deactivates an active notification template.",
+        summary: "Desactivate notification template",
+        description: "Desactivates an active notification template.",
     })
-    @ApiContract(DeactivateNotificationTemplateResponseDto)
+    @ApiContract(DesactivateNotificationTemplateResponseDto)
     @ApiOkResponse({
         description: "Resource updated.",
     })
@@ -104,16 +104,16 @@ export class TemplateStateController {
     })
     @Response({
         code: RESPONSE_CODES.RESOURCE_UPDATED,
-        message: NOTIFICATION_TEMPLATE_MESSAGES.DEACTIVATED,
+        message: NOTIFICATION_TEMPLATE_MESSAGES.DESACTIVATED,
     })
     @Permissions("ADMIN_NOTIFICATION_TEMPLATE_UPDATE")
-    @Post(":id/deactivate")
-    public async deactivate(
+    @Patch(":id/desactivate")
+    public async desactivate(
         @CurrentUser("tenantId") tenantId: string,
-        @Param(new ZodValidationPipe(deactivateNotificationTemplateParamsSchema))
+        @Param(new ZodValidationPipe(desactivateNotificationTemplateParamsSchema))
         params: { id: string },
-    ): Promise<DeactivateNotificationTemplateResponseDto> {
-        const id = await this.deactivateNotificationTemplateUseCase.execute({
+    ): Promise<DesactivateNotificationTemplateResponseDto> {
+        const id = await this.desactivateNotificationTemplateUseCase.execute({
             actorTenantId: tenantId,
             id: params.id,
         });

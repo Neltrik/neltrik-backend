@@ -82,7 +82,7 @@ export class NotificationTemplate {
         this.props.updatedAt = new Date();
     }
 
-    public deactivate(): void {
+    public desactivate(): void {
         if (!this.props.isActive) {
             return;
         }

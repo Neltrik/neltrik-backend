@@ -5,16 +5,16 @@ import { ForbiddenError } from "@/shared/errors";
 
 import { NotificationTemplateNotFoundError } from "../../../../domain/errors";
 import { NotificationTemplateRepository } from "../../../../domain/interfaces";
-import type { DeactivateNotificationTemplateInput } from "./input";
+import type { DesactivateNotificationTemplateInput } from "./input";
 
 @Injectable()
-export class DeactivateNotificationTemplateUseCase {
+export class DesactivateNotificationTemplateUseCase {
     constructor(
         private readonly tenantApi: TenantApi,
         private readonly notificationTemplateRepository: NotificationTemplateRepository,
     ) {}
 
-    public async execute(input: DeactivateNotificationTemplateInput): Promise<string> {
+    public async execute(input: DesactivateNotificationTemplateInput): Promise<string> {
         const template = await this.notificationTemplateRepository.findById(input.id);
         if (!template) {
             throw new NotificationTemplateNotFoundError();
@@ -31,7 +31,7 @@ export class DeactivateNotificationTemplateUseCase {
         if (!template.isActive()) {
             return template.id;
         }
-        template.deactivate();
+        template.desactivate();
         await this.notificationTemplateRepository.update(template);
         return template.id;
     }

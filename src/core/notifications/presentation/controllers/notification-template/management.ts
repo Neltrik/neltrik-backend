@@ -15,6 +15,7 @@ import {
 import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
+import { ResponsePayload } from "@/shared/pagination";
 import { ZodValidationPipe } from "@/shared/zod";
 
 import {
@@ -27,7 +28,6 @@ import {
     CreateNotificationTemplateRequestDto,
     CreateNotificationTemplateResponseDto,
     ListNotificationTemplatesQueryDto,
-    ListNotificationTemplatesResponseDto,
     NotificationTemplateResponseDto,
     UpdateNotificationTemplateRequestDto,
     UpdateNotificationTemplateResponseDto,
@@ -159,7 +159,7 @@ export class TemplateManagementController {
         summary: "List notification templates",
         description: "Lists notification templates with cursor pagination.",
     })
-    @ApiContract(ListNotificationTemplatesResponseDto)
+    @ApiContract(NotificationTemplateResponseDto, { responseType: "array" })
     @ApiOkResponse({
         description: "Resource found.",
     })
@@ -191,14 +191,14 @@ export class TemplateManagementController {
         @CurrentUser("tenantId") tenantId: string,
         @Query(new ZodValidationPipe(listNotificationTemplatesQuerySchema))
         query: ListNotificationTemplatesQueryDto,
-    ): Promise<ListNotificationTemplatesResponseDto> {
+    ): Promise<ResponsePayload<NotificationTemplateResponseDto[]>> {
         const output = await this.listNotificationTemplatesUseCase.execute({
             actorTenantId: tenantId,
             cursor: query.cursor,
             limit: query.limit,
         });
         return {
-            templates: output.templates.map((template) => ({
+            data: output.templates.map((template) => ({
                 id: template.id,
                 tenantId: template.tenantId,
                 code: template.code,

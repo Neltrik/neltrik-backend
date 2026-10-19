@@ -10,6 +10,7 @@ import { AuthenticationModule } from "./core/authentication/authentication.modul
 import { AuthorizationModule } from "./core/authorization/authorization.module";
 import { FileStorageModule } from "./core/file-storage/file-storage.module";
 import { IdentityModule } from "./core/identity/identity.module";
+import { NotificationsModule } from "./core/notifications/notifications.module";
 import { TenantModule } from "./core/tenant/tenant.module";
 import { AtsModule } from "./modules/ats/ats.module";
 import { PrismaModule, TenantInterceptor } from "./prisma";
@@ -51,6 +52,7 @@ import { SanitizationModule } from "./shared/sanitization";
         AuthorizationModule,
         FileStorageModule,
         IdentityModule,
+        NotificationsModule,
         TenantModule,
         AtsModule,
     ],

@@ -1,3 +1,4 @@
+export * from "./already-exists";
 export * from "./body-required";
 export * from "./code-required";
 export * from "./invalid-channel";

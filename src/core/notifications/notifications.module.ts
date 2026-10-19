@@ -5,7 +5,7 @@ import { TenantModule } from "@/core/tenant/tenant.module";
 import {
     ActivateNotificationTemplateUseCase,
     CreateNotificationTemplateUseCase,
-    DeactivateNotificationTemplateUseCase,
+    DesactivateNotificationTemplateUseCase,
     GetNotificationTemplateUseCase,
     ListNotificationTemplatesUseCase,
     UpdateNotificationTemplateUseCase,
@@ -20,7 +20,7 @@ import { TemplateManagementController, TemplateStateController } from "./present
     providers: [
         ActivateNotificationTemplateUseCase,
         CreateNotificationTemplateUseCase,
-        DeactivateNotificationTemplateUseCase,
+        DesactivateNotificationTemplateUseCase,
         GetNotificationTemplateUseCase,
         ListNotificationTemplatesUseCase,
         UpdateNotificationTemplateUseCase,

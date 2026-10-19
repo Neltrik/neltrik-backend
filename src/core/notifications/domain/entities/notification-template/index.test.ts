@@ -191,10 +191,10 @@ describe("Mutations & State Transitions", () => {
         expect(template.updatedAt).toBe(previousUpdatedAt);
     });
 
-    it("should deactivate an active template and update updatedAt", () => {
+    it("should desactivate an active template and update updatedAt", () => {
         const template = NotificationTemplate.restore({ ...createProps(), isActive: true });
         const previousUpdatedAt = template.updatedAt;
-        template.deactivate();
+        template.desactivate();
         expect(template.isActive()).toBe(false);
         expect(template.updatedAt).toBeInstanceOf(Date);
         expect(template.updatedAt.getTime()).toBeGreaterThanOrEqual(previousUpdatedAt.getTime());
@@ -204,7 +204,7 @@ describe("Mutations & State Transitions", () => {
         const props = createProps();
         const template = NotificationTemplate.restore({ ...props, isActive: false });
         const previousUpdatedAt = template.updatedAt;
-        template.deactivate();
+        template.desactivate();
         expect(template.isActive()).toBe(false);
         expect(template.updatedAt).toBe(previousUpdatedAt);
     });
@@ -282,7 +282,7 @@ describe("hasConflict", () => {
         const props = createProps();
         const activeTemplate = NotificationTemplate.create(props);
         const inactiveTemplate = NotificationTemplate.create({ ...props, id: "other-id" });
-        inactiveTemplate.deactivate();
+        inactiveTemplate.desactivate();
         expect(activeTemplate.hasConflict(inactiveTemplate)).toBe(false);
         expect(inactiveTemplate.hasConflict(activeTemplate)).toBe(false);
     });

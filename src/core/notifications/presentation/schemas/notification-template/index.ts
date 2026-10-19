@@ -31,7 +31,7 @@ export const activateNotificationTemplateParamsSchema = z.object({
     id: z.uuid(),
 });
 
-export const deactivateNotificationTemplateParamsSchema = z.object({
+export const desactivateNotificationTemplateParamsSchema = z.object({
     id: z.uuid(),
 });
 

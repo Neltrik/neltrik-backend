@@ -70,20 +70,3 @@ export class NotificationTemplateResponseDto {
     })
     updatedAt!: Date;
 }
-
-export class ListNotificationTemplatesResponseDto {
-    @ApiProperty({
-        type: [NotificationTemplateResponseDto],
-        description: "List of notification templates.",
-    })
-    templates!: NotificationTemplateResponseDto[];
-
-    @ApiProperty({
-        example: { nextCursor: "550e8400-...", hasMore: true },
-        description: "Pagination metadata.",
-    })
-    meta!: {
-        nextCursor: string | null;
-        hasMore: boolean;
-    };
-}

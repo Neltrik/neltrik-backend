@@ -4,5 +4,5 @@ export const NOTIFICATION_TEMPLATE_MESSAGES = {
     UPDATED: "Notification template updated successfully.",
     LISTED: "Notification templates listed successfully.",
     ACTIVATED: "Notification template activated successfully.",
-    DEACTIVATED: "Notification template deactivated successfully.",
+    DESACTIVATED: "Notification template desactivated successfully.",
 } as const;

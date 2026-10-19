@@ -1,7 +1,7 @@
 import {
     activateNotificationTemplateParamsSchema,
     createNotificationTemplateSchema,
-    deactivateNotificationTemplateParamsSchema,
+    desactivateNotificationTemplateParamsSchema,
     getNotificationTemplateParamsSchema,
     listNotificationTemplatesQuerySchema,
     updateNotificationTemplateParamsSchema,
@@ -72,7 +72,7 @@ describe("updateNotificationTemplateSchema", () => {
 
 describe.each([
     ["activateNotificationTemplateParamsSchema", activateNotificationTemplateParamsSchema],
-    ["deactivateNotificationTemplateParamsSchema", deactivateNotificationTemplateParamsSchema],
+    ["desactivateNotificationTemplateParamsSchema", desactivateNotificationTemplateParamsSchema],
     ["getNotificationTemplateParamsSchema", getNotificationTemplateParamsSchema],
 ])("%s", (_name, schema) => {
     it("should validate a correct id", () => {

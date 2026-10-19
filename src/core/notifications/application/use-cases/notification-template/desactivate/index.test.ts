@@ -3,12 +3,12 @@ import { ForbiddenError } from "@/shared/errors";
 import { NotificationTemplate } from "../../../../domain/entities";
 import { NotificationTemplateNotFoundError } from "../../../../domain/errors";
 import { NotificationTemplateRepositorySpy, TenantApiSpy } from "../../../../test-doubles";
-import { DeactivateNotificationTemplateUseCase } from "./index";
-import type { DeactivateNotificationTemplateInput } from "./input";
+import { DesactivateNotificationTemplateUseCase } from "./index";
+import type { DesactivateNotificationTemplateInput } from "./input";
 
-const makeInput = (): DeactivateNotificationTemplateInput => ({ id: "template-id", actorTenantId: "tenant-id" });
+const makeInput = (): DesactivateNotificationTemplateInput => ({ id: "template-id", actorTenantId: "tenant-id" });
 
-describe("DeactivateNotificationTemplateUseCase", () => {
+describe("DesactivateNotificationTemplateUseCase", () => {
     const makeTemplate = (tenantId: string | null = "tenant-id", isActive = true) =>
         NotificationTemplate.restore({
             id: "template-id",
@@ -29,11 +29,11 @@ describe("DeactivateNotificationTemplateUseCase", () => {
         const notificationTemplateRepository = new NotificationTemplateRepositorySpy();
         notificationTemplateRepository.findById.mockResolvedValue(makeTemplate());
         notificationTemplateRepository.update.mockResolvedValue(undefined);
-        const useCase = new DeactivateNotificationTemplateUseCase(tenantApi, notificationTemplateRepository);
+        const useCase = new DesactivateNotificationTemplateUseCase(tenantApi, notificationTemplateRepository);
         return { useCase, tenantApi, notificationTemplateRepository };
     };
 
-    it("should deactivate a notification template successfully", async () => {
+    it("should desactivate a notification template successfully", async () => {
         const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
         const input = makeInput();
         const result = await useCase.execute(input);
@@ -44,7 +44,7 @@ describe("DeactivateNotificationTemplateUseCase", () => {
         expect(result).toBe(input.id);
     });
 
-    it("should allow a platform actor to deactivate a template from another tenant", async () => {
+    it("should allow a platform actor to desactivate a template from another tenant", async () => {
         const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
         tenantApi.isPlatformTenant.mockResolvedValue(true);
         notificationTemplateRepository.findById.mockResolvedValue(makeTemplate("another-tenant-id"));
@@ -71,7 +71,7 @@ describe("DeactivateNotificationTemplateUseCase", () => {
         expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw ForbiddenError when a non-platform actor deactivates another tenant's template", async () => {
+    it("should throw ForbiddenError when a non-platform actor desactivates another tenant's template", async () => {
         const { useCase, notificationTemplateRepository } = makeSut();
         notificationTemplateRepository.findById.mockResolvedValue(makeTemplate("another-tenant-id"));
         const input = { ...makeInput(), actorTenantId: "tenant-a" };
@@ -79,7 +79,7 @@ describe("DeactivateNotificationTemplateUseCase", () => {
         expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
     });
 
-    it("should throw ForbiddenError when a non-platform actor deactivates a platform template", async () => {
+    it("should throw ForbiddenError when a non-platform actor desactivates a platform template", async () => {
         const { useCase, notificationTemplateRepository } = makeSut();
         notificationTemplateRepository.findById.mockResolvedValue(makeTemplate(null));
         await expect(useCase.execute(makeInput())).rejects.toThrow(ForbiddenError);

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { TenantApi } from "@/core/tenant/api";
-import { ForbiddenError } from "@/shared/errors/http-errors/forbidden";
+import { ForbiddenError } from "@/shared/errors/http-errors";
 
 import { NotificationTemplate } from "../../../../domain/entities";
 import { NotificationTemplateNotFoundError } from "../../../../domain/errors";

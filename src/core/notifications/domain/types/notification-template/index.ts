@@ -1,3 +1,5 @@
+import type { PaginationInput } from "@/shared/pagination";
+
 import type { NotificationChannel } from "../notification";
 
 export type NotificationTemplateProps = {
@@ -12,3 +14,7 @@ export type NotificationTemplateProps = {
     createdAt: Date;
     updatedAt: Date;
 };
+
+export interface FindTemplatesByTenantParams extends PaginationInput {
+    tenantId: string;
+}

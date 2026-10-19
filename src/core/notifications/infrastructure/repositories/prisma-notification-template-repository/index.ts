@@ -1,10 +1,11 @@
 import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "@/prisma/index";
+import { PaginationInput, withPaginationArgs } from "@/shared/pagination";
 
 import { NotificationTemplate } from "../../../domain/entities";
 import { NotificationTemplateRepository } from "../../../domain/interfaces";
-import type { NotificationChannel } from "../../../domain/types";
+import type { FindTemplatesByTenantParams, NotificationChannel } from "../../../domain/types";
 import { NotificationTemplateMapper } from "../../mappers";
 
 @Injectable()
@@ -72,10 +73,18 @@ export class PrismaNotificationTemplateRepository extends NotificationTemplateRe
         });
     }
 
-    public async findByTenant(tenantId: string): Promise<NotificationTemplate[]> {
+    public async findByTenantIncludingGlobal(params: FindTemplatesByTenantParams): Promise<NotificationTemplate[]> {
         const templates = await this.prisma.tenantClient.notificationTemplate.findMany({
-            where: { tenantId },
-            orderBy: { createdAt: "desc" },
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            ...withPaginationArgs({ cursor: params.cursor, limit: params.limit }),
+        });
+        return templates.map((template) => NotificationTemplateMapper.toDomain(template));
+    }
+
+    public async findAll(params: PaginationInput): Promise<NotificationTemplate[]> {
+        const templates = await this.prisma.tenantClient.notificationTemplate.findMany({
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            ...withPaginationArgs({ cursor: params.cursor, limit: params.limit }),
         });
         return templates.map((template) => NotificationTemplateMapper.toDomain(template));
     }

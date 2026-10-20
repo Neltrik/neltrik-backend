@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 
-import { NotificationCode } from "@/core/notifications/domain/catalogs";
 import { PrismaService } from "@/prisma/index";
 import { PaginationInput, withPaginationArgs } from "@/shared/pagination";
 
@@ -32,7 +31,7 @@ export class PrismaNotificationTemplateRepository extends NotificationTemplateRe
     }
 
     public async findActiveByCombination(
-        code: NotificationCode,
+        code: string,
         channel: NotificationChannel,
         locale: string,
         tenantId: string | null,
@@ -55,7 +54,7 @@ export class PrismaNotificationTemplateRepository extends NotificationTemplateRe
     }
 
     public async findActiveByCombinationCandidates(
-        code: NotificationCode,
+        code: string,
         channel: NotificationChannel,
         locale: string,
         tenantId: string | null,

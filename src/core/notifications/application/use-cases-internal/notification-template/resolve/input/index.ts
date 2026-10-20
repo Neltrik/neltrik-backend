@@ -1,7 +1,8 @@
+import type { NotificationCode } from "../../../../../domain/catalogs";
 import type { NotificationChannel } from "../../../../../domain/types";
 
 export type ResolveNotificationTemplateInput = {
-    code: string;
+    code: NotificationCode;
     channel: NotificationChannel;
     locale: string;
     tenantId: string | null;

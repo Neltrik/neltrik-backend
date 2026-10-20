@@ -7,6 +7,7 @@ export * from "./invalid-payload";
 export * from "./invalid-status";
 export * from "./invalid-status-transition";
 export * from "./locale-required";
+export * from "./not-found";
 export * from "./recipient-email-required";
 export * from "./recipient-required";
 export * from "./tenant-required";

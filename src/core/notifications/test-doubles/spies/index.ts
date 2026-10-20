@@ -1,2 +1,2 @@
 export * from "./api.spy";
-export * from "./notification-template-repository.spy";
+export * from "./repository.spy";

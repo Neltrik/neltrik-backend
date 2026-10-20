@@ -12,7 +12,7 @@ describe("ResolveNotificationTemplateInternalUseCase", () => {
     };
 
     const makeInput = (): ResolveNotificationTemplateInput => ({
-        code: "welcome",
+        code: "WELCOME",
         channel: "EMAIL",
         locale: "es-CO",
         tenantId: "tenant-id",

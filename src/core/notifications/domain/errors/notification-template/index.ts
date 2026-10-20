@@ -2,6 +2,8 @@ export * from "./already-exists";
 export * from "./body-required";
 export * from "./code-required";
 export * from "./invalid-channel";
+export * from "./invalid-code";
+export * from "./invalid-locale";
 export * from "./locale-required";
 export * from "./not-found";
 export * from "./subject-required";

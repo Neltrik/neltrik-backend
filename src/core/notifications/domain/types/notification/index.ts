@@ -31,3 +31,5 @@ export type NotificationProps = {
     createdAt: Date;
     updatedAt: Date;
 };
+
+export const NOTIFICATION_TEMPLATE_LOCALE_REGEX = /^[a-z]{2}(-[A-Z]{2})?$/;

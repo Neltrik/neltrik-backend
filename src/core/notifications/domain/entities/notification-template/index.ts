@@ -1,12 +1,20 @@
+import { NOTIFICATION_CODES } from "../../catalogs";
 import {
     InvalidNotificationTemplateChannelError,
+    InvalidNotificationTemplateCodeError,
+    InvalidNotificationTemplateLocaleError,
     NotificationTemplateBodyRequiredError,
     NotificationTemplateCodeRequiredError,
     NotificationTemplateLocaleRequiredError,
     NotificationTemplateSubjectRequiredError,
 } from "../../errors";
 import type { NotificationTemplateProps } from "../../types";
-import { NOTIFICATION_CHANNEL, NOTIFICATION_CHANNELS, type NotificationChannel } from "../../types";
+import {
+    NOTIFICATION_CHANNEL,
+    NOTIFICATION_CHANNELS,
+    NOTIFICATION_TEMPLATE_LOCALE_REGEX,
+    type NotificationChannel,
+} from "../../types";
 
 export class NotificationTemplate {
     private props: NotificationTemplateProps;
@@ -32,6 +40,10 @@ export class NotificationTemplate {
         if (!code) {
             throw new NotificationTemplateCodeRequiredError();
         }
+        const validCodes: readonly string[] = Object.values(NOTIFICATION_CODES);
+        if (!validCodes.includes(code)) {
+            throw new InvalidNotificationTemplateCodeError();
+        }
     }
 
     private ensureChannelIsValid(channel: NotificationChannel): void {
@@ -43,6 +55,9 @@ export class NotificationTemplate {
     private ensureLocaleIsValid(locale: string): void {
         if (!locale) {
             throw new NotificationTemplateLocaleRequiredError();
+        }
+        if (!NOTIFICATION_TEMPLATE_LOCALE_REGEX.test(locale)) {
+            throw new InvalidNotificationTemplateLocaleError();
         }
     }
 
@@ -104,7 +119,7 @@ export class NotificationTemplate {
         if (other.id === this.props.id) {
             return false;
         }
-        if (!other.isActive() || !this.props.isActive) {
+        if (!other.isActive()) {
             return false;
         }
         return (

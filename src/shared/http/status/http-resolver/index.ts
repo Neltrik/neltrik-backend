@@ -1,17 +1,22 @@
 import { HttpException, Injectable } from "@nestjs/common";
 
 import { HttpStatusStrategy } from "../contracts";
-import { DomainHttpStatusStrategy, ZodHttpStatusStrategy } from "../strategies";
+import { DomainHttpStatusStrategy, GlobalDomainHttpStatusStrategy, ZodHttpStatusStrategy } from "../strategies";
 
 @Injectable()
 export class HttpStatusResolver {
     private readonly strategies: HttpStatusStrategy[];
 
     constructor(
+        private readonly globalDomainHttpStatusStrategy: GlobalDomainHttpStatusStrategy,
         private readonly domainHttpStatusStrategy: DomainHttpStatusStrategy,
         private readonly zodHttpStatusStrategy: ZodHttpStatusStrategy,
     ) {
-        this.strategies = [this.domainHttpStatusStrategy, this.zodHttpStatusStrategy];
+        this.strategies = [
+            this.globalDomainHttpStatusStrategy,
+            this.domainHttpStatusStrategy,
+            this.zodHttpStatusStrategy,
+        ];
     }
 
     public resolve(exception: unknown): number {

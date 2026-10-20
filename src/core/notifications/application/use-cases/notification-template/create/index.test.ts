@@ -91,11 +91,11 @@ describe("CreateNotificationTemplateUseCase", () => {
             NotificationTemplate.create({
                 id: "existing-template-id",
                 tenantId: "tenant-id",
-                code: "OTHER_CODE",
+                code: "WELCOME",
                 channel: "EMAIL",
-                locale: "en",
-                subject: "Other",
-                body: "Another template.",
+                locale: "es",
+                subject: "Bienvenido",
+                body: "Bienvenido a nuestra plataforma.",
                 createdAt: new Date(),
             }),
         ]);

@@ -18,3 +18,5 @@ export type NotificationTemplateProps = {
 export interface FindTemplatesByTenantParams extends PaginationInput {
     tenantId: string;
 }
+
+export const NOTIFICATION_TEMPLATE_LOCALE_REGEX = /^[a-z]{2}(-[A-Z]{2})?$/;

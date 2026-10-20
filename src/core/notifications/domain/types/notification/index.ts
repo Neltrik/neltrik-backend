@@ -1,3 +1,5 @@
+import type { PaginationInput } from "@/shared/pagination";
+
 export const NOTIFICATION_STATUS = {
     PENDING: "PENDING",
     SENT: "SENT",
@@ -32,4 +34,7 @@ export type NotificationProps = {
     updatedAt: Date;
 };
 
-export const NOTIFICATION_TEMPLATE_LOCALE_REGEX = /^[a-z]{2}(-[A-Z]{2})?$/;
+export interface FindInAppByTenantAndRecipientParams extends PaginationInput {
+    tenantId: string;
+    recipientId: string;
+}

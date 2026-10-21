@@ -29,7 +29,7 @@ export class NotificationTemplateRepositorySpy extends NotificationTemplateRepos
 export class NotificationRepositorySpy extends NotificationRepository {
     public create = jest.fn<Promise<void>, [Notification]>();
     public findById = jest.fn<Promise<Notification | null>, [string]>();
-    public findByTenantAndRecipient = jest.fn<Promise<Notification[]>, [string, string]>();
     public findInAppByTenantAndRecipient = jest.fn<Promise<Notification[]>, [FindInAppByTenantAndRecipientParams]>();
+    public markAllInAppAsRead = jest.fn<Promise<number>, [string, string]>();
     public update = jest.fn<Promise<void>, [Notification]>();
 }

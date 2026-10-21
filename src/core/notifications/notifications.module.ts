@@ -3,6 +3,7 @@ import { HttpStatus, Module } from "@nestjs/common";
 import { TenantModule } from "@/core/tenant/tenant.module";
 import { DomainStatusRegistry } from "@/shared/http";
 
+import { SendNotificationJobsUseCase } from "./application/jobs/send-notification";
 import {
     ActivateNotificationTemplateUseCase,
     CreateNotificationTemplateUseCase,
@@ -15,6 +16,7 @@ import { ResolveNotificationTemplateInternalUseCase } from "./application/use-ca
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
 import { NotificationRepository, NotificationTemplateRepository, TemplateRenderer } from "./domain/interfaces";
 import { StringInterpolationRenderer } from "./domain/renderers";
+import { SendNotificationHandler } from "./infrastructure/jobs";
 import { NodemailerEmailSender } from "./infrastructure/providers";
 import { PrismaNotificationRepository, PrismaNotificationTemplateRepository } from "./infrastructure/repositories";
 import { EmailSenderFactory } from "./infrastructure/strategies";
@@ -23,6 +25,7 @@ import { TemplateManagementController, TemplateStateController } from "./present
 @Module({
     controllers: [TemplateManagementController, TemplateStateController],
     providers: [
+        SendNotificationJobsUseCase,
         ActivateNotificationTemplateUseCase,
         CreateNotificationTemplateUseCase,
         DesactivateNotificationTemplateUseCase,
@@ -32,6 +35,7 @@ import { TemplateManagementController, TemplateStateController } from "./present
         ResolveNotificationTemplateInternalUseCase,
         NodemailerEmailSender,
         EmailSenderFactory,
+        SendNotificationHandler,
         {
             provide: NotificationRepository,
             useClass: PrismaNotificationRepository,

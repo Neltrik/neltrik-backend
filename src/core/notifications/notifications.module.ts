@@ -3,16 +3,21 @@ import { HttpStatus, Module } from "@nestjs/common";
 import { TenantModule } from "@/core/tenant/tenant.module";
 import { DomainStatusRegistry } from "@/shared/http";
 
+import { NotificationApi, NotificationApiImpl } from "./api";
 import { SendNotificationJobsUseCase } from "./application/jobs/send-notification";
 import {
     ActivateNotificationTemplateUseCase,
     CreateNotificationTemplateUseCase,
     DesactivateNotificationTemplateUseCase,
     GetNotificationTemplateUseCase,
+    ListNotificationsUseCase,
     ListNotificationTemplatesUseCase,
+    MarkAllNotificationsAsReadUseCase,
+    MarkNotificationAsReadUseCase,
     UpdateNotificationTemplateUseCase,
 } from "./application/use-cases";
 import { ResolveNotificationTemplateInternalUseCase } from "./application/use-cases-internal";
+import { SendNotificationOhsUseCase } from "./application/use-cases-ohs";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
 import { NotificationRepository, NotificationTemplateRepository, TemplateRenderer } from "./domain/interfaces";
 import { StringInterpolationRenderer } from "./domain/renderers";
@@ -30,12 +35,20 @@ import { TemplateManagementController, TemplateStateController } from "./present
         CreateNotificationTemplateUseCase,
         DesactivateNotificationTemplateUseCase,
         GetNotificationTemplateUseCase,
+        ListNotificationsUseCase,
         ListNotificationTemplatesUseCase,
+        MarkAllNotificationsAsReadUseCase,
+        MarkNotificationAsReadUseCase,
         UpdateNotificationTemplateUseCase,
         ResolveNotificationTemplateInternalUseCase,
+        SendNotificationOhsUseCase,
         NodemailerEmailSender,
         EmailSenderFactory,
         SendNotificationHandler,
+        {
+            provide: NotificationApi,
+            useClass: NotificationApiImpl,
+        },
         {
             provide: NotificationRepository,
             useClass: PrismaNotificationRepository,
@@ -50,6 +63,7 @@ import { TemplateManagementController, TemplateStateController } from "./present
         },
     ],
     imports: [TenantModule],
+    exports: [NotificationApi],
 })
 export class NotificationsModule {
     public onModuleInit(): void {

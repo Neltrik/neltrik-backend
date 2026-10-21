@@ -13,8 +13,11 @@ import {
 } from "./application/use-cases";
 import { ResolveNotificationTemplateInternalUseCase } from "./application/use-cases-internal";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
-import { NotificationRepository, NotificationTemplateRepository } from "./domain/interfaces";
+import { NotificationRepository, NotificationTemplateRepository, TemplateRenderer } from "./domain/interfaces";
+import { StringInterpolationRenderer } from "./domain/renderers";
+import { NodemailerEmailSender } from "./infrastructure/providers";
 import { PrismaNotificationRepository, PrismaNotificationTemplateRepository } from "./infrastructure/repositories";
+import { EmailSenderFactory } from "./infrastructure/strategies";
 import { TemplateManagementController, TemplateStateController } from "./presentation/controllers";
 
 @Module({
@@ -27,6 +30,8 @@ import { TemplateManagementController, TemplateStateController } from "./present
         ListNotificationTemplatesUseCase,
         UpdateNotificationTemplateUseCase,
         ResolveNotificationTemplateInternalUseCase,
+        NodemailerEmailSender,
+        EmailSenderFactory,
         {
             provide: NotificationRepository,
             useClass: PrismaNotificationRepository,
@@ -35,6 +40,10 @@ import { TemplateManagementController, TemplateStateController } from "./present
             provide: NotificationTemplateRepository,
             useClass: PrismaNotificationTemplateRepository,
         },
+        {
+            provide: TemplateRenderer,
+            useClass: StringInterpolationRenderer,
+        },
     ],
     imports: [TenantModule],
 })
@@ -42,5 +51,7 @@ export class NotificationsModule {
     public onModuleInit(): void {
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.NOTIFICATION_TEMPLATE_ALREADY_EXISTS, HttpStatus.CONFLICT);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.NOTIFICATION_TEMPLATE_NOT_FOUND, HttpStatus.NOT_FOUND);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.NOTIFICATION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.UNSUPPORTED_EMAIL_PROVIDER, HttpStatus.BAD_REQUEST);
     }
 }

@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 
 import { PaginationQueryDto } from "@/shared/pagination";
 
-import { NOTIFICATION_CHANNELS } from "../../../domain/types";
+import { NOTIFICATION_CHANNEL, NOTIFICATION_CHANNELS } from "../../../domain/types";
 
 export class ListNotificationTemplatesQueryDto extends PaginationQueryDto {}
 
@@ -27,7 +27,7 @@ export class NotificationTemplateResponseDto {
     code!: string;
 
     @ApiProperty({
-        example: "EMAIL",
+        example: NOTIFICATION_CHANNEL.EMAIL,
         enum: NOTIFICATION_CHANNELS,
         description: "Channel the template applies to.",
     })

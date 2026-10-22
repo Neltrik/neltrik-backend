@@ -23,7 +23,7 @@ import {
     GetNotificationTemplateUseCase,
     ListNotificationTemplatesUseCase,
     UpdateNotificationTemplateUseCase,
-} from "../../../application/use-cases";
+} from "../../../../application/use-cases";
 import {
     CreateNotificationTemplateRequestDto,
     CreateNotificationTemplateResponseDto,
@@ -31,15 +31,15 @@ import {
     NotificationTemplateResponseDto,
     UpdateNotificationTemplateRequestDto,
     UpdateNotificationTemplateResponseDto,
-} from "../../dto";
-import { NOTIFICATION_TEMPLATE_MESSAGES } from "../../messages";
+} from "../../../dto";
+import { NOTIFICATION_TEMPLATE_MESSAGES } from "../../../messages";
 import {
     createNotificationTemplateSchema,
     getNotificationTemplateParamsSchema,
     listNotificationTemplatesQuerySchema,
     updateNotificationTemplateParamsSchema,
     updateNotificationTemplateSchema,
-} from "../../schemas";
+} from "../../../schemas";
 
 @ApiTags("Notifications - Templates")
 @Controller("notifications/templates")

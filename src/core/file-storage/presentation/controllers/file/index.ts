@@ -52,6 +52,8 @@ import {
     RenameFileRequestDto,
     UploadFileRequestDto,
 } from "../../dto";
+import { FileHelper } from "../../helpers";
+import { FileMapper } from "../../mappers";
 import { FILE_MESSAGES } from "../../messages";
 import {
     changeFileResourceBodySchema,
@@ -63,7 +65,6 @@ import {
     replaceFileParamsSchema,
     uploadFileBodySchema,
 } from "../../schemas";
-import { FileControllerHelper } from "./helper";
 
 @ApiTags("File Storage - Files")
 @Controller("file-storage/files")
@@ -109,14 +110,14 @@ export class FileController {
             ownerId: userId,
             buffer: file.buffer,
             name: file.originalname,
-            extension: FileControllerHelper.extractExtension(file.originalname),
+            extension: FileHelper.extractExtension(file.originalname),
             mimeType: file.mimetype,
             size: file.size,
             purpose: body.purpose,
             resourceType: body.resourceType,
             resourceId: body.resourceId,
         });
-        return FileControllerHelper.toFileResponse(output);
+        return FileMapper.toResponse(output);
     }
 
     @ApiOperation({
@@ -146,7 +147,7 @@ export class FileController {
             cursor: query.cursor,
             limit: query.limit,
         });
-        return { data: files.map((file) => FileControllerHelper.toFileResponse(file)), meta };
+        return { data: files.map((file) => FileMapper.toResponse(file)), meta };
     }
 
     @ApiOperation({
@@ -195,7 +196,7 @@ export class FileController {
         @Param(new ZodValidationPipe(getFileParamsSchema)) params: { fileId: string },
     ): Promise<GetFileResponseDto> {
         const output = await this.getFileUseCase.execute(params.fileId);
-        return FileControllerHelper.toFileResponse(output);
+        return FileMapper.toResponse(output);
     }
 
     @ApiOperation({
@@ -218,7 +219,7 @@ export class FileController {
         @Body(new ZodValidationPipe(renameFileBodySchema)) body: RenameFileRequestDto,
     ): Promise<GetFileResponseDto> {
         const output = await this.renameFileUseCase.execute({ fileId: params.fileId, name: body.name });
-        return FileControllerHelper.toFileResponse(output);
+        return FileMapper.toResponse(output);
     }
 
     @ApiOperation({
@@ -246,7 +247,7 @@ export class FileController {
             resourceType: body.resourceType,
             resourceId: body.resourceId,
         });
-        return FileControllerHelper.toFileResponse(output);
+        return FileMapper.toResponse(output);
     }
 
     @ApiOperation({
@@ -277,11 +278,11 @@ export class FileController {
             fileId: params.fileId,
             buffer: file.buffer,
             name: file.originalname,
-            extension: FileControllerHelper.extractExtension(file.originalname),
+            extension: FileHelper.extractExtension(file.originalname),
             mimeType: file.mimetype,
             size: file.size,
         });
-        return FileControllerHelper.toFileResponse(output);
+        return FileMapper.toResponse(output);
     }
 
     @ApiOperation({

@@ -19,10 +19,13 @@ import { ZodValidationPipe } from "@/shared/zod";
 import {
     ActivateNotificationTemplateUseCase,
     DesactivateNotificationTemplateUseCase,
-} from "../../../application/use-cases";
-import { ActivateNotificationTemplateResponseDto, DesactivateNotificationTemplateResponseDto } from "../../dto";
-import { NOTIFICATION_TEMPLATE_MESSAGES } from "../../messages";
-import { activateNotificationTemplateParamsSchema, desactivateNotificationTemplateParamsSchema } from "../../schemas";
+} from "../../../../application/use-cases";
+import { ActivateNotificationTemplateResponseDto, DesactivateNotificationTemplateResponseDto } from "../../../dto";
+import { NOTIFICATION_TEMPLATE_MESSAGES } from "../../../messages";
+import {
+    activateNotificationTemplateParamsSchema,
+    desactivateNotificationTemplateParamsSchema,
+} from "../../../schemas";
 
 @ApiTags("Notifications - Templates")
 @Controller("notifications/templates")

@@ -132,6 +132,8 @@ src/
         ├── presentation/
         │   ├── controllers/
         │   ├── dto/
+        │   ├── helpers/
+        │   ├── mappers/
         │   ├── messages/
         │   └── schemas/
         ├── test-doubles/

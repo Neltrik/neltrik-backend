@@ -15,6 +15,8 @@ export const MODULE_FOLDERS = [
 
     "presentation/controllers",
     "presentation/dto",
+    "presentation/helpers",
+    "presentation/mappers",
     "presentation/messages",
     "presentation/schemas",
 

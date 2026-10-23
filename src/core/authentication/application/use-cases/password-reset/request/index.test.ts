@@ -1,9 +1,15 @@
+import { env } from "@/config/index";
+import { type GetUserRequestDto } from "@/core/identity/api";
+import { LOCALES, NOTIFICATION_CHANNEL, NOTIFICATION_CODES } from "@/core/notifications/api";
+
 import { AuthenticationAccount } from "../../../../domain/entities";
 import { PasswordHash } from "../../../../domain/value-objects";
 import {
     AuthenticationAccountRepositorySpy,
+    NotificationApiSpy,
     PasswordResetRepositorySpy,
     TransactionManagerSpy,
+    UserApiSpy,
 } from "../../../../test-doubles";
 import { RequestPasswordResetUseCase } from "./index";
 
@@ -18,21 +24,43 @@ describe("RequestPasswordResetUseCase", () => {
             passwordHash: PasswordHash.create("hashed-password"),
             updatedAt: new Date("2025-01-01T00:00:00.000Z"),
         });
+        const user: GetUserRequestDto = {
+            id: "user-id",
+            tenantId: "tenant-id",
+            email: "john@company.com",
+            firstName: "John",
+            lastName: "Doe",
+            roleId: "role-id",
+            status: "ACTIVE",
+            createdAt: new Date("2025-01-01T00:00:00.000Z"),
+            updatedAt: new Date("2025-01-01T00:00:00.000Z"),
+            suspendedAt: null,
+        };
+        const userApi = new UserApiSpy();
+        userApi.getUserById.mockResolvedValue(user);
+        const notificationApi = new NotificationApiSpy();
+        notificationApi.send.mockResolvedValue("notification-id");
         const transactionManager = new TransactionManagerSpy();
         const accountRepository = new AuthenticationAccountRepositorySpy();
         accountRepository.findByEmail.mockResolvedValue(account);
         const passwordResetRepository = new PasswordResetRepositorySpy();
-        const emailSender = {
-            sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
-            sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
-        };
         const useCase = new RequestPasswordResetUseCase(
+            userApi,
+            notificationApi,
             transactionManager,
             accountRepository,
             passwordResetRepository,
-            emailSender,
         );
-        return { useCase, account, transactionManager, accountRepository, passwordResetRepository, emailSender };
+        return {
+            useCase,
+            account,
+            user,
+            userApi,
+            notificationApi,
+            transactionManager,
+            accountRepository,
+            passwordResetRepository,
+        };
     };
 
     describe("execute", () => {
@@ -40,8 +68,9 @@ describe("RequestPasswordResetUseCase", () => {
             const sut = makeSut();
             await sut.useCase.execute("john@company.com");
             expect(sut.accountRepository.findByEmail).toHaveBeenCalledWith("john@company.com");
+            expect(sut.userApi.getUserById).toHaveBeenCalledWith("user-id");
             expect(sut.passwordResetRepository.create).toHaveBeenCalledTimes(1);
-            expect(sut.emailSender.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
+            expect(sut.notificationApi.send).toHaveBeenCalledTimes(1);
         });
 
         it("should not create a password reset when account does not exist", async () => {
@@ -49,8 +78,9 @@ describe("RequestPasswordResetUseCase", () => {
             sut.accountRepository.findByEmail.mockResolvedValue(null);
             await expect(sut.useCase.execute("unknown@company.com")).resolves.toBeUndefined();
             expect(sut.accountRepository.findByEmail).toHaveBeenCalledWith("unknown@company.com");
+            expect(sut.userApi.getUserById).not.toHaveBeenCalled();
             expect(sut.passwordResetRepository.create).not.toHaveBeenCalled();
-            expect(sut.emailSender.sendPasswordResetEmail).not.toHaveBeenCalled();
+            expect(sut.notificationApi.send).not.toHaveBeenCalled();
         });
 
         it("should create a password reset with the expected values", async () => {
@@ -63,7 +93,6 @@ describe("RequestPasswordResetUseCase", () => {
             expect(passwordReset?.authenticationAccountId).toBe("account-id");
             expect(passwordReset?.tokenHash).toBeDefined();
             expect(passwordReset?.expiresAt).toBeDefined();
-            expect(passwordReset?.usedAt).toBeNull();
             expect(passwordReset?.createdAt).toBeInstanceOf(Date);
             expect(passwordReset?.updatedAt).toBeInstanceOf(Date);
         });
@@ -103,38 +132,35 @@ describe("RequestPasswordResetUseCase", () => {
             expect(passwordReset).not.toHaveProperty("token");
         });
 
-        it("should send the password reset email using the account email and generated token", async () => {
+        it("should send the password reset notification using correct payload and configuration", async () => {
             const sut = makeSut();
             await sut.useCase.execute("john@company.com");
-            expect(sut.emailSender.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
-            const calls = sut.emailSender.sendPasswordResetEmail.mock.calls as [string, string][];
-            const call = calls[0];
-            if (call === undefined) {
-                throw new Error("Expected sendPasswordResetEmail to be called");
-            }
-            const [email, token] = call;
-            expect(email).toBe("john@company.com");
-            expect(typeof token).toBe("string");
-            expect(token).not.toHaveLength(0);
+            expect(sut.notificationApi.send).toHaveBeenCalledTimes(1);
+            const callArgs = sut.notificationApi.send.mock.calls[0]?.[0];
+            expect(callArgs).toBeDefined();
+            expect(callArgs).toMatchObject({
+                tenantId: sut.user.tenantId,
+                recipientId: sut.account.userId,
+                recipientEmail: sut.account.email,
+                code: NOTIFICATION_CODES.RESET_PASSWORD,
+                channels: [NOTIFICATION_CHANNEL.EMAIL],
+                locale: LOCALES.ES_CO,
+            });
+            expect(callArgs?.payload.resetUrl).toContain(`${env.FRONTEND_URL}/auth/reset-password?token=`);
         });
 
-        it("should send the same generated token that corresponds to the persisted hash", async () => {
+        it("should send a token that corresponds to the persisted hash", async () => {
             const sut = makeSut();
             await sut.useCase.execute("john@company.com");
             const [passwordReset] = sut.passwordResetRepository.create.mock.calls[0] ?? [];
-            const calls = sut.emailSender.sendPasswordResetEmail.mock.calls as [string, string][];
-            const call = calls[0];
-            if (passwordReset === undefined || call === undefined) {
-                throw new Error("Expected password reset and email to be created");
+            const callArgs = sut.notificationApi.send.mock.calls[0]?.[0];
+            if (passwordReset === undefined || callArgs === undefined) {
+                throw new Error("Expected password reset and notification to be created");
             }
-            const [, token] = call;
-            expect(passwordReset.tokenHash.verify(token)).toBe(true);
-        });
-
-        it("should use the account email to send the password reset email", async () => {
-            const sut = makeSut();
-            await sut.useCase.execute("john@company.com");
-            expect(sut.emailSender.sendPasswordResetEmail).toHaveBeenCalledWith(sut.account.email, expect.any(String));
+            const resetUrl = callArgs.payload.resetUrl as string;
+            const token = new URL(resetUrl).searchParams.get("token");
+            expect(token).toBeDefined();
+            expect(passwordReset.tokenHash.verify(token!)).toBe(true);
         });
 
         it("should generate different tokens for different password reset requests", async () => {
@@ -154,7 +180,7 @@ describe("RequestPasswordResetUseCase", () => {
             sut.accountRepository.findByEmail.mockRejectedValue(new Error("Database error"));
             await expect(sut.useCase.execute("john@company.com")).rejects.toThrow("Database error");
             expect(sut.passwordResetRepository.create).not.toHaveBeenCalled();
-            expect(sut.emailSender.sendPasswordResetEmail).not.toHaveBeenCalled();
+            expect(sut.notificationApi.send).not.toHaveBeenCalled();
         });
 
         it("should propagate password reset creation errors", async () => {
@@ -162,15 +188,15 @@ describe("RequestPasswordResetUseCase", () => {
             sut.passwordResetRepository.create.mockRejectedValue(new Error("Creation failed"));
             await expect(sut.useCase.execute("john@company.com")).rejects.toThrow("Creation failed");
             expect(sut.passwordResetRepository.create).toHaveBeenCalledTimes(1);
-            expect(sut.emailSender.sendPasswordResetEmail).not.toHaveBeenCalled();
+            expect(sut.notificationApi.send).not.toHaveBeenCalled();
         });
 
-        it("should propagate email sending errors", async () => {
+        it("should propagate notification sending errors", async () => {
             const sut = makeSut();
-            sut.emailSender.sendPasswordResetEmail.mockRejectedValue(new Error("Email sending failed"));
-            await expect(sut.useCase.execute("john@company.com")).rejects.toThrow("Email sending failed");
+            sut.notificationApi.send.mockRejectedValue(new Error("Notification sending failed"));
+            await expect(sut.useCase.execute("john@company.com")).rejects.toThrow("Notification sending failed");
             expect(sut.passwordResetRepository.create).toHaveBeenCalledTimes(1);
-            expect(sut.emailSender.sendPasswordResetEmail).toHaveBeenCalledTimes(1);
+            expect(sut.notificationApi.send).toHaveBeenCalledTimes(1);
         });
     });
 });

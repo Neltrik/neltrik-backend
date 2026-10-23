@@ -10,7 +10,14 @@ import {
 } from "@nestjs/swagger";
 import { Throttle } from "@nestjs/throttler";
 
-import { CurrentUser, Public, SkipEmailVerification, SkipTenantState, SkipUserState } from "@/shared/auth";
+import {
+    CurrentUser,
+    Public,
+    SkipEmailVerification,
+    SkipTenantState,
+    SkipUserState,
+    type UserPayload,
+} from "@/shared/auth";
 import { PublicPermission } from "@/shared/authorization";
 import { Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -58,8 +65,8 @@ export class EmailVerificationController {
     @SkipTenantState()
     @PublicPermission()
     @Post()
-    public async requestVerification(@CurrentUser("userId") userId: string): Promise<void> {
-        await this.requestEmailVerificationUseCase.execute(userId);
+    public async requestVerification(@CurrentUser() user: UserPayload): Promise<void> {
+        await this.requestEmailVerificationUseCase.execute(user);
     }
 
     @ApiOperation({

@@ -1,5 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
+import { env } from "@/config/index";
+import { LOCALES, NOTIFICATION_CHANNEL, NOTIFICATION_CODES, NotificationApi } from "@/core/notifications/api";
 import { IdGenerator } from "@/shared/id-generator";
 import { TransactionManager } from "@/shared/transaction";
 
@@ -7,20 +9,20 @@ import { EmailVerification } from "../../../../domain/entities";
 import { AuthenticationAccountNotFoundError, EmailAlreadyVerifiedError } from "../../../../domain/errors";
 import { AuthenticationAccountRepository, EmailVerificationRepository } from "../../../../domain/interfaces";
 import { ExpirationDate, TokenHash } from "../../../../domain/value-objects";
-import { EmailSender } from "../../../../infrastructure/providers";
+import type { RequestEmailVerificationInput } from "./input";
 
 @Injectable()
 export class RequestEmailVerificationUseCase {
     constructor(
+        private readonly notificationApi: NotificationApi,
         private readonly idGenerator: IdGenerator,
         private readonly transactionManager: TransactionManager,
         private readonly accountRepository: AuthenticationAccountRepository,
         private readonly emailVerificationRepository: EmailVerificationRepository,
-        private readonly emailSender: EmailSender,
     ) {}
 
-    public async execute(userId: string): Promise<void> {
-        const account = await this.accountRepository.findByUserId(userId);
+    public async execute(input: RequestEmailVerificationInput): Promise<void> {
+        const account = await this.accountRepository.findByUserId(input.userId);
         if (!account) {
             throw new AuthenticationAccountNotFoundError();
         }
@@ -42,6 +44,14 @@ export class RequestEmailVerificationUseCase {
             });
             await this.emailVerificationRepository.create(verification, context);
         });
-        await this.emailSender.sendVerificationEmail(account.email, token);
+        await this.notificationApi.send({
+            tenantId: input.tenantId,
+            recipientId: account.userId,
+            recipientEmail: account.email,
+            code: NOTIFICATION_CODES.EMAIL_VERIFICATION,
+            channels: [NOTIFICATION_CHANNEL.EMAIL],
+            payload: { verificationUrl: `${env.FRONTEND_URL}/auth/verify-email?token=${token}` },
+            locale: LOCALES.ES_CO,
+        });
     }
 }

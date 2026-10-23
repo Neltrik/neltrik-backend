@@ -4,6 +4,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { env } from "@/config/index";
 import { AuthorizationModule } from "@/core/authorization/authorization.module";
 import { IdentityModule } from "@/core/identity/identity.module";
+import { NotificationsModule } from "@/core/notifications/notifications.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
 import { SessionValidator } from "@/shared/auth";
 import { DomainStatusRegistry } from "@/shared/http";
@@ -32,14 +33,7 @@ import {
     EmailVerificationRepository,
     PasswordResetRepository,
 } from "./domain/interfaces";
-import {
-    EmailSender,
-    NodemailerEmailSender,
-    PasswordHasher,
-    SessionValidatorProvider,
-    Sha256Hasher,
-    TokenProvider,
-} from "./infrastructure/providers";
+import { PasswordHasher, SessionValidatorProvider, Sha256Hasher, TokenProvider } from "./infrastructure/providers";
 import {
     PrismaAuthenticationAccountRepository,
     PrismaAuthenticationSessionRepository,
@@ -101,15 +95,17 @@ import {
             useClass: PrismaPasswordResetRepository,
         },
         {
-            provide: EmailSender,
-            useClass: NodemailerEmailSender,
-        },
-        {
             provide: SessionValidator,
             useClass: SessionValidatorProvider,
         },
     ],
-    imports: [JwtModule.register({ secret: env.JWT_SECRET }), AuthorizationModule, IdentityModule, TenantModule],
+    imports: [
+        JwtModule.register({ secret: env.JWT_SECRET }),
+        AuthorizationModule,
+        IdentityModule,
+        NotificationsModule,
+        TenantModule,
+    ],
     exports: [SessionValidator],
 })
 export class AuthenticationModule implements OnModuleInit {

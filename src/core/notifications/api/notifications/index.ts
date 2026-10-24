@@ -1,4 +1,4 @@
-export { LOCALES, NOTIFICATION_CODES } from "../../domain/catalogs";
+export { LOCALES, NOTIFICATION_CODES, NOTIFICATION_VARIABLES } from "../../domain/catalogs";
 export { NOTIFICATION_CHANNEL } from "../../domain/types";
 export * from "./contract";
 export * from "./impl";

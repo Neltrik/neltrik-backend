@@ -1,5 +1,5 @@
 import type { Notification } from "../../../domain/entities";
-import { NotificationNotFoundError } from "../../../domain/errors";
+import { NotificationNotFoundError, TemplateVariableMissingError } from "../../../domain/errors";
 import type { NotificationRepository, TemplateRenderer } from "../../../domain/interfaces";
 import { NOTIFICATION_CHANNEL } from "../../../domain/types";
 import type { EmailSenderFactory } from "../../../infrastructure/strategies";
@@ -39,9 +39,9 @@ const makeSut = (channels: Notification["channels"] = [NOTIFICATION_CHANNEL.EMAI
     notificationRepository.findById.mockResolvedValue(notification);
     const useCase = new SendNotificationJobsUseCase(
         notificationRepository,
-        resolveNotificationTemplateUseCase,
         templateRenderer,
         emailSenderFactory,
+        resolveNotificationTemplateUseCase,
     );
     return {
         useCase,
@@ -195,5 +195,26 @@ describe("SendNotificationJobsUseCase", () => {
         const { useCase, notificationRepository, input } = makeSut();
         notificationRepository.update.mockRejectedValue(new Error("Database update failed"));
         await expect(useCase.execute(input)).rejects.toThrow("Database update failed");
+    });
+
+    it("should throw TemplateVariableMissingError when template variables are missing from payload", async () => {
+        const {
+            useCase,
+            resolveNotificationTemplateUseCase,
+            notification,
+            notificationRepository,
+            emailSenderFactory,
+            input,
+        } = makeSut();
+        resolveNotificationTemplateUseCase.execute.mockResolvedValue({
+            code: "WELCOME",
+            subject: "Welcome {{name}}",
+            body: "Hello {{name}}, your order {{orderId}} is ready",
+        } as Awaited<ReturnType<typeof resolveNotificationTemplateUseCase.execute>>);
+        Object.defineProperty(notification, "payload", { value: { name: "John" }, writable: true, configurable: true });
+        await expect(useCase.execute(input)).rejects.toThrow(TemplateVariableMissingError);
+        expect(notification.markAsFailed).toHaveBeenCalledWith(expect.stringContaining("orderId"));
+        expect(notificationRepository.update).toHaveBeenCalledWith(notification);
+        expect(emailSenderFactory.create).not.toHaveBeenCalled();
     });
 });

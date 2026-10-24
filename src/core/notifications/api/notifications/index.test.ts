@@ -1,5 +1,11 @@
 import { SendNotificationOhsUseCaseSpy } from "../../test-doubles";
-import { LOCALES, NOTIFICATION_CHANNEL, NOTIFICATION_CODES, NotificationApiImpl } from "./index";
+import {
+    LOCALES,
+    NOTIFICATION_CHANNEL,
+    NOTIFICATION_CODES,
+    NOTIFICATION_VARIABLES,
+    NotificationApiImpl,
+} from "./index";
 import { SendNotificationDto } from "./result.dto";
 
 describe("NotificationApiImpl", () => {
@@ -56,6 +62,7 @@ describe("NotificationApiImpl", () => {
             await expect(notificationApi.send(input)).rejects.toBe(error);
             expect(sendNotificationOhsUseCase.execute).toHaveBeenCalledTimes(1);
             expect(sendNotificationOhsUseCase.execute).toHaveBeenCalledWith(makeExpectedInput(input));
+            input.tenantId = NOTIFICATION_VARIABLES.EMAIL_VERIFICATION[0];
         });
     });
 });

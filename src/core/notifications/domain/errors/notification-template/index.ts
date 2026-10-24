@@ -7,3 +7,4 @@ export * from "./invalid-locale";
 export * from "./locale-required";
 export * from "./not-found";
 export * from "./subject-required";
+export * from "./variable-missing";

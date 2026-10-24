@@ -5,7 +5,12 @@ import type {
     RegisterUserResultDto,
 } from "@/core/identity/api";
 import { NotificationApi, type SendNotificationDto } from "@/core/notifications/api";
-import type { ConsumeInvitationResultDto, InvitationResultDto } from "@/core/tenant/api";
+import {
+    type ConsumeInvitationResultDto,
+    type InvitationResultDto,
+    TenantApi,
+    type TenantResultDto,
+} from "@/core/tenant/api";
 
 export class InvitationApiSpy {
     public validate = jest.fn<Promise<InvitationResultDto>, [string]>();
@@ -28,4 +33,11 @@ export class AuthorizationRoleApiSpy {
 
 export class NotificationApiSpy extends NotificationApi {
     public send = jest.fn<Promise<string>, [SendNotificationDto]>();
+}
+
+export class TenantApiSpy extends TenantApi {
+    public validate = jest.fn<Promise<void>, [string]>();
+    public getById = jest.fn<Promise<TenantResultDto>, [string]>();
+    public isPlatformTenant = jest.fn<Promise<boolean>, [string]>();
+    public list = jest.fn<Promise<TenantResultDto[]>, []>();
 }

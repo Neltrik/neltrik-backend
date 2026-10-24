@@ -27,12 +27,18 @@ import { PrismaNotificationRepository, PrismaNotificationTemplateRepository } fr
 import { EmailSenderFactory } from "./infrastructure/strategies";
 import {
     NotificationController,
+    NotificationVariablesController,
     TemplateManagementController,
     TemplateStateController,
 } from "./presentation/controllers";
 
 @Module({
-    controllers: [NotificationController, TemplateManagementController, TemplateStateController],
+    controllers: [
+        NotificationController,
+        NotificationVariablesController,
+        TemplateManagementController,
+        TemplateStateController,
+    ],
     providers: [
         SendNotificationJobsUseCase,
         ActivateNotificationTemplateUseCase,

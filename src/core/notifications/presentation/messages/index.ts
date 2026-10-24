@@ -12,3 +12,7 @@ export const NOTIFICATION_MESSAGES = {
     MARKED_AS_READ: "Notification marked as read successfully.",
     ALL_MARKED_AS_READ: "All notifications marked as read successfully.",
 } as const;
+
+export const NOTIFICATION_VARIABLES_MESSAGES = {
+    LISTED: "Notification variables listed successfully.",
+} as const;

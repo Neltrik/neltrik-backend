@@ -18,6 +18,11 @@ export class TenantApiImpl extends TenantApi {
         await this.getTenantOhsUseCase.execute(id);
     }
 
+    public async getById(id: string): Promise<TenantResultDto> {
+        const tenant = await this.getTenantOhsUseCase.execute(id);
+        return tenant;
+    }
+
     public async isPlatformTenant(id: string): Promise<boolean> {
         const tenant = await this.getTenantOhsUseCase.execute(id);
         return tenant.type === TENANT_TYPE.PLATFORM;

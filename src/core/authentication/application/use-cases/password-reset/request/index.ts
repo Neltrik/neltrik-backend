@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import { env } from "@/config/index";
 import { UserApi } from "@/core/identity/api";
 import { LOCALES, NOTIFICATION_CHANNEL, NOTIFICATION_CODES, NotificationApi } from "@/core/notifications/api";
+import { TenantApi } from "@/core/tenant/api";
 import { TransactionManager } from "@/shared/transaction";
 
 import { PasswordReset } from "../../../../domain/entities";
@@ -15,6 +16,7 @@ export class RequestPasswordResetUseCase {
     constructor(
         private readonly userApi: UserApi,
         private readonly notificationApi: NotificationApi,
+        private readonly tenantApi: TenantApi,
         private readonly transactionManager: TransactionManager,
         private readonly accountRepository: AuthenticationAccountRepository,
         private readonly passwordResetRepository: PasswordResetRepository,
@@ -25,7 +27,6 @@ export class RequestPasswordResetUseCase {
         if (!account) {
             return;
         }
-        const user = await this.userApi.getUserById(account.userId);
         const { token, hash } = TokenHash.generate();
         await this.transactionManager.execute(async (context) => {
             await this.passwordResetRepository.invalidatePendingByAccount(account.id, context);
@@ -39,13 +40,20 @@ export class RequestPasswordResetUseCase {
             });
             await this.passwordResetRepository.create(reset, context);
         });
+        const user = await this.userApi.getUserById(account.userId);
+        const tenant = await this.tenantApi.getById(user.tenantId);
         await this.notificationApi.send({
             tenantId: user.tenantId,
             recipientId: account.userId,
             recipientEmail: account.email,
             code: NOTIFICATION_CODES.RESET_PASSWORD,
             channels: [NOTIFICATION_CHANNEL.EMAIL],
-            payload: { name: user.firstName, resetUrl: `${env.FRONTEND_URL}/auth/reset-password?token=${token}` },
+            payload: {
+                name: user.firstName,
+                email: account.email,
+                resetUrl: `${env.FRONTEND_URL}/auth/reset-password?token=${token}`,
+                tenantName: tenant.name,
+            },
             locale: LOCALES.ES_CO,
         });
     }

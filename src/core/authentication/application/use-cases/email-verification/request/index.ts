@@ -1,7 +1,9 @@
 import { Injectable } from "@nestjs/common";
 
 import { env } from "@/config/index";
+import { UserApi } from "@/core/identity/api";
 import { LOCALES, NOTIFICATION_CHANNEL, NOTIFICATION_CODES, NotificationApi } from "@/core/notifications/api";
+import { TenantApi } from "@/core/tenant/api";
 import { IdGenerator } from "@/shared/id-generator";
 import { TransactionManager } from "@/shared/transaction";
 
@@ -14,7 +16,9 @@ import type { RequestEmailVerificationInput } from "./input";
 @Injectable()
 export class RequestEmailVerificationUseCase {
     constructor(
+        private readonly userApi: UserApi,
         private readonly notificationApi: NotificationApi,
+        private readonly tenantApi: TenantApi,
         private readonly idGenerator: IdGenerator,
         private readonly transactionManager: TransactionManager,
         private readonly accountRepository: AuthenticationAccountRepository,
@@ -44,13 +48,20 @@ export class RequestEmailVerificationUseCase {
             });
             await this.emailVerificationRepository.create(verification, context);
         });
+        const user = await this.userApi.getUserById(account.userId);
+        const tenant = await this.tenantApi.getById(user.tenantId);
         await this.notificationApi.send({
             tenantId: input.tenantId,
             recipientId: account.userId,
             recipientEmail: account.email,
             code: NOTIFICATION_CODES.EMAIL_VERIFICATION,
             channels: [NOTIFICATION_CHANNEL.EMAIL],
-            payload: { verificationUrl: `${env.FRONTEND_URL}/auth/verify-email?token=${token}` },
+            payload: {
+                name: user.firstName,
+                email: account.email,
+                verificationUrl: `${env.FRONTEND_URL}/auth/verify-email?token=${token}`,
+                tenantName: tenant.name,
+            },
             locale: LOCALES.ES_CO,
         });
     }

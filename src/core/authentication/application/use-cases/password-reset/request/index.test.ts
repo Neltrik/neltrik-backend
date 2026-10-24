@@ -1,6 +1,7 @@
 import { env } from "@/config/index";
 import { type GetUserRequestDto } from "@/core/identity/api";
 import { LOCALES, NOTIFICATION_CHANNEL, NOTIFICATION_CODES } from "@/core/notifications/api";
+import { type TenantResultDto } from "@/core/tenant/api";
 
 import { AuthenticationAccount } from "../../../../domain/entities";
 import { PasswordHash } from "../../../../domain/value-objects";
@@ -8,6 +9,7 @@ import {
     AuthenticationAccountRepositorySpy,
     NotificationApiSpy,
     PasswordResetRepositorySpy,
+    TenantApiSpy,
     TransactionManagerSpy,
     UserApiSpy,
 } from "../../../../test-doubles";
@@ -36,8 +38,11 @@ describe("RequestPasswordResetUseCase", () => {
             updatedAt: new Date("2025-01-01T00:00:00.000Z"),
             suspendedAt: null,
         };
+        const tenant: TenantResultDto = { id: "tenant-id", name: "Company" } as TenantResultDto;
         const userApi = new UserApiSpy();
         userApi.getUserById.mockResolvedValue(user);
+        const tenantApi = new TenantApiSpy();
+        tenantApi.getById.mockResolvedValue(tenant);
         const notificationApi = new NotificationApiSpy();
         notificationApi.send.mockResolvedValue("notification-id");
         const transactionManager = new TransactionManagerSpy();
@@ -47,6 +52,7 @@ describe("RequestPasswordResetUseCase", () => {
         const useCase = new RequestPasswordResetUseCase(
             userApi,
             notificationApi,
+            tenantApi,
             transactionManager,
             accountRepository,
             passwordResetRepository,
@@ -55,7 +61,9 @@ describe("RequestPasswordResetUseCase", () => {
             useCase,
             account,
             user,
+            tenant,
             userApi,
+            tenantApi,
             notificationApi,
             transactionManager,
             accountRepository,
@@ -69,6 +77,11 @@ describe("RequestPasswordResetUseCase", () => {
             await sut.useCase.execute("john@company.com");
             expect(sut.accountRepository.findByEmail).toHaveBeenCalledWith("john@company.com");
             expect(sut.userApi.getUserById).toHaveBeenCalledWith("user-id");
+            expect(sut.tenantApi.getById).toHaveBeenCalledWith("tenant-id");
+            expect(sut.passwordResetRepository.invalidatePendingByAccount).toHaveBeenCalledWith(
+                "account-id",
+                expect.anything(),
+            );
             expect(sut.passwordResetRepository.create).toHaveBeenCalledTimes(1);
             expect(sut.notificationApi.send).toHaveBeenCalledTimes(1);
         });
@@ -79,6 +92,8 @@ describe("RequestPasswordResetUseCase", () => {
             await expect(sut.useCase.execute("unknown@company.com")).resolves.toBeUndefined();
             expect(sut.accountRepository.findByEmail).toHaveBeenCalledWith("unknown@company.com");
             expect(sut.userApi.getUserById).not.toHaveBeenCalled();
+            expect(sut.tenantApi.getById).not.toHaveBeenCalled();
+            expect(sut.passwordResetRepository.invalidatePendingByAccount).not.toHaveBeenCalled();
             expect(sut.passwordResetRepository.create).not.toHaveBeenCalled();
             expect(sut.notificationApi.send).not.toHaveBeenCalled();
         });
@@ -145,8 +160,16 @@ describe("RequestPasswordResetUseCase", () => {
                 code: NOTIFICATION_CODES.RESET_PASSWORD,
                 channels: [NOTIFICATION_CHANNEL.EMAIL],
                 locale: LOCALES.ES_CO,
+                payload: { name: sut.user.firstName, email: sut.account.email, tenantName: sut.tenant.name },
             });
             expect(callArgs?.payload.resetUrl).toContain(`${env.FRONTEND_URL}/auth/reset-password?token=`);
+        });
+
+        it("should fetch the tenant using the user's tenant ID", async () => {
+            const sut = makeSut();
+            await sut.useCase.execute("john@company.com");
+            expect(sut.tenantApi.getById).toHaveBeenCalledTimes(1);
+            expect(sut.tenantApi.getById).toHaveBeenCalledWith(sut.user.tenantId);
         });
 
         it("should send a token that corresponds to the persisted hash", async () => {
@@ -197,6 +220,15 @@ describe("RequestPasswordResetUseCase", () => {
             await expect(sut.useCase.execute("john@company.com")).rejects.toThrow("Notification sending failed");
             expect(sut.passwordResetRepository.create).toHaveBeenCalledTimes(1);
             expect(sut.notificationApi.send).toHaveBeenCalledTimes(1);
+        });
+
+        it("should propagate tenant lookup errors without sending a notification", async () => {
+            const sut = makeSut();
+            sut.tenantApi.getById.mockRejectedValue(new Error("Tenant lookup failed"));
+            await expect(sut.useCase.execute("john@company.com")).rejects.toThrow("Tenant lookup failed");
+            expect(sut.passwordResetRepository.create).toHaveBeenCalledTimes(1);
+            expect(sut.tenantApi.getById).toHaveBeenCalledWith("tenant-id");
+            expect(sut.notificationApi.send).not.toHaveBeenCalled();
         });
     });
 });

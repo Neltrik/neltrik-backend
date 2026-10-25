@@ -21,7 +21,7 @@ import { ErrorsModule } from "./shared/errors/errors.module";
 import { HttpModule } from "./shared/http";
 import { IdGeneratorModule } from "./shared/id-generator";
 import { JobsModule } from "./shared/jobs/jobs.module";
-import { SanitizationModule } from "./shared/sanitization";
+import { SanitizationGuard, SanitizationModule } from "./shared/sanitization";
 
 @Module({
     imports: [
@@ -64,6 +64,7 @@ import { SanitizationModule } from "./shared/sanitization";
         { provide: APP_GUARD, useClass: TenantStateGuard },
         { provide: APP_GUARD, useClass: CsrfGuard },
         { provide: APP_GUARD, useClass: PermissionsGuard },
+        { provide: APP_GUARD, useClass: SanitizationGuard },
         { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
     ],
 })

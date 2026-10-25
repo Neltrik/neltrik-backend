@@ -6,6 +6,8 @@ import { NotificationTemplateRepositorySpy, TenantApiSpy } from "../../../../tes
 import { UpdateNotificationTemplateUseCase } from "./index";
 import type { UpdateNotificationTemplateInput } from "./input";
 
+jest.mock("sanitize-html", () => jest.fn((html: string) => html));
+
 const makeInput = (): UpdateNotificationTemplateInput => ({
     id: "template-id",
     actorTenantId: "tenant-id",
@@ -18,80 +20,156 @@ describe("UpdateNotificationTemplateUseCase", () => {
         NotificationTemplate.create({
             id: "template-id",
             tenantId,
-            code: "WELCOME",
+            code: "EMAIL_VERIFICATION",
             channel: "EMAIL",
             locale: "en",
             subject: "Welcome",
             body: "Welcome to our platform.",
             createdAt: new Date(),
         });
+
     const makeSut = () => {
         const tenantApi = new TenantApiSpy();
         tenantApi.isPlatformTenant.mockResolvedValue(false);
+
         const notificationTemplateRepository = new NotificationTemplateRepositorySpy();
         notificationTemplateRepository.findById.mockResolvedValue(makeTemplate());
         notificationTemplateRepository.update.mockResolvedValue(undefined);
+
         const useCase = new UpdateNotificationTemplateUseCase(tenantApi, notificationTemplateRepository);
+
         return { useCase, tenantApi, notificationTemplateRepository };
     };
 
     it("should update a notification template successfully", async () => {
         const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
         const input = makeInput();
+
         const result = await useCase.execute(input);
+
         expect(notificationTemplateRepository.findById).toHaveBeenCalledWith(input.id);
         expect(tenantApi.isPlatformTenant).toHaveBeenCalledWith(input.actorTenantId);
         expect(notificationTemplateRepository.update).toHaveBeenCalledTimes(1);
         expect(notificationTemplateRepository.update).toHaveBeenCalledWith(
-            expect.objectContaining({ id: input.id, subject: input.subject, body: input.body }),
+            expect.objectContaining({
+                id: input.id,
+                subject: input.subject,
+                body: input.body,
+            }),
         );
         expect(result).toBe(input.id);
     });
 
     it("should allow a platform actor to update a template from another tenant", async () => {
         const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
+
         tenantApi.isPlatformTenant.mockResolvedValue(true);
         notificationTemplateRepository.findById.mockResolvedValue(makeTemplate("another-tenant-id"));
-        const input = { ...makeInput(), actorTenantId: "platform-tenant-id" };
+
+        const input = {
+            ...makeInput(),
+            actorTenantId: "platform-tenant-id",
+        };
+
         const result = await useCase.execute(input);
+
         expect(tenantApi.isPlatformTenant).toHaveBeenCalledWith(input.actorTenantId);
-        expect(notificationTemplateRepository.update).toHaveBeenCalledTimes(1);
+        expect(notificationTemplateRepository.update).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: input.id,
+                subject: input.subject,
+                body: input.body,
+            }),
+        );
+        expect(result).toBe(input.id);
+    });
+
+    it("should allow a platform actor to update a platform template", async () => {
+        const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
+
+        tenantApi.isPlatformTenant.mockResolvedValue(true);
+        notificationTemplateRepository.findById.mockResolvedValue(makeTemplate(null));
+
+        const input = {
+            ...makeInput(),
+            actorTenantId: "platform-tenant-id",
+        };
+
+        const result = await useCase.execute(input);
+
+        expect(tenantApi.isPlatformTenant).toHaveBeenCalledWith(input.actorTenantId);
+        expect(notificationTemplateRepository.update).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: input.id,
+                subject: input.subject,
+                body: input.body,
+            }),
+        );
         expect(result).toBe(input.id);
     });
 
     it("should throw NotificationTemplateNotFoundError when the template does not exist", async () => {
         const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
+
         notificationTemplateRepository.findById.mockResolvedValue(null);
+
         await expect(useCase.execute(makeInput())).rejects.toThrow(NotificationTemplateNotFoundError);
+
         expect(tenantApi.isPlatformTenant).not.toHaveBeenCalled();
         expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
     });
 
     it("should throw ForbiddenError when a non-platform actor updates another tenant's template", async () => {
         const { useCase, notificationTemplateRepository } = makeSut();
+
         notificationTemplateRepository.findById.mockResolvedValue(makeTemplate("another-tenant-id"));
-        const input = { ...makeInput(), actorTenantId: "tenant-a" };
+
+        const input = {
+            ...makeInput(),
+            actorTenantId: "tenant-a",
+        };
+
         await expect(useCase.execute(input)).rejects.toThrow(ForbiddenError);
+
         expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
     });
 
     it("should throw ForbiddenError when a non-platform actor updates a platform template", async () => {
         const { useCase, notificationTemplateRepository } = makeSut();
+
         notificationTemplateRepository.findById.mockResolvedValue(makeTemplate(null));
+
         await expect(useCase.execute(makeInput())).rejects.toThrow(ForbiddenError);
+
         expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
     });
 
     it("should propagate repository errors when finding the template", async () => {
-        const { useCase, notificationTemplateRepository } = makeSut();
+        const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
+
         notificationTemplateRepository.findById.mockRejectedValue(new Error("Database error"));
+
         await expect(useCase.execute(makeInput())).rejects.toThrow("Database error");
+
+        expect(tenantApi.isPlatformTenant).not.toHaveBeenCalled();
+        expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should propagate tenant API errors", async () => {
+        const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
+
+        tenantApi.isPlatformTenant.mockRejectedValue(new Error("Tenant API error"));
+
+        await expect(useCase.execute(makeInput())).rejects.toThrow("Tenant API error");
+
         expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
     });
 
     it("should propagate repository errors when updating the template", async () => {
         const { useCase, notificationTemplateRepository } = makeSut();
+
         notificationTemplateRepository.update.mockRejectedValue(new Error("Database error"));
+
         await expect(useCase.execute(makeInput())).rejects.toThrow("Database error");
     });
 });

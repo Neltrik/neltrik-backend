@@ -10,7 +10,7 @@ const createProps = (): NotificationTemplateProps => {
     return {
         id: "notification-template-id",
         tenantId: "tenant-id",
-        code: "WELCOME",
+        code: "EMAIL_VERIFICATION",
         channel: NOTIFICATION_CHANNEL.EMAIL,
         locale: "es",
         subject: "Welcome!",

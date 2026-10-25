@@ -1,13 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
 
+import { NOTIFICATION_CODES, type NotificationCode } from "../../../domain/catalogs";
 import { NOTIFICATION_CHANNELS, type NotificationChannel } from "../../../domain/types";
 
 export class CreateNotificationTemplateRequestDto {
     @ApiProperty({
-        example: "RESET_PASSWORD",
+        example: NOTIFICATION_CODES.RESET_PASSWORD,
         description: "Logical code that identifies the template type.",
     })
-    code!: string;
+    code!: NotificationCode;
 
     @ApiProperty({
         example: "EMAIL",

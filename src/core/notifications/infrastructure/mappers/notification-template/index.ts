@@ -1,5 +1,6 @@
 import type { NotificationTemplate as PrismaNotificationTemplate } from "@prisma/client";
 
+import type { NotificationCode } from "../../../domain/catalogs";
 import { NotificationTemplate } from "../../../domain/entities";
 import type { NotificationChannel } from "../../../domain/types";
 
@@ -23,7 +24,7 @@ export class NotificationTemplateMapper {
         return NotificationTemplate.restore({
             id: template.id,
             tenantId: template.tenantId,
-            code: template.code,
+            code: template.code as NotificationCode,
             channel: template.channel as NotificationChannel,
             locale: template.locale,
             subject: template.subject,

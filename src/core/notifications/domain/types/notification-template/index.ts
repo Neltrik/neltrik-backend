@@ -1,11 +1,12 @@
 import type { PaginationInput } from "@/shared/pagination";
 
+import { type NotificationCode } from "../../catalogs";
 import type { NotificationChannel } from "../notification";
 
 export type NotificationTemplateProps = {
     id: string;
     tenantId: string | null;
-    code: string;
+    code: NotificationCode;
     channel: NotificationChannel;
     locale: string;
     subject: string | null;

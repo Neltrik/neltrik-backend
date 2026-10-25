@@ -1,13 +1,17 @@
-import { NOTIFICATION_CODES } from "../../catalogs";
+import { NOTIFICATION_CODES, NOTIFICATION_VARIABLES, type NotificationCode } from "../../catalogs";
 import {
     InvalidNotificationTemplateChannelError,
     InvalidNotificationTemplateCodeError,
     InvalidNotificationTemplateLocaleError,
+    InvalidTemplateHtmlError,
+    InvalidTemplateVariableError,
     NotificationTemplateBodyRequiredError,
     NotificationTemplateCodeRequiredError,
     NotificationTemplateLocaleRequiredError,
     NotificationTemplateSubjectRequiredError,
 } from "../../errors";
+import { extractVariables } from "../../template";
+import { validateHtml } from "../../template/validate-html";
 import type { NotificationTemplateProps } from "../../types";
 import {
     NOTIFICATION_CHANNEL,
@@ -25,6 +29,7 @@ export class NotificationTemplate {
         this.ensureLocaleIsValid(props.locale);
         this.ensureSubjectMatchesChannel(props);
         this.ensureBodyIsValid(props.body);
+        this.ensureBodyVariablesAreValid(props.code, props.body);
         this.props = props;
     }
 
@@ -34,6 +39,15 @@ export class NotificationTemplate {
 
     public static restore(props: NotificationTemplateProps): NotificationTemplate {
         return new NotificationTemplate(props);
+    }
+
+    private ensureBodyVariablesAreValid(code: NotificationCode, body: string): void {
+        const allowed: readonly string[] = NOTIFICATION_VARIABLES[code];
+        const used = extractVariables(body);
+        const invalid = used.filter((v) => !allowed.includes(v));
+        if (invalid.length > 0) {
+            throw new InvalidTemplateVariableError(invalid);
+        }
     }
 
     private ensureCodeIsValid(code: string): void {
@@ -70,6 +84,10 @@ export class NotificationTemplate {
     private ensureBodyIsValid(body: string): void {
         if (!body) {
             throw new NotificationTemplateBodyRequiredError();
+        }
+        const errors = validateHtml(body);
+        if (errors.length > 0) {
+            throw new InvalidTemplateHtmlError(errors);
         }
     }
 

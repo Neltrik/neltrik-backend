@@ -6,14 +6,19 @@ import { NotificationTemplateRepositorySpy, TenantApiSpy } from "../../../../tes
 import { ActivateNotificationTemplateUseCase } from "./index";
 import type { ActivateNotificationTemplateInput } from "./input";
 
-const makeInput = (): ActivateNotificationTemplateInput => ({ id: "template-id", actorTenantId: "tenant-id" });
+jest.mock("sanitize-html", () => jest.fn((html: string) => html));
+
+const makeInput = (): ActivateNotificationTemplateInput => ({
+    id: "template-id",
+    actorTenantId: "tenant-id",
+});
 
 describe("ActivateNotificationTemplateUseCase", () => {
     const makeTemplate = (tenantId: string | null = "tenant-id", isActive = false) =>
         NotificationTemplate.restore({
             id: "template-id",
             tenantId,
-            code: "WELCOME",
+            code: "EMAIL_VERIFICATION",
             channel: "EMAIL",
             locale: "en",
             subject: "Welcome",
@@ -41,7 +46,7 @@ describe("ActivateNotificationTemplateUseCase", () => {
         expect(notificationTemplateRepository.findById).toHaveBeenCalledWith(input.id);
         expect(tenantApi.isPlatformTenant).toHaveBeenCalledWith(input.actorTenantId);
         expect(notificationTemplateRepository.findActiveByCombinationCandidates).toHaveBeenCalledWith(
-            "WELCOME",
+            "EMAIL_VERIFICATION",
             "EMAIL",
             "en",
             "tenant-id",
@@ -59,8 +64,31 @@ describe("ActivateNotificationTemplateUseCase", () => {
         const input = { ...makeInput(), actorTenantId: "platform-tenant-id" };
         const result = await useCase.execute(input);
         expect(tenantApi.isPlatformTenant).toHaveBeenCalledWith(input.actorTenantId);
+        expect(notificationTemplateRepository.findActiveByCombinationCandidates).toHaveBeenCalledWith(
+            "EMAIL_VERIFICATION",
+            "EMAIL",
+            "en",
+            "another-tenant-id",
+            "template-id",
+        );
         expect(notificationTemplateRepository.update).toHaveBeenCalledTimes(1);
         expect(result).toBe(input.id);
+    });
+
+    it("should allow a platform actor to activate a platform template", async () => {
+        const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
+        tenantApi.isPlatformTenant.mockResolvedValue(true);
+        notificationTemplateRepository.findById.mockResolvedValue(makeTemplate(null));
+        const result = await useCase.execute({ ...makeInput(), actorTenantId: "platform-tenant-id" });
+        expect(notificationTemplateRepository.findActiveByCombinationCandidates).toHaveBeenCalledWith(
+            "EMAIL_VERIFICATION",
+            "EMAIL",
+            "en",
+            null,
+            "template-id",
+        );
+        expect(notificationTemplateRepository.update).toHaveBeenCalledTimes(1);
+        expect(result).toBe("template-id");
     });
 
     it("should return the template id without updating when the template is already active", async () => {
@@ -77,6 +105,7 @@ describe("ActivateNotificationTemplateUseCase", () => {
         notificationTemplateRepository.findById.mockResolvedValue(null);
         await expect(useCase.execute(makeInput())).rejects.toThrow(NotificationTemplateNotFoundError);
         expect(tenantApi.isPlatformTenant).not.toHaveBeenCalled();
+        expect(notificationTemplateRepository.findActiveByCombinationCandidates).not.toHaveBeenCalled();
         expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
     });
 
@@ -103,7 +132,7 @@ describe("ActivateNotificationTemplateUseCase", () => {
         const candidate = NotificationTemplate.restore({
             id: "existing-template-id",
             tenantId: "tenant-id",
-            code: "WELCOME",
+            code: "EMAIL_VERIFICATION",
             channel: "EMAIL",
             locale: "en",
             subject: "Another welcome",
@@ -112,10 +141,11 @@ describe("ActivateNotificationTemplateUseCase", () => {
             updatedAt: new Date(),
             isActive: true,
         });
+        jest.spyOn(template, "hasConflict").mockReturnValue(true);
         notificationTemplateRepository.findById.mockResolvedValue(template);
         notificationTemplateRepository.findActiveByCombinationCandidates.mockResolvedValue([candidate]);
-        jest.spyOn(template, "hasConflict").mockReturnValue(true);
         await expect(useCase.execute(makeInput())).rejects.toThrow(NotificationTemplateAlreadyExistsError);
+        expect(template.hasConflict).toHaveBeenCalledWith(candidate);
         expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
     });
 
@@ -125,7 +155,7 @@ describe("ActivateNotificationTemplateUseCase", () => {
         const candidate = NotificationTemplate.restore({
             id: "other-template-id",
             tenantId: "tenant-id",
-            code: "WELCOME",
+            code: "EMAIL_VERIFICATION",
             channel: "EMAIL",
             locale: "en",
             subject: "Other",
@@ -138,16 +168,76 @@ describe("ActivateNotificationTemplateUseCase", () => {
         notificationTemplateRepository.findById.mockResolvedValue(template);
         notificationTemplateRepository.findActiveByCombinationCandidates.mockResolvedValue([candidate]);
         const result = await useCase.execute(makeInput());
+        expect(template.hasConflict).toHaveBeenCalledWith(candidate);
         expect(notificationTemplateRepository.update).toHaveBeenCalledTimes(1);
         expect(notificationTemplateRepository.update).toHaveBeenCalledWith(template);
-        expect(result).toBe("template-id");
         expect(template.isActive()).toBe(true);
+        expect(result).toBe("template-id");
+    });
+
+    it("should activate the template when there are no active candidates", async () => {
+        const { useCase, notificationTemplateRepository } = makeSut();
+        const template = makeTemplate();
+        notificationTemplateRepository.findById.mockResolvedValue(template);
+        notificationTemplateRepository.findActiveByCombinationCandidates.mockResolvedValue([]);
+        const result = await useCase.execute(makeInput());
+        expect(template.isActive()).toBe(true);
+        expect(notificationTemplateRepository.update).toHaveBeenCalledWith(template);
+        expect(result).toBe("template-id");
+    });
+
+    it("should throw NotificationTemplateAlreadyExistsError when any candidate conflicts", async () => {
+        const { useCase, notificationTemplateRepository } = makeSut();
+        const template = makeTemplate();
+        const candidateWithoutConflict = NotificationTemplate.restore({
+            id: "candidate-1",
+            tenantId: "tenant-id",
+            code: "EMAIL_VERIFICATION",
+            channel: "EMAIL",
+            locale: "en",
+            subject: "Other subject",
+            body: "Other body.",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            isActive: true,
+        });
+        const conflictingCandidate = NotificationTemplate.restore({
+            id: "candidate-2",
+            tenantId: "tenant-id",
+            code: "EMAIL_VERIFICATION",
+            channel: "EMAIL",
+            locale: "en",
+            subject: "Conflicting subject",
+            body: "Conflicting body.",
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            isActive: true,
+        });
+        jest.spyOn(template, "hasConflict").mockReturnValueOnce(false).mockReturnValueOnce(true);
+        notificationTemplateRepository.findById.mockResolvedValue(template);
+        notificationTemplateRepository.findActiveByCombinationCandidates.mockResolvedValue([
+            candidateWithoutConflict,
+            conflictingCandidate,
+        ]);
+        await expect(useCase.execute(makeInput())).rejects.toThrow(NotificationTemplateAlreadyExistsError);
+        expect(template.hasConflict).toHaveBeenNthCalledWith(1, candidateWithoutConflict);
+        expect(template.hasConflict).toHaveBeenNthCalledWith(2, conflictingCandidate);
+        expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
     });
 
     it("should propagate repository errors when finding the template", async () => {
-        const { useCase, notificationTemplateRepository } = makeSut();
+        const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
         notificationTemplateRepository.findById.mockRejectedValue(new Error("Database error"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("Database error");
+        expect(tenantApi.isPlatformTenant).not.toHaveBeenCalled();
+        expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
+    });
+
+    it("should propagate tenant API errors", async () => {
+        const { useCase, tenantApi, notificationTemplateRepository } = makeSut();
+        tenantApi.isPlatformTenant.mockRejectedValue(new Error("Tenant API error"));
+        await expect(useCase.execute(makeInput())).rejects.toThrow("Tenant API error");
+        expect(notificationTemplateRepository.findActiveByCombinationCandidates).not.toHaveBeenCalled();
         expect(notificationTemplateRepository.update).not.toHaveBeenCalled();
     });
 

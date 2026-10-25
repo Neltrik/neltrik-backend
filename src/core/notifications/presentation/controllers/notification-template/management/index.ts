@@ -16,6 +16,7 @@ import { CurrentUser } from "@/shared/auth";
 import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ResponsePayload } from "@/shared/pagination";
+import { SkipSanitization } from "@/shared/sanitization";
 import { ZodValidationPipe } from "@/shared/zod";
 
 import {
@@ -81,6 +82,7 @@ export class TemplateManagementController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: NOTIFICATION_TEMPLATE_MESSAGES.CREATED,
     })
+    @SkipSanitization()
     @Permissions("ADMIN_NOTIFICATION_TEMPLATE_CREATE")
     @Post()
     public async create(
@@ -244,6 +246,7 @@ export class TemplateManagementController {
         code: RESPONSE_CODES.RESOURCE_UPDATED,
         message: NOTIFICATION_TEMPLATE_MESSAGES.UPDATED,
     })
+    @SkipSanitization()
     @Permissions("ADMIN_NOTIFICATION_TEMPLATE_UPDATE")
     @Patch(":id")
     public async update(

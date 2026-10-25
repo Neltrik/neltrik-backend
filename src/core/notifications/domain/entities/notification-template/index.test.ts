@@ -1,8 +1,9 @@
-import { NOTIFICATION_CODES } from "../../catalogs";
+import { NOTIFICATION_CODES, type NotificationCode } from "../../catalogs";
 import {
     InvalidNotificationTemplateChannelError,
     InvalidNotificationTemplateCodeError,
     InvalidNotificationTemplateLocaleError,
+    InvalidTemplateVariableError,
     NotificationTemplateBodyRequiredError,
     NotificationTemplateCodeRequiredError,
     NotificationTemplateLocaleRequiredError,
@@ -18,7 +19,7 @@ const createProps = (): NotificationTemplateProps => {
     return {
         id: "notification-template-id",
         tenantId: "tenant-id",
-        code: VALID_CODES[0] as string,
+        code: VALID_CODES[0] as NotificationCode,
         channel: NOTIFICATION_CHANNEL.EMAIL,
         locale: "es",
         subject: "Welcome!",
@@ -58,15 +59,15 @@ describe("NotificationTemplate", () => {
 
     describe("validations", () => {
         it("should reject an empty code", () => {
-            expect(() => NotificationTemplate.restore({ ...createProps(), code: "" })).toThrow(
+            expect(() => NotificationTemplate.restore({ ...createProps(), code: "" as NotificationCode })).toThrow(
                 NotificationTemplateCodeRequiredError,
             );
         });
 
         it("should reject an invalid code", () => {
-            expect(() => NotificationTemplate.restore({ ...createProps(), code: "INVALID_CODE" })).toThrow(
-                InvalidNotificationTemplateCodeError,
-            );
+            expect(() =>
+                NotificationTemplate.restore({ ...createProps(), code: "INVALID_CODE" as NotificationCode }),
+            ).toThrow(InvalidNotificationTemplateCodeError);
         });
 
         it("should reject an invalid channel", () => {
@@ -109,6 +110,15 @@ describe("NotificationTemplate", () => {
             expect(() => NotificationTemplate.restore({ ...createProps(), body: "" })).toThrow(
                 NotificationTemplateBodyRequiredError,
             );
+        });
+
+        it("should reject invalid variables in the body", () => {
+            expect(() =>
+                NotificationTemplate.restore({
+                    ...createProps(),
+                    body: "Welcome {{invalidVariable}}!",
+                }),
+            ).toThrow(InvalidTemplateVariableError);
         });
     });
 
@@ -229,7 +239,11 @@ describe("NotificationTemplate", () => {
                 return;
             }
             const template = NotificationTemplate.restore(props);
-            const other = NotificationTemplate.restore({ ...props, id: "other-id", code: differentCode });
+            const other = NotificationTemplate.restore({
+                ...props,
+                id: "other-id",
+                code: differentCode as NotificationCode,
+            });
             expect(template.hasConflict(other)).toBe(false);
         });
 

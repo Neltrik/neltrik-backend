@@ -8,13 +8,11 @@ import { AppModule } from "./app.module";
 import { configureSwagger, env } from "./config";
 import { GlobalExceptionFilter } from "./shared/errors/filters";
 import { ResponseInterceptor } from "./shared/http";
-import { SanitizationPipe } from "./shared/sanitization";
 
 async function bootstrap(): Promise<void> {
     const app = await NestFactory.create(AppModule, {
         logger: ["log", "warn", "error"],
     });
-    app.useGlobalPipes(app.get(SanitizationPipe));
     app.useGlobalFilters(app.get(GlobalExceptionFilter));
     app.use(helmet());
     app.use(compression());

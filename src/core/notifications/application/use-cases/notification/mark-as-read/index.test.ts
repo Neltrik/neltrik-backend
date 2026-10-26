@@ -6,6 +6,8 @@ import { NotificationRepositorySpy } from "../../../../test-doubles";
 import { MarkNotificationAsReadUseCase } from "./index";
 import type { MarkNotificationAsReadInput } from "./input";
 
+jest.mock("sanitize-html", () => jest.fn((html: string) => html));
+
 describe("MarkNotificationAsReadUseCase", () => {
     const makeSut = () => {
         const notificationRepository = new NotificationRepositorySpy();

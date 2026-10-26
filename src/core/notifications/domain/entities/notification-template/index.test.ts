@@ -3,16 +3,23 @@ import {
     InvalidNotificationTemplateChannelError,
     InvalidNotificationTemplateCodeError,
     InvalidNotificationTemplateLocaleError,
+    InvalidTemplateHtmlError,
     InvalidTemplateVariableError,
     NotificationTemplateBodyRequiredError,
     NotificationTemplateCodeRequiredError,
     NotificationTemplateLocaleRequiredError,
     NotificationTemplateSubjectRequiredError,
 } from "../../errors";
+import { validateHtml } from "../../template/validate-html";
 import { NOTIFICATION_CHANNEL, type NotificationChannel, type NotificationTemplateProps } from "../../types";
 import { NotificationTemplate } from "./index";
 
 const VALID_CODES: string[] = Object.values(NOTIFICATION_CODES);
+
+jest.mock("sanitize-html", () => jest.fn((html: string) => html));
+jest.mock("../../template/validate-html", () => ({
+    validateHtml: jest.fn().mockReturnValue([]),
+}));
 
 const createProps = (): NotificationTemplateProps => {
     const createdAt = new Date("2025-01-01T00:00:00.000Z");
@@ -119,6 +126,13 @@ describe("NotificationTemplate", () => {
                     body: "Welcome {{invalidVariable}}!",
                 }),
             ).toThrow(InvalidTemplateVariableError);
+        });
+
+        it("should reject invalid HTML in the body", () => {
+            jest.mocked(validateHtml).mockReturnValueOnce(["Invalid HTML"]);
+            expect(() => NotificationTemplate.restore({ ...createProps(), body: "<div>Welcome</div>" })).toThrow(
+                InvalidTemplateHtmlError,
+            );
         });
     });
 

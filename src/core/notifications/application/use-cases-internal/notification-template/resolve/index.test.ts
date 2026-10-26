@@ -4,6 +4,8 @@ import { NotificationTemplateRepositorySpy } from "../../../../test-doubles";
 import { ResolveNotificationTemplateInternalUseCase } from "./index";
 import type { ResolveNotificationTemplateInput } from "./input";
 
+jest.mock("sanitize-html", () => jest.fn((html: string) => html));
+
 describe("ResolveNotificationTemplateInternalUseCase", () => {
     const makeSut = () => {
         const notificationTemplateRepository = new NotificationTemplateRepositorySpy();

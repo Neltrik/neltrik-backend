@@ -128,6 +128,7 @@ export class NotificationTemplate {
             throw new NotificationTemplateSubjectRequiredError();
         }
         this.ensureBodyIsValid(body);
+        this.ensureBodyVariablesAreValid(this.props.code, body);
         this.props.subject = subject;
         this.props.body = body;
         this.props.updatedAt = new Date();

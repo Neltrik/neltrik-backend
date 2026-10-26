@@ -8,6 +8,8 @@ import type { ResolveNotificationTemplateInternalUseCase } from "../../../use-ca
 import { SendNotificationOhsUseCase } from "./index";
 import type { SendNotificationOhsInput } from "./input";
 
+jest.mock("sanitize-html", () => jest.fn((html: string) => html));
+
 const makeInput = (): SendNotificationOhsInput => ({
     tenantId: "tenant-id",
     recipientId: "recipient-id",

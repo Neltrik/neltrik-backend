@@ -4,6 +4,8 @@ import { NotificationTemplate } from "../../../domain/entities";
 import { NOTIFICATION_CHANNEL, type NotificationTemplateProps } from "../../../domain/types";
 import { NotificationTemplateMapper } from "./index";
 
+jest.mock("sanitize-html", () => jest.fn((html: string) => html));
+
 const createProps = (): NotificationTemplateProps => {
     const createdAt = new Date("2026-01-15T10:30:00.000Z");
     const updatedAt = new Date("2026-01-15T11:30:00.000Z");

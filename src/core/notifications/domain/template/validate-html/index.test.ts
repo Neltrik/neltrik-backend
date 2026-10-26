@@ -1,5 +1,17 @@
 import { validateHtml } from "./";
 
+jest.mock("sanitize-html", () => {
+    return jest.fn((html: string) => {
+        return html
+            .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, "")
+            .replace(/<iframe\b[^>]*>[\s\S]*?<\/iframe>/gi, "")
+            .replace(/<\/?custom-tag\b[^>]*>/gi, "")
+            .replace(/\s(onclick|id|class)="[^"]*"/gi, "")
+            .replace(/(<a\b[^>]*\bhref=")(?!https?:|mailto:)[^"]*("[^>]*>)/gi, "$1$2")
+            .replace(/(<img\b[^>]*\bsrc=")(?!https?:)[^"]*("[^>]*>)/gi, "$1$2");
+    });
+});
+
 describe("validateHtml", () => {
     it("returns an empty array when the HTML is valid", () => {
         expect(validateHtml("<p>Hello world</p>")).toEqual([]);

@@ -8,6 +8,8 @@ import {
 } from "./index";
 import { SendNotificationDto } from "./result.dto";
 
+jest.mock("sanitize-html", () => jest.fn((html: string) => html));
+
 describe("NotificationApiImpl", () => {
     const makeSut = () => {
         const sendNotificationOhsUseCase = new SendNotificationOhsUseCaseSpy();

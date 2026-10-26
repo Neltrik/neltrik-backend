@@ -3,6 +3,8 @@ import { NotificationTemplateRepositorySpy, TenantApiSpy } from "../../../../tes
 import { ListNotificationTemplatesUseCase } from "./index";
 import type { ListNotificationTemplatesInput } from "./input";
 
+jest.mock("sanitize-html", () => jest.fn((html: string) => html));
+
 describe("ListNotificationTemplatesUseCase", () => {
     const makeSut = () => {
         const tenantApi = new TenantApiSpy();

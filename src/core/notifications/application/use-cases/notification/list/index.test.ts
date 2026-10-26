@@ -3,6 +3,8 @@ import { NotificationRepositorySpy } from "../../../../test-doubles";
 import { ListNotificationsUseCase } from "./index";
 import type { ListNotificationsInput } from "./input";
 
+jest.mock("sanitize-html", () => jest.fn((html: string) => html));
+
 describe("ListNotificationsUseCase", () => {
     const makeSut = () => {
         const notificationRepository = new NotificationRepositorySpy();

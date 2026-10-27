@@ -19,11 +19,20 @@ import {
 import { ResolveNotificationTemplateInternalUseCase } from "./application/use-cases-internal";
 import { SendNotificationOhsUseCase } from "./application/use-cases-ohs";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
-import { NotificationRepository, NotificationTemplateRepository, TemplateRenderer } from "./domain/interfaces";
+import {
+    NotificationPreferenceRepository,
+    NotificationRepository,
+    NotificationTemplateRepository,
+    TemplateRenderer,
+} from "./domain/interfaces";
 import { StringInterpolationRenderer } from "./domain/renderers";
 import { SendNotificationHandler } from "./infrastructure/jobs";
 import { NodemailerEmailSender } from "./infrastructure/providers";
-import { PrismaNotificationRepository, PrismaNotificationTemplateRepository } from "./infrastructure/repositories";
+import {
+    PrismaNotificationPreferenceRepository,
+    PrismaNotificationRepository,
+    PrismaNotificationTemplateRepository,
+} from "./infrastructure/repositories";
 import { EmailSenderFactory } from "./infrastructure/strategies";
 import {
     NotificationController,
@@ -66,6 +75,10 @@ import {
         {
             provide: NotificationTemplateRepository,
             useClass: PrismaNotificationTemplateRepository,
+        },
+        {
+            provide: NotificationPreferenceRepository,
+            useClass: PrismaNotificationPreferenceRepository,
         },
         {
             provide: TemplateRenderer,

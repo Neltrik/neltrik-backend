@@ -10,7 +10,7 @@ export const ERROR_MESSAGES = {
     NOTIFICATION_LOCALE_REQUIRED: "Notification locale is required",
     NOTIFICATION_RECIPIENT_EMAIL_REQUIRED: "Notification recipient email is required",
     NOTIFICATION_RECIPIENT_REQUIRED: "Notification recipient is required",
-    NOTIFICATION_TENANT_REQUIRED: "Notification tenant is required",
+    NOTIFICATION_TENANT_REQUIRED: "Tenant is required",
     NOTIFICATION_NOT_FOUND: "Notification not found",
     UNSUPPORTED_EMAIL_PROVIDER: "Email provider is not supported",
     INVALID_NOTIFICATION_TEMPLATE_CHANNEL: "Notification template channel is invalid",
@@ -25,6 +25,8 @@ export const ERROR_MESSAGES = {
     TEMPLATE_VARIABLE_MISSING: "Template variables missing:",
     INVALID_TEMPLATE_VARIABLE: "Invalid template variables:",
     INVALID_TEMPLATE_HTML: "Invalid template HTML:",
+    NOTIFICATION_PREFERENCE_OWNER_REQUIRED: "Owner is required",
+    INVALID_NOTIFICATION_CATEGORY: "Notification category is invalid",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -54,4 +56,6 @@ export const DOMAIN_ERROR_CODES = {
     TEMPLATE_VARIABLE_MISSING: "TEMPLATE_VARIABLE_MISSING",
     INVALID_TEMPLATE_VARIABLE: "INVALID_TEMPLATE_VARIABLE",
     INVALID_TEMPLATE_HTML: "INVALID_TEMPLATE_HTML",
+    NOTIFICATION_PREFERENCE_OWNER_REQUIRED: "NOTIFICATION_PREFERENCE_OWNER_REQUIRED",
+    INVALID_NOTIFICATION_CATEGORY: "INVALID_NOTIFICATION_CATEGORY",
 } as const;

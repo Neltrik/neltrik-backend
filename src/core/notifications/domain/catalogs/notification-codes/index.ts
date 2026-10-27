@@ -5,5 +5,8 @@ export const NOTIFICATION_CODES = {
 
     // Tenant
     INVITATION: "INVITATION",
+
+    // Marketing
+    WELCOME: "WELCOME",
 } as const;
 export type NotificationCode = (typeof NOTIFICATION_CODES)[keyof typeof NOTIFICATION_CODES];

@@ -13,6 +13,7 @@ import {
     DesactivateNotificationTemplateUseCase,
     GetNotificationPreferenceUseCase,
     GetNotificationTemplateUseCase,
+    ListNotificationPreferencesUseCase,
     ListNotificationsUseCase,
     ListNotificationTemplatesUseCase,
     MarkAllNotificationsAsReadUseCase,
@@ -20,7 +21,10 @@ import {
     UpdateNotificationPreferenceUseCase,
     UpdateNotificationTemplateUseCase,
 } from "./application/use-cases";
-import { ResolveNotificationTemplateInternalUseCase } from "./application/use-cases-internal";
+import {
+    ResolveNotificationPreferenceInternalUseCase,
+    ResolveNotificationTemplateInternalUseCase,
+} from "./application/use-cases-internal";
 import { SendNotificationOhsUseCase } from "./application/use-cases-ohs";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
 import {
@@ -61,12 +65,14 @@ import {
         DesactivateNotificationTemplateUseCase,
         GetNotificationPreferenceUseCase,
         GetNotificationTemplateUseCase,
+        ListNotificationPreferencesUseCase,
         ListNotificationsUseCase,
         ListNotificationTemplatesUseCase,
         MarkAllNotificationsAsReadUseCase,
         MarkNotificationAsReadUseCase,
         UpdateNotificationPreferenceUseCase,
         UpdateNotificationTemplateUseCase,
+        ResolveNotificationPreferenceInternalUseCase,
         ResolveNotificationTemplateInternalUseCase,
         SendNotificationOhsUseCase,
         NodemailerEmailSender,

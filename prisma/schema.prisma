@@ -434,3 +434,20 @@ model NotificationTemplate {
   @@index([tenantId, code, channel, locale])
   @@map("notification_templates")
 }
+
+model NotificationPreference {
+  id        String   @id @db.Uuid
+  tenantId  String   @map("tenant_id") @db.Uuid
+  ownerId   String   @map("owner_id") @db.Uuid
+  channel   String   @db.VarChar(50)
+  category  String   @db.VarChar(50)
+  enabled   Boolean  @default(true)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([ownerId, channel, category])
+  @@index([tenantId])
+  @@index([ownerId])
+  @@index([tenantId, ownerId])
+  @@map("notification_preferences")
+}

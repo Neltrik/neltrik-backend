@@ -13,9 +13,10 @@ const TENANT_MODELS = [
     "File",
     "FileQuota",
     "Notification",
+    "NotificationPreference",
 ] as const;
 const TENANT_MODELS_WITH_GLOBAL = ["NotificationTemplate"] as const;
-const OWNERSHIP_MODELS = ["AuthenticationSession"] as const;
+const OWNERSHIP_MODELS = ["AuthenticationSession", "NotificationPreference"] as const;
 
 type TenantModel = (typeof TENANT_MODELS)[number];
 type TenantModelWithGlobal = (typeof TENANT_MODELS_WITH_GLOBAL)[number];

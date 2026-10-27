@@ -1,3 +1,5 @@
+import type { PaginationInput } from "@/shared/pagination";
+
 import { type NotificationChannel } from "../notification";
 
 export const NOTIFICATION_CATEGORY = {
@@ -17,3 +19,7 @@ export type NotificationPreferenceProps = {
     createdAt: Date;
     updatedAt: Date;
 };
+
+export interface FindByOwnerParams extends PaginationInput {
+    ownerId: string;
+}

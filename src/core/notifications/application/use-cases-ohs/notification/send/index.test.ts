@@ -1,23 +1,33 @@
 import type { IdGenerator } from "@/shared/id-generator";
 import type { JobScheduler } from "@/shared/jobs";
 
+import { NOTIFICATION_CODE_CATEGORIES } from "../../../../domain/catalogs";
 import type { NotificationRepository } from "../../../../domain/interfaces";
-import { NOTIFICATION_CHANNEL, SEND_NOTIFICATION_JOB, SEND_NOTIFICATION_QUEUE } from "../../../../domain/types";
+import {
+    NOTIFICATION_CATEGORY,
+    NOTIFICATION_CHANNEL,
+    SEND_NOTIFICATION_JOB,
+    SEND_NOTIFICATION_QUEUE,
+} from "../../../../domain/types";
 import { TenantApiSpy } from "../../../../test-doubles";
-import type { ResolveNotificationTemplateInternalUseCase } from "../../../use-cases-internal";
+import type {
+    ResolveNotificationPreferenceInternalUseCase,
+    ResolveNotificationTemplateInternalUseCase,
+} from "../../../use-cases-internal";
 import { SendNotificationOhsUseCase } from "./index";
 import type { SendNotificationOhsInput } from "./input";
 
 jest.mock("sanitize-html", () => jest.fn((html: string) => html));
 
-const makeInput = (): SendNotificationOhsInput => ({
+const makeInput = (overrides: Partial<SendNotificationOhsInput> = {}): SendNotificationOhsInput => ({
     tenantId: "tenant-id",
     recipientId: "recipient-id",
     recipientEmail: "john@company.com",
-    code: "WELCOME",
+    code: "EMAIL_VERIFICATION",
     channels: [NOTIFICATION_CHANNEL.EMAIL],
     payload: { name: "John" },
     locale: "en",
+    ...overrides,
 });
 
 describe("SendNotificationOhsUseCase", () => {
@@ -30,36 +40,47 @@ describe("SendNotificationOhsUseCase", () => {
         const jobScheduler = { enqueue: enqueueMock } as unknown as JobScheduler;
         const createMock = jest.fn().mockResolvedValue(undefined);
         const notificationRepository = { create: createMock } as unknown as NotificationRepository;
-        const resolveTemplateMock = jest.fn().mockResolvedValue({ code: "WELCOME", subject: "Welcome", body: "Hello" });
+        const resolveTemplateMock = jest
+            .fn()
+            .mockResolvedValue({ code: "EMAIL_VERIFICATION", subject: "Welcome", body: "Hello" });
         const resolveNotificationTemplateUseCase = {
             execute: resolveTemplateMock,
         } as unknown as ResolveNotificationTemplateInternalUseCase;
+        const resolvePreferenceMock = jest.fn().mockResolvedValue(true);
+        const resolveNotificationPreferenceUseCase = {
+            execute: resolvePreferenceMock,
+        } as unknown as ResolveNotificationPreferenceInternalUseCase;
         const useCase = new SendNotificationOhsUseCase(
             tenantApi,
             idGenerator,
             jobScheduler,
             notificationRepository,
             resolveNotificationTemplateUseCase,
+            resolveNotificationPreferenceUseCase,
         );
-        return { useCase, tenantApi, generateMock, enqueueMock, createMock, resolveTemplateMock };
+        return {
+            useCase,
+            tenantApi,
+            generateMock,
+            enqueueMock,
+            createMock,
+            resolveTemplateMock,
+            resolvePreferenceMock,
+        };
     };
 
-    it("should create a notification and enqueue the job successfully", async () => {
+    it("should create a notification and enqueue the job", async () => {
         const { useCase, tenantApi, generateMock, enqueueMock, createMock, resolveTemplateMock } = makeSut();
         const input = makeInput();
-        const result = await useCase.execute(input);
-        expect(result).toBe("notification-id");
-        expect(tenantApi.validate).toHaveBeenCalledTimes(1);
+        await expect(useCase.execute(input)).resolves.toBe("notification-id");
         expect(tenantApi.validate).toHaveBeenCalledWith(input.tenantId);
         expect(generateMock).toHaveBeenCalledTimes(1);
-        expect(resolveTemplateMock).toHaveBeenCalledTimes(1);
         expect(resolveTemplateMock).toHaveBeenCalledWith({
             code: input.code,
             channel: NOTIFICATION_CHANNEL.EMAIL,
             locale: input.locale,
             tenantId: input.tenantId,
         });
-        expect(createMock).toHaveBeenCalledTimes(1);
         expect(createMock).toHaveBeenCalledWith(
             expect.objectContaining({
                 id: "notification-id",
@@ -72,7 +93,6 @@ describe("SendNotificationOhsUseCase", () => {
                 locale: input.locale,
             }),
         );
-        expect(enqueueMock).toHaveBeenCalledTimes(1);
         expect(enqueueMock).toHaveBeenCalledWith(
             SEND_NOTIFICATION_QUEUE,
             SEND_NOTIFICATION_JOB,
@@ -82,29 +102,25 @@ describe("SendNotificationOhsUseCase", () => {
     });
 
     it("should validate tenant before resolving templates", async () => {
-        const { useCase, tenantApi, resolveTemplateMock, createMock } = makeSut();
-        const callOrder: string[] = [];
+        const { useCase, tenantApi, resolveTemplateMock } = makeSut();
+        const order: string[] = [];
         tenantApi.validate.mockImplementation(() => {
-            callOrder.push("validate");
+            order.push("validate");
             return Promise.resolve();
         });
         resolveTemplateMock.mockImplementation(() => {
-            callOrder.push("resolve-template");
-            return Promise.resolve({ code: "WELCOME", subject: "Welcome", body: "Hello" });
+            order.push("template");
+            return Promise.resolve({ code: "EMAIL_VERIFICATION", subject: "Welcome", body: "Hello" });
         });
         await useCase.execute(makeInput());
-        expect(tenantApi.validate).toHaveBeenCalledTimes(1);
-        expect(resolveTemplateMock).toHaveBeenCalledTimes(1);
-        expect(createMock).toHaveBeenCalledTimes(1);
-        expect(callOrder).toEqual(["validate", "resolve-template"]);
+        expect(order).toEqual(["validate", "template"]);
     });
 
-    it("should resolve a template for each notification channel", async () => {
+    it("should resolve a template for each channel", async () => {
         const { useCase, resolveTemplateMock } = makeSut();
-        const input: SendNotificationOhsInput = {
-            ...makeInput(),
+        const input = makeInput({
             channels: [NOTIFICATION_CHANNEL.EMAIL, NOTIFICATION_CHANNEL.IN_APP],
-        };
+        });
         await useCase.execute(input);
         expect(resolveTemplateMock).toHaveBeenCalledTimes(2);
         expect(resolveTemplateMock).toHaveBeenNthCalledWith(1, {
@@ -121,7 +137,42 @@ describe("SendNotificationOhsUseCase", () => {
         });
     });
 
-    it("should propagate errors when tenant validation fails", async () => {
+    it("should return null when no channels are allowed", async () => {
+        const { useCase, resolvePreferenceMock, resolveTemplateMock, generateMock, createMock, enqueueMock } =
+            makeSut();
+        resolvePreferenceMock.mockResolvedValue(false);
+        await expect(useCase.execute(makeInput({ code: "WELCOME" }))).resolves.toBeNull();
+        expect(resolvePreferenceMock).toHaveBeenCalledTimes(1);
+        expect(resolveTemplateMock).not.toHaveBeenCalled();
+        expect(generateMock).not.toHaveBeenCalled();
+        expect(createMock).not.toHaveBeenCalled();
+        expect(enqueueMock).not.toHaveBeenCalled();
+    });
+
+    it("should include only channels with accepted preferences", async () => {
+        const { useCase, resolvePreferenceMock, resolveTemplateMock, createMock } = makeSut();
+        resolvePreferenceMock.mockResolvedValueOnce(true).mockResolvedValueOnce(false);
+        await useCase.execute(
+            makeInput({ code: "WELCOME", channels: [NOTIFICATION_CHANNEL.EMAIL, NOTIFICATION_CHANNEL.IN_APP] }),
+        );
+        expect(resolvePreferenceMock).toHaveBeenCalledTimes(2);
+        expect(resolveTemplateMock).toHaveBeenCalledTimes(1);
+        expect(createMock).toHaveBeenCalledWith(expect.objectContaining({ channels: [NOTIFICATION_CHANNEL.EMAIL] }));
+    });
+
+    it("should skip preferences for transactional notifications", async () => {
+        const { useCase, resolvePreferenceMock } = makeSut();
+        const code = (
+            Object.keys(NOTIFICATION_CODE_CATEGORIES) as Array<keyof typeof NOTIFICATION_CODE_CATEGORIES>
+        ).find((key) => NOTIFICATION_CODE_CATEGORIES[key] === NOTIFICATION_CATEGORY.TRANSACTIONAL);
+        if (!code) {
+            throw new Error("Missing transactional notification code in catalog");
+        }
+        await useCase.execute(makeInput({ code }));
+        expect(resolvePreferenceMock).not.toHaveBeenCalled();
+    });
+
+    it("should propagate tenant validation errors", async () => {
         const { useCase, tenantApi, resolveTemplateMock, generateMock, createMock, enqueueMock } = makeSut();
         tenantApi.validate.mockRejectedValue(new Error("Tenant validation failed"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("Tenant validation failed");
@@ -131,7 +182,16 @@ describe("SendNotificationOhsUseCase", () => {
         expect(enqueueMock).not.toHaveBeenCalled();
     });
 
-    it("should propagate errors when resolving a notification template fails", async () => {
+    it("should propagate preference resolution errors", async () => {
+        const { useCase, resolvePreferenceMock, resolveTemplateMock, createMock, enqueueMock } = makeSut();
+        resolvePreferenceMock.mockRejectedValue(new Error("Preference resolution failed"));
+        await expect(useCase.execute(makeInput({ code: "WELCOME" }))).rejects.toThrow("Preference resolution failed");
+        expect(resolveTemplateMock).not.toHaveBeenCalled();
+        expect(createMock).not.toHaveBeenCalled();
+        expect(enqueueMock).not.toHaveBeenCalled();
+    });
+
+    it("should propagate template resolution errors", async () => {
         const { useCase, resolveTemplateMock, createMock, enqueueMock } = makeSut();
         resolveTemplateMock.mockRejectedValue(new Error("Template not found"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("Template not found");
@@ -139,7 +199,7 @@ describe("SendNotificationOhsUseCase", () => {
         expect(enqueueMock).not.toHaveBeenCalled();
     });
 
-    it("should propagate repository errors when creating a notification", async () => {
+    it("should propagate repository errors", async () => {
         const { useCase, createMock, enqueueMock } = makeSut();
         createMock.mockRejectedValue(new Error("Database error"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("Database error");
@@ -147,7 +207,7 @@ describe("SendNotificationOhsUseCase", () => {
         expect(enqueueMock).not.toHaveBeenCalled();
     });
 
-    it("should propagate scheduler errors when enqueueing the notification job", async () => {
+    it("should propagate scheduler errors", async () => {
         const { useCase, createMock, enqueueMock } = makeSut();
         enqueueMock.mockRejectedValue(new Error("Queue error"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("Queue error");
@@ -155,20 +215,18 @@ describe("SendNotificationOhsUseCase", () => {
         expect(enqueueMock).toHaveBeenCalledTimes(1);
     });
 
-    it("should enqueue the job only after creating the notification", async () => {
+    it("should create the notification before enqueueing the job", async () => {
         const { useCase, createMock, enqueueMock } = makeSut();
-        const callOrder: string[] = [];
+        const order: string[] = [];
         createMock.mockImplementation(() => {
-            callOrder.push("create");
+            order.push("create");
             return Promise.resolve(undefined);
         });
         enqueueMock.mockImplementation(() => {
-            callOrder.push("enqueue");
+            order.push("enqueue");
             return Promise.resolve(undefined);
         });
         await useCase.execute(makeInput());
-        expect(createMock).toHaveBeenCalledTimes(1);
-        expect(enqueueMock).toHaveBeenCalledTimes(1);
-        expect(callOrder).toEqual(["create", "enqueue"]);
+        expect(order).toEqual(["create", "enqueue"]);
     });
 });

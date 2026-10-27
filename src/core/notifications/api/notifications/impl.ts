@@ -10,7 +10,7 @@ export class NotificationApiImpl extends NotificationApi {
         super();
     }
 
-    public async send(input: SendNotificationDto): Promise<string> {
+    public async send(input: SendNotificationDto): Promise<string | null> {
         const id = await this.sendNotificationOhsUseCase.execute({
             tenantId: input.tenantId,
             recipientId: input.recipientId,

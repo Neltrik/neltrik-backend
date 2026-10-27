@@ -4,6 +4,6 @@ export class SendNotificationOhsUseCaseSpy extends SendNotificationOhsUseCase {
     public override execute = jest.fn();
 
     constructor() {
-        super({} as never, {} as never, {} as never, {} as never, {} as never);
+        super({} as never, {} as never, {} as never, {} as never, {} as never, {} as never);
     }
 }

@@ -7,6 +7,14 @@ export const NOTIFICATION_TEMPLATE_MESSAGES = {
     DESACTIVATED: "Notification template desactivated successfully.",
 } as const;
 
+export const NOTIFICATION_PREFERENCE_MESSAGES = {
+    CREATED: "Notification preference created successfully.",
+    RETRIEVED: "Notification preference retrieved successfully.",
+    LISTED: "Notification preferences listed successfully.",
+    UPDATED: "Notification preference updated successfully.",
+    DELETED: "Notification preference deleted successfully.",
+} as const;
+
 export const NOTIFICATION_MESSAGES = {
     LISTED: "Notifications listed successfully.",
     MARKED_AS_READ: "Notification marked as read successfully.",

@@ -44,6 +44,7 @@ import {
 import { EmailSenderFactory } from "./infrastructure/strategies";
 import {
     NotificationController,
+    NotificationPreferenceController,
     NotificationVariablesController,
     TemplateManagementController,
     TemplateStateController,
@@ -52,6 +53,7 @@ import {
 @Module({
     controllers: [
         NotificationController,
+        NotificationPreferenceController,
         NotificationVariablesController,
         TemplateManagementController,
         TemplateStateController,

@@ -108,6 +108,37 @@ describe("NodemailerEmailSender", () => {
                 html: secondMessage.html,
             });
         });
+
+        it("should send plain text version generated from html", async () => {
+            const { sut } = makeSut();
+            const message = {
+                to: "user@example.com",
+                subject: "Test email",
+                body: "<h1>Hello</h1><p>This is a test</p>",
+                html: "<h1>Hello</h1><p>This is a test</p>",
+            };
+            await sut.send(message);
+            const mailOptions = sendMailMock.mock.calls[0]?.[0];
+            expect(mailOptions?.text).not.toContain("<h1>");
+            expect(mailOptions?.text).not.toContain("</h1>");
+            expect(mailOptions?.text).toContain("HELLO");
+            expect(mailOptions?.text).toContain("This is a test");
+        });
+
+        it("should keep html version as HTML", async () => {
+            const { sut } = makeSut();
+            const message = {
+                to: "user@example.com",
+                subject: "Test email",
+                body: "<h1>Hello</h1>",
+                html: "<h1>Hello</h1>",
+            };
+            await sut.send(message);
+            const mailOptions = sendMailMock.mock.calls[0]?.[0];
+            expect(mailOptions?.html).toBe("<h1>Hello</h1>");
+            const { html: _html, ...props } = message;
+            await sut.send(props);
+        });
     });
 
     describe("exports", () => {

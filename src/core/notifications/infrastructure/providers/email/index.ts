@@ -1,4 +1,5 @@
 import { Injectable } from "@nestjs/common";
+import { convert } from "html-to-text";
 import * as nodemailer from "nodemailer";
 
 import { env } from "@/config/env";
@@ -20,11 +21,12 @@ export class NodemailerEmailSender extends EmailSender {
     }
 
     public async send(message: EmailMessage): Promise<void> {
+        const text = convert(message.html ?? message.body, { wordwrap: 130 });
         await this.transporter.sendMail({
             from: env.SMTP_FROM,
             to: message.to,
             subject: message.subject,
-            text: message.body,
+            text,
             html: message.html,
         });
     }

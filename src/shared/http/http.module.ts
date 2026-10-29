@@ -5,6 +5,7 @@ import {
     DomainHttpStatusStrategy,
     GlobalDomainHttpStatusStrategy,
     HttpStatusResolver,
+    PrismaHttpStatusStrategy,
     ZodHttpStatusStrategy,
 } from "./status";
 
@@ -15,6 +16,7 @@ import {
         DomainHttpStatusStrategy,
         GlobalDomainHttpStatusStrategy,
         HttpStatusResolver,
+        PrismaHttpStatusStrategy,
         ZodHttpStatusStrategy,
     ],
     exports: [ResponseInterceptor, HttpStatusResolver],

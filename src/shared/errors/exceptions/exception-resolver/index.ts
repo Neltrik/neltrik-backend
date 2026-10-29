@@ -7,6 +7,7 @@ import {
     DomainExceptionHandlingStrategy,
     ExceptionHandlingStrategy,
     NestJSExceptionHandlingStrategy,
+    PrismaExceptionHandlingStrategy,
     ZodExceptionHandlingStrategy,
 } from "../../strategies";
 
@@ -17,10 +18,12 @@ export class ExceptionResolver {
     constructor(
         private readonly domainExceptionHandlingStrategy: DomainExceptionHandlingStrategy,
         private readonly nestJSExceptionHandlingStrategy: NestJSExceptionHandlingStrategy,
+        private readonly prismaExceptionHandlingStrategy: PrismaExceptionHandlingStrategy,
         private readonly zodExceptionHandlingStrategy: ZodExceptionHandlingStrategy,
     ) {
         this.strategies = [
             this.domainExceptionHandlingStrategy,
+            this.prismaExceptionHandlingStrategy,
             this.zodExceptionHandlingStrategy,
             this.nestJSExceptionHandlingStrategy,
         ];

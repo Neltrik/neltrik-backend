@@ -5,6 +5,7 @@ import { GlobalExceptionFilter } from "./filters";
 import {
     DomainExceptionHandlingStrategy,
     NestJSExceptionHandlingStrategy,
+    PrismaExceptionHandlingStrategy,
     ZodExceptionHandlingStrategy,
 } from "./strategies";
 
@@ -14,6 +15,7 @@ import {
         ExceptionResolver,
         DomainExceptionHandlingStrategy,
         NestJSExceptionHandlingStrategy,
+        PrismaExceptionHandlingStrategy,
         ZodExceptionHandlingStrategy,
         GlobalExceptionFilter,
     ],

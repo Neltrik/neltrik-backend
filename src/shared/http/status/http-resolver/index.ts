@@ -1,7 +1,12 @@
 import { HttpException, Injectable } from "@nestjs/common";
 
 import { HttpStatusStrategy } from "../contracts";
-import { DomainHttpStatusStrategy, GlobalDomainHttpStatusStrategy, ZodHttpStatusStrategy } from "../strategies";
+import {
+    DomainHttpStatusStrategy,
+    GlobalDomainHttpStatusStrategy,
+    PrismaHttpStatusStrategy,
+    ZodHttpStatusStrategy,
+} from "../strategies";
 
 @Injectable()
 export class HttpStatusResolver {
@@ -10,11 +15,13 @@ export class HttpStatusResolver {
     constructor(
         private readonly globalDomainHttpStatusStrategy: GlobalDomainHttpStatusStrategy,
         private readonly domainHttpStatusStrategy: DomainHttpStatusStrategy,
+        private readonly prismaHttpStatusStrategy: PrismaHttpStatusStrategy,
         private readonly zodHttpStatusStrategy: ZodHttpStatusStrategy,
     ) {
         this.strategies = [
             this.globalDomainHttpStatusStrategy,
             this.domainHttpStatusStrategy,
+            this.prismaHttpStatusStrategy,
             this.zodHttpStatusStrategy,
         ];
     }

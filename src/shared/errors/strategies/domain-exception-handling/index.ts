@@ -12,6 +12,9 @@ export class DomainExceptionHandlingStrategy extends ExceptionHandlingStrategy {
 
     handle(error: unknown): ErrorDetail[] {
         const domainError = error as DomainError;
+        if (domainError.details.length > 0) {
+            return [{ code: domainError.code, message: domainError.message }, ...domainError.details];
+        }
         return [{ code: domainError.code, message: domainError.message }];
     }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
-import { PrismaService } from "@/prisma/index";
+import { createOrGet, PrismaService } from "@/prisma/index";
 import { TransactionContext } from "@/shared/transaction";
 
 import { FileQuota } from "../../../domain/entities";
@@ -14,10 +14,15 @@ export class PrismaFileQuotaRepository extends FileQuotaRepository {
         super();
     }
 
-    public async create(quota: FileQuota): Promise<void> {
-        await this.prisma.tenantClient.fileQuota.create({
-            data: FileQuotaMapper.toPersistence(quota),
-        });
+    public async create(quota: FileQuota): Promise<FileQuota> {
+        return createOrGet(
+            () =>
+                this.prisma.tenantClient.fileQuota.create({
+                    data: FileQuotaMapper.toPersistence(quota),
+                }),
+            () => this.findByTenantId(quota.tenantId),
+            (persistence) => FileQuotaMapper.toDomain(persistence),
+        );
     }
 
     public async findByTenantId(tenantId: string): Promise<FileQuota | null> {

@@ -15,7 +15,7 @@ export class FileRepositorySpy extends FileRepository {
 }
 
 export class FileQuotaRepositorySpy extends FileQuotaRepository {
-    public create = jest.fn<Promise<void>, [FileQuota]>();
+    public create = jest.fn<Promise<FileQuota>, [FileQuota]>();
     public findByTenantId = jest.fn<Promise<FileQuota | null>, [string]>();
     public update = jest.fn<Promise<void>, [FileQuota]>();
 }

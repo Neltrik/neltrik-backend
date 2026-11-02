@@ -1,3 +1,4 @@
+export * from "./create-or-get";
 export * from "./prisma.module";
 export * from "./prisma.service";
 export * from "./tenant-isolation";

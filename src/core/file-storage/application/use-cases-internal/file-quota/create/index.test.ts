@@ -38,7 +38,16 @@ describe("CreateOrGetQuotaInternalUseCase", () => {
     it("should create and return a quota when it does not exist", async () => {
         const { useCase, fileQuotaRepository, generateMock } = makeSut();
         fileQuotaRepository.findByTenantId.mockResolvedValue(null);
-        fileQuotaRepository.create.mockResolvedValue(undefined);
+        fileQuotaRepository.create.mockResolvedValue(
+            FileQuota.restore({
+                id: "quota-id",
+                tenantId: "tenant-id",
+                limitBytes: DEFAULT_FILE_QUOTA_LIMIT_BYTES,
+                usedBytes: 0,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }),
+        );
         const result = await useCase.execute("tenant-id");
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledTimes(1);
         expect(fileQuotaRepository.findByTenantId).toHaveBeenCalledWith("tenant-id");
@@ -56,7 +65,16 @@ describe("CreateOrGetQuotaInternalUseCase", () => {
     it("should initialize the quota with the current date", async () => {
         const { useCase, fileQuotaRepository } = makeSut();
         fileQuotaRepository.findByTenantId.mockResolvedValue(null);
-        fileQuotaRepository.create.mockResolvedValue(undefined);
+        fileQuotaRepository.create.mockResolvedValue(
+            FileQuota.restore({
+                id: "quota-id",
+                tenantId: "tenant-id",
+                limitBytes: DEFAULT_FILE_QUOTA_LIMIT_BYTES,
+                usedBytes: 0,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            }),
+        );
         const before = new Date();
         const result = await useCase.execute("tenant-id");
         const after = new Date();

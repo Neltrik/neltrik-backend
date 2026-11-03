@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "@/prisma/index";
+import { OptimisticLockError } from "@/shared/errors";
 import { PaginationInput, withPaginationArgs } from "@/shared/pagination";
 
 import { NotificationTemplate } from "../../../domain/entities";
@@ -67,10 +68,13 @@ export class PrismaNotificationTemplateRepository extends NotificationTemplateRe
     }
 
     public async update(template: NotificationTemplate): Promise<void> {
-        await this.prisma.tenantClient.notificationTemplate.update({
-            where: { id: template.id },
-            data: NotificationTemplateMapper.toPersistence(template),
+        const result = await this.prisma.tenantClient.notificationTemplate.updateMany({
+            where: { id: template.id, version: template.version },
+            data: { ...NotificationTemplateMapper.toPersistence(template), version: template.version + 1 },
         });
+        if (result.count === 0) {
+            throw new OptimisticLockError();
+        }
     }
 
     public async findByTenantIncludingGlobal(params: FindTemplatesByTenantParams): Promise<NotificationTemplate[]> {

@@ -12,6 +12,7 @@ export type NotificationTemplateProps = {
     subject: string | null;
     body: string;
     isActive: boolean;
+    version: number;
     createdAt: Date;
     updatedAt: Date;
 };

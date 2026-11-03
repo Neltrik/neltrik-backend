@@ -213,7 +213,7 @@ describe("SendNotificationJobsUseCase", () => {
         } as Awaited<ReturnType<typeof resolveNotificationTemplateUseCase.execute>>);
         Object.defineProperty(notification, "payload", { value: { name: "John" }, writable: true, configurable: true });
         await expect(useCase.execute(input)).rejects.toThrow(TemplateVariableMissingError);
-        expect(notification.markAsFailed).toHaveBeenCalledWith(expect.stringContaining("orderId"));
+        expect(notification.markAsFailed).toHaveBeenCalledWith("Template variables missing");
         expect(notificationRepository.update).toHaveBeenCalledWith(notification);
         expect(emailSenderFactory.create).not.toHaveBeenCalled();
     });

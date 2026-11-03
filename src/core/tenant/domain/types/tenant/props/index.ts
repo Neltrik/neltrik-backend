@@ -7,6 +7,7 @@ interface TenantProps {
     name: string;
     slug: string;
     type: TenantType;
+    version: number;
     createdAt: Date;
     updatedAt: Date;
     suspendedAt: Date | null;

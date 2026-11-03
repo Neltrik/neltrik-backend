@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "@/prisma/index";
+import { OptimisticLockError } from "@/shared/errors";
 
 import { TenantRoleConfiguration } from "../../../domain/entities";
 import { TenantRoleConfigurationRepository } from "../../../domain/interfaces";
@@ -20,11 +21,23 @@ export class PrismaTenantRoleConfigurationRepository extends TenantRoleConfigura
     }
 
     public async update(tenantRoleConfiguration: TenantRoleConfiguration): Promise<TenantRoleConfiguration> {
-        const configuration = await this.prisma.tenantClient.tenantRoleConfiguration.update({
-            where: { id: tenantRoleConfiguration.id },
-            data: TenantRoleConfigurationMapper.toPersistence(tenantRoleConfiguration),
+        const result = await this.prisma.tenantClient.tenantRoleConfiguration.updateMany({
+            where: { id: tenantRoleConfiguration.id, version: tenantRoleConfiguration.version },
+            data: {
+                ...TenantRoleConfigurationMapper.toPersistence(tenantRoleConfiguration),
+                version: tenantRoleConfiguration.version + 1,
+            },
         });
-        return TenantRoleConfigurationMapper.toDomain(configuration);
+        if (result.count === 0) {
+            throw new OptimisticLockError();
+        }
+        const updated = await this.prisma.tenantClient.tenantRoleConfiguration.findUnique({
+            where: { id: tenantRoleConfiguration.id },
+        });
+        if (!updated) {
+            throw new OptimisticLockError();
+        }
+        return TenantRoleConfigurationMapper.toDomain(updated);
     }
 
     public async delete(id: string): Promise<void> {

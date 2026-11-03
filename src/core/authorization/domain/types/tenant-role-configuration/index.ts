@@ -5,6 +5,7 @@ export interface TenantRoleConfigurationProps {
     tenantId: string;
     roleId: string;
     displayName: DisplayName;
+    version: number;
     createdAt: Date;
     updatedAt: Date;
 }

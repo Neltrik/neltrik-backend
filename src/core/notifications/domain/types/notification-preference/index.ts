@@ -16,6 +16,7 @@ export type NotificationPreferenceProps = {
     channel: NotificationChannel;
     category: NotificationCategory;
     enabled: boolean;
+    version: number;
     createdAt: Date;
     updatedAt: Date;
 };

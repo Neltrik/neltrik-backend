@@ -7,8 +7,8 @@ export class TenantRoleConfiguration {
         this.props = props;
     }
 
-    public static create(props: TenantRoleConfigurationProps): TenantRoleConfiguration {
-        return new TenantRoleConfiguration(props);
+    public static create(props: Omit<TenantRoleConfigurationProps, "version">): TenantRoleConfiguration {
+        return new TenantRoleConfiguration({ ...props, version: 0 });
     }
 
     public static restore(props: TenantRoleConfigurationProps): TenantRoleConfiguration {
@@ -44,5 +44,9 @@ export class TenantRoleConfiguration {
 
     public get updatedAt(): Date {
         return this.props.updatedAt;
+    }
+
+    public get version(): number {
+        return this.props.version;
     }
 }

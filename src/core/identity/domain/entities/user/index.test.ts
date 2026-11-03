@@ -19,6 +19,7 @@ const createProps = (): Omit<UserState, "status"> => {
         email: Email.create("omar@gmail.com"),
         tenantId: "tenant-id",
         roleId: "role-id",
+        version: 0,
         createdAt,
         updatedAt: createdAt,
         suspendedAt: null,

@@ -13,6 +13,7 @@ const createProps = (): RoleProps => {
         description: "Administrator of a tenant.",
         permissionIds: [],
         scope: "PLATFORM",
+        version: 0,
         createdAt,
         updatedAt: createdAt,
     };

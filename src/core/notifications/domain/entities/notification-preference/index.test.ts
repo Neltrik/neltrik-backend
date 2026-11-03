@@ -61,7 +61,12 @@ describe("NotificationPreference", () => {
     });
 
     describe("restore", () => {
-        const restoredProps = { ...baseProps, enabled: false, updatedAt: new Date("2025-02-01T00:00:00.000Z") };
+        const restoredProps = {
+            ...baseProps,
+            enabled: false,
+            version: 0,
+            updatedAt: new Date("2025-02-01T00:00:00.000Z"),
+        };
 
         it("restores a preference with the provided properties", () => {
             const preference = NotificationPreference.restore(restoredProps);
@@ -76,27 +81,27 @@ describe("NotificationPreference", () => {
         });
 
         it("throws when tenantId is empty", () => {
-            expect(() => NotificationPreference.restore({ ...restoredProps, tenantId: "" })).toThrow(
+            expect(() => NotificationPreference.restore({ ...restoredProps, tenantId: "", version: 0 })).toThrow(
                 NotificationTenantRequiredError,
             );
         });
 
         it("throws when ownerId is empty", () => {
-            expect(() => NotificationPreference.restore({ ...restoredProps, ownerId: "" })).toThrow(
+            expect(() => NotificationPreference.restore({ ...restoredProps, ownerId: "", version: 0 })).toThrow(
                 NotificationPreferenceOwnerRequiredError,
             );
         });
 
         it("throws when channel is invalid", () => {
-            expect(() => NotificationPreference.restore({ ...restoredProps, channel: "INVALID" as never })).toThrow(
-                InvalidNotificationChannelError,
-            );
+            expect(() =>
+                NotificationPreference.restore({ ...restoredProps, channel: "INVALID" as never, version: 0 }),
+            ).toThrow(InvalidNotificationChannelError);
         });
 
         it("throws when category is invalid", () => {
-            expect(() => NotificationPreference.restore({ ...restoredProps, category: "INVALID" as never })).toThrow(
-                InvalidNotificationCategoryError,
-            );
+            expect(() =>
+                NotificationPreference.restore({ ...restoredProps, category: "INVALID" as never, version: 0 }),
+            ).toThrow(InvalidNotificationCategoryError);
         });
     });
 

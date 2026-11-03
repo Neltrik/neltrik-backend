@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "@/prisma/index";
+import { OptimisticLockError } from "@/shared/errors";
 
 import { User } from "../../../domain/entities";
 import { UserRepository } from "../../../domain/interfaces";
@@ -18,7 +19,13 @@ export class PrismaUserRepository extends UserRepository {
     }
 
     public async update(user: User): Promise<void> {
-        await this.prisma.tenantClient.user.update({ where: { id: user.id }, data: UserMapper.toPersistence(user) });
+        const result = await this.prisma.tenantClient.user.updateMany({
+            where: { id: user.id, version: user.version },
+            data: { ...UserMapper.toPersistence(user), version: user.version + 1 },
+        });
+        if (result.count === 0) {
+            throw new OptimisticLockError();
+        }
     }
 
     public async get(id: string): Promise<User | null> {

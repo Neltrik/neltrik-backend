@@ -18,11 +18,8 @@ export class User {
         this.props = props;
     }
 
-    public static create(props: Omit<UserState, "status">): User {
-        return new User({
-            ...props,
-            status: RESOURCE_STATUS.ACTIVE,
-        });
+    public static create(props: Omit<UserState, "status" | "version">): User {
+        return new User({ ...props, status: RESOURCE_STATUS.ACTIVE, version: 0 });
     }
 
     public static restore(props: UserState): User {
@@ -110,5 +107,9 @@ export class User {
 
     public get suspendedAt(): Date | null {
         return this.props.suspendedAt;
+    }
+
+    public get version(): number {
+        return this.props.version;
     }
 }

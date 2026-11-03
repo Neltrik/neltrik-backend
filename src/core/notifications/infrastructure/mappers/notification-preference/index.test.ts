@@ -16,6 +16,7 @@ const createProps = () => {
         channel: NOTIFICATION_CHANNEL.EMAIL,
         category: NOTIFICATION_CATEGORY.MARKETING,
         enabled: true,
+        version: 0,
         createdAt,
         updatedAt,
     };
@@ -105,7 +106,7 @@ describe("NotificationPreferenceMapper", () => {
     });
 
     it("should map a disabled domain preference to persistence", () => {
-        const preference = NotificationPreference.restore({ ...createProps(), enabled: true });
+        const preference = NotificationPreference.restore({ ...createProps(), enabled: true, version: 0 });
         preference.disable();
         const persistence = NotificationPreferenceMapper.toPersistence(preference);
         expect(persistence.enabled).toBe(false);

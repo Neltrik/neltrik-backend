@@ -13,6 +13,7 @@ const createProps = (): TenantRoleConfigurationProps => {
         roleId: "role-id",
         displayName: DisplayName.create("Administrator"),
         createdAt,
+        version: 0,
         updatedAt: createdAt,
     };
 };
@@ -38,6 +39,7 @@ describe("TenantRoleConfigurationMapper", () => {
             tenantId: props.tenantId,
             roleId: props.roleId,
             displayName: props.displayName.value,
+            version: 0,
             createdAt: props.createdAt,
             updatedAt: props.updatedAt,
         };

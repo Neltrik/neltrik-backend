@@ -12,6 +12,7 @@ export class NotificationPreferenceMapper {
             channel: preference.channel,
             category: preference.category,
             enabled: preference.isEnabled(),
+            version: preference.version,
             createdAt: preference.createdAt,
             updatedAt: preference.updatedAt,
         };
@@ -25,6 +26,7 @@ export class NotificationPreferenceMapper {
             channel: preference.channel as NotificationChannel,
             category: preference.category as NotificationCategory,
             enabled: preference.enabled,
+            version: preference.version,
             createdAt: preference.createdAt,
             updatedAt: preference.updatedAt,
         });

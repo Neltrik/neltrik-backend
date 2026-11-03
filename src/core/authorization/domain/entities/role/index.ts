@@ -11,8 +11,8 @@ export class Role {
         this.props = props;
     }
 
-    public static create(props: RoleProps): Role {
-        return new Role(props);
+    public static create(props: Omit<RoleProps, "version">): Role {
+        return new Role({ ...props, version: 0 });
     }
 
     public static restore(props: RoleProps): Role {
@@ -90,5 +90,9 @@ export class Role {
 
     public get updatedAt(): Date {
         return this.props.updatedAt;
+    }
+
+    public get version(): number {
+        return this.props.version;
     }
 }

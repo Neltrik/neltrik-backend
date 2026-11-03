@@ -12,6 +12,7 @@ const createProps = (): TenantState => {
         slug: "neltrik",
         type: "PLATFORM",
         status: RESOURCE_STATUS.ACTIVE,
+        version: 0,
         createdAt,
         updatedAt: createdAt,
         suspendedAt: null,

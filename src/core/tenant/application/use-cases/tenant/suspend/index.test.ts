@@ -26,6 +26,7 @@ const createSuspendedTenant = (): Tenant => {
         name: "Neltrik",
         slug: "neltrik-12345678",
         type: "PLATFORM",
+        version: 0,
         status: RESOURCE_STATUS.SUSPENDED,
         createdAt: now,
         updatedAt: now,

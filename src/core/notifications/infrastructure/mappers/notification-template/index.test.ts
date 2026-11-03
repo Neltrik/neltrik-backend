@@ -18,6 +18,7 @@ const createProps = (): NotificationTemplateProps => {
         subject: "Welcome!",
         body: "Welcome to our platform.",
         isActive: true,
+        version: 0,
         createdAt,
         updatedAt,
     };
@@ -36,6 +37,7 @@ describe("NotificationTemplateMapper", () => {
             subject: template.subject,
             body: template.body,
             isActive: template.isActive(),
+            version: 0,
             createdAt: template.createdAt,
             updatedAt: template.updatedAt,
         });

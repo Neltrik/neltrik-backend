@@ -23,6 +23,7 @@ describe("DesactivateNotificationTemplateUseCase", () => {
             locale: "en",
             subject: "Welcome",
             body: "Welcome to our platform.",
+            version: 0,
             createdAt: new Date(),
             updatedAt: new Date(),
             isActive,

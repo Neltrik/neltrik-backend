@@ -33,8 +33,10 @@ export class NotificationTemplate {
         this.props = props;
     }
 
-    public static create(props: Omit<NotificationTemplateProps, "isActive" | "updatedAt">): NotificationTemplate {
-        return new NotificationTemplate({ ...props, isActive: true, updatedAt: props.createdAt });
+    public static create(
+        props: Omit<NotificationTemplateProps, "isActive" | "version" | "updatedAt">,
+    ): NotificationTemplate {
+        return new NotificationTemplate({ ...props, isActive: true, version: 0, updatedAt: props.createdAt });
     }
 
     public static restore(props: NotificationTemplateProps): NotificationTemplate {
@@ -175,6 +177,10 @@ export class NotificationTemplate {
 
     public get body(): string {
         return this.props.body;
+    }
+
+    public get version(): number {
+        return this.props.version;
     }
 
     public get createdAt(): Date {

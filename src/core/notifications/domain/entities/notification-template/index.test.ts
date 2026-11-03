@@ -32,12 +32,19 @@ const createProps = (): NotificationTemplateProps => {
         subject: "Welcome!",
         body: "Welcome to our platform.",
         isActive: true,
+        version: 0,
         createdAt,
         updatedAt: createdAt,
     };
 };
 
 describe("NotificationTemplate", () => {
+    it("should expose the version through its getter", () => {
+        const props = createProps();
+        const template = NotificationTemplate.restore(props);
+        expect(template.version).toBe(props.version);
+    });
+
     it("should create and restore a template", () => {
         const props = createProps();
         const { isActive: _active, updatedAt: _updated, ...rest } = props;

@@ -32,7 +32,7 @@ export class CreateNotificationPreferenceUseCase {
             category: input.category,
             createdAt: now,
         });
-        await this.notificationPreferenceRepository.create(preference);
-        return preference.id;
+        const created = await this.notificationPreferenceRepository.create(preference);
+        return created.id;
     }
 }

@@ -2,7 +2,7 @@ import type { NotificationPreference } from "../../entities";
 import type { FindByOwnerParams, NotificationCategory, NotificationChannel } from "../../types";
 
 export abstract class NotificationPreferenceRepository {
-    abstract create(preference: NotificationPreference): Promise<void>;
+    abstract create(preference: NotificationPreference): Promise<NotificationPreference>;
     abstract findById(id: string): Promise<NotificationPreference | null>;
     abstract findByOwner(params: FindByOwnerParams): Promise<NotificationPreference[]>;
     abstract findByOwnerAndChannelAndCategory(

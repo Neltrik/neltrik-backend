@@ -10,7 +10,7 @@ export class SessionValidatorProvider implements SessionValidator {
 
     public async resolve(sessionId: string): Promise<SessionResolution> {
         const result = await this.sessionRepository.findByIdWithOwnerState(sessionId);
-        if (!result || result.session.isRevoked()) {
+        if (!result || result.session.isRevoked() || result.session.isExpired()) {
             return {
                 isValid: false,
                 userState: { status: "SUSPENDED" },

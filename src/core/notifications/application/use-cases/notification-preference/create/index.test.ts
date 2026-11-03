@@ -39,7 +39,7 @@ describe("CreateNotificationPreferenceUseCase", () => {
 
     it("creates the preference when it does not exist", async () => {
         repository.findByOwnerAndChannelAndCategory.mockResolvedValue(null);
-        repository.create.mockResolvedValue();
+        repository.create.mockResolvedValue({ id: "notification-preference-id" } as never);
         const result = await useCase.execute(baseInput);
         expect(result).toBe("notification-preference-id");
         expect(idGenerator.generate).toHaveBeenCalledTimes(1);

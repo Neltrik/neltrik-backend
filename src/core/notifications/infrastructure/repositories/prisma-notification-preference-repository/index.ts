@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 
-import { PrismaService } from "@/prisma/index";
+import { createOrGet, PrismaService } from "@/prisma/index";
 import { withPaginationArgs } from "@/shared/pagination";
 
 import { NotificationPreference } from "../../../domain/entities";
@@ -14,10 +14,15 @@ export class PrismaNotificationPreferenceRepository extends NotificationPreferen
         super();
     }
 
-    public async create(preference: NotificationPreference): Promise<void> {
-        await this.prisma.tenantClient.notificationPreference.create({
-            data: NotificationPreferenceMapper.toPersistence(preference),
-        });
+    public async create(preference: NotificationPreference): Promise<NotificationPreference> {
+        return createOrGet(
+            () =>
+                this.prisma.tenantClient.notificationPreference.create({
+                    data: NotificationPreferenceMapper.toPersistence(preference),
+                }),
+            () => this.findByOwnerAndChannelAndCategory(preference.ownerId, preference.channel, preference.category),
+            (persistence) => NotificationPreferenceMapper.toDomain(persistence),
+        );
     }
 
     public async findById(id: string): Promise<NotificationPreference | null> {

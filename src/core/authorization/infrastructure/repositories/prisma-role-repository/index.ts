@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/prisma/index";
+import { OptimisticLockError } from "@/shared/errors";
 import { TransactionContext } from "@/shared/transaction";
 
 import { Permission, Role } from "../../../domain/entities";
@@ -21,10 +22,13 @@ export class PrismaRoleRepository extends RoleRepository {
     }
 
     public async update(role: Role): Promise<void> {
-        await this.prisma.tenantClient.role.update({
-            where: { id: role.id },
-            data: RoleMapper.toPersistence(role),
+        const result = await this.prisma.tenantClient.role.updateMany({
+            where: { id: role.id, version: role.version },
+            data: { ...RoleMapper.toPersistence(role), version: role.version + 1 },
         });
+        if (result.count === 0) {
+            throw new OptimisticLockError();
+        }
     }
 
     public async get(id: string): Promise<Role | null> {

@@ -11,6 +11,7 @@ export type RoleProps = {
     description: string;
     permissionIds: string[];
     scope: RoleScope;
+    version: number;
     createdAt: Date;
     updatedAt: Date;
 };

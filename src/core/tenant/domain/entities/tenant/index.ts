@@ -17,8 +17,8 @@ export class Tenant {
         this.props = props;
     }
 
-    public static create(props: Omit<TenantState, "status">): Tenant {
-        return new Tenant({ ...props, status: RESOURCE_STATUS.ACTIVE });
+    public static create(props: Omit<TenantState, "status" | "version">): Tenant {
+        return new Tenant({ ...props, status: RESOURCE_STATUS.ACTIVE, version: 0 });
     }
 
     public static restore(props: TenantState): Tenant {
@@ -99,5 +99,9 @@ export class Tenant {
 
     public get suspendedAt(): Date | null {
         return this.props.suspendedAt;
+    }
+
+    public get version(): number {
+        return this.props.version;
     }
 }

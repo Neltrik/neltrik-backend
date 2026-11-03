@@ -23,8 +23,10 @@ export class NotificationPreference {
         this.props = props;
     }
 
-    public static create(props: Omit<NotificationPreferenceProps, "enabled" | "updatedAt">): NotificationPreference {
-        return new NotificationPreference({ ...props, enabled: true, updatedAt: props.createdAt });
+    public static create(
+        props: Omit<NotificationPreferenceProps, "enabled" | "version" | "updatedAt">,
+    ): NotificationPreference {
+        return new NotificationPreference({ ...props, enabled: true, version: 0, updatedAt: props.createdAt });
     }
 
     public static restore(props: NotificationPreferenceProps): NotificationPreference {
@@ -109,5 +111,9 @@ export class NotificationPreference {
 
     public get updatedAt(): Date {
         return this.props.updatedAt;
+    }
+
+    public get version(): number {
+        return this.props.version;
     }
 }

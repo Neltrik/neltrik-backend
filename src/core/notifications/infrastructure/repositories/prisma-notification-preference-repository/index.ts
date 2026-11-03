@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { createOrGet, PrismaService } from "@/prisma/index";
+import { OptimisticLockError } from "@/shared/errors";
 import { withPaginationArgs } from "@/shared/pagination";
 
 import { NotificationPreference } from "../../../domain/entities";
@@ -59,10 +60,13 @@ export class PrismaNotificationPreferenceRepository extends NotificationPreferen
     }
 
     public async update(preference: NotificationPreference): Promise<void> {
-        await this.prisma.tenantClient.notificationPreference.update({
-            where: { id: preference.id },
-            data: NotificationPreferenceMapper.toPersistence(preference),
+        const result = await this.prisma.tenantClient.notificationPreference.updateMany({
+            where: { id: preference.id, version: preference.version },
+            data: { ...NotificationPreferenceMapper.toPersistence(preference), version: preference.version + 1 },
         });
+        if (result.count === 0) {
+            throw new OptimisticLockError();
+        }
     }
 
     public async delete(id: string): Promise<void> {

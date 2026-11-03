@@ -13,6 +13,7 @@ const makeUser = () =>
         status: "ACTIVE",
         tenantId: "tenant-id",
         roleId: "role-id",
+        version: 0,
         createdAt: new Date("2025-01-01T00:00:00.000Z"),
         updatedAt: new Date("2025-01-01T00:00:00.000Z"),
         suspendedAt: null,

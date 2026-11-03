@@ -9,6 +9,7 @@ interface UserProps {
     email: Email;
     tenantId: string;
     roleId: string;
+    version: number;
     createdAt: Date;
     updatedAt: Date;
     suspendedAt: Date | null;

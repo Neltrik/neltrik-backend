@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "@/prisma/index";
+import { OptimisticLockError } from "@/shared/errors";
 
 import { Tenant } from "../../../domain/entities";
 import { TenantRepository } from "../../../domain/interfaces";
@@ -19,10 +20,13 @@ export class PrismaTenantRepository extends TenantRepository {
     }
 
     public async update(tenant: Tenant): Promise<void> {
-        await this.prisma.tenantClient.tenant.update({
-            where: { id: tenant.id },
-            data: TenantMapper.toPersistence(tenant),
+        const result = await this.prisma.tenantClient.tenant.updateMany({
+            where: { id: tenant.id, version: tenant.version },
+            data: { ...TenantMapper.toPersistence(tenant), version: tenant.version + 1 },
         });
+        if (result.count === 0) {
+            throw new OptimisticLockError();
+        }
     }
 
     public async get(id: string): Promise<Tenant | null> {

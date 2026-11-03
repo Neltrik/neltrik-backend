@@ -16,6 +16,7 @@ const createProps = (): Omit<TenantState, "status"> => {
         name: "Neltrik",
         slug: "neltrik",
         type: "CUSTOMER",
+        version: 0,
         createdAt,
         updatedAt: createdAt,
         suspendedAt: null,

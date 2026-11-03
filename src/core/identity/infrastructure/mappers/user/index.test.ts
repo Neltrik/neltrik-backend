@@ -17,6 +17,7 @@ const createProps = (): UserState => {
         tenantId: "tenant-id",
         roleId: "role-id",
         status: RESOURCE_STATUS.ACTIVE,
+        version: 0,
         createdAt,
         updatedAt: createdAt,
         suspendedAt: null,

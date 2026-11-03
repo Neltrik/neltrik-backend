@@ -10,6 +10,7 @@ export class TenantRoleConfigurationMapper {
             tenantId: tenantRoleConfiguration.tenantId,
             roleId: tenantRoleConfiguration.roleId,
             displayName: tenantRoleConfiguration.displayName.value,
+            version: tenantRoleConfiguration.version,
             createdAt: tenantRoleConfiguration.createdAt,
             updatedAt: tenantRoleConfiguration.updatedAt,
         };
@@ -21,6 +22,7 @@ export class TenantRoleConfigurationMapper {
             tenantId: tenantRoleConfiguration.tenantId,
             roleId: tenantRoleConfiguration.roleId,
             displayName: DisplayName.create(tenantRoleConfiguration.displayName),
+            version: tenantRoleConfiguration.version,
             createdAt: tenantRoleConfiguration.createdAt,
             updatedAt: tenantRoleConfiguration.updatedAt,
         });

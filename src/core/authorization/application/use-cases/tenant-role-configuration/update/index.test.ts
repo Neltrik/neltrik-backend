@@ -13,6 +13,7 @@ const createProps = (): TenantRoleConfigurationProps => {
         tenantId: "tenant-id",
         roleId: "role-id",
         displayName: DisplayName.create("Administrator"),
+        version: 0,
         createdAt,
         updatedAt: createdAt,
     };

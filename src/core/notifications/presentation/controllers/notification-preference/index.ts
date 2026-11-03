@@ -13,7 +13,7 @@ import {
 } from "@nestjs/swagger";
 
 import { CurrentUser, type UserPayload } from "@/shared/auth";
-import { Permissions, PublicPermission } from "@/shared/authorization";
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ResponsePayload } from "@/shared/pagination";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -69,8 +69,7 @@ export class NotificationPreferenceController {
         code: RESPONSE_CODES.RESOURCE_CREATED,
         message: NOTIFICATION_PREFERENCE_MESSAGES.CREATED,
     })
-    // @Permissions("NOTIFICATION_PREFERENCE_MANAGE")
-    @PublicPermission()
+    @Permissions("NOTIFICATION_PREFERENCE_MANAGE")
     @Post()
     public async create(
         @CurrentUser() user: UserPayload,

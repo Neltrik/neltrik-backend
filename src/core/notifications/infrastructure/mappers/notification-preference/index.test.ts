@@ -34,6 +34,7 @@ describe("NotificationPreferenceMapper", () => {
             channel: preference.channel,
             category: preference.category,
             enabled: preference.isEnabled(),
+            version: 0,
             createdAt: preference.createdAt,
             updatedAt: preference.updatedAt,
         });

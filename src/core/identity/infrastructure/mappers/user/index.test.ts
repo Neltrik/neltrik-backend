@@ -36,6 +36,7 @@ describe("UserMapper", () => {
             tenantId: user.tenantId,
             roleId: user.roleId,
             status: user.status,
+            version: 0,
             createdAt: user.createdAt,
             updatedAt: user.updatedAt,
             suspendedAt: user.suspendedAt,

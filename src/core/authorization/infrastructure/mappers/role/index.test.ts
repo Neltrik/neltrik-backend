@@ -29,6 +29,7 @@ describe("RoleMapper", () => {
             defaultDisplayName: role.defaultDisplayName,
             description: role.description,
             scope: role.scope,
+            version: 0,
             createdAt: role.createdAt,
             updatedAt: role.updatedAt,
         });

@@ -30,6 +30,7 @@ describe("TenantMapper", () => {
             status: tenant.status,
             createdAt: tenant.createdAt,
             type: "PLATFORM",
+            version: 0,
             updatedAt: tenant.updatedAt,
             suspendedAt: tenant.suspendedAt,
         });

@@ -1,6 +1,6 @@
 import { HttpStatus } from "@nestjs/common";
 
-import { ForbiddenError, UnauthorizedError } from "@/shared/errors";
+import { ForbiddenError, OptimisticLockError, UnauthorizedError } from "@/shared/errors";
 
 import { GlobalDomainHttpStatusStrategy } from "./";
 
@@ -68,6 +68,13 @@ describe("GlobalDomainHttpStatusStrategy", () => {
             const strategy = makeSut();
             const result = strategy.resolve(null);
             expect(result).toBe(HttpStatus.BAD_REQUEST);
+        });
+
+        it("should return conflict when exception is an OptimisticLockError", () => {
+            const strategy = makeSut();
+            const exception = new OptimisticLockError();
+            const result = strategy.resolve(exception);
+            expect(result).toBe(HttpStatus.CONFLICT);
         });
     });
 });

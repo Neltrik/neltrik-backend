@@ -27,6 +27,7 @@ describe("TenantRoleConfigurationMapper", () => {
             tenantId: configuration.tenantId,
             roleId: configuration.roleId,
             displayName: configuration.displayName.value,
+            version: 0,
             createdAt: configuration.createdAt,
             updatedAt: configuration.updatedAt,
         });

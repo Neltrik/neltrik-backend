@@ -1,4 +1,4 @@
-import { FileQuotaExceededError, InvalidQuotaLimitError, InvalidQuotaUsageError } from "../../errors";
+import { InvalidQuotaLimitError, InvalidQuotaUsageError } from "../../errors";
 import { type FileQuotaProps } from "../../types";
 import { FileQuota } from "./index";
 
@@ -80,27 +80,6 @@ describe("Validations", () => {
         ["decimal number", 1.5],
         ["NaN", Number.NaN],
         ["positive infinity", Number.POSITIVE_INFINITY],
-    ])("should throw InvalidQuotaUsageError when increment size is %s", (_, size) => {
-        const quota = FileQuota.restore(createProps());
-        expect(() => quota.increment(size)).toThrow(InvalidQuotaUsageError);
-    });
-
-    it.each([
-        ["zero", 0],
-        ["negative number", -1],
-        ["decimal number", 1.5],
-        ["NaN", Number.NaN],
-        ["positive infinity", Number.POSITIVE_INFINITY],
-    ])("should throw InvalidQuotaUsageError when decrement size is %s", (_, size) => {
-        const quota = FileQuota.restore(createProps());
-        expect(() => quota.decrement(size)).toThrow(InvalidQuotaUsageError);
-    });
-    it.each([
-        ["zero", 0],
-        ["negative number", -1],
-        ["decimal number", 1.5],
-        ["NaN", Number.NaN],
-        ["positive infinity", Number.POSITIVE_INFINITY],
     ])("should throw InvalidQuotaLimitError when adjusting limit to %s", (_, limitBytes) => {
         const quota = FileQuota.restore(createProps());
         expect(() => quota.adjustLimit(limitBytes)).toThrow(InvalidQuotaLimitError);
@@ -108,72 +87,6 @@ describe("Validations", () => {
 });
 
 describe("Mutations", () => {
-    it("should increment usage", () => {
-        const quota = FileQuota.restore(createProps());
-        quota.increment(1_000);
-        expect(quota.usedBytes).toBe(3_000);
-    });
-
-    it("should update updatedAt when incrementing usage", () => {
-        const quota = FileQuota.restore(createProps());
-        const previousUpdatedAt = quota.updatedAt;
-        quota.increment(1_000);
-        expect(quota.updatedAt).toBeInstanceOf(Date);
-        expect(quota.updatedAt.getTime()).toBeGreaterThanOrEqual(previousUpdatedAt.getTime());
-    });
-
-    it("should increment usage up to the limit", () => {
-        const quota = FileQuota.restore({ ...createProps(), usedBytes: 9_000 });
-        quota.increment(1_000);
-        expect(quota.usedBytes).toBe(10_000);
-        expect(quota.getAvailableBytes()).toBe(0);
-    });
-
-    it("should throw FileQuotaExceededError when increment exceeds the limit", () => {
-        const quota = FileQuota.restore({ ...createProps(), usedBytes: 9_000 });
-        expect(() => quota.increment(1_001)).toThrow(FileQuotaExceededError);
-    });
-
-    it("should not change usage when increment exceeds the limit", () => {
-        const quota = FileQuota.restore({
-            ...createProps(),
-            usedBytes: 9_000,
-        });
-        expect(() => quota.increment(1_001)).toThrow(FileQuotaExceededError);
-        expect(quota.usedBytes).toBe(9_000);
-    });
-
-    it("should decrement usage", () => {
-        const quota = FileQuota.restore(createProps());
-        quota.decrement(500);
-        expect(quota.usedBytes).toBe(1_500);
-    });
-
-    it("should update updatedAt when decrementing usage", () => {
-        const quota = FileQuota.restore(createProps());
-        const previousUpdatedAt = quota.updatedAt;
-        quota.decrement(500);
-        expect(quota.updatedAt).toBeInstanceOf(Date);
-        expect(quota.updatedAt.getTime()).toBeGreaterThanOrEqual(previousUpdatedAt.getTime());
-    });
-
-    it("should decrement usage down to zero", () => {
-        const quota = FileQuota.restore(createProps());
-        quota.decrement(2_000);
-        expect(quota.usedBytes).toBe(0);
-    });
-
-    it("should throw InvalidQuotaUsageError when decrement exceeds current usage", () => {
-        const quota = FileQuota.restore(createProps());
-        expect(() => quota.decrement(2_001)).toThrow(InvalidQuotaUsageError);
-    });
-
-    it("should not change usage when decrement exceeds current usage", () => {
-        const quota = FileQuota.restore(createProps());
-        expect(() => quota.decrement(2_001)).toThrow(InvalidQuotaUsageError);
-        expect(quota.usedBytes).toBe(2_000);
-    });
-
     it("should adjust the limit", () => {
         const quota = FileQuota.restore(createProps());
         quota.adjustLimit(20_000);

@@ -152,6 +152,7 @@ export class TemplateManagementController {
             subject: template.subject,
             body: template.body,
             isActive: template.isActive(),
+            version: template.version,
             createdAt: template.createdAt,
             updatedAt: template.updatedAt,
         };
@@ -209,6 +210,7 @@ export class TemplateManagementController {
                 subject: template.subject,
                 body: template.body,
                 isActive: template.isActive(),
+                version: template.version,
                 createdAt: template.createdAt,
                 updatedAt: template.updatedAt,
             })),

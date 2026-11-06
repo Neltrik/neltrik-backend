@@ -12,12 +12,11 @@ export class DecrementQuotaInternalUseCase {
     constructor(private readonly fileQuotaRepository: FileQuotaRepository) {}
 
     public async execute(input: DecrementQuotaInput, context?: TransactionContext): Promise<FileQuota> {
+        await this.fileQuotaRepository.decrementUsedBytes(input.tenantId, input.size, context);
         const quota = await this.fileQuotaRepository.findByTenantId(input.tenantId);
         if (!quota) {
             throw new FileQuotaNotFoundError();
         }
-        quota.decrement(input.size);
-        await this.fileQuotaRepository.update(quota, context);
         return quota;
     }
 }

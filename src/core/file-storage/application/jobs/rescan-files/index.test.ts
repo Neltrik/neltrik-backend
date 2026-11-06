@@ -31,6 +31,7 @@ const makeFile = (options?: { id?: string; storageKeys?: string[] }): File => {
         resourceType: "USER",
         resourceId: "resource-id",
         versions,
+        version: 0,
         status: "READY",
         createdAt,
         updatedAt: createdAt,

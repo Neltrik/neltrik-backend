@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/prisma/index";
+import { OptimisticLockError } from "@/shared/errors";
 import { withPaginationArgs } from "@/shared/pagination";
 import { TransactionContext } from "@/shared/transaction";
 
@@ -23,10 +24,13 @@ export class PrismaFileRepository extends FileRepository {
 
     public async update(file: File, context?: TransactionContext): Promise<void> {
         const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
-        await prisma.file.update({
-            where: { id: file.id },
-            data: FileMapper.toPersistence(file),
+        const result = await prisma.file.updateMany({
+            where: { id: file.id, version: file.version },
+            data: { ...FileMapper.toPersistence(file), version: file.version + 1 },
         });
+        if (result.count === 0) {
+            throw new OptimisticLockError();
+        }
     }
 
     public async findById(id: string): Promise<File | null> {

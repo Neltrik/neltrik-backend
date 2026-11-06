@@ -37,6 +37,7 @@ export interface FileProps {
     resourceType: string;
     resourceId: string;
     versions: FileVersion[];
+    version: number;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;

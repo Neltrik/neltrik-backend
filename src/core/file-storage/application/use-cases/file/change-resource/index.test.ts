@@ -29,6 +29,7 @@ const makeFile = (id = "file-id"): File => {
         resourceType: "USER",
         resourceId: "resource-id",
         versions: [version],
+        version: 0,
         createdAt,
         updatedAt: createdAt,
         deletedAt: null,

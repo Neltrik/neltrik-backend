@@ -40,4 +40,20 @@ export class PrismaFileQuotaRepository extends FileQuotaRepository {
             data: FileQuotaMapper.toPersistence(quota),
         });
     }
+
+    public async incrementUsedBytes(tenantId: string, delta: number, context?: TransactionContext): Promise<void> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
+        await prisma.fileQuota.update({
+            where: { tenantId },
+            data: { usedBytes: { increment: delta } },
+        });
+    }
+
+    public async decrementUsedBytes(tenantId: string, delta: number, context?: TransactionContext): Promise<void> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
+        await prisma.fileQuota.update({
+            where: { tenantId },
+            data: { usedBytes: { decrement: delta } },
+        });
+    }
 }

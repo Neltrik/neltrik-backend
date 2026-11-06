@@ -1,4 +1,4 @@
-import { FileQuotaExceededError, InvalidQuotaLimitError, InvalidQuotaUsageError } from "../../errors";
+import { InvalidQuotaLimitError, InvalidQuotaUsageError } from "../../errors";
 import { type FileQuotaProps } from "../../types";
 
 const NEAR_LIMIT_THRESHOLD = 0.8;
@@ -30,30 +30,6 @@ export class FileQuota {
         if (!Number.isInteger(usedBytes) || usedBytes < 0) {
             throw new InvalidQuotaUsageError();
         }
-    }
-
-    private ensureSizeIsValid(size: number): void {
-        if (!Number.isInteger(size) || size <= 0) {
-            throw new InvalidQuotaUsageError();
-        }
-    }
-
-    public increment(size: number): void {
-        this.ensureSizeIsValid(size);
-        if (!this.canAccommodate(size)) {
-            throw new FileQuotaExceededError();
-        }
-        this.props.usedBytes += size;
-        this.props.updatedAt = new Date();
-    }
-
-    public decrement(size: number): void {
-        this.ensureSizeIsValid(size);
-        if (this.props.usedBytes - size < 0) {
-            throw new InvalidQuotaUsageError();
-        }
-        this.props.usedBytes -= size;
-        this.props.updatedAt = new Date();
     }
 
     public adjustLimit(newLimitBytes: number): void {

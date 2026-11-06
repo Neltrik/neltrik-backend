@@ -59,6 +59,12 @@ export class NotificationTemplateResponseDto {
     isActive!: boolean;
 
     @ApiProperty({
+        example: 0,
+        description: "Version number of the template.",
+    })
+    version!: number;
+
+    @ApiProperty({
         example: "2025-01-01T00:00:00.000Z",
         description: "Creation date of the template.",
     })

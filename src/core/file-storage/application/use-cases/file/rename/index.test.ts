@@ -30,6 +30,7 @@ const makeFile = (id = "file-id", status: FileStatus = FILE_STATUS.READY): File 
         resourceType: "USER",
         resourceId: "resource-id",
         versions: [version],
+        version: 0,
         createdAt,
         updatedAt: createdAt,
         deletedAt: null,

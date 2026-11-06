@@ -39,6 +39,7 @@ const createProps = (): FileProps => {
                 mimeType: "application/pdf",
             }),
         ],
+        version: 0,
         createdAt,
         updatedAt: createdAt,
         deletedAt: null,
@@ -122,6 +123,12 @@ describe("File", () => {
         const props = createProps();
         const file = File.restore({ ...props, versions: [...props.versions, createVersion()] });
         expect(file.getTotalSize()).toBe(3072);
+    });
+
+    it("should expose the current version through its getter", () => {
+        const props = createProps();
+        const file = File.restore({ ...props, version: 5 });
+        expect(file.version).toBe(5);
     });
 });
 

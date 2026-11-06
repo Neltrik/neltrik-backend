@@ -26,11 +26,17 @@ export class File {
         this.props = props;
     }
 
-    public static create(props: Omit<FileProps, "status" | "updatedAt" | "deletedAt">): File {
+    public static create(props: Omit<FileProps, "status" | "version" | "updatedAt" | "deletedAt">): File {
         if (!Array.isArray(props.versions) || props.versions.length !== 1) {
             throw new InvalidFileVersionsError();
         }
-        return new File({ ...props, status: FILE_STATUS.PENDING, updatedAt: props.createdAt, deletedAt: null });
+        return new File({
+            ...props,
+            status: FILE_STATUS.PENDING,
+            version: 0,
+            updatedAt: props.createdAt,
+            deletedAt: null,
+        });
     }
 
     public static restore(props: FileProps): File {
@@ -232,6 +238,10 @@ export class File {
 
     public get deletedAt(): Date | null {
         return this.props.deletedAt;
+    }
+
+    public get version(): number {
+        return this.props.version;
     }
 
     public isReady(): boolean {

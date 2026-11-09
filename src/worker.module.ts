@@ -9,6 +9,8 @@ import { TenantModule } from "./core/tenant/tenant.module";
 import { PrismaModule } from "./prisma";
 import { IdGeneratorModule } from "./shared/id-generator";
 import { JobsModule } from "./shared/jobs/jobs.module";
+import { OutboxModule } from "./shared/outbox/outbox.module";
+import { OutboxScheduler } from "./shared/outbox/scheduler";
 import { WorkerBootstrap } from "./worker.bootstrap";
 
 @Module({
@@ -18,11 +20,12 @@ import { WorkerBootstrap } from "./worker.bootstrap";
         PrismaModule,
         JobsModule,
         IdGeneratorModule,
+        OutboxModule,
         FileStorageModule,
         NotificationsModule,
         TenantModule,
         AuthorizationModule,
     ],
-    providers: [WorkerBootstrap],
+    providers: [WorkerBootstrap, OutboxScheduler],
 })
 export class WorkerModule {}

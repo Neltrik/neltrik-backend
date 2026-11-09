@@ -1,6 +1,6 @@
-import { type JobScheduler } from "@/shared/jobs";
+import type { OutboxRepository } from "@/shared/outbox";
 
-import { File } from "../../../../domain/entities";
+import { File, type FileQuota } from "../../../../domain/entities";
 import { FileNotFoundError, FileQuotaExceededError, InvalidFileStatusError } from "../../../../domain/errors";
 import { FileVersion } from "../../../../domain/value-objects";
 import {
@@ -56,6 +56,12 @@ const makeFile = (): File => {
 
 describe("ReplaceFileUseCase", () => {
     const makeSut = () => {
+        const outboxRepository: jest.Mocked<OutboxRepository> = {
+            create: jest.fn().mockResolvedValue(undefined),
+            findPending: jest.fn().mockResolvedValue([]),
+            markProcessed: jest.fn().mockResolvedValue(undefined),
+            markFailed: jest.fn().mockResolvedValue(undefined),
+        };
         const transactionManager = new TransactionManagerSpy();
         const checksumGenerator = new ChecksumGeneratorSpy();
         checksumGenerator.generate.mockResolvedValue("new-checksum");
@@ -67,18 +73,15 @@ describe("ReplaceFileUseCase", () => {
         verifyQuotaLimitSpy.mockResolvedValue(true);
         const incrementQuotaInternalUseCase = new IncrementQuotaInternalUseCase(fileQuotaRepository);
         const incrementQuotaSpy = jest.spyOn(incrementQuotaInternalUseCase, "execute");
-        incrementQuotaSpy.mockResolvedValue(undefined as never);
+        incrementQuotaSpy.mockResolvedValue({} as FileQuota);
         const magicBytesDetector = {
             detect: jest.fn().mockResolvedValue("application/pdf"),
         };
         const fileValidationService = new FileValidationService(magicBytesDetector);
         jest.spyOn(fileValidationService, "validate").mockResolvedValue(undefined);
         const compensatingOperation = new CompensatingOperationService();
-        const jobScheduler = {
-            enqueue: jest.fn().mockResolvedValue(undefined),
-        } as unknown as JobScheduler;
         const useCase = new ReplaceFileUseCase(
-            jobScheduler,
+            outboxRepository,
             transactionManager,
             checksumGenerator,
             fileRepository,
@@ -90,6 +93,7 @@ describe("ReplaceFileUseCase", () => {
         );
         return {
             useCase,
+            outboxRepository,
             transactionManager,
             checksumGenerator,
             fileRepository,
@@ -97,12 +101,11 @@ describe("ReplaceFileUseCase", () => {
             verifyQuotaLimitSpy,
             incrementQuotaSpy,
             fileValidationService,
-            jobScheduler,
         };
     };
 
     it("should replace the file successfully", async () => {
-        const { useCase, fileRepository, storagePort, transactionManager } = makeSut();
+        const { useCase, fileRepository, storagePort, transactionManager, outboxRepository } = makeSut();
         fileRepository.findById.mockResolvedValue(makeFile());
         const result = await useCase.execute(makeInput());
         expect(storagePort.upload).toHaveBeenCalledWith(
@@ -112,6 +115,13 @@ describe("ReplaceFileUseCase", () => {
         );
         expect(fileRepository.update).toHaveBeenCalledTimes(1);
         expect(transactionManager.executeCalls).toBe(1);
+        expect(outboxRepository.create).toHaveBeenCalledWith(
+            {
+                eventType: "FILE_SCAN",
+                payload: { tenantId: "tenant-id", fileId: "file-id", version: 2 },
+            },
+            expect.anything(),
+        );
         expect(result).toMatchObject({
             id: "file-id",
             tenantId: "tenant-id",
@@ -186,6 +196,13 @@ describe("ReplaceFileUseCase", () => {
         });
     });
 
+    it("should verify the quota using the file tenant and input size", async () => {
+        const { useCase, fileRepository, verifyQuotaLimitSpy } = makeSut();
+        fileRepository.findById.mockResolvedValue(makeFile());
+        await useCase.execute(makeInput());
+        expect(verifyQuotaLimitSpy).toHaveBeenCalledWith({ tenantId: "tenant-id", size: 2048 });
+    });
+
     it("should increment the quota inside the transaction", async () => {
         const { useCase, fileRepository, incrementQuotaSpy, transactionManager } = makeSut();
         fileRepository.findById.mockResolvedValue(makeFile());
@@ -202,14 +219,28 @@ describe("ReplaceFileUseCase", () => {
         expect(storagePort.upload).not.toHaveBeenCalled();
     });
 
-    it("should propagate antivirus scheduling errors", async () => {
-        const { useCase, fileRepository, storagePort, jobScheduler } = makeSut();
+    it("should create a FILE_SCAN outbox event after persisting the file", async () => {
+        const { useCase, fileRepository, outboxRepository } = makeSut();
         fileRepository.findById.mockResolvedValue(makeFile());
-        jest.spyOn(jobScheduler, "enqueue").mockRejectedValue(new Error("Antivirus unavailable"));
-        await expect(useCase.execute(makeInput())).rejects.toThrow("Antivirus unavailable");
+        await useCase.execute(makeInput());
+        expect(outboxRepository.create).toHaveBeenCalledTimes(1);
+        expect(outboxRepository.create).toHaveBeenCalledWith(
+            {
+                eventType: "FILE_SCAN",
+                payload: { tenantId: "tenant-id", fileId: "file-id", version: 2 },
+            },
+            expect.anything(),
+        );
+    });
+
+    it("should propagate outbox errors and compensate the uploaded file", async () => {
+        const { useCase, fileRepository, storagePort, outboxRepository } = makeSut();
+        fileRepository.findById.mockResolvedValue(makeFile());
+        outboxRepository.create.mockRejectedValue(new Error("Outbox unavailable"));
+        await expect(useCase.execute(makeInput())).rejects.toThrow("Outbox unavailable");
         expect(storagePort.upload).toHaveBeenCalledTimes(1);
+        expect(storagePort.delete).toHaveBeenCalledWith("tenants/tenant-id/files/file-id/v2/document-v2.pdf");
         expect(fileRepository.update).toHaveBeenCalledTimes(1);
-        expect(jobScheduler.enqueue).toHaveBeenCalledTimes(1);
     });
 
     it("should use the next version in the storage key", async () => {
@@ -221,6 +252,15 @@ describe("ReplaceFileUseCase", () => {
             Buffer.from("new-file-content"),
             "application/pdf",
         );
+    });
+
+    it("should generate the checksum using the input buffer", async () => {
+        const { useCase, fileRepository, checksumGenerator } = makeSut();
+        const input = makeInput();
+        fileRepository.findById.mockResolvedValue(makeFile());
+        await useCase.execute(input);
+        expect(checksumGenerator.generate).toHaveBeenCalledWith(input.buffer);
+        expect(checksumGenerator.generate).toHaveBeenCalledTimes(1);
     });
 
     it("should throw InvalidFileStatusError when the file has no latest version", async () => {

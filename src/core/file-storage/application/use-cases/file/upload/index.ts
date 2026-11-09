@@ -1,13 +1,12 @@
 import { Injectable } from "@nestjs/common";
 
 import { IdGenerator } from "@/shared/id-generator";
-import { JobScheduler } from "@/shared/jobs";
+import { OutboxRepository } from "@/shared/outbox";
 import { TransactionManager } from "@/shared/transaction";
 
 import { File } from "../../../../domain/entities";
 import { FileAlreadyExistsError, FileQuotaExceededError } from "../../../../domain/errors";
 import { ChecksumGenerator, FileRepository, FileStoragePort } from "../../../../domain/interfaces";
-import { buildFileScanJobId, FILE_SCAN_JOB, FILE_SCAN_JOB_OPTIONS, FILE_SCAN_QUEUE } from "../../../../domain/types";
 import { FileVersion } from "../../../../domain/value-objects";
 import { CompensatingOperationService } from "../../../compensation";
 import {
@@ -29,7 +28,7 @@ interface PreparedUpload {
 export class UploadFileUseCase {
     constructor(
         private readonly idGenerator: IdGenerator,
-        private readonly jobScheduler: JobScheduler,
+        private readonly outboxRepository: OutboxRepository,
         private readonly transactionManager: TransactionManager,
         private readonly checksumGenerator: ChecksumGenerator,
         private readonly fileRepository: FileRepository,
@@ -119,11 +118,12 @@ export class UploadFileUseCase {
             });
             await this.fileRepository.create(file, context);
             await this.incrementQuotaInternalUseCase.execute({ tenantId: input.tenantId, size: input.size }, context);
-            await this.jobScheduler.enqueue(
-                FILE_SCAN_QUEUE,
-                FILE_SCAN_JOB,
-                { tenantId: input.tenantId, fileId: file.id, version: 1 },
-                { ...FILE_SCAN_JOB_OPTIONS, jobId: buildFileScanJobId(file.id, 1) },
+            await this.outboxRepository.create(
+                {
+                    eventType: "FILE_SCAN",
+                    payload: { tenantId: input.tenantId, fileId: file.id, version: 1 },
+                },
+                context,
             );
             return file;
         });

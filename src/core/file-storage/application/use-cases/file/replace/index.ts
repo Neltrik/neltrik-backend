@@ -1,12 +1,11 @@
 import { Injectable } from "@nestjs/common";
 
-import { JobScheduler } from "@/shared/jobs";
+import { OutboxRepository } from "@/shared/outbox";
 import { TransactionManager } from "@/shared/transaction";
 
 import { File } from "../../../../domain/entities";
 import { FileNotFoundError, FileQuotaExceededError, InvalidFileStatusError } from "../../../../domain/errors";
 import { ChecksumGenerator, FileRepository, FileStoragePort } from "../../../../domain/interfaces";
-import { buildFileScanJobId, FILE_SCAN_JOB, FILE_SCAN_JOB_OPTIONS, FILE_SCAN_QUEUE } from "../../../../domain/types";
 import { FileVersion } from "../../../../domain/value-objects";
 import { CompensatingOperationService } from "../../../compensation";
 import { IncrementQuotaInternalUseCase, VerifyQuotaLimitInternalUseCase } from "../../../use-cases-internal";
@@ -23,7 +22,7 @@ interface PreparedReplace {
 @Injectable()
 export class ReplaceFileUseCase {
     constructor(
-        private readonly jobScheduler: JobScheduler,
+        private readonly outboxRepository: OutboxRepository,
         private readonly transactionManager: TransactionManager,
         private readonly checksumGenerator: ChecksumGenerator,
         private readonly fileRepository: FileRepository,
@@ -102,11 +101,12 @@ export class ReplaceFileUseCase {
             file.addVersion(version);
             await this.fileRepository.update(file, context);
             await this.incrementQuotaInternalUseCase.execute({ tenantId: file.tenantId, size: input.size }, context);
-            await this.jobScheduler.enqueue(
-                FILE_SCAN_QUEUE,
-                FILE_SCAN_JOB,
-                { tenantId: file.tenantId, fileId: file.id, version: prepared.nextVersion },
-                { ...FILE_SCAN_JOB_OPTIONS, jobId: buildFileScanJobId(file.id, prepared.nextVersion) },
+            await this.outboxRepository.create(
+                {
+                    eventType: "FILE_SCAN",
+                    payload: { tenantId: file.tenantId, fileId: file.id, version: prepared.nextVersion },
+                },
+                context,
             );
             return file;
         });

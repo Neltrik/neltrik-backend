@@ -4,6 +4,8 @@ import { env } from "@/config/index";
 import { TenantModule } from "@/core/tenant/tenant.module";
 import { DomainStatusRegistry } from "@/shared/http";
 import { JobScheduler } from "@/shared/jobs";
+import { HandlersRegistry } from "@/shared/outbox";
+import { OutboxModule } from "@/shared/outbox/outbox.module";
 
 import { CompensatingOperationService } from "./application/compensation";
 import {
@@ -48,6 +50,7 @@ import {
     RESCAN_FILES_JOB,
     RESCAN_FILES_QUEUE,
 } from "./domain/types";
+import { FileScanOutboxHandler } from "./infrastructure/handlers";
 import {
     PurgeDeletedFilesHandler,
     ReconcileStorageHandler,
@@ -69,6 +72,7 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
 @Module({
     controllers: [FileController, FileStorageQuotaController],
     providers: [
+        FileScanOutboxHandler,
         ScanFileJobsUseCase,
         ReconcileStorageJobsUseCase,
         PurgeDeletedFilesJobsUseCase,
@@ -132,16 +136,22 @@ import { FileController, FileStorageQuotaController } from "./presentation/contr
             useClass: FileTypeMagicBytesDetector,
         },
     ],
-    imports: [TenantModule],
+    imports: [TenantModule, OutboxModule],
 })
 export class FileStorageModule implements OnModuleInit {
-    constructor(private readonly jobScheduler: JobScheduler) {}
+    constructor(
+        private readonly jobScheduler: JobScheduler,
+        private readonly handlersRegistry: HandlersRegistry,
+        private readonly fileScanOutboxHandler: FileScanOutboxHandler,
+    ) {}
 
     public async onModuleInit(): Promise<void> {
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_QUOTA_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_VERSION_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.FILE_ALREADY_EXISTS, HttpStatus.CONFLICT);
+
+        this.handlersRegistry.register(this.fileScanOutboxHandler);
 
         await this.jobScheduler.schedule(
             RECONCILE_STORAGE_QUEUE,

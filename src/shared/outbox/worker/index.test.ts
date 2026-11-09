@@ -1,10 +1,13 @@
 import type { OutboxHandler, OutboxRepository } from "../contracts";
+import { HandlersRegistry } from "../handlers-registry";
 import type { OutboxEventRecord } from "../types";
 import { OutboxWorker } from "./";
 
 describe("OutboxWorker", () => {
     let worker: OutboxWorker;
     let outboxRepository: jest.Mocked<OutboxRepository>;
+    let handlersRegistry: HandlersRegistry;
+    let getHandlerSpy: jest.SpyInstance;
     let handler: jest.Mocked<OutboxHandler>;
 
     const events: OutboxEventRecord[] = [
@@ -25,7 +28,9 @@ describe("OutboxWorker", () => {
             create: jest.fn().mockResolvedValue(undefined),
         };
         handler = { eventType: "USER_CREATED", handle: jest.fn().mockResolvedValue(undefined) };
-        worker = new OutboxWorker(outboxRepository, handler);
+        handlersRegistry = new HandlersRegistry();
+        getHandlerSpy = jest.spyOn(handlersRegistry, "get").mockReturnValue(handler);
+        worker = new OutboxWorker(outboxRepository, handlersRegistry);
     });
 
     afterEach(() => {
@@ -40,6 +45,11 @@ describe("OutboxWorker", () => {
     it("should process pending events with provided limit", async () => {
         await worker.process(5);
         expect(outboxRepository.findPending).toHaveBeenCalledWith(5);
+    });
+
+    it("should retrieve the handler using the event type", async () => {
+        await worker.process();
+        expect(getHandlerSpy).toHaveBeenCalledWith("USER_CREATED");
     });
 
     it("should handle matching events and mark them as processed", async () => {
@@ -58,6 +68,7 @@ describe("OutboxWorker", () => {
             createdAt: new Date("2026-01-01T00:00:00.000Z"),
         };
         outboxRepository.findPending.mockResolvedValue([unmatchedEvent]);
+        getHandlerSpy.mockReturnValue(undefined);
         await worker.process();
         expect(handler.handle).not.toHaveBeenCalled();
         expect(outboxRepository.markFailed).toHaveBeenCalledWith("event-123", "No handler for ORDER_CREATED");
@@ -79,16 +90,7 @@ describe("OutboxWorker", () => {
             attempts: 0,
             createdAt: new Date("2026-01-01T00:00:00.000Z"),
         };
-        outboxRepository.findPending.mockResolvedValue([
-            {
-                id: "event-123",
-                eventType: "USER_CREATED",
-                payload: { userId: "user-123" },
-                attempts: 0,
-                createdAt: new Date("2026-01-01T00:00:00.000Z"),
-            },
-            secondEvent,
-        ]);
+        outboxRepository.findPending.mockResolvedValue([...events, secondEvent]);
         handler.handle.mockRejectedValueOnce(new Error("Processing failed")).mockResolvedValueOnce(undefined);
         await worker.process();
         expect(handler.handle).toHaveBeenCalledTimes(2);
@@ -99,6 +101,7 @@ describe("OutboxWorker", () => {
     it("should not process anything when there are no pending events", async () => {
         outboxRepository.findPending.mockResolvedValue([]);
         await worker.process();
+        expect(getHandlerSpy).not.toHaveBeenCalled();
         expect(handler.handle).not.toHaveBeenCalled();
         expect(outboxRepository.markProcessed).not.toHaveBeenCalled();
         expect(outboxRepository.markFailed).not.toHaveBeenCalled();

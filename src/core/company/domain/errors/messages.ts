@@ -8,6 +8,7 @@ export const ERROR_MESSAGES = {
     INVALID_COMPANY_NAME: "The company name is invalid.",
     INVALID_COMPANY_STATUS: "The company status is invalid.",
     COMPANY_SLUG_ALREADY_EXISTS: "The company slug already exists.",
+    COMPANY_NOT_FOUND: "The company was not found.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -20,4 +21,5 @@ export const DOMAIN_ERROR_CODES = {
     INVALID_COMPANY_NAME: "INVALID_COMPANY_NAME",
     INVALID_COMPANY_STATUS: "INVALID_COMPANY_STATUS",
     COMPANY_SLUG_ALREADY_EXISTS: "COMPANY_SLUG_ALREADY_EXISTS",
+    COMPANY_NOT_FOUND: "COMPANY_NOT_FOUND",
 } as const;

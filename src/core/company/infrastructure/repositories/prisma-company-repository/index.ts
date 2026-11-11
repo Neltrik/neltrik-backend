@@ -1,9 +1,11 @@
 import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "@/prisma/index";
+import { withPaginationArgs } from "@/shared/pagination";
 
 import { Company } from "../../../domain/entities";
 import { CompanyRepository } from "../../../domain/interfaces";
+import { FindByTenantParams } from "../../../domain/types";
 import { CompanyMapper } from "../../mappers";
 
 @Injectable()
@@ -29,10 +31,11 @@ export class PrismaCompanyRepository extends CompanyRepository {
         return CompanyMapper.toDomain(company);
     }
 
-    public async findByTenant(tenantId: string): Promise<Company[]> {
+    public async findByTenant(params: FindByTenantParams): Promise<Company[]> {
         const companies = await this.prisma.tenantClient.company.findMany({
-            where: { tenantId },
+            where: { tenantId: params.tenantId },
             orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            ...withPaginationArgs({ cursor: params.cursor, limit: params.limit }),
         });
         return companies.map((company) => CompanyMapper.toDomain(company));
     }

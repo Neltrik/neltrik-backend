@@ -4,6 +4,7 @@ export * from "./empty-slug";
 export * from "./invalid-name";
 export * from "./invalid-slug-format";
 export * from "./invalid-status";
+export * from "./not-found";
 export * from "./slug-already-exists";
 export * from "./slug-too-long";
 export * from "./slug-too-short";

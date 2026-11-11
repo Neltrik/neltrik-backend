@@ -1,0 +1,21 @@
+export const ERROR_MESSAGES = {
+    EMPTY_COMPANY_SLUG: "The company slug cannot be empty.",
+    INVALID_COMPANY_SLUG_FORMAT: "The company slug format is invalid.",
+    COMPANY_SLUG_TOO_LONG: "The company slug is too long.",
+    COMPANY_SLUG_TOO_SHORT: "The company slug is too short.",
+    COMPANY_ALREADY_ACTIVE: "The company is already active.",
+    COMPANY_ALREADY_SUSPENDED: "The company is already suspended.",
+    INVALID_COMPANY_NAME: "The company name is invalid.",
+    INVALID_COMPANY_STATUS: "The company status is invalid.",
+} as const;
+
+export const DOMAIN_ERROR_CODES = {
+    EMPTY_COMPANY_SLUG: "EMPTY_COMPANY_SLUG",
+    INVALID_COMPANY_SLUG_FORMAT: "INVALID_COMPANY_SLUG_FORMAT",
+    COMPANY_SLUG_TOO_LONG: "COMPANY_SLUG_TOO_LONG",
+    COMPANY_SLUG_TOO_SHORT: "COMPANY_SLUG_TOO_SHORT",
+    COMPANY_ALREADY_ACTIVE: "COMPANY_ALREADY_ACTIVE",
+    COMPANY_ALREADY_SUSPENDED: "COMPANY_ALREADY_SUSPENDED",
+    INVALID_COMPANY_NAME: "INVALID_COMPANY_NAME",
+    INVALID_COMPANY_STATUS: "INVALID_COMPANY_STATUS",
+} as const;

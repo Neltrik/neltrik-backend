@@ -14,6 +14,7 @@ const TENANT_MODELS = [
     "FileQuota",
     "Notification",
     "NotificationPreference",
+    "Company",
 ] as const;
 const TENANT_MODELS_WITH_GLOBAL = ["NotificationTemplate"] as const;
 const OWNERSHIP_MODELS = ["AuthenticationSession", "NotificationPreference"] as const;

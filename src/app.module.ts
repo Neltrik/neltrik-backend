@@ -8,6 +8,7 @@ import Redis from "ioredis";
 import { AuditModule } from "./core/audit/audit.module";
 import { AuthenticationModule } from "./core/authentication/authentication.module";
 import { AuthorizationModule } from "./core/authorization/authorization.module";
+import { CompanyModule } from "./core/company/company.module";
 import { FileStorageModule } from "./core/file-storage/file-storage.module";
 import { IdentityModule } from "./core/identity/identity.module";
 import { NotificationsModule } from "./core/notifications/notifications.module";
@@ -50,6 +51,7 @@ import { SanitizationGuard, SanitizationModule } from "./shared/sanitization";
         AuditModule,
         AuthenticationModule,
         AuthorizationModule,
+        CompanyModule,
         FileStorageModule,
         IdentityModule,
         NotificationsModule,

@@ -7,6 +7,7 @@ export const ERROR_MESSAGES = {
     COMPANY_ALREADY_SUSPENDED: "The company is already suspended.",
     INVALID_COMPANY_NAME: "The company name is invalid.",
     INVALID_COMPANY_STATUS: "The company status is invalid.",
+    COMPANY_SLUG_ALREADY_EXISTS: "The company slug already exists.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -18,4 +19,5 @@ export const DOMAIN_ERROR_CODES = {
     COMPANY_ALREADY_SUSPENDED: "COMPANY_ALREADY_SUSPENDED",
     INVALID_COMPANY_NAME: "INVALID_COMPANY_NAME",
     INVALID_COMPANY_STATUS: "INVALID_COMPANY_STATUS",
+    COMPANY_SLUG_ALREADY_EXISTS: "COMPANY_SLUG_ALREADY_EXISTS",
 } as const;

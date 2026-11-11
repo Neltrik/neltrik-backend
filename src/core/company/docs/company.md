@@ -32,7 +32,6 @@ Una `Company` no conoce el significado de negocio de los recursos que agrupa (va
 - La `Company` no conoce el significado de negocio de los recursos que agrupa.
 - La `Company` es la raíz de su propio agregado.
 - El `slug` de la `Company` es un Value Object (`CompanySlug`) único dentro del `Tenant`.
-- El `name` es un Value Object (`CompanyName`) con validaciones de longitud y no vacío.
 
 ## 2. Relaciones
 
@@ -102,13 +101,6 @@ Representa el slug de la company (identificador legible, único dentro del tenan
 - **Longitud:** entre 3 y 50 caracteres.
 - **Unicidad:** único dentro del `Tenant`.
 - **Restricciones:** no puede estar vacío, contener únicamente guiones ni empezar o terminar con un guión.
-
-#### CompanyName
-
-Representa el nombre de la company.
-
-- **Longitud:** entre 1 y 255 caracteres.
-- **Restricciones:** no puede estar vacío ni contener únicamente espacios.
 
 ## 4. Reglas de negocio
 

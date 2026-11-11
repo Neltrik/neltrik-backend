@@ -1,3 +1,5 @@
+import type { PaginationInput } from "@/shared/pagination";
+
 export const COMPANY_STATUS = {
     ACTIVE: "ACTIVE",
     SUSPENDED: "SUSPENDED",
@@ -14,3 +16,7 @@ export type CompanyProps = {
     createdAt: Date;
     updatedAt: Date;
 };
+
+export interface FindByTenantParams extends PaginationInput {
+    tenantId: string;
+}

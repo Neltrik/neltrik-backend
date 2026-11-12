@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "@/prisma/index";
-import { withPaginationArgs } from "@/shared/pagination";
+import { PaginationInput, withPaginationArgs } from "@/shared/pagination";
 
 import { Company } from "../../../domain/entities";
 import { CompanyRepository } from "../../../domain/interfaces";
@@ -55,5 +55,13 @@ export class PrismaCompanyRepository extends CompanyRepository {
             where: { id: company.id },
             data: CompanyMapper.toPersistence(company),
         });
+    }
+
+    public async findAll(params: PaginationInput): Promise<Company[]> {
+        const companies = await this.prisma.company.findMany({
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            ...withPaginationArgs({ cursor: params.cursor, limit: params.limit }),
+        });
+        return companies.map((company) => CompanyMapper.toDomain(company));
     }
 }

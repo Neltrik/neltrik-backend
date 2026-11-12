@@ -1,3 +1,5 @@
+import { type PaginationInput } from "@/shared/pagination";
+
 import type { Company } from "../../entities";
 import { type FindByTenantParams } from "../../types";
 
@@ -7,4 +9,5 @@ export abstract class CompanyRepository {
     abstract findByTenant(params: FindByTenantParams): Promise<Company[]>;
     abstract findByTenantAndSlug(tenantId: string, slug: string): Promise<Company | null>;
     abstract update(company: Company): Promise<void>;
+    abstract findAll(params: PaginationInput): Promise<Company[]>;
 }

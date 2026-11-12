@@ -14,7 +14,7 @@ import {
 import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser } from "@/shared/auth";
-import { Permissions, PublicPermission } from "@/shared/authorization";
+import { Permissions } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ResponsePayload } from "@/shared/pagination";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -123,8 +123,7 @@ export class CompanyController {
     @ApiForbiddenResponse({ description: "Forbidden." })
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_FOUND, message: COMPANY_MESSAGES.LISTED })
-    // @Permissions("ADMIN_COMPANY_LIST")
-    @PublicPermission()
+    @Permissions("ADMIN_COMPANY_LIST")
     @Get()
     public async list(
         @CurrentUser("tenantId") tenantId: string,

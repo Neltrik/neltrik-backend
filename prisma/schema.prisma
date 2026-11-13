@@ -84,6 +84,7 @@ model Tenant {
   roleTenants        RoleTenant[]
   invitations        Invitation[]
   companies          Company[]
+  memberships        Membership[]
 
   @@index([status])
   @@map("tenants")
@@ -103,12 +104,44 @@ model Company {
   createdAt DateTime      @default(now()) @map("created_at")
   updatedAt DateTime      @updatedAt @map("updated_at")
 
-  tenant Tenant @relation(fields: [tenantId], references: [id])
+  tenant      Tenant       @relation(fields: [tenantId], references: [id])
+  memberships Membership[]
 
   @@unique([tenantId, slug])
   @@index([tenantId])
   @@index([status])
   @@map("companies")
+}
+
+enum MembershipStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  REVOKED
+}
+
+model Membership {
+  id        String           @id @default(uuid()) @db.Uuid
+  tenantId  String           @map("tenant_id") @db.Uuid
+  userId    String           @map("user_id") @db.Uuid
+  companyId String           @map("company_id") @db.Uuid
+  roleId    String           @map("role_id") @db.Uuid
+  status    MembershipStatus @default(PENDING)
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+  company Company @relation(fields: [companyId], references: [id])
+  role    Role    @relation(fields: [roleId], references: [id])
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([companyId])
+  @@index([roleId])
+  @@index([status])
+  @@index([companyId, status])
+  @@map("memberships")
 }
 
 enum InvitationStatus {
@@ -162,6 +195,7 @@ model User {
   tenant Tenant @relation(fields: [tenantId], references: [id])
 
   ownedSessions AuthenticationSession[]
+  memberships   Membership[]
 
   @@index([tenantId])
   @@index([roleId])
@@ -188,6 +222,7 @@ model Role {
   tenantConfigurations TenantRoleConfiguration[]
   rolePermissions      RolePermission[]
   roleTenants          RoleTenant[]
+  memberships          Membership[]
 
   @@map("roles")
 }

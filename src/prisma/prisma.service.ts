@@ -15,6 +15,7 @@ const TENANT_MODELS = [
     "Notification",
     "NotificationPreference",
     "Company",
+    "Membership",
 ] as const;
 const TENANT_MODELS_WITH_GLOBAL = ["NotificationTemplate"] as const;
 const OWNERSHIP_MODELS = ["AuthenticationSession", "NotificationPreference"] as const;

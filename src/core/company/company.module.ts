@@ -13,8 +13,8 @@ import {
 } from "./application/use-cases";
 import { CreateCompanyOhsUseCase } from "./application/use-cases-ohs";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
-import { CompanyRepository } from "./domain/interfaces";
-import { PrismaCompanyRepository } from "./infrastructure/repositories";
+import { CompanyRepository, MembershipRepository } from "./domain/interfaces";
+import { PrismaCompanyRepository, PrismaMembershipRepository } from "./infrastructure/repositories";
 import { CompanyController } from "./presentation/controllers";
 
 @Module({
@@ -30,6 +30,10 @@ import { CompanyController } from "./presentation/controllers";
         {
             provide: CompanyRepository,
             useClass: PrismaCompanyRepository,
+        },
+        {
+            provide: MembershipRepository,
+            useClass: PrismaMembershipRepository,
         },
     ],
     imports: [TenantModule],

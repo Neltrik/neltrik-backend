@@ -36,7 +36,6 @@ describe("InviteMemberUseCase", () => {
             membershipRepository,
         };
     };
-
     const makeInput = (): InviteMemberInput => ({
         companyId: "company-id",
         userId: "user-id",
@@ -44,10 +43,10 @@ describe("InviteMemberUseCase", () => {
         actorTenantId: "id",
         actorUserId: "",
     });
-
     const mockCompany = () =>
         ({
             tenantId: "tenant-id",
+            name: "Acme Corporation",
         }) as never;
 
     describe("execute", () => {
@@ -84,9 +83,10 @@ describe("InviteMemberUseCase", () => {
                     eventType: "SEND_INVITATION_EMAIL",
                     payload: {
                         membershipId: "membership-id",
-                        companyId: input.companyId,
                         userId: input.userId,
                         tenantId: "tenant-id",
+                        companyName: "Acme Corporation",
+                        inviterUserId: input.actorUserId,
                     },
                 },
                 expect.anything(),

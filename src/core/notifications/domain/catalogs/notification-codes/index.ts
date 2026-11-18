@@ -6,6 +6,9 @@ export const NOTIFICATION_CODES = {
     // Tenant
     INVITATION: "INVITATION",
 
+    // Company
+    COMPANY_INVITATION: "COMPANY_INVITATION",
+
     // Marketing
     WELCOME: "WELCOME",
 } as const;

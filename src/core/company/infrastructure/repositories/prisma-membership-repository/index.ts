@@ -1,7 +1,9 @@
 import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 
 import { PrismaService } from "@/prisma/index";
 import { withPaginationArgs } from "@/shared/pagination";
+import { TransactionContext } from "@/shared/transaction";
 
 import { Membership } from "../../../domain/entities";
 import { MembershipRepository } from "../../../domain/interfaces";
@@ -14,8 +16,9 @@ export class PrismaMembershipRepository extends MembershipRepository {
         super();
     }
 
-    public async create(membership: Membership): Promise<Membership> {
-        const persistence = await this.prisma.tenantClient.membership.create({
+    public async create(membership: Membership, context?: TransactionContext): Promise<Membership> {
+        const prisma = context ? context.get<Prisma.TransactionClient>() : this.prisma.tenantClient;
+        const persistence = await prisma.membership.create({
             data: MembershipMapper.toPersistence(membership),
         });
         return MembershipMapper.toDomain(persistence);

@@ -17,6 +17,7 @@ const createProps = (): MembershipProps => {
         status: MEMBERSHIP_STATUS.PENDING,
         createdAt,
         updatedAt: createdAt,
+        expiresAt: new Date(),
     };
 };
 
@@ -46,6 +47,18 @@ describe("Membership", () => {
         expect(membership.status).toBe(props.status);
         expect(membership.createdAt).toBe(props.createdAt);
         expect(membership.updatedAt).toBe(props.updatedAt);
+    });
+
+    it("should expose the expiration date", () => {
+        const expiresAt = new Date("2025-12-31T23:59:59.000Z");
+        const membership = Membership.restore({ ...createProps(), expiresAt });
+        expect(membership.expiresAt).toBe(expiresAt);
+    });
+
+    it("should return true when membership is expired", () => {
+        const expiresAt = new Date("2024-12-31T23:59:59.000Z");
+        const membership = Membership.restore({ ...createProps(), expiresAt });
+        expect(membership.isExpired()).toBe(true);
     });
 });
 

@@ -119,6 +119,10 @@ export class Membership {
         this.props.updatedAt = new Date();
     }
 
+    public isExpired(): boolean {
+        return this.props.expiresAt < new Date();
+    }
+
     public get id(): string {
         return this.props.id;
     }
@@ -149,5 +153,9 @@ export class Membership {
 
     public get updatedAt(): Date {
         return this.props.updatedAt;
+    }
+
+    public get expiresAt(): Date {
+        return this.props.expiresAt;
     }
 }

@@ -15,6 +15,8 @@ export const ERROR_MESSAGES = {
     MEMBERSHIP_ALREADY_SUSPENDED: "Membership is already suspended",
     MEMBERSHIP_ALREADY_REVOKED: "Membership is already revoked",
     MEMBERSHIP_TRANSITION_INVALID: "The requested membership transition is not allowed",
+    MEMBERSHIP_NOT_FOUND: "The membership was not found.",
+    MEMBERSHIP_EXPIRED: "The membership has expired.",
 } as const;
 
 export const DOMAIN_ERROR_CODES = {
@@ -34,4 +36,6 @@ export const DOMAIN_ERROR_CODES = {
     MEMBERSHIP_ALREADY_SUSPENDED: "MEMBERSHIP_ALREADY_SUSPENDED",
     MEMBERSHIP_ALREADY_REVOKED: "MEMBERSHIP_ALREADY_REVOKED",
     MEMBERSHIP_TRANSITION_INVALID: "MEMBERSHIP_TRANSITION_INVALID",
+    MEMBERSHIP_NOT_FOUND: "MEMBERSHIP_NOT_FOUND",
+    MEMBERSHIP_EXPIRED: "MEMBERSHIP_EXPIRED",
 } as const;

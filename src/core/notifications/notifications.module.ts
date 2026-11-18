@@ -2,7 +2,6 @@ import { HttpStatus, Module } from "@nestjs/common";
 
 import { TenantModule } from "@/core/tenant/tenant.module";
 import { DomainStatusRegistry } from "@/shared/http";
-import { EmailModule } from "@/shared/messaging";
 
 import { NotificationApi, NotificationApiImpl } from "./api";
 import { SendNotificationJobsUseCase } from "./application/jobs/send-notification";
@@ -36,11 +35,13 @@ import {
 } from "./domain/interfaces";
 import { StringInterpolationRenderer } from "./domain/renderers";
 import { SendNotificationHandler } from "./infrastructure/jobs";
+import { NodemailerEmailSender } from "./infrastructure/providers";
 import {
     PrismaNotificationPreferenceRepository,
     PrismaNotificationRepository,
     PrismaNotificationTemplateRepository,
 } from "./infrastructure/repositories";
+import { EmailSenderFactory } from "./infrastructure/strategies";
 import {
     NotificationController,
     NotificationPreferenceController,
@@ -76,6 +77,8 @@ import {
         ResolveNotificationPreferenceInternalUseCase,
         ResolveNotificationTemplateInternalUseCase,
         SendNotificationOhsUseCase,
+        NodemailerEmailSender,
+        EmailSenderFactory,
         SendNotificationHandler,
         {
             provide: NotificationApi,
@@ -98,7 +101,7 @@ import {
             useClass: StringInterpolationRenderer,
         },
     ],
-    imports: [TenantModule, EmailModule],
+    imports: [TenantModule],
     exports: [NotificationApi],
 })
 export class NotificationsModule {
@@ -107,5 +110,6 @@ export class NotificationsModule {
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.NOTIFICATION_PREFERENCE_ALREADY_EXISTS, HttpStatus.CONFLICT);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.NOTIFICATION_TEMPLATE_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.NOTIFICATION_NOT_FOUND, HttpStatus.NOT_FOUND);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.UNSUPPORTED_EMAIL_PROVIDER, HttpStatus.BAD_REQUEST);
     }
 }

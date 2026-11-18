@@ -1,8 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
-import { UnsupportedEmailProviderError } from "@/shared/errors";
-
-import { EmailSender, NodemailerEmailSender } from "../";
+import { UnsupportedEmailProviderError } from "../../../domain/errors";
+import { EmailSender, NodemailerEmailSender } from "../../providers/email";
 import { EMAIL_PROVIDER, EmailProvider } from "./types";
 
 @Injectable()

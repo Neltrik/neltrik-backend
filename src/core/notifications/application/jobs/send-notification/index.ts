@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
 
-import { EMAIL_PROVIDER, EmailSenderFactory } from "@/shared/messaging";
-
 import { Notification } from "../../../domain/entities";
 import { NotificationNotFoundError, TemplateVariableMissingError } from "../../../domain/errors";
 import { NotificationRepository, TemplateRenderer } from "../../../domain/interfaces";
 import { extractVariables } from "../../../domain/template";
 import { NOTIFICATION_CHANNEL } from "../../../domain/types";
+import { EmailSenderFactory } from "../../../infrastructure/strategies";
+import { EMAIL_PROVIDER } from "../../../infrastructure/strategies/email-provider/types";
 import { ResolveNotificationTemplateInternalUseCase } from "../../use-cases-internal";
 import type { SendNotificationJobsInput } from "./input";
 import type { SendNotificationJobsOutput } from "./output";
@@ -14,9 +14,9 @@ import type { SendNotificationJobsOutput } from "./output";
 @Injectable()
 export class SendNotificationJobsUseCase {
     constructor(
-        private readonly emailSenderFactory: EmailSenderFactory,
         private readonly notificationRepository: NotificationRepository,
         private readonly templateRenderer: TemplateRenderer,
+        private readonly emailSenderFactory: EmailSenderFactory,
         private readonly resolveNotificationTemplateUseCase: ResolveNotificationTemplateInternalUseCase,
     ) {}
 

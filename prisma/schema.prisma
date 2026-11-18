@@ -127,6 +127,7 @@ model Membership {
   companyId String           @map("company_id") @db.Uuid
   roleId    String           @map("role_id") @db.Uuid
   status    MembershipStatus @default(PENDING)
+  expiresAt DateTime         @map("expires_at")
   createdAt DateTime         @default(now()) @map("created_at")
   updatedAt DateTime         @updatedAt @map("updated_at")
 
@@ -141,6 +142,7 @@ model Membership {
   @@index([roleId])
   @@index([status])
   @@index([companyId, status])
+  @@index([status, expiresAt])
   @@map("memberships")
 }
 

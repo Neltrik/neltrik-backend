@@ -16,6 +16,7 @@ const createProps = (): MembershipProps => {
         status: MEMBERSHIP_STATUS.ACTIVE,
         createdAt,
         updatedAt,
+        expiresAt: new Date(),
     };
 };
 
@@ -32,6 +33,7 @@ describe("MembershipMapper", () => {
             status: membership.status,
             createdAt: membership.createdAt,
             updatedAt: membership.updatedAt,
+            expiresAt: membership.expiresAt,
         });
     });
 

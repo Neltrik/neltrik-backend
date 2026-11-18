@@ -30,6 +30,7 @@ export class InviteMemberUseCase {
             throw new MembershipAlreadyExistsError();
         }
         const now = new Date();
+        const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
         const membership = Membership.create({
             id: this.idGenerator.generate(),
             tenantId: company.tenantId,
@@ -37,6 +38,7 @@ export class InviteMemberUseCase {
             companyId: input.companyId,
             roleId: input.roleId,
             createdAt: now,
+            expiresAt,
         });
         await this.transactionManager.execute(async (context) => {
             await this.membershipRepository.create(membership, context);

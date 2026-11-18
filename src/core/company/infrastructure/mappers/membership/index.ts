@@ -13,6 +13,7 @@ export class MembershipMapper {
             status: membership.status,
             createdAt: membership.createdAt,
             updatedAt: membership.updatedAt,
+            expiresAt: membership.expiresAt,
         };
     }
 
@@ -26,6 +27,7 @@ export class MembershipMapper {
             status: prismaMembership.status,
             createdAt: prismaMembership.createdAt,
             updatedAt: prismaMembership.updatedAt,
+            expiresAt: prismaMembership.expiresAt,
         });
     }
 }

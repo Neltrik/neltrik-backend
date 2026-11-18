@@ -18,6 +18,7 @@ export type MembershipProps = {
     status: MembershipStatus;
     createdAt: Date;
     updatedAt: Date;
+    expiresAt: Date;
 };
 
 export interface FindByCompanyParams extends PaginationInput {

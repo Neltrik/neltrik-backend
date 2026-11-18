@@ -11,3 +11,4 @@ export * from "./not-found";
 export * from "./recipient-email-required";
 export * from "./recipient-required";
 export * from "./tenant-required";
+export * from "./unsupported-email-provider";

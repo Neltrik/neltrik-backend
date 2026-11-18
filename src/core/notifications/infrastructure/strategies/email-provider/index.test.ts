@@ -1,6 +1,5 @@
-import { UnsupportedEmailProviderError } from "@/shared/errors";
-import { type NodemailerEmailSender } from "@/shared/messaging";
-
+import { UnsupportedEmailProviderError } from "../../../domain/errors";
+import type { NodemailerEmailSender } from "../../providers/email";
 import { EMAIL_PROVIDER, type EmailProvider, EmailSenderFactory } from "./";
 
 describe("EmailSenderFactory", () => {

@@ -1,9 +1,9 @@
-import { EMAIL_PROVIDER, type EmailSenderFactory } from "@/shared/messaging";
-
 import type { Notification } from "../../../domain/entities";
 import { NotificationNotFoundError, TemplateVariableMissingError } from "../../../domain/errors";
 import type { NotificationRepository, TemplateRenderer } from "../../../domain/interfaces";
 import { NOTIFICATION_CHANNEL } from "../../../domain/types";
+import type { EmailSenderFactory } from "../../../infrastructure/strategies";
+import { EMAIL_PROVIDER } from "../../../infrastructure/strategies/email-provider/types";
 import type { ResolveNotificationTemplateInternalUseCase } from "../../use-cases-internal";
 import { SendNotificationJobsUseCase } from "./index";
 
@@ -38,9 +38,9 @@ const makeSut = (channels: Notification["channels"] = [NOTIFICATION_CHANNEL.EMAI
     const input = { notificationId: notification.id };
     notificationRepository.findById.mockResolvedValue(notification);
     const useCase = new SendNotificationJobsUseCase(
-        emailSenderFactory,
         notificationRepository,
         templateRenderer,
+        emailSenderFactory,
         resolveNotificationTemplateUseCase,
     );
     return {

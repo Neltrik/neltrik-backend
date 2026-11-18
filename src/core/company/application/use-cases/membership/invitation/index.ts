@@ -44,10 +44,11 @@ export class InviteMemberUseCase {
                 {
                     eventType: "SEND_INVITATION_EMAIL",
                     payload: {
-                        membershipId: membership.id,
-                        companyId: input.companyId,
+                        inviterUserId: input.actorUserId,
                         userId: input.userId,
+                        companyName: company.name,
                         tenantId: company.tenantId,
+                        membershipId: membership.id,
                     },
                 },
                 context,

@@ -11,17 +11,20 @@ import {
     AcceptInvitationUseCase,
     CreateCompanyUseCase,
     GetCompanyUseCase,
+    GetMembershipUseCase,
     InviteMemberUseCase,
     ListCompaniesUseCase,
     ListMembersUseCase,
+    ListMyMembershipsUseCase,
     ReactivateCompanyUseCase,
     ReactivateMemberUseCase,
+    RevokeMemberUseCase,
     SuspendCompanyUseCase,
     SuspendMemberUseCase,
     UpdateCompanyUseCase,
     UpdateMemberRoleUseCase,
 } from "./application/use-cases";
-import { CreateCompanyOhsUseCase } from "./application/use-cases-ohs";
+import { CreateCompanyOhsUseCase, CreateMembershipOhsUseCase } from "./application/use-cases-ohs";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
 import { CompanyRepository, MembershipRepository } from "./domain/interfaces";
 import { SendInvitationEmailOutboxHandler } from "./infrastructure/handlers";
@@ -35,16 +38,20 @@ import { CompanyController } from "./presentation/controllers";
         SendInvitationEmailOutboxHandler,
         CreateCompanyUseCase,
         GetCompanyUseCase,
+        GetMembershipUseCase,
         InviteMemberUseCase,
         ListCompaniesUseCase,
         ListMembersUseCase,
+        ListMyMembershipsUseCase,
         ReactivateCompanyUseCase,
         ReactivateMemberUseCase,
+        RevokeMemberUseCase,
         SuspendCompanyUseCase,
         SuspendMemberUseCase,
         UpdateCompanyUseCase,
         UpdateMemberRoleUseCase,
         CreateCompanyOhsUseCase,
+        CreateMembershipOhsUseCase,
         {
             provide: CompanyRepository,
             useClass: PrismaCompanyRepository,

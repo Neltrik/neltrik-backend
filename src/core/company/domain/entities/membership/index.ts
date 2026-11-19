@@ -17,6 +17,10 @@ export class Membership {
         return new Membership({ ...props, status: MEMBERSHIP_STATUS.PENDING, updatedAt: props.createdAt });
     }
 
+    public static createActive(props: Omit<MembershipProps, "status" | "updatedAt">): Membership {
+        return new Membership({ ...props, status: MEMBERSHIP_STATUS.ACTIVE, updatedAt: props.createdAt });
+    }
+
     public static restore(props: MembershipProps): Membership {
         return new Membership(props);
     }
@@ -90,6 +94,7 @@ export class Membership {
     public accept(): void {
         this.ensureCanAccept();
         this.props.status = MEMBERSHIP_STATUS.ACTIVE;
+        this.props.expiresAt = null;
         this.props.updatedAt = new Date();
     }
 
@@ -120,6 +125,9 @@ export class Membership {
     }
 
     public isExpired(): boolean {
+        if (this.props.expiresAt === null) {
+            return false;
+        }
         return this.props.expiresAt < new Date();
     }
 
@@ -155,7 +163,7 @@ export class Membership {
         return this.props.updatedAt;
     }
 
-    public get expiresAt(): Date {
+    public get expiresAt(): Date | null {
         return this.props.expiresAt;
     }
 }

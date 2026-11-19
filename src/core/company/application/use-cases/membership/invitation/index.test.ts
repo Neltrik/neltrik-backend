@@ -40,7 +40,6 @@ describe("InviteMemberUseCase", () => {
         companyId: "company-id",
         userId: "user-id",
         roleId: "role-id",
-        actorTenantId: "id",
         actorUserId: "",
     });
     const mockCompany = () =>

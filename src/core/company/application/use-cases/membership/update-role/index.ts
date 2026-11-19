@@ -32,6 +32,9 @@ export class UpdateMemberRoleUseCase {
                 throw new ForbiddenError();
             }
         }
+        if (membership.userId === input.actorUserId) {
+            throw new ForbiddenError();
+        }
         await this.authorizationRoleApi.validateForTenant({
             roleId: input.roleId,
             tenantId: membership.tenantId,

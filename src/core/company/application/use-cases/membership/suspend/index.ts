@@ -30,6 +30,9 @@ export class SuspendMemberUseCase {
                 throw new ForbiddenError();
             }
         }
+        if (membership.userId === input.actorUserId) {
+            throw new ForbiddenError();
+        }
         membership.suspend();
         await this.membershipRepository.update(membership);
         return { id: membership.id };

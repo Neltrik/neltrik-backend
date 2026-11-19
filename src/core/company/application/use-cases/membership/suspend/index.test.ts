@@ -111,4 +111,20 @@ describe("SuspendMemberUseCase", () => {
             await expect(suspendMemberUseCase.execute(makeInput())).rejects.toThrow(error);
         });
     });
+
+    it("should throw ForbiddenError when the actor tries to suspend their own membership", async () => {
+        const { suspendMemberUseCase, membershipRepository } = makeSut();
+        const input = makeInput();
+        const membership = { ...mockMembership(), userId: input.actorUserId } as Membership;
+        membershipRepository.findById.mockResolvedValue(membership);
+        membershipRepository.findActiveByUserAndCompany.mockResolvedValue({} as never);
+        await expect(suspendMemberUseCase.execute(input)).rejects.toThrow(ForbiddenError);
+        expect(membershipRepository.findById).toHaveBeenCalledWith(input.membershipId);
+        expect(membershipRepository.findActiveByUserAndCompany).toHaveBeenCalledWith(
+            input.actorUserId,
+            membership.companyId,
+        );
+        expect(membership.suspend).not.toHaveBeenCalled();
+        expect(membershipRepository.update).not.toHaveBeenCalled();
+    });
 });

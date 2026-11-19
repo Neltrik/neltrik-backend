@@ -128,5 +128,22 @@ describe("UpdateMemberRoleUseCase", () => {
             }
             await expect(updateMemberRoleUseCase.execute(makeInput())).rejects.toThrow(error);
         });
+
+        it("should throw ForbiddenError when the actor tries to update their own membership role", async () => {
+            const { updateMemberRoleUseCase, authorizationRoleApi, membershipRepository } = makeSut();
+            const input = makeInput();
+            const membership = { ...mockMembership(), userId: input.actorUserId } as Membership;
+            membershipRepository.findById.mockResolvedValue(membership);
+            membershipRepository.findActiveByUserAndCompany.mockResolvedValue({} as never);
+            await expect(updateMemberRoleUseCase.execute(input)).rejects.toThrow(ForbiddenError);
+            expect(membershipRepository.findById).toHaveBeenCalledWith(input.membershipId);
+            expect(membershipRepository.findActiveByUserAndCompany).toHaveBeenCalledWith(
+                input.actorUserId,
+                membership.companyId,
+            );
+            expect(authorizationRoleApi.validateForTenant).not.toHaveBeenCalled();
+            expect(membership.changeRole).not.toHaveBeenCalled();
+            expect(membershipRepository.update).not.toHaveBeenCalled();
+        });
     });
 });

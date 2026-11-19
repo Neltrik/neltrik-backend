@@ -15,8 +15,11 @@ import {
     ListCompaniesUseCase,
     ListMembersUseCase,
     ReactivateCompanyUseCase,
+    ReactivateMemberUseCase,
     SuspendCompanyUseCase,
+    SuspendMemberUseCase,
     UpdateCompanyUseCase,
+    UpdateMemberRoleUseCase,
 } from "./application/use-cases";
 import { CreateCompanyOhsUseCase } from "./application/use-cases-ohs";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
@@ -36,8 +39,11 @@ import { CompanyController } from "./presentation/controllers";
         ListCompaniesUseCase,
         ListMembersUseCase,
         ReactivateCompanyUseCase,
+        ReactivateMemberUseCase,
         SuspendCompanyUseCase,
+        SuspendMemberUseCase,
         UpdateCompanyUseCase,
+        UpdateMemberRoleUseCase,
         CreateCompanyOhsUseCase,
         {
             provide: CompanyRepository,

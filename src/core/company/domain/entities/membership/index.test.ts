@@ -36,6 +36,21 @@ describe("Membership", () => {
         expect(membership.updatedAt).toBe(props.createdAt);
     });
 
+    it("should create an active membership", () => {
+        const props = createProps();
+        const { status: _status, updatedAt: _updatedAt, ...restProps } = props;
+        const membership = Membership.createActive(restProps);
+        expect(membership.id).toBe(props.id);
+        expect(membership.tenantId).toBe(props.tenantId);
+        expect(membership.userId).toBe(props.userId);
+        expect(membership.companyId).toBe(props.companyId);
+        expect(membership.roleId).toBe(props.roleId);
+        expect(membership.status).toBe(MEMBERSHIP_STATUS.ACTIVE);
+        expect(membership.createdAt).toBe(props.createdAt);
+        expect(membership.updatedAt).toBe(props.createdAt);
+        expect(membership.expiresAt).toBe(props.expiresAt);
+    });
+
     it("should restore a membership and expose all properties", () => {
         const props = createProps();
         const membership = Membership.restore(props);
@@ -59,6 +74,11 @@ describe("Membership", () => {
         const expiresAt = new Date("2024-12-31T23:59:59.000Z");
         const membership = Membership.restore({ ...createProps(), expiresAt });
         expect(membership.isExpired()).toBe(true);
+    });
+
+    it("should return false when membership has no expiration date", () => {
+        const membership = Membership.restore({ ...createProps(), expiresAt: null });
+        expect(membership.isExpired()).toBe(false);
     });
 });
 

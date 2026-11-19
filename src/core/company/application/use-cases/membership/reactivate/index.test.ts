@@ -110,5 +110,21 @@ describe("ReactivateMemberUseCase", () => {
             }
             await expect(reactivateMemberUseCase.execute(makeInput())).rejects.toThrow(error);
         });
+
+        it("should throw ForbiddenError when the actor tries to reactivate their own membership", async () => {
+            const { reactivateMemberUseCase, membershipRepository } = makeSut();
+            const input = makeInput();
+            const membership = { ...mockMembership(), userId: input.actorUserId } as Membership;
+            membershipRepository.findById.mockResolvedValue(membership);
+            membershipRepository.findActiveByUserAndCompany.mockResolvedValue({} as never);
+            await expect(reactivateMemberUseCase.execute(input)).rejects.toThrow(ForbiddenError);
+            expect(membershipRepository.findById).toHaveBeenCalledWith(input.membershipId);
+            expect(membershipRepository.findActiveByUserAndCompany).toHaveBeenCalledWith(
+                input.actorUserId,
+                membership.companyId,
+            );
+            expect(membership.reactivate).not.toHaveBeenCalled();
+            expect(membershipRepository.update).not.toHaveBeenCalled();
+        });
     });
 });

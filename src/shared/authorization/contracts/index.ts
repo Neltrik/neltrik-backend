@@ -1,3 +1,2 @@
-export abstract class PermissionChecker {
-    public abstract hasPermission(userId: string, permission: string): Promise<boolean>;
-}
+export * from "./membership";
+export * from "./permissions";

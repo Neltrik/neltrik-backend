@@ -3,6 +3,7 @@ import { HttpStatus, Module, OnModuleInit } from "@nestjs/common";
 import { IdentityModule } from "@/core/identity/identity.module";
 import { NotificationsModule } from "@/core/notifications/notifications.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
+import { MembershipChecker } from "@/shared/authorization";
 import { DomainStatusRegistry } from "@/shared/http";
 import { HandlersRegistry } from "@/shared/outbox";
 import { OutboxModule } from "@/shared/outbox/outbox.module";
@@ -28,6 +29,7 @@ import { CreateCompanyOhsUseCase, CreateMembershipOhsUseCase } from "./applicati
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
 import { CompanyRepository, MembershipRepository } from "./domain/interfaces";
 import { SendInvitationEmailOutboxHandler } from "./infrastructure/handlers";
+import { MembershipCheckerProvider } from "./infrastructure/providers";
 import { PrismaCompanyRepository, PrismaMembershipRepository } from "./infrastructure/repositories";
 import { CompanyController } from "./presentation/controllers";
 
@@ -59,6 +61,10 @@ import { CompanyController } from "./presentation/controllers";
         {
             provide: MembershipRepository,
             useClass: PrismaMembershipRepository,
+        },
+        {
+            provide: MembershipChecker,
+            useClass: MembershipCheckerProvider,
         },
     ],
     imports: [IdentityModule, NotificationsModule, TenantModule, OutboxModule],

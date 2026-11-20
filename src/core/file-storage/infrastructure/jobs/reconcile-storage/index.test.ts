@@ -17,6 +17,7 @@ describe("ReconcileStorageHandler", () => {
                 async (
                     _tenantId: string,
                     _userId: string | null,
+                    _companyId: string | null,
                     _transaction: boolean,
                     callback: () => Promise<void>,
                 ) => await callback(),
@@ -43,8 +44,22 @@ describe("ReconcileStorageHandler", () => {
         await expect(handler.handle(payload, ctx)).resolves.toBeUndefined();
         expect(tenantApi.list).toHaveBeenCalledTimes(1);
         expect(tenantContext.runWithContext).toHaveBeenCalledTimes(2);
-        expect(tenantContext.runWithContext).toHaveBeenNthCalledWith(1, "tenant-1", null, false, expect.any(Function));
-        expect(tenantContext.runWithContext).toHaveBeenNthCalledWith(2, "tenant-2", null, false, expect.any(Function));
+        expect(tenantContext.runWithContext).toHaveBeenNthCalledWith(
+            1,
+            "tenant-1",
+            null,
+            null,
+            false,
+            expect.any(Function),
+        );
+        expect(tenantContext.runWithContext).toHaveBeenNthCalledWith(
+            2,
+            "tenant-2",
+            null,
+            null,
+            false,
+            expect.any(Function),
+        );
         expect(reconcileStorageJobsUseCase.execute).toHaveBeenCalledTimes(2);
         expect(reconcileStorageJobsUseCase.execute).toHaveBeenNthCalledWith(1, { tenantId: "tenant-1", dryRun: false });
         expect(reconcileStorageJobsUseCase.execute).toHaveBeenNthCalledWith(2, { tenantId: "tenant-2", dryRun: false });

@@ -19,10 +19,12 @@ const TENANT_MODELS = [
 ] as const;
 const TENANT_MODELS_WITH_GLOBAL = ["NotificationTemplate"] as const;
 const OWNERSHIP_MODELS = ["AuthenticationSession", "NotificationPreference"] as const;
+const COMPANY_MODELS = ["Membership"] as const;
 
 type TenantModel = (typeof TENANT_MODELS)[number];
 type TenantModelWithGlobal = (typeof TENANT_MODELS_WITH_GLOBAL)[number];
 type OwnershipModel = (typeof OWNERSHIP_MODELS)[number];
+type CompanyModel = (typeof COMPANY_MODELS)[number];
 
 function isTenantModel(model: string): model is TenantModel {
     return TENANT_MODELS.includes(model as TenantModel);
@@ -36,6 +38,10 @@ function isOwnershipModel(model: string): model is OwnershipModel {
     return OWNERSHIP_MODELS.includes(model as OwnershipModel);
 }
 
+function isCompanyModel(model: string): model is CompanyModel {
+    return COMPANY_MODELS.includes(model as CompanyModel);
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null;
 }
@@ -44,7 +50,7 @@ function isWriteOperation(operation: string): boolean {
     return operation === "create" || operation === "upsert";
 }
 
-type ScopeFilter = { tenantId?: string; tenantIdWithGlobal?: string; ownerId?: string };
+type ScopeFilter = { tenantId?: string; tenantIdWithGlobal?: string; ownerId?: string; companyId?: string };
 
 function applyTenantFilter(where: Record<string, unknown>, tenantId: string): Record<string, unknown> {
     return { ...where, tenantId };
@@ -58,6 +64,10 @@ function applyOwnerFilter(where: Record<string, unknown>, ownerId: string): Reco
     return { ...where, ownerId };
 }
 
+function applyCompanyFilter(where: Record<string, unknown>, companyId: string): Record<string, unknown> {
+    return { ...where, companyId };
+}
+
 function buildWhere(where: Record<string, unknown>, filter: ScopeFilter): Record<string, unknown> {
     let result = where;
     if (filter.tenantId) {
@@ -69,6 +79,9 @@ function buildWhere(where: Record<string, unknown>, filter: ScopeFilter): Record
     if (filter.ownerId) {
         result = applyOwnerFilter(result, filter.ownerId);
     }
+    if (filter.companyId) {
+        result = applyCompanyFilter(result, filter.companyId);
+    }
     return result;
 }
 
@@ -76,6 +89,7 @@ function resolveScope(
     model: string,
     tenantId: string | null | undefined,
     userId: string | null | undefined,
+    companyId: string | null | undefined,
 ): ScopeFilter {
     const filter: ScopeFilter = {};
     if (tenantId && isTenantModel(model)) {
@@ -87,11 +101,14 @@ function resolveScope(
     if (userId && isOwnershipModel(model)) {
         filter.ownerId = userId;
     }
+    if (companyId && isCompanyModel(model)) {
+        filter.companyId = companyId;
+    }
     return filter;
 }
 
 function hasScope(filter: ScopeFilter): boolean {
-    return Boolean(filter.tenantId || filter.tenantIdWithGlobal || filter.ownerId);
+    return Boolean(filter.tenantId || filter.tenantIdWithGlobal || filter.ownerId || filter.companyId);
 }
 
 @Injectable()
@@ -112,7 +129,8 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                         }
                         const tenantId = tenantContext.getCurrentTenant();
                         const userId = tenantContext.getCurrentUserId();
-                        const filter = resolveScope(model, tenantId, userId);
+                        const companyId = tenantContext.getCurrentCompany();
+                        const filter = resolveScope(model, tenantId, userId, companyId);
                         if (!hasScope(filter)) {
                             return query(args);
                         }

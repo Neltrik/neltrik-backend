@@ -23,7 +23,7 @@ export class RescanFilesHandler implements JobHandler {
     public async handle(_payload: JobPayload, _ctx: JobContext): Promise<void> {
         const tenants = await this.tenantApi.list();
         for (const tenant of tenants) {
-            await this.tenantContext.runWithContext(tenant.id, null, false, async () => {
+            await this.tenantContext.runWithContext(tenant.id, null, null, false, async () => {
                 await this.rescanFilesJobsUseCase.execute({
                     tenantId: tenant.id,
                     ageDays: env.RESCAN_AGE_DAYS,

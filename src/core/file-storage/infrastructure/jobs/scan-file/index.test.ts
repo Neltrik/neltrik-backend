@@ -11,6 +11,7 @@ describe("ScanFileHandler", () => {
                 async (
                     _tenantId: string,
                     _userId: string | null,
+                    _companyId: string | null,
                     _transaction: boolean,
                     callback: () => Promise<void>,
                 ) => await callback(),
@@ -35,7 +36,13 @@ describe("ScanFileHandler", () => {
         const { handler, tenantContext, scanFileJobsUseCase, payload, ctx } = makeSut();
         await expect(handler.handle(payload, ctx)).resolves.toBeUndefined();
         expect(tenantContext.runWithContext).toHaveBeenCalledTimes(1);
-        expect(tenantContext.runWithContext).toHaveBeenCalledWith(payload.tenantId, null, false, expect.any(Function));
+        expect(tenantContext.runWithContext).toHaveBeenCalledWith(
+            payload.tenantId,
+            null,
+            null,
+            false,
+            expect.any(Function),
+        );
         expect(scanFileJobsUseCase.execute).toHaveBeenCalledTimes(1);
         expect(scanFileJobsUseCase.execute).toHaveBeenCalledWith({
             tenantId: payload.tenantId,

@@ -23,7 +23,7 @@ export class ReconcileStorageHandler implements JobHandler {
     public async handle(_payload: JobPayload, _ctx: JobContext): Promise<void> {
         const tenants = await this.tenantApi.list();
         for (const tenant of tenants) {
-            await this.tenantContext.runWithContext(tenant.id, null, false, async () => {
+            await this.tenantContext.runWithContext(tenant.id, null, null, false, async () => {
                 await this.reconcileStorageJobsUseCase.execute({
                     tenantId: tenant.id,
                     dryRun: env.RECONCILE_DRY_RUN,

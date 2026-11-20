@@ -18,7 +18,7 @@ export class ScanFileHandler implements JobHandler<string, ScanFilePayload> {
     ) {}
 
     public async handle(payload: ScanFilePayload, _ctx: JobContext): Promise<void> {
-        await this.tenantContext.runWithContext(payload.tenantId, null, false, async () => {
+        await this.tenantContext.runWithContext(payload.tenantId, null, null, false, async () => {
             await this.scanFileJobsUseCase.execute({
                 tenantId: payload.tenantId,
                 fileId: payload.fileId,

@@ -14,8 +14,10 @@ export class TenantInterceptor implements NestInterceptor {
         const isPlatformAdmin = user?.roleCode === "PLATFORM_ADMIN";
         const tenantId = isPlatformAdmin ? null : (user?.tenantId ?? null);
         const userId = user?.userId ?? null;
+        const headerCompanyId = request.headers["x-company-id"];
+        const companyId = typeof headerCompanyId === "string" ? headerCompanyId : null;
         return new Observable<unknown>((observer) => {
-            this.tenantContextService.runWithContext(tenantId, userId, isPlatformAdmin, () => {
+            this.tenantContextService.runWithContext(tenantId, userId, companyId, isPlatformAdmin, () => {
                 next.handle().subscribe({
                     next: (value: unknown) => observer.next(value),
                     error: (err: unknown) => observer.error(err),

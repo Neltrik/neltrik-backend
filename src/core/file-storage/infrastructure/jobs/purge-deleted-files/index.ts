@@ -23,7 +23,7 @@ export class PurgeDeletedFilesHandler implements JobHandler {
     public async handle(_payload: JobPayload, _ctx: JobContext): Promise<void> {
         const tenants = await this.tenantApi.list();
         for (const tenant of tenants) {
-            await this.tenantContext.runWithContext(tenant.id, null, false, async () => {
+            await this.tenantContext.runWithContext(tenant.id, null, null, false, async () => {
                 await this.purgeDeletedFilesJobsUseCase.execute({
                     tenantId: tenant.id,
                     dryRun: env.FILE_DELETION_DRY_RUN,

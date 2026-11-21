@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module } from "@nestjs/common";
 import { ConfigModule, ConfigService } from "@nestjs/config";
 import { APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
@@ -23,6 +23,7 @@ import { HttpModule } from "./shared/http";
 import { IdGeneratorModule } from "./shared/id-generator";
 import { JobsModule } from "./shared/jobs/jobs.module";
 import { SanitizationGuard, SanitizationModule } from "./shared/sanitization";
+import { CompanyHeaderValidationMiddleware } from "./shared/zod";
 
 @Module({
     imports: [
@@ -71,4 +72,8 @@ import { SanitizationGuard, SanitizationModule } from "./shared/sanitization";
         { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
     ],
 })
-export class AppModule {}
+export class AppModule {
+    public configure(consumer: MiddlewareConsumer): void {
+        consumer.apply(CompanyHeaderValidationMiddleware).forRoutes("*");
+    }
+}

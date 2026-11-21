@@ -47,7 +47,11 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isWriteOperation(operation: string): boolean {
-    return operation === "create" || operation === "upsert";
+    return operation === "create" || operation === "createMany" || operation === "upsert";
+}
+
+function isMutateOperation(operation: string): boolean {
+    return operation === "update" || operation === "updateMany" || operation === "delete" || operation === "deleteMany";
 }
 
 type ScopeFilter = { tenantId?: string; tenantIdWithGlobal?: string; ownerId?: string; companyId?: string };
@@ -111,6 +115,22 @@ function hasScope(filter: ScopeFilter): boolean {
     return Boolean(filter.tenantId || filter.tenantIdWithGlobal || filter.ownerId || filter.companyId);
 }
 
+function applyWriteInjection(args: Record<string, unknown>, companyId: string): void {
+    const operation = args.operation as string;
+    if (operation === "upsert") {
+        if (isRecord(args.create)) {
+            args.create = { ...args.create, companyId };
+        }
+        if (isRecord(args.update)) {
+            args.update = { ...args.update, companyId };
+        }
+    } else {
+        if (isRecord(args.data)) {
+            args.data = { ...args.data, companyId };
+        }
+    }
+}
+
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
     public readonly tenantClient: PrismaClient;
@@ -124,17 +144,28 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                         if (tenantContext.isPlatformAdmin()) {
                             return query(args);
                         }
-                        if (isWriteOperation(operation)) {
-                            return query(args);
-                        }
                         const tenantId = tenantContext.getCurrentTenant();
                         const userId = tenantContext.getCurrentUserId();
                         const companyId = tenantContext.getCurrentCompany();
+                        const safeArgs = args as unknown as Record<string, unknown>;
+                        if (isWriteOperation(operation)) {
+                            if (companyId && isCompanyModel(model)) {
+                                applyWriteInjection(safeArgs, companyId);
+                            }
+                            return query(args);
+                        }
+                        if (isMutateOperation(operation)) {
+                            const filter = resolveScope(model, tenantId, userId, companyId);
+                            if (hasScope(filter)) {
+                                const where = isRecord(safeArgs.where) ? safeArgs.where : {};
+                                safeArgs.where = buildWhere(where, filter);
+                            }
+                            return query(args);
+                        }
                         const filter = resolveScope(model, tenantId, userId, companyId);
                         if (!hasScope(filter)) {
                             return query(args);
                         }
-                        const safeArgs = args as unknown as Record<string, unknown>;
                         const where = isRecord(safeArgs.where) ? safeArgs.where : {};
                         safeArgs.where = buildWhere(where, filter);
                         return query(args);

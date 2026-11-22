@@ -31,10 +31,15 @@ import { CompanyRepository, MembershipRepository } from "./domain/interfaces";
 import { SendInvitationEmailOutboxHandler } from "./infrastructure/handlers";
 import { MembershipCheckerProvider } from "./infrastructure/providers";
 import { PrismaCompanyRepository, PrismaMembershipRepository } from "./infrastructure/repositories";
-import { CompanyController } from "./presentation/controllers";
+import {
+    CompanyController,
+    InvitationController,
+    MemberController,
+    MemberLifecycleController,
+} from "./presentation/controllers";
 
 @Module({
-    controllers: [CompanyController],
+    controllers: [CompanyController, InvitationController, MemberController, MemberLifecycleController],
     providers: [
         AcceptInvitationUseCase,
         SendInvitationEmailOutboxHandler,

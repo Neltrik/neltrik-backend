@@ -1,3 +1,4 @@
+import { MEMBERSHIP_STATUSES } from "../../../domain/types/membership";
 import {
     acceptInvitationParamsSchema,
     getMembershipParamsSchema,
@@ -15,28 +16,53 @@ const validId = "550e8400-e29b-41d4-a716-446655440000";
 
 describe("inviteMemberSchema", () => {
     it("should validate a correct invitation", () => {
-        expect(inviteMemberSchema.safeParse({ email: "user@example.com", roleId: validId }).success).toBe(true);
+        expect(inviteMemberSchema.safeParse({ userId: validId, roleId: validId }).success).toBe(true);
     });
 
-    it("should reject an invalid email", () => {
-        expect(inviteMemberSchema.safeParse({ email: "invalid-email", roleId: validId }).success).toBe(false);
+    it("should reject an invalid user ID", () => {
+        expect(inviteMemberSchema.safeParse({ userId: "invalid-id", roleId: validId }).success).toBe(false);
     });
 
     it("should reject an invalid role ID", () => {
-        expect(inviteMemberSchema.safeParse({ email: "user@example.com", roleId: "invalid-id" }).success).toBe(false);
+        expect(inviteMemberSchema.safeParse({ userId: validId, roleId: "invalid-id" }).success).toBe(false);
     });
 
-    it("should reject a missing email", () => {
+    it("should reject a missing user ID", () => {
         expect(inviteMemberSchema.safeParse({ roleId: validId }).success).toBe(false);
     });
 
     it("should reject a missing role ID", () => {
-        expect(inviteMemberSchema.safeParse({ email: "user@example.com" }).success).toBe(false);
+        expect(inviteMemberSchema.safeParse({ userId: validId }).success).toBe(false);
     });
 
     it("should reject non-string values", () => {
-        expect(inviteMemberSchema.safeParse({ email: 123, roleId: validId }).success).toBe(false);
-        expect(inviteMemberSchema.safeParse({ email: "user@example.com", roleId: 123 }).success).toBe(false);
+        expect(inviteMemberSchema.safeParse({ userId: 123, roleId: validId }).success).toBe(false);
+        expect(inviteMemberSchema.safeParse({ userId: validId, roleId: 123 }).success).toBe(false);
+    });
+});
+
+describe("listMyMembershipsQuerySchema", () => {
+    it("should accept an empty query and coerce limit to a number", () => {
+        expect(listMyMembershipsQuerySchema.safeParse({}).success).toBe(true);
+        expect(listMyMembershipsQuerySchema.safeParse({ limit: "10" }).success).toBe(true);
+    });
+
+    it("should accept a valid membership status", () => {
+        MEMBERSHIP_STATUSES.forEach((status) => {
+            expect(listMyMembershipsQuerySchema.safeParse({ status }).success).toBe(true);
+        });
+    });
+
+    it("should accept an undefined status", () => {
+        expect(listMyMembershipsQuerySchema.safeParse({ status: undefined }).success).toBe(true);
+    });
+
+    it("should reject an invalid membership status", () => {
+        expect(listMyMembershipsQuerySchema.safeParse({ status: "INVALID_STATUS" }).success).toBe(false);
+    });
+
+    it.each([0, -1, 101, 1.5, "invalid"])("should reject limit %s", (limit) => {
+        expect(listMyMembershipsQuerySchema.safeParse({ limit }).success).toBe(false);
     });
 });
 
@@ -66,17 +92,6 @@ describe("listMembersQuerySchema", () => {
 
     it.each([0, -1, 101, 1.5, "invalid"])("should reject limit %s", (limit) => {
         expect(listMembersQuerySchema.safeParse({ limit }).success).toBe(false);
-    });
-});
-
-describe("listMyMembershipsQuerySchema", () => {
-    it("should accept an empty query and coerce limit to a number", () => {
-        expect(listMyMembershipsQuerySchema.safeParse({}).success).toBe(true);
-        expect(listMyMembershipsQuerySchema.safeParse({ limit: "10" }).success).toBe(true);
-    });
-
-    it.each([0, -1, 101, 1.5, "invalid"])("should reject limit %s", (limit) => {
-        expect(listMyMembershipsQuerySchema.safeParse({ limit }).success).toBe(false);
     });
 });
 

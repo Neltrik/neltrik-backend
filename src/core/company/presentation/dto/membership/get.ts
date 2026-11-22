@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-class MembershipResponseDto {
+export class MembershipResponseDto {
     @ApiProperty({
         example: "uuid-of-membership",
         description: "Unique identifier of the membership.",
@@ -43,6 +43,13 @@ class MembershipResponseDto {
         description: "Last update timestamp.",
     })
     updatedAt!: Date;
+
+    @ApiProperty({
+        example: "2023-11-01T10:00:00.000Z",
+        description: "Expiration timestamp (for pending invitations).",
+        required: false,
+    })
+    expiresAt?: Date | null;
 }
 
 export class GetMembershipParamsDto {

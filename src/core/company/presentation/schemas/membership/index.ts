@@ -2,9 +2,15 @@ import { z } from "zod";
 
 import { paginationQuerySchema } from "@/shared/pagination";
 
+import { MEMBERSHIP_STATUSES } from "../../../domain/types/membership";
+
 export const inviteMemberSchema = z.object({
-    email: z.email("Invalid email format"),
+    userId: z.uuid("Invalid user ID"),
     roleId: z.uuid("Invalid role ID"),
+});
+
+export const listMyMembershipsQuerySchema = paginationQuerySchema.extend({
+    status: z.enum(MEMBERSHIP_STATUSES).optional(),
 });
 
 export const acceptInvitationParamsSchema = z.object({
@@ -12,8 +18,6 @@ export const acceptInvitationParamsSchema = z.object({
 });
 
 export const listMembersQuerySchema = paginationQuerySchema;
-
-export const listMyMembershipsQuerySchema = paginationQuerySchema;
 
 export const getMembershipParamsSchema = z.object({
     id: z.uuid("Invalid membership ID"),

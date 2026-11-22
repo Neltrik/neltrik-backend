@@ -10,17 +10,8 @@ describe("ListMembersUseCase", () => {
         const useCase = new ListMembersUseCase(companyRepository, membershipRepository);
         return { useCase, companyRepository, membershipRepository };
     };
-    const makeInput = (): ListMembersInput => ({
-        companyId: "company-id",
-        cursor: undefined,
-        limit: 10,
-        actorTenantId: "",
-        actorUserId: "",
-    });
-    const makeCompany = (id: string): Company =>
-        ({
-            id,
-        }) as Company;
+    const makeInput = (): ListMembersInput => ({ companyId: "company-id", cursor: undefined, limit: 10 });
+    const makeCompany = (id: string): Company => ({ id }) as Company;
     const makeMembership = (id: string) => ({ id });
 
     it("should throw CompanyNotFoundError when the company does not exist", async () => {
@@ -66,13 +57,7 @@ describe("ListMembersUseCase", () => {
 
     it("should pass the cursor and limit to the repository", async () => {
         const { useCase, companyRepository, membershipRepository } = makeSut();
-        const input: ListMembersInput = {
-            companyId: "company-id",
-            cursor: "membership-5",
-            limit: 5,
-            actorTenantId: "",
-            actorUserId: "",
-        };
+        const input: ListMembersInput = { companyId: "company-id", cursor: "membership-5", limit: 5 };
         companyRepository.findById.mockResolvedValue(makeCompany(input.companyId));
         membershipRepository.findByCompany.mockResolvedValue([]);
         await useCase.execute(input);
@@ -109,13 +94,7 @@ describe("ListMembersUseCase", () => {
 
     it("should paginate memberships when there are more items than the limit", async () => {
         const { useCase, companyRepository, membershipRepository } = makeSut();
-        const input: ListMembersInput = {
-            companyId: "company-id",
-            cursor: undefined,
-            limit: 2,
-            actorTenantId: "",
-            actorUserId: "",
-        };
+        const input: ListMembersInput = { companyId: "company-id", cursor: undefined, limit: 2 };
         const memberships = [
             makeMembership("membership-1"),
             makeMembership("membership-2"),
@@ -131,13 +110,7 @@ describe("ListMembersUseCase", () => {
 
     it("should return all memberships when the number of items does not exceed the limit", async () => {
         const { useCase, companyRepository, membershipRepository } = makeSut();
-        const input: ListMembersInput = {
-            companyId: "company-id",
-            cursor: undefined,
-            limit: 3,
-            actorTenantId: "",
-            actorUserId: "",
-        };
+        const input: ListMembersInput = { companyId: "company-id", cursor: undefined, limit: 3 };
         const memberships = [makeMembership("membership-1"), makeMembership("membership-2")];
         companyRepository.findById.mockResolvedValue(makeCompany(input.companyId));
         membershipRepository.findByCompany.mockResolvedValue(memberships as never);

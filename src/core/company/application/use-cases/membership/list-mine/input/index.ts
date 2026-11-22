@@ -4,5 +4,5 @@ import type { MembershipStatus } from "../../../../../domain/types";
 
 export interface ListMyMembershipsInput extends PaginationInput {
     actorUserId: string;
-    status?: MembershipStatus;
+    status?: MembershipStatus | undefined;
 }

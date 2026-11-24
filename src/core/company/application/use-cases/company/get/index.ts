@@ -1,10 +1,9 @@
 import { Injectable } from "@nestjs/common";
 
 import { TenantApi } from "@/core/tenant/api";
-import { ForbiddenError } from "@/shared/errors";
 
 import { CompanyNotFoundError } from "../../../../domain/errors";
-import { CompanyRepository } from "../../../../domain/interfaces";
+import { CompanyRepository, MembershipRepository } from "../../../../domain/interfaces";
 import { GetCompanyInput } from "./input";
 import { GetCompanyOutput } from "./output";
 
@@ -13,6 +12,7 @@ export class GetCompanyUseCase {
     constructor(
         private readonly tenantApi: TenantApi,
         private readonly companyRepository: CompanyRepository,
+        private readonly membershipRepository: MembershipRepository,
     ) {}
 
     public async execute(input: GetCompanyInput): Promise<GetCompanyOutput> {
@@ -20,9 +20,15 @@ export class GetCompanyUseCase {
         if (!company) {
             throw new CompanyNotFoundError();
         }
-        const isPlatformActor = await this.tenantApi.isPlatformTenant(input.actorTenantId);
-        if (!isPlatformActor && company.tenantId !== input.actorTenantId) {
-            throw new ForbiddenError();
+        const isPlatformAdmin = await this.tenantApi.isPlatformTenant(input.actorTenantId);
+        if (!isPlatformAdmin) {
+            const hasMembership = await this.membershipRepository.findActiveByUserAndCompany(
+                input.actorUserId,
+                company.id,
+            );
+            if (!hasMembership) {
+                throw new CompanyNotFoundError();
+            }
         }
         return {
             id: company.id,

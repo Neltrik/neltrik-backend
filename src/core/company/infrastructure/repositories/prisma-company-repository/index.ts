@@ -5,7 +5,7 @@ import { PaginationInput, withPaginationArgs } from "@/shared/pagination";
 
 import { Company } from "../../../domain/entities";
 import { CompanyRepository } from "../../../domain/interfaces";
-import { FindByTenantParams } from "../../../domain/types";
+import { FindByUserMembershipParams } from "../../../domain/types";
 import { CompanyMapper } from "../../mappers";
 
 @Injectable()
@@ -31,19 +31,8 @@ export class PrismaCompanyRepository extends CompanyRepository {
         return CompanyMapper.toDomain(company);
     }
 
-    public async findByTenant(params: FindByTenantParams): Promise<Company[]> {
-        const companies = await this.prisma.tenantClient.company.findMany({
-            where: { tenantId: params.tenantId },
-            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-            ...withPaginationArgs({ cursor: params.cursor, limit: params.limit }),
-        });
-        return companies.map((company) => CompanyMapper.toDomain(company));
-    }
-
-    public async findByTenantAndSlug(tenantId: string, slug: string): Promise<Company | null> {
-        const company = await this.prisma.tenantClient.company.findFirst({
-            where: { tenantId, slug },
-        });
+    public async findBySlug(slug: string): Promise<Company | null> {
+        const company = await this.prisma.tenantClient.company.findFirst({ where: { slug } });
         if (!company) {
             return null;
         }
@@ -58,7 +47,16 @@ export class PrismaCompanyRepository extends CompanyRepository {
     }
 
     public async findAll(params: PaginationInput): Promise<Company[]> {
-        const companies = await this.prisma.company.findMany({
+        const companies = await this.prisma.tenantClient.company.findMany({
+            orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+            ...withPaginationArgs({ cursor: params.cursor, limit: params.limit }),
+        });
+        return companies.map((company) => CompanyMapper.toDomain(company));
+    }
+
+    public async findByUserMembership(params: FindByUserMembershipParams): Promise<Company[]> {
+        const companies = await this.prisma.tenantClient.company.findMany({
+            where: { memberships: { some: { userId: params.userId, status: "ACTIVE" } } },
             orderBy: [{ createdAt: "desc" }, { id: "desc" }],
             ...withPaginationArgs({ cursor: params.cursor, limit: params.limit }),
         });

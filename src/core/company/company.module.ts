@@ -1,5 +1,6 @@
 import { HttpStatus, Module, OnModuleInit } from "@nestjs/common";
 
+import { AuthorizationModule } from "@/core/authorization/authorization.module";
 import { IdentityModule } from "@/core/identity/identity.module";
 import { NotificationsModule } from "@/core/notifications/notifications.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
@@ -72,7 +73,8 @@ import {
             useClass: MembershipCheckerProvider,
         },
     ],
-    imports: [IdentityModule, NotificationsModule, TenantModule, OutboxModule],
+    imports: [AuthorizationModule, IdentityModule, NotificationsModule, TenantModule, OutboxModule],
+    exports: [MembershipChecker],
 })
 export class CompanyModule implements OnModuleInit {
     constructor(

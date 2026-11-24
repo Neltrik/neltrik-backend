@@ -14,7 +14,7 @@ import {
 import { Throttle } from "@nestjs/throttler";
 
 import { CurrentUser } from "@/shared/auth";
-import { Permissions } from "@/shared/authorization";
+import { Permissions, WithoutCompany } from "@/shared/authorization";
 import { ApiContract, Response, RESPONSE_CODES } from "@/shared/http";
 import { ResponsePayload } from "@/shared/pagination";
 import { ZodValidationPipe } from "@/shared/zod";
@@ -73,6 +73,7 @@ export class CompanyController {
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_CREATED, message: COMPANY_MESSAGES.CREATED })
     @Throttle({ default: { limit: 20, ttl: 900000 } })
+    @WithoutCompany()
     @Permissions("ADMIN_COMPANY_CREATE")
     @Post()
     public async create(
@@ -99,13 +100,19 @@ export class CompanyController {
     @ApiNotFoundResponse({ description: "Company not found." })
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_FOUND, message: COMPANY_MESSAGES.RETRIEVED })
+    @WithoutCompany()
     @Permissions("ADMIN_COMPANY_READ")
     @Get(":id")
     public async get(
         @CurrentUser("tenantId") tenantId: string,
+        @CurrentUser("userId") userId: string,
         @Param(new ZodValidationPipe(companyIdParamsSchema)) params: GetCompanyParamsDto,
     ): Promise<CompanyResponseDto> {
-        const output = await this.getCompanyUseCase.execute({ actorTenantId: tenantId, id: params.id });
+        const output = await this.getCompanyUseCase.execute({
+            actorTenantId: tenantId,
+            id: params.id,
+            actorUserId: userId,
+        });
         return {
             id: output.id,
             tenantId: output.tenantId,
@@ -128,14 +135,17 @@ export class CompanyController {
     @ApiForbiddenResponse({ description: "Forbidden." })
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_FOUND, message: COMPANY_MESSAGES.LISTED })
+    @WithoutCompany()
     @Permissions("ADMIN_COMPANY_LIST")
     @Get()
     public async list(
         @CurrentUser("tenantId") tenantId: string,
+        @CurrentUser("userId") userId: string,
         @Query(new ZodValidationPipe(listCompaniesQuerySchema)) query: ListCompaniesQueryDto,
     ): Promise<ResponsePayload<CompanyResponseDto[]>> {
         const output = await this.listCompaniesUseCase.execute({
             actorTenantId: tenantId,
+            actorUserId: userId,
             cursor: query.cursor,
             limit: query.limit,
         });
@@ -167,15 +177,18 @@ export class CompanyController {
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_UPDATED, message: COMPANY_MESSAGES.UPDATED })
     @Throttle({ default: { limit: 20, ttl: 900000 } })
+    @WithoutCompany()
     @Permissions("ADMIN_COMPANY_UPDATE")
     @Patch(":id")
     public async update(
         @CurrentUser("tenantId") tenantId: string,
+        @CurrentUser("userId") userId: string,
         @Param(new ZodValidationPipe(companyIdParamsSchema)) params: GetCompanyParamsDto,
         @Body(new ZodValidationPipe(updateCompanySchema)) body: UpdateCompanyRequestDto,
     ): Promise<UpdateCompanyResponseDto> {
         const output = await this.updateCompanyUseCase.execute({
             actorTenantId: tenantId,
+            actorUserId: userId,
             id: params.id,
             name: body.name,
             slug: body.slug,

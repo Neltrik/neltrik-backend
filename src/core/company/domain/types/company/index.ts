@@ -17,6 +17,6 @@ export type CompanyProps = {
     updatedAt: Date;
 };
 
-export interface FindByTenantParams extends PaginationInput {
-    tenantId: string;
+export interface FindByUserMembershipParams extends PaginationInput {
+    userId: string;
 }

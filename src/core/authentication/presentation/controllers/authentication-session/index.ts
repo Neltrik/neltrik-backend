@@ -14,7 +14,7 @@ import type { Request, Response } from "express";
 
 import { env } from "@/config/env";
 import { COOKIE_NAMES, MAX_AGE, Public, SkipEmailVerification, SkipTenantState, SkipUserState } from "@/shared/auth";
-import { PublicPermission } from "@/shared/authorization";
+import { PublicPermission, WithoutCompany } from "@/shared/authorization";
 import { ApiContract, CookieHelper, Response as ResponseDecorator, RESPONSE_CODES } from "@/shared/http";
 import { ZodValidationPipe } from "@/shared/zod";
 
@@ -63,6 +63,7 @@ export class AuthController {
     @SkipEmailVerification()
     @SkipUserState()
     @SkipTenantState()
+    @WithoutCompany()
     @PublicPermission()
     @Post("login")
     public async login(

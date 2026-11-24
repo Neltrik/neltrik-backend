@@ -15,11 +15,11 @@ export class ListCompaniesUseCase {
     ) {}
 
     public async execute(input: ListCompaniesInput): Promise<ListCompaniesOutput> {
-        const { limit, cursor } = input;
+        const { limit, cursor, actorUserId } = input;
         const isPlatformAdmin = await this.tenantApi.isPlatformTenant(input.actorTenantId);
         const companies = isPlatformAdmin
             ? await this.companyRepository.findAll({ cursor, limit })
-            : await this.companyRepository.findByTenant({ tenantId: input.actorTenantId, cursor, limit });
+            : await this.companyRepository.findByUserMembership({ userId: actorUserId, cursor, limit });
         const { items, meta } = paginate({
             items: companies,
             limit: input.limit,

@@ -1,20 +1,17 @@
 import type { IdGenerator } from "@/shared/id-generator";
 
 import { CompanySlugAlreadyExistsError } from "../../../../domain/errors";
-import { CompanyRepositorySpy, TenantApiSpy } from "../../../../test-doubles";
+import { CompanyRepositorySpy } from "../../../../test-doubles";
 import { CreateCompanyUseCase } from "./index";
 import type { CreateCompanyInput } from "./input";
 
 describe("CreateCompanyUseCase", () => {
     const makeSut = () => {
-        const tenantApi = new TenantApiSpy();
         const generateMock = jest.fn().mockReturnValue("company-id");
-        const idGenerator = {
-            generate: generateMock,
-        } satisfies IdGenerator;
+        const idGenerator = { generate: generateMock } satisfies IdGenerator;
         const companyRepository = new CompanyRepositorySpy();
-        const createCompanyUseCase = new CreateCompanyUseCase(tenantApi, idGenerator, companyRepository);
-        return { createCompanyUseCase, tenantApi, idGenerator, companyRepository };
+        const createCompanyUseCase = new CreateCompanyUseCase(idGenerator, companyRepository);
+        return { createCompanyUseCase, idGenerator, companyRepository };
     };
 
     const makeInput = (): CreateCompanyInput => ({
@@ -24,17 +21,15 @@ describe("CreateCompanyUseCase", () => {
     });
 
     describe("execute", () => {
-        it("should validate the tenant, create the company and return its id", async () => {
-            const { createCompanyUseCase, tenantApi, idGenerator, companyRepository } = makeSut();
+        it("should create the company and return its id", async () => {
+            const { createCompanyUseCase, idGenerator, companyRepository } = makeSut();
             const input = makeInput();
             idGenerator.generate.mockReturnValue("company-id");
-            companyRepository.findByTenantAndSlug.mockResolvedValue(null);
+            companyRepository.findBySlug.mockResolvedValue(null);
             await expect(createCompanyUseCase.execute(input)).resolves.toEqual({ id: "company-id" });
-            expect(tenantApi.validate).toHaveBeenCalledTimes(1);
-            expect(tenantApi.validate).toHaveBeenCalledWith(input.actorTenantId);
+            expect(companyRepository.findBySlug).toHaveBeenCalledTimes(1);
+            expect(companyRepository.findBySlug).toHaveBeenCalledWith(input.slug);
             expect(idGenerator.generate).toHaveBeenCalledTimes(1);
-            expect(companyRepository.findByTenantAndSlug).toHaveBeenCalledTimes(1);
-            expect(companyRepository.findByTenantAndSlug).toHaveBeenCalledWith(input.actorTenantId, input.slug);
             expect(companyRepository.create).toHaveBeenCalledTimes(1);
             const createdCompany = companyRepository.create.mock.calls[0]?.[0];
             expect(createdCompany).toBeDefined();
@@ -49,50 +44,34 @@ describe("CreateCompanyUseCase", () => {
         });
 
         it("should throw CompanySlugAlreadyExistsError when the slug already exists", async () => {
-            const { createCompanyUseCase, tenantApi, idGenerator, companyRepository } = makeSut();
+            const { createCompanyUseCase, idGenerator, companyRepository } = makeSut();
             const input = makeInput();
-            companyRepository.findByTenantAndSlug.mockResolvedValue({} as never);
+            companyRepository.findBySlug.mockResolvedValue({} as never);
             await expect(createCompanyUseCase.execute(input)).rejects.toThrow(CompanySlugAlreadyExistsError);
-            expect(tenantApi.validate).toHaveBeenCalledTimes(1);
-            expect(tenantApi.validate).toHaveBeenCalledWith(input.actorTenantId);
-            expect(companyRepository.findByTenantAndSlug).toHaveBeenCalledTimes(1);
-            expect(companyRepository.findByTenantAndSlug).toHaveBeenCalledWith(input.actorTenantId, input.slug);
+            expect(companyRepository.findBySlug).toHaveBeenCalledTimes(1);
+            expect(companyRepository.findBySlug).toHaveBeenCalledWith(input.slug);
             expect(idGenerator.generate).not.toHaveBeenCalled();
-            expect(companyRepository.create).not.toHaveBeenCalled();
-        });
-
-        it("should propagate errors when validating the tenant", async () => {
-            const { createCompanyUseCase, tenantApi, idGenerator, companyRepository } = makeSut();
-            const input = makeInput();
-            tenantApi.validate.mockRejectedValue(new Error("Tenant validation failed"));
-            await expect(createCompanyUseCase.execute(input)).rejects.toThrow("Tenant validation failed");
-            expect(tenantApi.validate).toHaveBeenCalledTimes(1);
-            expect(tenantApi.validate).toHaveBeenCalledWith(input.actorTenantId);
-            expect(idGenerator.generate).not.toHaveBeenCalled();
-            expect(companyRepository.findByTenantAndSlug).not.toHaveBeenCalled();
             expect(companyRepository.create).not.toHaveBeenCalled();
         });
 
         it("should propagate errors when searching for an existing company", async () => {
-            const { createCompanyUseCase, tenantApi, idGenerator, companyRepository } = makeSut();
+            const { createCompanyUseCase, idGenerator, companyRepository } = makeSut();
             const input = makeInput();
-            companyRepository.findByTenantAndSlug.mockRejectedValue(new Error("Failed to find company"));
+            companyRepository.findBySlug.mockRejectedValue(new Error("Failed to find company"));
             await expect(createCompanyUseCase.execute(input)).rejects.toThrow("Failed to find company");
-            expect(tenantApi.validate).toHaveBeenCalledTimes(1);
-            expect(companyRepository.findByTenantAndSlug).toHaveBeenCalledTimes(1);
+            expect(companyRepository.findBySlug).toHaveBeenCalledTimes(1);
+            expect(companyRepository.findBySlug).toHaveBeenCalledWith(input.slug);
             expect(idGenerator.generate).not.toHaveBeenCalled();
             expect(companyRepository.create).not.toHaveBeenCalled();
         });
 
         it("should propagate errors when creating the company", async () => {
-            const { createCompanyUseCase, tenantApi, idGenerator, companyRepository } = makeSut();
+            const { createCompanyUseCase, idGenerator, companyRepository } = makeSut();
             const input = makeInput();
-            idGenerator.generate.mockReturnValue("company-id");
-            companyRepository.findByTenantAndSlug.mockResolvedValue(null);
+            companyRepository.findBySlug.mockResolvedValue(null);
             companyRepository.create.mockRejectedValue(new Error("Failed to create company"));
             await expect(createCompanyUseCase.execute(input)).rejects.toThrow("Failed to create company");
-            expect(tenantApi.validate).toHaveBeenCalledTimes(1);
-            expect(companyRepository.findByTenantAndSlug).toHaveBeenCalledTimes(1);
+            expect(companyRepository.findBySlug).toHaveBeenCalledTimes(1);
             expect(idGenerator.generate).toHaveBeenCalledTimes(1);
             expect(companyRepository.create).toHaveBeenCalledTimes(1);
         });

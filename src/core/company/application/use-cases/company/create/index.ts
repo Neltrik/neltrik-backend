@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 
-import { TenantApi } from "@/core/tenant/api";
 import { IdGenerator } from "@/shared/id-generator";
 
 import { Company } from "../../../../domain/entities";
@@ -13,15 +12,13 @@ import { CreateCompanyOutput } from "./output";
 @Injectable()
 export class CreateCompanyUseCase {
     constructor(
-        private readonly tenantApi: TenantApi,
         private readonly idGenerator: IdGenerator,
         private readonly companyRepository: CompanyRepository,
     ) {}
 
     public async execute(input: CreateCompanyInput): Promise<CreateCompanyOutput> {
-        await this.tenantApi.validate(input.actorTenantId);
         const slugVO = CompanySlug.create(input.slug);
-        const existing = await this.companyRepository.findByTenantAndSlug(input.actorTenantId, slugVO.value);
+        const existing = await this.companyRepository.findBySlug(slugVO.value);
         if (existing) {
             throw new CompanySlugAlreadyExistsError();
         }

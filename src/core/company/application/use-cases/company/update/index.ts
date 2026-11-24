@@ -4,7 +4,7 @@ import { TenantApi } from "@/core/tenant/api";
 
 import { Company } from "../../../../domain/entities";
 import { CompanyNotFoundError, CompanySlugAlreadyExistsError } from "../../../../domain/errors";
-import { CompanyRepository } from "../../../../domain/interfaces";
+import { CompanyRepository, MembershipRepository } from "../../../../domain/interfaces";
 import { CompanySlug } from "../../../../domain/value-objects";
 import { UpdateCompanyInput } from "./input";
 import { UpdateCompanyOutput } from "./output";
@@ -14,13 +14,23 @@ export class UpdateCompanyUseCase {
     constructor(
         private readonly tenantApi: TenantApi,
         private readonly companyRepository: CompanyRepository,
+        private readonly membershipRepository: MembershipRepository,
     ) {}
 
     public async execute(input: UpdateCompanyInput): Promise<UpdateCompanyOutput> {
-        await this.tenantApi.validate(input.actorTenantId);
         const company = await this.companyRepository.findById(input.id);
         if (!company) {
             throw new CompanyNotFoundError();
+        }
+        const isPlatformAdmin = await this.tenantApi.isPlatformTenant(input.actorTenantId);
+        if (!isPlatformAdmin) {
+            const membership = await this.membershipRepository.findActiveByUserAndCompany(
+                input.actorUserId,
+                company.id,
+            );
+            if (!membership) {
+                throw new CompanyNotFoundError();
+            }
         }
         if (input.name !== undefined) {
             company.rename(input.name);
@@ -46,7 +56,7 @@ export class UpdateCompanyUseCase {
         if (slugVO.value === company.slug) {
             return;
         }
-        const existing = await this.companyRepository.findByTenantAndSlug(company.tenantId, slugVO.value);
+        const existing = await this.companyRepository.findBySlug(slugVO.value);
         if (existing) {
             throw new CompanySlugAlreadyExistsError();
         }

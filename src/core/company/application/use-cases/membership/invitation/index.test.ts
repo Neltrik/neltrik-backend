@@ -2,12 +2,20 @@ import type { IdGenerator } from "@/shared/id-generator";
 import type { OutboxRepository } from "@/shared/outbox";
 
 import { CompanyNotFoundError, MembershipAlreadyExistsError } from "../../../../domain/errors";
-import { CompanyRepositorySpy, MembershipRepositorySpy, TransactionManagerSpy } from "../../../../test-doubles";
+import {
+    AuthorizationRoleApiSpy,
+    CompanyRepositorySpy,
+    MembershipRepositorySpy,
+    TransactionManagerSpy,
+    UserApiSpy,
+} from "../../../../test-doubles";
 import { InviteMemberUseCase } from "./index";
 import type { InviteMemberInput } from "./input";
 
 describe("InviteMemberUseCase", () => {
     const makeSut = () => {
+        const authorizationRoleApi = new AuthorizationRoleApiSpy();
+        const userApi = new UserApiSpy();
         const idGenerator = {
             generate: jest.fn().mockReturnValue("membership-id"),
         } satisfies IdGenerator;
@@ -21,6 +29,8 @@ describe("InviteMemberUseCase", () => {
         const companyRepository = new CompanyRepositorySpy();
         const membershipRepository = new MembershipRepositorySpy();
         const inviteMemberUseCase = new InviteMemberUseCase(
+            authorizationRoleApi,
+            userApi,
             idGenerator,
             outboxRepository,
             transactionManager,
@@ -29,6 +39,8 @@ describe("InviteMemberUseCase", () => {
         );
         return {
             inviteMemberUseCase,
+            authorizationRoleApi,
+            userApi,
             idGenerator,
             outboxRepository,
             transactionManager,
@@ -40,18 +52,23 @@ describe("InviteMemberUseCase", () => {
         companyId: "company-id",
         userId: "user-id",
         roleId: "role-id",
-        actorUserId: "",
+        tenantId: "tenant-id",
+        actorUserId: "actor-user-id",
     });
-    const mockCompany = () =>
-        ({
-            tenantId: "tenant-id",
-            name: "Acme Corporation",
-        }) as never;
+    const mockCompany = () => ({ tenantId: "tenant-id", name: "Acme Corporation" }) as never;
+    const mockMembership = (pending: boolean, active: boolean, expired = false) => ({
+        isPending: jest.fn().mockReturnValue(pending),
+        isActive: jest.fn().mockReturnValue(active),
+        isExpired: jest.fn().mockReturnValue(expired),
+        revoke: jest.fn(),
+    });
 
     describe("execute", () => {
-        it("should create the membership, publish the invitation event and return its id", async () => {
+        it("should create the membership, publish the event and return its id", async () => {
             const {
                 inviteMemberUseCase,
+                authorizationRoleApi,
+                userApi,
                 idGenerator,
                 outboxRepository,
                 transactionManager,
@@ -61,22 +78,21 @@ describe("InviteMemberUseCase", () => {
             const input = makeInput();
             companyRepository.findById.mockResolvedValue(mockCompany());
             membershipRepository.findByUserAndCompany.mockResolvedValue(null);
-            await expect(inviteMemberUseCase.execute(input)).resolves.toEqual({
-                id: "membership-id",
+            await expect(inviteMemberUseCase.execute(input)).resolves.toEqual({ id: "membership-id" });
+            expect(userApi.validateUserById).toHaveBeenCalledWith(input.userId);
+            expect(authorizationRoleApi.validateForTenant).toHaveBeenCalledWith({
+                roleId: input.roleId,
+                tenantId: input.tenantId,
             });
-            expect(companyRepository.findById).toHaveBeenCalledWith(input.companyId);
-            expect(membershipRepository.findByUserAndCompany).toHaveBeenCalledWith(input.userId, input.companyId);
             expect(idGenerator.generate).toHaveBeenCalledTimes(1);
             expect(transactionManager.executeCalls).toBe(1);
-            expect(membershipRepository.create).toHaveBeenCalledTimes(1);
             const membership = membershipRepository.create.mock.calls[0]?.[0];
-            expect(membership).toBeDefined();
             expect(membership?.id).toBe("membership-id");
             expect(membership?.tenantId).toBe("tenant-id");
             expect(membership?.userId).toBe(input.userId);
             expect(membership?.companyId).toBe(input.companyId);
             expect(membership?.roleId).toBe(input.roleId);
-            expect(membership?.createdAt).toBeInstanceOf(Date);
+            expect(membership!.expiresAt!.getTime() - membership!.createdAt.getTime()).toBe(7 * 24 * 60 * 60 * 1000);
             expect(outboxRepository.create).toHaveBeenCalledWith(
                 {
                     eventType: "SEND_INVITATION_EMAIL",
@@ -93,76 +109,84 @@ describe("InviteMemberUseCase", () => {
         });
 
         it("should throw CompanyNotFoundError when the company does not exist", async () => {
-            const { inviteMemberUseCase, idGenerator, companyRepository, membershipRepository, transactionManager } =
+            const { inviteMemberUseCase, companyRepository, userApi, authorizationRoleApi, transactionManager } =
                 makeSut();
             companyRepository.findById.mockResolvedValue(null);
             await expect(inviteMemberUseCase.execute(makeInput())).rejects.toThrow(CompanyNotFoundError);
-            expect(membershipRepository.findByUserAndCompany).not.toHaveBeenCalled();
-            expect(idGenerator.generate).not.toHaveBeenCalled();
+            expect(userApi.validateUserById).not.toHaveBeenCalled();
+            expect(authorizationRoleApi.validateForTenant).not.toHaveBeenCalled();
             expect(transactionManager.executeCalls).toBe(0);
         });
 
         it.each([
-            ["pending", true, false],
-            ["active", false, true],
-        ])("should throw MembershipAlreadyExistsError when membership is %s", async (_, isPending, isActive) => {
-            const { inviteMemberUseCase, idGenerator, companyRepository, membershipRepository, transactionManager } =
-                makeSut();
+            ["active", false, true, false],
+            ["pending and not expired", true, false, false],
+        ])("should throw MembershipAlreadyExistsError when membership is %s", async (_, pending, active, expired) => {
+            const { inviteMemberUseCase, companyRepository, membershipRepository, idGenerator } = makeSut();
             companyRepository.findById.mockResolvedValue(mockCompany());
-            membershipRepository.findByUserAndCompany.mockResolvedValue({
-                isPending: jest.fn().mockReturnValue(isPending),
-                isActive: jest.fn().mockReturnValue(isActive),
-            } as never);
+            membershipRepository.findByUserAndCompany.mockResolvedValue(
+                mockMembership(pending, active, expired) as never,
+            );
             await expect(inviteMemberUseCase.execute(makeInput())).rejects.toThrow(MembershipAlreadyExistsError);
             expect(idGenerator.generate).not.toHaveBeenCalled();
-            expect(transactionManager.executeCalls).toBe(0);
+            expect(membershipRepository.update).not.toHaveBeenCalled();
         });
 
-        it("should allow creating a membership when the existing membership is inactive", async () => {
+        it("should revoke an expired pending membership and create a new one", async () => {
             const { inviteMemberUseCase, companyRepository, membershipRepository, outboxRepository } = makeSut();
+            const existing = mockMembership(true, false, true);
             companyRepository.findById.mockResolvedValue(mockCompany());
-            membershipRepository.findByUserAndCompany.mockResolvedValue({
-                isPending: jest.fn().mockReturnValue(false),
-                isActive: jest.fn().mockReturnValue(false),
-            } as never);
-            await expect(inviteMemberUseCase.execute(makeInput())).resolves.toEqual({
-                id: "membership-id",
-            });
+            membershipRepository.findByUserAndCompany.mockResolvedValue(existing as never);
+            await expect(inviteMemberUseCase.execute(makeInput())).resolves.toEqual({ id: "membership-id" });
+            expect(existing.revoke).toHaveBeenCalledTimes(1);
+            expect(membershipRepository.update).toHaveBeenCalledWith(existing);
             expect(membershipRepository.create).toHaveBeenCalledTimes(1);
             expect(outboxRepository.create).toHaveBeenCalledTimes(1);
         });
 
+        it("should allow creating a membership when the existing membership is inactive", async () => {
+            const { inviteMemberUseCase, companyRepository, membershipRepository } = makeSut();
+            companyRepository.findById.mockResolvedValue(mockCompany());
+            membershipRepository.findByUserAndCompany.mockResolvedValue(mockMembership(false, false) as never);
+            await expect(inviteMemberUseCase.execute(makeInput())).resolves.toEqual({ id: "membership-id" });
+            expect(membershipRepository.update).not.toHaveBeenCalled();
+            expect(membershipRepository.create).toHaveBeenCalledTimes(1);
+        });
+
         it.each([
-            ["finding the company", "findCompany"],
-            ["finding the membership", "findMembership"],
-            ["creating the membership", "createMembership"],
-            ["creating the outbox event", "createOutbox"],
-            ["executing the transaction", "transaction"],
+            ["user validation", "user"],
+            ["role validation", "role"],
+            ["finding the membership", "find"],
+            ["creating the membership", "create"],
+            ["creating the outbox event", "outbox"],
         ])("should propagate errors when %s fails", async (_, operation) => {
             const {
                 inviteMemberUseCase,
                 companyRepository,
+                userApi,
+                authorizationRoleApi,
                 membershipRepository,
                 outboxRepository,
-                transactionManager,
             } = makeSut();
             const error = new Error("Operation failed");
             companyRepository.findById.mockResolvedValue(mockCompany());
             membershipRepository.findByUserAndCompany.mockResolvedValue(null);
-            if (operation === "findCompany") {
-                companyRepository.findById.mockRejectedValue(error);
-            } else if (operation === "findMembership") {
-                membershipRepository.findByUserAndCompany.mockRejectedValue(error);
-            } else if (operation === "createMembership") {
-                membershipRepository.create.mockRejectedValue(error);
-            } else if (operation === "createOutbox") {
-                outboxRepository.create.mockRejectedValue(error);
-            } else {
-                transactionManager.shouldFail = true;
+            if (operation === "user") {
+                userApi.validateUserById.mockRejectedValue(error);
             }
-            await expect(inviteMemberUseCase.execute(makeInput())).rejects.toThrow(
-                operation === "transaction" ? "Transaction failed" : "Operation failed",
-            );
+            if (operation === "role") {
+                authorizationRoleApi.validateForTenant.mockRejectedValue(error);
+            }
+            if (operation === "find") {
+                membershipRepository.findByUserAndCompany.mockRejectedValue(error);
+            }
+            if (operation === "create") {
+                membershipRepository.create.mockRejectedValue(error);
+            }
+            if (operation === "outbox") {
+                outboxRepository.create.mockRejectedValue(error);
+            }
+            await expect(inviteMemberUseCase.execute(makeInput())).rejects.toThrow(error);
         });
     });
 });

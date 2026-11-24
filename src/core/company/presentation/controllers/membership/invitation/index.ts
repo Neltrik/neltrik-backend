@@ -54,10 +54,12 @@ export class InvitationController {
     @Post("invite")
     public async invite(
         @CurrentUser("userId") userId: string,
+        @CurrentUser("tenantId") tenantId: string,
         @Headers("x-company-id") companyId: string,
         @Body(new ZodValidationPipe(inviteMemberSchema)) body: InviteMemberRequestDto,
     ): Promise<InviteMemberResponseDto> {
         const output = await this.inviteMemberUseCase.execute({
+            tenantId,
             actorUserId: userId,
             companyId,
             userId: body.userId,

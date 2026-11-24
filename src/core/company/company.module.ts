@@ -89,6 +89,8 @@ export class CompanyModule implements OnModuleInit {
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.COMPANY_ALREADY_SUSPENDED, HttpStatus.CONFLICT);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.COMPANY_ALREADY_ACTIVE, HttpStatus.CONFLICT);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.MEMBERSHIP_EXPIRED, HttpStatus.CONFLICT);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.MEMBERSHIP_ALREADY_EXISTS, HttpStatus.CONFLICT);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.MEMBERSHIP_TRANSITION_INVALID, HttpStatus.CONFLICT);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.COMPANY_NOT_FOUND, HttpStatus.NOT_FOUND);
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.MEMBERSHIP_NOT_FOUND, HttpStatus.NOT_FOUND);
 

@@ -1,8 +1,9 @@
-import { forwardRef, Module } from "@nestjs/common";
+import { forwardRef, HttpStatus, Module, OnModuleInit } from "@nestjs/common";
 
 import { IdentityModule } from "@/core/identity/identity.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
 import { PermissionChecker } from "@/shared/authorization";
+import { DomainStatusRegistry } from "@/shared/http";
 
 import {
     AuthorizationPolicyApi,
@@ -36,6 +37,7 @@ import {
     GetRoleOhsUseCase,
     GetRolesByTenantOhsUseCase,
 } from "./application/use-cases-ohs";
+import { DOMAIN_ERROR_CODES } from "./domain/errors/messages";
 import {
     PermissionRepository,
     RoleRepository,
@@ -120,4 +122,8 @@ import {
     imports: [forwardRef(() => IdentityModule), TenantModule],
     exports: [AuthorizationRoleApi, AuthorizationPolicyApi, PermissionChecker],
 })
-export class AuthorizationModule {}
+export class AuthorizationModule implements OnModuleInit {
+    public onModuleInit(): void {
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.ROLE_NOT_ENABLED_FOR_TENANT, HttpStatus.NOT_FOUND);
+    }
+}

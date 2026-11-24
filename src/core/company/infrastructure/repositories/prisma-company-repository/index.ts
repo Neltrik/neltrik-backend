@@ -22,6 +22,9 @@ export class PrismaCompanyRepository extends CompanyRepository {
     }
 
     public async findById(id: string): Promise<Company | null> {
+        if (!id) {
+            return null;
+        }
         const company = await this.prisma.tenantClient.company.findFirst({
             where: { id },
         });

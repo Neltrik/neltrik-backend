@@ -1,5 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
+import { AuthorizationRoleApi } from "@/core/authorization/api";
+import { UserApi } from "@/core/identity/api";
 import { IdGenerator } from "@/shared/id-generator";
 import { OutboxRepository } from "@/shared/outbox";
 import { TransactionManager } from "@/shared/transaction";
@@ -13,6 +15,8 @@ import { InviteMemberOutput } from "./output";
 @Injectable()
 export class InviteMemberUseCase {
     constructor(
+        private readonly authorizationRoleApi: AuthorizationRoleApi,
+        private readonly userApi: UserApi,
         private readonly idGenerator: IdGenerator,
         private readonly outboxRepository: OutboxRepository,
         private readonly transactionManager: TransactionManager,
@@ -25,9 +29,20 @@ export class InviteMemberUseCase {
         if (!company) {
             throw new CompanyNotFoundError();
         }
+        await this.userApi.validateUserById(input.userId);
+        await this.authorizationRoleApi.validateForTenant({ roleId: input.roleId, tenantId: input.tenantId });
         const existing = await this.membershipRepository.findByUserAndCompany(input.userId, input.companyId);
-        if (existing && (existing.isPending() || existing.isActive())) {
-            throw new MembershipAlreadyExistsError();
+        if (existing) {
+            if (existing.isActive()) {
+                throw new MembershipAlreadyExistsError();
+            }
+            if (existing.isPending()) {
+                if (!existing.isExpired()) {
+                    throw new MembershipAlreadyExistsError();
+                }
+                existing.revoke();
+                await this.membershipRepository.update(existing);
+            }
         }
         const now = new Date();
         const expiresAt = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);

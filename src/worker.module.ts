@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { DiscoveryModule } from "@nestjs/core";
 
 import { AuthorizationModule } from "./core/authorization/authorization.module";
+import { CompanyModule } from "./core/company/company.module";
 import { FileStorageModule } from "./core/file-storage/file-storage.module";
 import { NotificationsModule } from "./core/notifications/notifications.module";
 import { TenantModule } from "./core/tenant/tenant.module";
@@ -25,6 +26,7 @@ import { WorkerBootstrap } from "./worker.bootstrap";
         NotificationsModule,
         TenantModule,
         AuthorizationModule,
+        CompanyModule,
     ],
     providers: [WorkerBootstrap, OutboxScheduler],
 })

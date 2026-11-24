@@ -63,8 +63,8 @@ export class AuthController {
     @SkipEmailVerification()
     @SkipUserState()
     @SkipTenantState()
-    @PublicPermission()
     @WithoutCompany()
+    @PublicPermission()
     @Post("login")
     public async login(
         @Body(new ZodValidationPipe(loginSchema))

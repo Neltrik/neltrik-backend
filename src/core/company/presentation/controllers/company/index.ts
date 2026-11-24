@@ -218,15 +218,18 @@ export class CompanyController {
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_UPDATED, message: COMPANY_MESSAGES.SUSPENDED })
     @Throttle({ default: { limit: 20, ttl: 900000 } })
+    @WithoutCompany()
     @Permissions("ADMIN_COMPANY_SUSPEND")
     @HttpCode(HttpStatus.OK)
     @Patch(":id/suspend")
     public async suspend(
         @CurrentUser("tenantId") tenantId: string,
+        @CurrentUser("userId") userId: string,
         @Param(new ZodValidationPipe(companyIdParamsSchema)) params: SuspendCompanyParamsDto,
     ): Promise<SuspendCompanyResponseDto> {
         const output = await this.suspendCompanyUseCase.execute({
             actorTenantId: tenantId,
+            actorUserId: userId,
             id: params.id,
         });
         return {
@@ -254,15 +257,18 @@ export class CompanyController {
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_UPDATED, message: COMPANY_MESSAGES.REACTIVATED })
     @Throttle({ default: { limit: 20, ttl: 900000 } })
+    @WithoutCompany()
     @Permissions("ADMIN_COMPANY_REACTIVATE")
     @HttpCode(HttpStatus.OK)
     @Patch(":id/reactivate")
     public async reactivate(
         @CurrentUser("tenantId") tenantId: string,
+        @CurrentUser("userId") userId: string,
         @Param(new ZodValidationPipe(companyIdParamsSchema)) params: ReactivateCompanyParamsDto,
     ): Promise<ReactivateCompanyResponseDto> {
         const output = await this.reactivateCompanyUseCase.execute({
             actorTenantId: tenantId,
+            actorUserId: userId,
             id: params.id,
         });
         return {

@@ -26,6 +26,7 @@ import {
     UpdateCompanyUseCase,
     UpdateMemberRoleUseCase,
 } from "./application/use-cases";
+import { ValidateCompanyAccessInternalUseCase } from "./application/use-cases-internal";
 import { CreateCompanyOhsUseCase, CreateMembershipOhsUseCase } from "./application/use-cases-ohs";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
 import { CompanyRepository, MembershipRepository } from "./domain/interfaces";
@@ -58,6 +59,7 @@ import {
         SuspendMemberUseCase,
         UpdateCompanyUseCase,
         UpdateMemberRoleUseCase,
+        ValidateCompanyAccessInternalUseCase,
         CreateCompanyOhsUseCase,
         CreateMembershipOhsUseCase,
         {

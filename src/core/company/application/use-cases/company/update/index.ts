@@ -1,20 +1,18 @@
 import { Injectable } from "@nestjs/common";
 
-import { TenantApi } from "@/core/tenant/api";
-
 import { Company } from "../../../../domain/entities";
 import { CompanyNotFoundError, CompanySlugAlreadyExistsError } from "../../../../domain/errors";
-import { CompanyRepository, MembershipRepository } from "../../../../domain/interfaces";
+import { CompanyRepository } from "../../../../domain/interfaces";
 import { CompanySlug } from "../../../../domain/value-objects";
+import { ValidateCompanyAccessInternalUseCase } from "../../../use-cases-internal";
 import { UpdateCompanyInput } from "./input";
 import { UpdateCompanyOutput } from "./output";
 
 @Injectable()
 export class UpdateCompanyUseCase {
     constructor(
-        private readonly tenantApi: TenantApi,
         private readonly companyRepository: CompanyRepository,
-        private readonly membershipRepository: MembershipRepository,
+        private readonly validateCompanyAccessInternalUseCase: ValidateCompanyAccessInternalUseCase,
     ) {}
 
     public async execute(input: UpdateCompanyInput): Promise<UpdateCompanyOutput> {
@@ -22,16 +20,11 @@ export class UpdateCompanyUseCase {
         if (!company) {
             throw new CompanyNotFoundError();
         }
-        const isPlatformAdmin = await this.tenantApi.isPlatformTenant(input.actorTenantId);
-        if (!isPlatformAdmin) {
-            const membership = await this.membershipRepository.findActiveByUserAndCompany(
-                input.actorUserId,
-                company.id,
-            );
-            if (!membership) {
-                throw new CompanyNotFoundError();
-            }
-        }
+        await this.validateCompanyAccessInternalUseCase.execute({
+            actorTenantId: input.actorTenantId,
+            actorUserId: input.actorUserId,
+            companyId: company.id,
+        });
         if (input.name !== undefined) {
             company.rename(input.name);
         }

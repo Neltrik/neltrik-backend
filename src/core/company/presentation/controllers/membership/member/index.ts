@@ -65,8 +65,8 @@ export class MemberController {
     @ApiForbiddenResponse({ description: "Forbidden." })
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_FOUND, message: MEMBERSHIP_MESSAGES.LISTED_MY })
-    @PublicPermission()
     @WithoutCompany()
+    @PublicPermission()
     @Get("mine")
     public async listMine(
         @CurrentUser("userId") userId: string,

@@ -1,18 +1,16 @@
 import { Injectable } from "@nestjs/common";
 
-import { TenantApi } from "@/core/tenant/api";
-
 import { CompanyNotFoundError } from "../../../../domain/errors";
-import { CompanyRepository, MembershipRepository } from "../../../../domain/interfaces";
+import { CompanyRepository } from "../../../../domain/interfaces";
+import { ValidateCompanyAccessInternalUseCase } from "../../../use-cases-internal";
 import { GetCompanyInput } from "./input";
 import { GetCompanyOutput } from "./output";
 
 @Injectable()
 export class GetCompanyUseCase {
     constructor(
-        private readonly tenantApi: TenantApi,
         private readonly companyRepository: CompanyRepository,
-        private readonly membershipRepository: MembershipRepository,
+        private readonly validateCompanyAccessInternalUseCase: ValidateCompanyAccessInternalUseCase,
     ) {}
 
     public async execute(input: GetCompanyInput): Promise<GetCompanyOutput> {
@@ -20,16 +18,11 @@ export class GetCompanyUseCase {
         if (!company) {
             throw new CompanyNotFoundError();
         }
-        const isPlatformAdmin = await this.tenantApi.isPlatformTenant(input.actorTenantId);
-        if (!isPlatformAdmin) {
-            const hasMembership = await this.membershipRepository.findActiveByUserAndCompany(
-                input.actorUserId,
-                company.id,
-            );
-            if (!hasMembership) {
-                throw new CompanyNotFoundError();
-            }
-        }
+        await this.validateCompanyAccessInternalUseCase.execute({
+            actorTenantId: input.actorTenantId,
+            actorUserId: input.actorUserId,
+            companyId: company.id,
+        });
         return {
             id: company.id,
             tenantId: company.tenantId,

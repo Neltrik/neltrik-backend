@@ -80,8 +80,8 @@ export class InvitationController {
     @ApiInternalServerErrorResponse({ description: "Internal server error." })
     @Response({ code: RESPONSE_CODES.RESOURCE_UPDATED, message: MEMBERSHIP_MESSAGES.ACCEPTED })
     @Throttle({ default: { limit: 20, ttl: 900000 } })
-    @PublicPermission()
     @WithoutCompany()
+    @PublicPermission()
     @HttpCode(HttpStatus.OK)
     @Patch(":id/accept")
     public async accept(

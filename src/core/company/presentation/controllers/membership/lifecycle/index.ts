@@ -56,12 +56,10 @@ export class MemberLifecycleController {
     @HttpCode(HttpStatus.OK)
     @Patch(":id/suspend")
     public async suspend(
-        @CurrentUser("tenantId") tenantId: string,
         @CurrentUser("userId") userId: string,
         @Param(new ZodValidationPipe(suspendMemberParamsSchema)) params: SuspendMemberParamsDto,
     ): Promise<SuspendMemberResponseDto> {
         const output = await this.suspendMemberUseCase.execute({
-            actorTenantId: tenantId,
             actorUserId: userId,
             membershipId: params.id,
         });
@@ -86,13 +84,9 @@ export class MemberLifecycleController {
     @HttpCode(HttpStatus.OK)
     @Patch(":id/reactivate")
     public async reactivate(
-        @CurrentUser("tenantId") tenantId: string,
-        @CurrentUser("userId") userId: string,
         @Param(new ZodValidationPipe(reactivateMemberParamsSchema)) params: ReactivateMemberParamsDto,
     ): Promise<ReactivateMemberResponseDto> {
         const output = await this.reactivateMemberUseCase.execute({
-            actorTenantId: tenantId,
-            actorUserId: userId,
             membershipId: params.id,
         });
         return { id: output.id };
@@ -116,12 +110,10 @@ export class MemberLifecycleController {
     @HttpCode(HttpStatus.OK)
     @Patch(":id/revoke")
     public async revoke(
-        @CurrentUser("tenantId") tenantId: string,
         @CurrentUser("userId") userId: string,
         @Param(new ZodValidationPipe(revokeMemberParamsSchema)) params: RevokeMemberParamsDto,
     ): Promise<RevokeMemberResponseDto> {
         const output = await this.revokeMemberUseCase.execute({
-            actorTenantId: tenantId,
             actorUserId: userId,
             membershipId: params.id,
         });

@@ -4,7 +4,7 @@ import { Request } from "express";
 
 import { AUDIT_METADATA_KEY, type AuditMetadata, AuditRecorder } from "@/shared/audit";
 
-import { MembershipChecker } from "../../contracts";
+import { CompanyChecker, MembershipChecker } from "../../contracts";
 import { WITHOUT_COMPANY_KEY } from "../../decorators";
 
 @Injectable()
@@ -12,6 +12,7 @@ export class CompanyContextGuard implements CanActivate {
     constructor(
         private readonly reflector: Reflector,
         private readonly auditRecorder: AuditRecorder,
+        private readonly companyChecker: CompanyChecker,
         private readonly membershipChecker: MembershipChecker,
     ) {}
 
@@ -36,6 +37,10 @@ export class CompanyContextGuard implements CanActivate {
             const companyId = typeof headerCompanyId === "string" ? headerCompanyId : null;
             if (!companyId) {
                 throw new ForbiddenException("Company context required");
+            }
+            const hasAccess = await this.companyChecker.isActive(companyId);
+            if (!hasAccess) {
+                throw new ForbiddenException("Company is not active");
             }
             const hasMembership = await this.membershipChecker.hasActiveMembership(user.userId, companyId);
             if (!hasMembership) {

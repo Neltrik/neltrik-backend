@@ -4,7 +4,7 @@ import { AuthorizationModule } from "@/core/authorization/authorization.module";
 import { IdentityModule } from "@/core/identity/identity.module";
 import { NotificationsModule } from "@/core/notifications/notifications.module";
 import { TenantModule } from "@/core/tenant/tenant.module";
-import { MembershipChecker } from "@/shared/authorization";
+import { CompanyChecker, MembershipChecker } from "@/shared/authorization";
 import { DomainStatusRegistry } from "@/shared/http";
 import { HandlersRegistry } from "@/shared/outbox";
 import { OutboxModule } from "@/shared/outbox/outbox.module";
@@ -31,7 +31,7 @@ import { CreateCompanyOhsUseCase, CreateMembershipOhsUseCase } from "./applicati
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
 import { CompanyRepository, MembershipRepository } from "./domain/interfaces";
 import { SendInvitationEmailOutboxHandler } from "./infrastructure/handlers";
-import { MembershipCheckerProvider } from "./infrastructure/providers";
+import { CompanyCheckerProvider, MembershipCheckerProvider } from "./infrastructure/providers";
 import { PrismaCompanyRepository, PrismaMembershipRepository } from "./infrastructure/repositories";
 import {
     CompanyController,
@@ -71,12 +71,16 @@ import {
             useClass: PrismaMembershipRepository,
         },
         {
+            provide: CompanyChecker,
+            useClass: CompanyCheckerProvider,
+        },
+        {
             provide: MembershipChecker,
             useClass: MembershipCheckerProvider,
         },
     ],
     imports: [AuthorizationModule, IdentityModule, NotificationsModule, TenantModule, OutboxModule],
-    exports: [MembershipChecker],
+    exports: [MembershipChecker, CompanyChecker],
 })
 export class CompanyModule implements OnModuleInit {
     constructor(

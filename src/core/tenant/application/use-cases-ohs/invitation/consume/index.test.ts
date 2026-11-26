@@ -16,7 +16,6 @@ const makeInvitation = (): Invitation => {
     return Invitation.create({
         id: "invitation-id",
         tenantId: "tenant-id",
-        roleId: "role-id",
         recipient: Recipient.create("user@example.com"),
         token: Token.create(VALID_TOKEN),
         expirationDate: ExpirationDate.create(new Date(now.getTime() + 86_400_000)),
@@ -82,7 +81,6 @@ describe("ConsumeInvitationOhsUseCase", () => {
         const invitation = Invitation.create({
             id: "invitation-id",
             tenantId: "tenant-id",
-            roleId: "role-id",
             recipient: Recipient.create("user@example.com"),
             token: Token.create(VALID_TOKEN),
             expirationDate: ExpirationDate.create(new Date("2026-08-22T12:00:00.000Z")),

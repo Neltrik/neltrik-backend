@@ -4,6 +4,7 @@ import { PrismaService } from "@/prisma/index";
 
 import { Invitation } from "../../../domain/entities";
 import { InvitationRepository } from "../../../domain/interfaces";
+import { INVITATION_STATUS } from "../../../domain/types";
 import { InvitationMapper } from "../../mappers";
 
 @Injectable()
@@ -44,7 +45,7 @@ export class PrismaInvitationRepository extends InvitationRepository {
 
     public async findPendingByTenantAndRecipient(tenantId: string, recipient: string): Promise<Invitation | null> {
         const invitation = await this.prisma.tenantClient.invitation.findFirst({
-            where: { tenantId, recipient, status: "PENDING" },
+            where: { tenantId, recipient, status: INVITATION_STATUS.PENDING },
         });
         if (!invitation) {
             return null;

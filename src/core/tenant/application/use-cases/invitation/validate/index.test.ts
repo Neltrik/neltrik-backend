@@ -16,7 +16,6 @@ const makeInvitation = (expirationDate: Date = new Date(Date.now() + 86_400_000)
     return Invitation.create({
         id: "invitation-id",
         tenantId: "tenant-id",
-        roleId: "role-id",
         recipient: Recipient.create("user@example.com"),
         token: Token.create(VALID_TOKEN),
         expirationDate: ExpirationDate.create(expirationDate),
@@ -43,7 +42,6 @@ describe("ValidateInvitationUseCase", () => {
         expect(result).toEqual({
             invitationId: "invitation-id",
             tenantId: "tenant-id",
-            roleId: "role-id",
             recipient: "user@example.com",
         });
     });

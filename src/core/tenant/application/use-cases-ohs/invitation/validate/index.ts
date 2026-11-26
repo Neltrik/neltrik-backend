@@ -30,7 +30,6 @@ export class ValidateInvitationOhsUseCase {
         return {
             invitationId: invitation.id,
             tenantId: invitation.tenantId,
-            roleId: invitation.roleId,
             recipient: invitation.recipient.value,
         };
     }

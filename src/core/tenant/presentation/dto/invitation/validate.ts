@@ -22,12 +22,6 @@ export class ValidateInvitationResultDto {
     tenantId!: string;
 
     @ApiProperty({
-        example: "550e8400-e29b-41d4-a716-446655440001",
-        description: "ID del rol que se asignará al usuario",
-    })
-    roleId!: string;
-
-    @ApiProperty({
         example: "juan.perez@empresa.com",
         description: "Email o número de teléfono del destinatario",
     })

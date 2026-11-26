@@ -15,7 +15,6 @@ const createProps = (): Omit<InvitationState, "status"> => {
     return {
         id: "invitation-id",
         tenantId: "tenant-id",
-        roleId: "role-id",
         mechanism: "",
         recipient: Recipient.create("test@example.com"),
         token: Token.create("123e4567-e89b-12d3-a456-426614174000"),
@@ -52,6 +51,12 @@ describe("Invitation", () => {
         expect(invitation.status).toBe(INVITATION_STATUS.PENDING);
     });
 
+    it("should expose the mechanism through its getter", () => {
+        const props = createProps();
+        const invitation = Invitation.create(props);
+        expect(invitation.mechanism).toBe(props.mechanism);
+    });
+
     it("should create an invitation with pending status", () => {
         const invitation = Invitation.create(createProps());
         expect(invitation.status).toBe(INVITATION_STATUS.PENDING);
@@ -72,7 +77,6 @@ describe("Invitation", () => {
         const invitation = Invitation.create(props);
         expect(invitation.id).toBe(props.id);
         expect(invitation.tenantId).toBe(props.tenantId);
-        expect(invitation.roleId).toBe(props.roleId);
         expect(invitation.recipient).toBe(props.recipient);
         expect(invitation.token).toBe(props.token);
         expect(invitation.expirationDate).toBe(props.expirationDate);

@@ -102,10 +102,6 @@ export class Invitation {
         return this.props.tenantId;
     }
 
-    public get roleId(): string {
-        return this.props.roleId;
-    }
-
     public get recipient(): Recipient {
         return this.props.recipient;
     }

@@ -49,8 +49,6 @@ model Vacancy {
   updatedAt      DateTime       @updatedAt @map("updated_at")
   deletedAt      DateTime?      @map("deleted_at")
 
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-
   @@index([tenantId])
   @@index([recruiterId])
   @@index([status])
@@ -78,7 +76,6 @@ model Tenant {
   updatedAt   DateTime     @updatedAt @map("updated_at")
   suspendedAt DateTime?    @map("suspended_at")
 
-  vacancies          Vacancy[]
   users              User[]
   roleConfigurations TenantRoleConfiguration[]
   roleTenants        RoleTenant[]
@@ -88,6 +85,36 @@ model Tenant {
 
   @@index([status])
   @@map("tenants")
+}
+
+enum InvitationStatus {
+  PENDING
+  USED
+  REVOKED
+  EXPIRED
+}
+
+model Invitation {
+  id        String           @id @default(uuid()) @db.Uuid
+  tenantId  String           @map("tenant_id") @db.Uuid
+  recipient String           @db.VarChar(255)
+  mechanism String           @db.VarChar(50)
+  token     String           @unique @db.VarChar(255)
+  expiresAt DateTime         @map("expires_at")
+  status    InvitationStatus @default(PENDING)
+  usedAt    DateTime?        @map("used_at")
+  revokedAt DateTime?        @map("revoked_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+  updatedAt DateTime         @updatedAt @map("updated_at")
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId])
+  @@index([recipient])
+  @@index([expiresAt])
+  @@index([status])
+  @@index([tenantId, recipient])
+  @@map("invitations")
 }
 
 enum CompanyStatus {
@@ -144,36 +171,6 @@ model Membership {
   @@index([companyId, status])
   @@index([status, expiresAt])
   @@map("memberships")
-}
-
-enum InvitationStatus {
-  PENDING
-  USED
-  REVOKED
-  EXPIRED
-}
-
-model Invitation {
-  id        String           @id @default(uuid()) @db.Uuid
-  tenantId  String           @map("tenant_id") @db.Uuid
-  roleId    String           @map("role_id") @db.Uuid
-  recipient String           @db.VarChar(255)
-  mechanism String           @db.VarChar(50)
-  token     String           @unique @db.VarChar(255)
-  expiresAt DateTime         @map("expires_at")
-  status    InvitationStatus @default(PENDING)
-  usedAt    DateTime?        @map("used_at")
-  revokedAt DateTime?        @map("revoked_at")
-  createdAt DateTime         @default(now()) @map("created_at")
-  updatedAt DateTime         @updatedAt @map("updated_at")
-
-  tenant Tenant @relation(fields: [tenantId], references: [id])
-
-  @@index([tenantId])
-  @@index([recipient])
-  @@index([expiresAt])
-  @@index([status])
-  @@map("invitations")
 }
 
 enum UserStatus {

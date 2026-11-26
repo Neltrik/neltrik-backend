@@ -2,7 +2,7 @@
 
 ## 1. Entidad
 
-La entidad **Invitation** representa el mecanismo mediante el cual un **Tenant** invita a un usuario específico a unirse a su organización dentro de **Neltrik**.
+La entidad **Invitation** representa el mecanismo mediante el cual un **Tenant** invita a un usuario nuevo (que aún no tiene cuenta en la plataforma) a registrarse y unirse a su organización dentro de **Neltrik**.
 
 Cada Invitation está vinculada a un Tenant específico y está dirigida a un destinatario concreto. La invitación solo puede ser utilizada por el destinatario al que fue dirigida, ya que durante el registro Neltrik valida que el identificador de contacto proporcionado coincida con el `recipient` de la invitación.
 
@@ -36,7 +36,7 @@ La Invitation es extensible por diseño: el mecanismo de entrega puede variar (m
 - Una invitación **usada** o **revocada** no puede ser utilizada nuevamente.
 - Una invitación **expirada** no puede ser utilizada, incluso si no ha sido usada ni revocada.
 - El enlace mágico siempre contiene el `token`. La validación del `recipient` ocurre durante el registro, cuando el usuario proporciona su identificador de contacto.
-- **La invitación es inmutable una vez creada.** Si se necesita un cambio (ej: `recipient` incorrecto), se debe revocar y crear una nueva.
+- **La invitación es inmutable una vez creada.** Si se necesita realizar algún cambio (ej: `recipient` incorrecto o roleId diferente), se debe revocar la invitación existente y crear una nueva.
 
 ---
 
@@ -63,23 +63,23 @@ Tenant (1) ──── (N) Invitation
 
 Representa el estado actual de la invitación.
 
-| Estado    | Descripción                                                             |
-| --------- | ----------------------------------------------------------------------- |
-| `PENDING` | La invitación está activa y puede ser utilizada.                        |
-| `USED`    | La invitación ya fue utilizada para registrar un usuario.               |
-| `REVOKED` | La invitación fue revocada por un administrador antes de ser utilizada. |
-| `EXPIRED` | La invitación ha superado su fecha de expiración y ya no es válida.     |
+| Estado    | Descripción                                                                  |
+| --------- | ---------------------------------------------------------------------------- |
+| `PENDING` | La invitación está activa y puede ser utilizada.                             |
+| `USED`    | La invitación ya fue utilizada para registrar un usuario.                    |
+| `REVOKED` | La invitación fue revocada por un usuario autorizado antes de ser utilizada. |
+| `EXPIRED` | La invitación ha superado su fecha de expiración y ya no es válida.          |
 
 #### Reglas de transición
 
-| Transición          | Descripción                                                           |
-| ------------------- | --------------------------------------------------------------------- |
-| `PENDING → USED`    | Ocurre cuando la invitación es utilizada exitosamente.                |
-| `PENDING → REVOKED` | Ocurre cuando un administrador revoca la invitación.                  |
-| `PENDING → EXPIRED` | Ocurre automáticamente cuando `expiresAt` es menor a la fecha actual. |
-| `USED → *`          | No se permiten transiciones desde `USED`.                             |
-| `REVOKED → *`       | No se permiten transiciones desde `REVOKED`.                          |
-| `EXPIRED → *`       | No se permiten transiciones desde `EXPIRED`.                          |
+| Transición          | Descripción                                                               |
+| ------------------- | ------------------------------------------------------------------------- |
+| `PENDING → USED`    | Ocurre cuando la invitación es utilizada exitosamente.                    |
+| `PENDING → REVOKED` | Ocurre cuando un usuario con los permisos adecuados revoca la invitación. |
+| `PENDING → EXPIRED` | Ocurre automáticamente cuando `expiresAt` es menor a la fecha actual.     |
+| `USED → *`          | No se permiten transiciones desde `USED`.                                 |
+| `REVOKED → *`       | No se permiten transiciones desde `REVOKED`.                              |
+| `EXPIRED → *`       | No se permiten transiciones desde `EXPIRED`.                              |
 
 > **Nota:** El `recipient` puede ser un email, número de teléfono u otro identificador de contacto. Su formato y tipo dependen del mecanismo de entrega y de la estrategia de registro soportada por la plataforma.
 
@@ -117,8 +117,8 @@ Representa el estado actual de la invitación.
 
 ## 4.4 Revocación
 
-- Solo un usuario con rol **TenantAdmin** o superior puede revocar invitaciones.
-- Un **TenantAdmin** solo puede revocar invitaciones de su propio Tenant.
+- Solo usuarios con los permisos adecuados pueden revocar invitaciones.
+- Un usuario solo puede revocar invitaciones de su propio Tenant (a menos que sea **PlatformAdmin**).
 - Un **PlatformAdmin** puede revocar invitaciones de cualquier Tenant.
 - Solo una invitación con `status = PENDING` puede ser revocada.
 - Al revocar una invitación, el sistema debe:
@@ -202,3 +202,4 @@ invitations
 - `INDEX(recipient)`
 - `INDEX(expires_at)`
 - `INDEX(status)`
+- `INDEX(tenant_id, recipient)`

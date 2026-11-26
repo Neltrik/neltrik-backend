@@ -2,11 +2,11 @@
 
 ## 1. Entidad
 
-La entidad **Tenant** representa un espacio organizacional dentro de Neltrik.
+La entidad **Tenant** representa la cuenta, el cliente o el namespace de aislamiento global dentro de Neltrik.
 
-Cada Tenant constituye un espacio aislado donde operan los diferentes módulos de la plataforma, garantizando que la información perteneciente a una organización no pueda ser accedida por otra.
+Cada **Tenant** constituye un espacio aislado donde operan sus Companies, usuarios, módulos e información, garantizando que ninguna organización pueda acceder a los datos perteneciente a otra.
 
-Dentro de la plataforma existen diferentes tipos de Tenant, definidos mediante `TenantType`.
+Dentro de la plataforma existen diferentes tipos de **Tenant**, definidos mediante `TenantType`.
 
 ### Tenant
 
@@ -25,12 +25,13 @@ Dentro de la plataforma existen diferentes tipos de Tenant, definidos mediante `
 
 ### Consideraciones
 
-- El `slug` constituye el identificador público del Tenant y podrá utilizarse en URLs, subdominios u otros mecanismos de identificación.
-- El `type` determina la naturaleza del Tenant dentro de la plataforma.
-- Debe existir un único Tenant con `type = PLATFORM` dentro de Neltrik.
-- Los Tenants con `type = CUSTOMER` representan organizaciones cliente de la plataforma.
-- El Tenant con `type = PLATFORM` representa el Tenant propietario de la plataforma Neltrik.
-- El `type` de un Tenant no puede modificarse una vez creado.
+- El `slug` constituye el identificador público del **Tenant** y actúa como namespace global de la plataforma, permitiendo que Companies en Tenants distintos puedan tener el mismo `slug`.
+- El type determina la naturaleza del **Tenant** dentro de la plataforma.
+- Debe existir un único **Tenant** con type = PLATFORM dentro de Neltrik.
+- Los Tenants con type = CUSTOMER representan organizaciones cliente de la plataforma.
+- El **Tenant** con type = PLATFORM representa el **Tenant** propietario de la plataforma Neltrik.
+- El type de un **Tenant** no puede modificarse una vez creado.
+- El **Tenant** opera en conjunto con Company, que representa la unidad operativa interior (donde se trabaja). Juntos conforman los dos niveles de aislamiento de la plataforma.
 
 ## 2. Relaciones
 
@@ -39,16 +40,16 @@ La entidad **Tenant** mantiene las siguientes relaciones:
 ```text
 Tenant
 
-1 ─────── N Vacancies
+1 ─────── N Companies
 ```
 
 ### Descripción
 
-- Un **Tenant** puede poseer múltiples **Vacancies**.
-- Toda **Vacancy** pertenece a un único **Tenant**.
-- El **Tenant** actúa como el contexto organizacional utilizado para garantizar el aislamiento de la información.
+- Un **Tenant** puede poseer múltiples **Companies**.
+- Toda **Company** pertenece a un único **Tenant**.
+- El **Tenant** actúa como el namespace de aislamiento global; la Company actúa como la unidad operativa.
 
-> **Nota:** Conforme evolucione la plataforma, nuevas entidades pertenecientes a otros dominios (Identity, Authorization, CRM, etc.) establecerán relaciones con **Tenant**, manteniendo a este como el contexto organizacional principal del sistema.
+> **Nota:** El dominio **Tenant** se relaciona con **Company** (orquestación de la **Company** por defecto durante el alta del **Tenant**). Conforme evolucione la plataforma, nuevas entidades pertenecientes a otros dominios (**Identity**, **Authorization**, **CRM**, etc.) establecerán relaciones con **Tenant**, manteniendo a este como el namespace de aislamiento global.
 
 ## 3. Enums
 
@@ -87,6 +88,7 @@ Representa el estado actual del Tenant.
 - El slug es generado automáticamente por la plataforma utilizando el nombre del Tenant y su identificador único.
 - El nombre utilizado para generar el slug es normalizado automáticamente a minúsculas antes de persistirse.
 - La plataforma garantiza la unicidad del slug mediante esta estrategia y la restricción UNIQUE de la base de datos.
+- El `slug` debe ser único a nivel global de la plataforma.
 - Una vez generado, el slug no puede modificarse.
 - El `type` debe estar definido durante la creación del Tenant.
 - El `type` no puede modificarse posteriormente.
@@ -94,8 +96,10 @@ Representa el estado actual del Tenant.
 - Si ya existe un Tenant con `type = PLATFORM`, la creación de otro Tenant con `type = PLATFORM` debe ser rechazada.
 - Pueden existir múltiples Tenants con `type = CUSTOMER`.
 - Todo Tenant inicia con el estado `ACTIVE`.
-- Todo Tenant debe finalizar su proceso de creación con un `OwnerTenantAdmin` asociado.
-- La creación de un Tenant solo puede ser realizada por un usuario con el rol `PlatformAdmin`.
+- Todo Tenant debe finalizar su proceso de creación con una `Company` por defecto y un `OwnerTenantAdmin` asociados.
+- La creación de la `Company` por defecto y el OwnerTenantAdmin se delega al dominio `Company` durante el proceso de alta del `Tenant`.
+- El proceso de creación del `Tenant` solo se considera completado cuando existen la `Company` por defecto y el `OwnerTenantAdmin` asociados.
+- Solo usuarios con los permisos adecuados pueden crear un `Tenant`.
 
 ### Creación del Tenant PLATFORM
 
@@ -129,12 +133,12 @@ Los siguientes campos no pueden modificarse mediante el caso de uso de actualiza
 
 ### Restricciones
 
-- Solo un `PlatformAdmin` puede actualizar un Tenant.
-- Un Tenant suspendido puede actualizarse únicamente por un `PlatformAdmin`.
+- Solo usuarios con los permisos adecuados pueden actualizar un Tenant.
+- Un Tenant suspendido puede actualizarse únicamente por usuarios con los permisos adecuados.
 
 ## 4.3 Suspensión
 
-- Solo un `PlatformAdmin` puede suspender un Tenant.
+- Solo usuarios con los permisos adecuados pueden suspender un Tenant.
 - Solo un Tenant con estado `ACTIVE` puede suspenderse.
 - Al suspender un Tenant, su estado cambia a `SUSPENDED`.
 - Al suspender un Tenant, el sistema registra la fecha en `suspendedAt`.
@@ -144,7 +148,7 @@ Los siguientes campos no pueden modificarse mediante el caso de uso de actualiza
 
 ## 4.4 Reactivación
 
-- Solo un `PlatformAdmin` puede reactivar un Tenant.
+- Solo usuarios con los permisos adecuados pueden reactivar un Tenant.
 - Solo un Tenant con estado `SUSPENDED` puede reactivarse.
 - Al reactivar un Tenant, su estado cambia a `ACTIVE`.
 - Al reactivar un Tenant, el campo `suspendedAt` se establece en `NULL`.
@@ -180,7 +184,7 @@ tenants
 ## 5.3 Restricciones
 
 - `id` es la clave primaria.
-- `slug` debe ser único dentro de la plataforma.
+- `slug` debe ser único a nivel global de la plataforma (namespace).
 - `type` debe contener un valor válido del enum `TenantType`.
 - Solo puede existir un Tenant con `type = PLATFORM`.
 - Pueden existir múltiples Tenants con `type = CUSTOMER`.
@@ -218,3 +222,4 @@ La validación de negocio y la restricción de base de datos deben complementars
 - `UNIQUE(slug)`
 - `UNIQUE(type)` parcial para `type = PLATFORM`
 - `INDEX(status)`
+- `INDEX(name)`

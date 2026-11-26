@@ -5,13 +5,12 @@ import { Invitation, Tenant } from "../../../../domain/entities";
 import { InvitationAlreadyExistsError, TenantNotFoundError } from "../../../../domain/errors";
 import { ExpirationDate, Recipient, Token } from "../../../../domain/value-objects";
 import { InvitationDeliveryStrategyFactory, ManualStrategy } from "../../../../infrastructure/strategies";
-import { AuthorizationRoleApiSpy, InvitationRepositorySpy, TenantRepositorySpy } from "../../../../test-doubles";
+import { InvitationRepositorySpy, TenantRepositorySpy } from "../../../../test-doubles";
 import { CreateInvitationUseCase } from "./index";
 import type { CreateInvitationInput } from "./input";
 
 const makeInput = (): CreateInvitationInput => ({
     tenantId: "tenant-id",
-    roleId: "role-id",
     recipient: "user@example.com",
     mechanism: "manual",
 });
@@ -32,7 +31,6 @@ const makeInvitation = (): Invitation => {
     return Invitation.create({
         id: "invitation-id",
         tenantId: "tenant-id",
-        roleId: "role-id",
         recipient: Recipient.create("user@example.com"),
         token: Token.create("550e8400-e29b-41d4-a716-446655440000"),
         expirationDate: ExpirationDate.create(new Date(now.getTime() + 86_400_000)),
@@ -51,8 +49,6 @@ describe("CreateInvitationUseCase", () => {
         invitationRepository.findPendingByTenantAndRecipient.mockResolvedValue(null);
         const tenantRepository = new TenantRepositorySpy();
         tenantRepository.get.mockResolvedValue(makeTenant());
-        const authorizationRoleApi = new AuthorizationRoleApiSpy();
-        authorizationRoleApi.validateForTenant.mockResolvedValue(undefined);
         const generateMagicLinkMock = jest.fn().mockReturnValue("https://example.com/invitation/token");
         const magicLinkGenerator = {
             generate: generateMagicLinkMock,
@@ -67,39 +63,32 @@ describe("CreateInvitationUseCase", () => {
             generate: generateMock,
         } satisfies IdGenerator;
         const useCase = new CreateInvitationUseCase(
+            idGenerator,
             invitationRepository,
             tenantRepository,
-            authorizationRoleApi,
             strategyFactory,
-            idGenerator,
         );
         return {
             useCase,
             invitationRepository,
             tenantRepository,
-            authorizationRoleApi,
             generateMock,
             generateMagicLinkMock,
         };
     };
 
     it("should reject the operation when tenantId is not provided", async () => {
-        const { useCase, invitationRepository, tenantRepository, authorizationRoleApi } = makeSut();
+        const { useCase, invitationRepository, tenantRepository } = makeSut();
         await expect(useCase.execute({ ...makeInput(), tenantId: "" })).rejects.toThrow(UnauthorizedError);
         expect(tenantRepository.get).not.toHaveBeenCalled();
-        expect(authorizationRoleApi.validateForTenant).not.toHaveBeenCalled();
         expect(invitationRepository.findPendingByTenantAndRecipient).not.toHaveBeenCalled();
         expect(invitationRepository.create).not.toHaveBeenCalled();
     });
 
     it("should create an invitation successfully", async () => {
-        const { useCase, invitationRepository, authorizationRoleApi, generateMock, generateMagicLinkMock } = makeSut();
+        const { useCase, invitationRepository, generateMock, generateMagicLinkMock } = makeSut();
         const result = await useCase.execute(makeInput());
         expect(generateMock).toHaveBeenCalledTimes(2);
-        expect(authorizationRoleApi.validateForTenant).toHaveBeenCalledWith({
-            roleId: "role-id",
-            tenantId: "tenant-id",
-        });
         expect(invitationRepository.findPendingByTenantAndRecipient).toHaveBeenCalledWith(
             "tenant-id",
             "user@example.com",

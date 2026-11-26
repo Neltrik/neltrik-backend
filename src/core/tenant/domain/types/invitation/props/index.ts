@@ -4,7 +4,6 @@ import type { InvitationStatus } from "..";
 interface InvitationProps {
     id: string;
     tenantId: string;
-    roleId: string;
     recipient: Recipient;
     token: Token;
     expirationDate: ExpirationDate;

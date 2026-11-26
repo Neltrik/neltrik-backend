@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const createInvitationSchema = z.object({
     tenantId: z.uuid(),
-    roleId: z.uuid(),
     recipient: z.string().trim().min(1).max(255),
     mechanism: z.string().trim().min(1).max(50),
 });

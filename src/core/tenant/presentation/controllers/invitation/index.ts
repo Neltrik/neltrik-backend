@@ -79,7 +79,6 @@ export class InvitationController {
     ): Promise<CreateInvitationResultDto> {
         const result = await this.createInvitationUseCase.execute({
             tenantId,
-            roleId: body.roleId,
             recipient: body.recipient,
             mechanism: body.mechanism,
         });
@@ -122,7 +121,6 @@ export class InvitationController {
         return {
             invitationId: result.invitationId,
             tenantId: result.tenantId,
-            roleId: result.roleId,
             recipient: result.recipient,
         };
     }
@@ -203,7 +201,6 @@ export class InvitationController {
         return {
             items: invitations.map((invitation) => ({
                 id: invitation.id,
-                roleId: invitation.roleId,
                 recipient: invitation.recipient.value,
                 mechanism: invitation.mechanism,
                 status: invitation.status,

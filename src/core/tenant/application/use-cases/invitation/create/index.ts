@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 
-import { AuthorizationRoleApi } from "@/core/authorization/api";
 import { UnauthorizedError } from "@/shared/errors";
 import { IdGenerator } from "@/shared/id-generator";
 
@@ -15,11 +14,10 @@ import { CreateInvitationOutput } from "./output";
 @Injectable()
 export class CreateInvitationUseCase {
     constructor(
+        private readonly idGenerator: IdGenerator,
         private readonly invitationRepository: InvitationRepository,
         private readonly tenantRepository: TenantRepository,
-        private readonly authorizationRoleApi: AuthorizationRoleApi,
         private readonly strategyFactory: InvitationDeliveryStrategyFactory,
-        private readonly idGenerator: IdGenerator,
     ) {}
 
     public async execute(input: CreateInvitationInput): Promise<CreateInvitationOutput> {
@@ -30,7 +28,6 @@ export class CreateInvitationUseCase {
         if (!tenant) {
             throw new TenantNotFoundError();
         }
-        await this.authorizationRoleApi.validateForTenant({ roleId: input.roleId, tenantId: input.tenantId });
         const strategy = this.strategyFactory.create(input.mechanism);
         const existingInvitation = await this.invitationRepository.findPendingByTenantAndRecipient(
             input.tenantId,
@@ -47,7 +44,6 @@ export class CreateInvitationUseCase {
         const invitation = Invitation.create({
             id,
             tenantId: input.tenantId,
-            roleId: input.roleId,
             recipient,
             token,
             expirationDate,

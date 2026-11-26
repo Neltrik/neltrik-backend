@@ -11,7 +11,6 @@ const createProps = (): InvitationState => {
     return {
         id: "invitation-id",
         tenantId: "tenant-id",
-        roleId: "role-id",
         recipient: Recipient.create("test@example.com"),
         mechanism: "EMAIL",
         token: Token.create("123e4567-e89b-12d3-a456-426614174000"),
@@ -40,7 +39,6 @@ describe("InvitationMapper", () => {
         expect(persistence).toEqual({
             id: invitation.id,
             tenantId: invitation.tenantId,
-            roleId: invitation.roleId,
             recipient: invitation.recipient.value,
             mechanism: invitation.mechanism,
             token: invitation.token.value,
@@ -57,7 +55,6 @@ describe("InvitationMapper", () => {
         const persistence = {
             id: "invitation-id",
             tenantId: "tenant-id",
-            roleId: "role-id",
             recipient: "test@example.com",
             mechanism: "EMAIL",
             token: "123e4567-e89b-12d3-a456-426614174000",
@@ -72,7 +69,6 @@ describe("InvitationMapper", () => {
         expect(invitation).toBeInstanceOf(Invitation);
         expect(invitation.id).toBe(persistence.id);
         expect(invitation.tenantId).toBe(persistence.tenantId);
-        expect(invitation.roleId).toBe(persistence.roleId);
         expect(invitation.recipient.value).toBe(persistence.recipient);
         expect(invitation.mechanism).toBe(persistence.mechanism);
         expect(invitation.token.value).toBe(persistence.token);
@@ -89,7 +85,6 @@ describe("InvitationMapper", () => {
         const persistence = {
             id: "invitation-id",
             tenantId: "tenant-id",
-            roleId: "role-id",
             recipient: "test@example.com",
             mechanism: "EMAIL",
             token: "123e4567-e89b-12d3-a456-426614174000",
@@ -111,7 +106,6 @@ describe("InvitationMapper", () => {
         const persistence = {
             id: "invitation-id",
             tenantId: "tenant-id",
-            roleId: "role-id",
             recipient: "test@example.com",
             mechanism: "EMAIL",
             token: "123e4567-e89b-12d3-a456-426614174000",

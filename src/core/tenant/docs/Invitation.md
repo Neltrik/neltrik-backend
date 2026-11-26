@@ -14,7 +14,6 @@ La Invitation es extensible por diseño: el mecanismo de entrega puede variar (m
 | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `id`        | Identificador único de la Invitation.                                                                                                                                                                                                                                                                            |
 | `tenantId`  | Identificador del Tenant que genera la invitación.                                                                                                                                                                                                                                                               |
-| `roleId`    | Identificador del rol que se asignará al usuario cuando se registre usando esta invitación.                                                                                                                                                                                                                      |
 | `recipient` | Identificador de contacto del destinatario al que va dirigida la invitación. Puede ser un email o un número de teléfono (o cualquier otro identificador que el sistema soporte en el futuro). Durante el registro, el sistema valida que el identificador proporcionado coincida exactamente con el `recipient`. |
 | `mechanism` | Mecanismo de entrega utilizado (manual, email, sms, whatsapp, etc.). Es extensible y no está limitado a un conjunto cerrado de valores.                                                                                                                                                                          |
 | `token`     | Token único utilizado para generar el enlace mágico de la invitación.                                                                                                                                                                                                                                            |
@@ -36,7 +35,7 @@ La Invitation es extensible por diseño: el mecanismo de entrega puede variar (m
 - Una invitación **usada** o **revocada** no puede ser utilizada nuevamente.
 - Una invitación **expirada** no puede ser utilizada, incluso si no ha sido usada ni revocada.
 - El enlace mágico siempre contiene el `token`. La validación del `recipient` ocurre durante el registro, cuando el usuario proporciona su identificador de contacto.
-- **La invitación es inmutable una vez creada.** Si se necesita realizar algún cambio (ej: `recipient` incorrecto o roleId diferente), se debe revocar la invitación existente y crear una nueva.
+- **La invitación es inmutable una vez creada.** Si se necesita realizar algún cambio (ej: `recipient` incorrecto), se debe revocar la invitación existente y crear una nueva.
 
 ---
 
@@ -53,9 +52,6 @@ Tenant (1) ──── (N) Invitation
 - Una **Invitación** pertenece a un único **Tenant**.
 - Un **Tenant** puede generar múltiples **Invitaciones**.
 - La relación se establece mediante `tenantId`.
-- La invitación está asociada a un rol (`roleId`) que se asignará al usuario cuando se registre.
-
-> **Nota:** La relación con `Role` es referencial. La validación de que el `roleId` exista y sea válido dentro del Tenant es responsabilidad del caso de uso que crea la invitación.
 
 ## 3. Enums
 
@@ -89,7 +85,6 @@ Representa el estado actual de la invitación.
 
 - Toda **Invitación** debe pertenecer a un **Tenant** existente.
 - Toda **Invitación** debe tener un `recipient` válido (email o número de teléfono).
-- Toda **Invitación** debe tener un `roleId` que corresponda a un rol válido dentro del Tenant.
 - Toda **Invitación** debe tener un `mechanism` válido.
 - El `token` debe ser generado automáticamente por el sistema y ser único.
 - El `token` no puede ser modificado después de su creación.
@@ -162,7 +157,6 @@ invitations
 | ------------ | ------------ | ---- | ------------------- | ---------------------------------- |
 | `id`         | UUID         | ❌   | `gen_random_uuid()` | PK                                 |
 | `tenant_id`  | UUID         | ❌   | —                   | FK → tenants(id)                   |
-| `role_id`    | UUID         | ❌   | —                   | Referencia al rol que se asignará  |
 | `recipient`  | VARCHAR(255) | ❌   | —                   | Email o número de teléfono         |
 | `mechanism`  | VARCHAR(50)  | ❌   | —                   | manual, email, sms, whatsapp, etc. |
 | `token`      | VARCHAR(255) | ❌   | —                   | Token único                        |
@@ -179,7 +173,6 @@ invitations
 
 - `id` es la clave primaria.
 - `tenant_id` es obligatorio y debe referenciar un Tenant existente.
-- `role_id` es obligatorio.
 - `recipient` es obligatorio.
 - `mechanism` es obligatorio.
 - `token` es único y obligatorio.

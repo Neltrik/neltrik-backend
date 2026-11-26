@@ -5,7 +5,7 @@ import { ConsumeInvitationResultDto, InvitationResultDto } from "./result.dto";
 const makeInvitationResult = (): InvitationResultDto => ({
     invitationId: "invitation-id",
     tenantId: "tenant-id",
-    roleId: "role-id",
+    roleId: "",
     recipient: "user@example.com",
 });
 

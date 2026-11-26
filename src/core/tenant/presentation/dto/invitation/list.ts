@@ -8,12 +8,6 @@ class ListInvitationsItemDto {
     id!: string;
 
     @ApiProperty({
-        example: "550e8400-e29b-41d4-a716-446655440002",
-        description: "ID del rol asignado",
-    })
-    roleId!: string;
-
-    @ApiProperty({
         example: "juan.perez@empresa.com",
         description: "Email o número de teléfono del destinatario",
     })

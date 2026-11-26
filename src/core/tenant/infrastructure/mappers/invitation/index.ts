@@ -8,7 +8,6 @@ export class InvitationMapper {
         return {
             id: invitation.id,
             tenantId: invitation.tenantId,
-            roleId: invitation.roleId,
             recipient: invitation.recipient.value,
             mechanism: invitation.mechanism,
             token: invitation.token.value,
@@ -25,7 +24,6 @@ export class InvitationMapper {
         return Invitation.restore({
             id: prismaInvitation.id,
             tenantId: prismaInvitation.tenantId,
-            roleId: prismaInvitation.roleId,
             recipient: Recipient.create(prismaInvitation.recipient),
             token: Token.create(prismaInvitation.token),
             expirationDate: ExpirationDate.restore(prismaInvitation.expiresAt),

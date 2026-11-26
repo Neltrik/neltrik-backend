@@ -222,4 +222,3 @@ La validación de negocio y la restricción de base de datos deben complementars
 - `UNIQUE(slug)`
 - `UNIQUE(type)` parcial para `type = PLATFORM`
 - `INDEX(status)`
-- `INDEX(name)`

@@ -14,7 +14,8 @@ export class InvitationApiImpl extends InvitationApi {
     }
 
     public async validate(token: string): Promise<InvitationResultDto> {
-        return await this.validateInvitationOhsUseCase.execute(token);
+        const result = await this.validateInvitationOhsUseCase.execute(token);
+        return { ...result, roleId: "" };
     }
 
     public async consume(token: string): Promise<ConsumeInvitationResultDto> {

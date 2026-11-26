@@ -7,7 +7,6 @@ const makeInvitation = (overrides: Partial<Parameters<typeof Invitation.restore>
     Invitation.restore({
         id: "invitation-id",
         tenantId: "tenant-id",
-        roleId: "role-id",
         recipient: Recipient.create("test@example.com"),
         mechanism: "EMAIL",
         token: Token.create("123e4567-e89b-12d3-a456-426614174000"),

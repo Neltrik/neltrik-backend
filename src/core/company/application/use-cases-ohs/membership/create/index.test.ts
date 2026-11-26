@@ -10,9 +10,7 @@ import type { CreateMembershipOhsInput } from "./input";
 describe("CreateMembershipOhsUseCase", () => {
     const makeSut = () => {
         const generateMock = jest.fn().mockReturnValue("membership-id");
-        const idGenerator = {
-            generate: generateMock,
-        } satisfies IdGenerator;
+        const idGenerator = { generate: generateMock } satisfies IdGenerator;
         const companyRepository = new CompanyRepositorySpy();
         const membershipRepository = new MembershipRepositorySpy();
         const createMembershipOhsUseCase = new CreateMembershipOhsUseCase(
@@ -26,7 +24,7 @@ describe("CreateMembershipOhsUseCase", () => {
         companyId: "company-id",
         userId: "user-id",
         roleId: "role-id",
-        tenantId: "",
+        tenantId: "tenant-id",
     });
     const mockCompany = (): Company => ({ id: "company-id", tenantId: "tenant-id" }) as Company;
 
@@ -42,6 +40,7 @@ describe("CreateMembershipOhsUseCase", () => {
             });
             expect(companyRepository.findById).toHaveBeenCalledTimes(1);
             expect(companyRepository.findById).toHaveBeenCalledWith(input.companyId);
+            expect(membershipRepository.findByUserAndCompany).toHaveBeenCalledTimes(1);
             expect(membershipRepository.findByUserAndCompany).toHaveBeenCalledWith(input.userId, input.companyId);
             expect(idGenerator.generate).toHaveBeenCalledTimes(1);
             expect(membershipRepository.create).toHaveBeenCalledTimes(1);
@@ -60,6 +59,19 @@ describe("CreateMembershipOhsUseCase", () => {
         it("should throw CompanyNotFoundError when the company does not exist", async () => {
             const { createMembershipOhsUseCase, idGenerator, companyRepository, membershipRepository } = makeSut();
             companyRepository.findById.mockResolvedValue(null);
+            await expect(createMembershipOhsUseCase.execute(makeInput())).rejects.toThrow(CompanyNotFoundError);
+            expect(companyRepository.findById).toHaveBeenCalledTimes(1);
+            expect(membershipRepository.findByUserAndCompany).not.toHaveBeenCalled();
+            expect(idGenerator.generate).not.toHaveBeenCalled();
+            expect(membershipRepository.create).not.toHaveBeenCalled();
+        });
+
+        it("should throw CompanyNotFoundError when the company belongs to another tenant", async () => {
+            const { createMembershipOhsUseCase, idGenerator, companyRepository, membershipRepository } = makeSut();
+            companyRepository.findById.mockResolvedValue({
+                id: "company-id",
+                tenantId: "another-tenant-id",
+            } as Company);
             await expect(createMembershipOhsUseCase.execute(makeInput())).rejects.toThrow(CompanyNotFoundError);
             expect(companyRepository.findById).toHaveBeenCalledTimes(1);
             expect(membershipRepository.findByUserAndCompany).not.toHaveBeenCalled();
@@ -108,6 +120,8 @@ describe("CreateMembershipOhsUseCase", () => {
             await expect(createMembershipOhsUseCase.execute(makeInput())).resolves.toEqual({
                 id: "membership-id",
             });
+            expect(existingMembership.isPending).toHaveBeenCalledTimes(1);
+            expect(existingMembership.isActive).toHaveBeenCalledTimes(1);
             expect(membershipRepository.create).toHaveBeenCalledTimes(1);
         });
 

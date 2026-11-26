@@ -21,6 +21,9 @@ export class CreateMembershipOhsUseCase {
         if (!company) {
             throw new CompanyNotFoundError();
         }
+        if (company.tenantId !== input.tenantId) {
+            throw new CompanyNotFoundError();
+        }
         const existing = await this.membershipRepository.findByUserAndCompany(input.userId, input.companyId);
         if (existing && (existing.isPending() || existing.isActive())) {
             throw new MembershipAlreadyExistsError();
@@ -39,3 +42,5 @@ export class CreateMembershipOhsUseCase {
         return { id: membership.id };
     }
 }
+
+export type { CreateMembershipOhsInput };

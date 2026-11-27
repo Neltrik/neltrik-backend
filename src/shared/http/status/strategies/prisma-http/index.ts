@@ -21,6 +21,8 @@ export class PrismaHttpStatusStrategy extends HttpStatusStrategy {
             case "P2003":
             case "P2014":
                 return HttpStatus.BAD_REQUEST;
+            case "P2023":
+                return HttpStatus.BAD_REQUEST;
             default:
                 return HttpStatus.INTERNAL_SERVER_ERROR;
         }

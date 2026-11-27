@@ -46,7 +46,7 @@ describe("PrismaHttpStatusStrategy", () => {
             expect(strategy.resolve(exception)).toBe(HttpStatus.NOT_FOUND);
         });
 
-        it.each(["P2003", "P2014"])("should return BAD_REQUEST for %s", (code) => {
+        it.each(["P2003", "P2014", "P2023"])("should return BAD_REQUEST for %s", (code) => {
             const { strategy } = makeSut();
             const exception = makePrismaError(code);
             expect(strategy.resolve(exception)).toBe(HttpStatus.BAD_REQUEST);

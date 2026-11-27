@@ -1,4 +1,4 @@
-import { HttpStatus, Module, OnModuleInit } from "@nestjs/common";
+import { forwardRef, HttpStatus, Module, OnModuleInit } from "@nestjs/common";
 
 import { AuthorizationModule } from "@/core/authorization/authorization.module";
 import { IdentityModule } from "@/core/identity/identity.module";
@@ -9,6 +9,7 @@ import { DomainStatusRegistry } from "@/shared/http";
 import { HandlersRegistry } from "@/shared/outbox";
 import { OutboxModule } from "@/shared/outbox/outbox.module";
 
+import { CompanyApi, CompanyApiImpl, MembershipApi, MembershipApiImpl } from "./api";
 import {
     AcceptInvitationUseCase,
     CreateCompanyUseCase,
@@ -27,7 +28,11 @@ import {
     UpdateMemberRoleUseCase,
 } from "./application/use-cases";
 import { ValidateCompanyAccessInternalUseCase } from "./application/use-cases-internal";
-import { CreateCompanyOhsUseCase, CreateMembershipOhsUseCase } from "./application/use-cases-ohs";
+import {
+    CreateCompanyOhsUseCase,
+    CreateMembershipOhsUseCase,
+    DeleteCompanyOhsUseCase,
+} from "./application/use-cases-ohs";
 import { DOMAIN_ERROR_CODES } from "./domain/errors";
 import { CompanyRepository, MembershipRepository } from "./domain/interfaces";
 import { SendInvitationEmailOutboxHandler } from "./infrastructure/handlers";
@@ -62,6 +67,15 @@ import {
         ValidateCompanyAccessInternalUseCase,
         CreateCompanyOhsUseCase,
         CreateMembershipOhsUseCase,
+        DeleteCompanyOhsUseCase,
+        {
+            provide: CompanyApi,
+            useClass: CompanyApiImpl,
+        },
+        {
+            provide: MembershipApi,
+            useClass: MembershipApiImpl,
+        },
         {
             provide: CompanyRepository,
             useClass: PrismaCompanyRepository,
@@ -79,8 +93,14 @@ import {
             useClass: MembershipCheckerProvider,
         },
     ],
-    imports: [AuthorizationModule, IdentityModule, NotificationsModule, TenantModule, OutboxModule],
-    exports: [MembershipChecker, CompanyChecker],
+    imports: [
+        forwardRef(() => AuthorizationModule),
+        forwardRef(() => IdentityModule),
+        NotificationsModule,
+        forwardRef(() => TenantModule),
+        OutboxModule,
+    ],
+    exports: [MembershipChecker, CompanyChecker, CompanyApi, MembershipApi],
 })
 export class CompanyModule implements OnModuleInit {
     constructor(

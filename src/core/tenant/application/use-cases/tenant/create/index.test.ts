@@ -75,6 +75,8 @@ describe("CreateTenantUseCase", () => {
         expect(authorizationRoleApi.validate).toHaveBeenCalledTimes(1);
         expect(authorizationRoleApi.validate).toHaveBeenCalledWith("owner-role-id");
         expect(generateMock).toHaveBeenCalledTimes(1);
+        expect(slugGenerateMock).toHaveBeenNthCalledWith(1, "Acme Corp", "tenant-id");
+        expect(tenantRepository.create).toHaveBeenCalledTimes(1);
         expect(userApi.create).toHaveBeenCalledTimes(1);
         expect(userApi.create).toHaveBeenCalledWith({
             email: "john@company.com",
@@ -82,8 +84,6 @@ describe("CreateTenantUseCase", () => {
             lastName: "Doe",
             tenantId: "tenant-id",
         });
-        expect(slugGenerateMock).toHaveBeenNthCalledWith(1, "Acme Corp", "tenant-id");
-        expect(tenantRepository.create).toHaveBeenCalledTimes(1);
         expect(slugGenerateMock).toHaveBeenNthCalledWith(2, "Acme Corp", "tenant-id-default");
         expect(companyApi.create).toHaveBeenCalledTimes(1);
         expect(companyApi.create).toHaveBeenCalledWith({
@@ -115,29 +115,29 @@ describe("CreateTenantUseCase", () => {
         userApi.create.mockRejectedValue(new Error("User creation failed"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("User creation failed");
         expect(userApi.create).toHaveBeenCalledTimes(1);
-        expect(tenantRepository.create).not.toHaveBeenCalled();
+        expect(tenantRepository.create).toHaveBeenCalledTimes(1);
+        expect(tenantRepository.delete).toHaveBeenCalledTimes(1);
         expect(userApi.delete).not.toHaveBeenCalled();
     });
 
-    it("should propagate tenant creation errors and compensate the user", async () => {
-        const { useCase, userApi, tenantRepository, companyApi } = makeSut();
+    it("should propagate tenant creation errors", async () => {
+        const { useCase, tenantRepository, userApi, companyApi } = makeSut();
         tenantRepository.create.mockRejectedValue(new Error("Tenant creation failed"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("Tenant creation failed");
-        expect(userApi.create).toHaveBeenCalledTimes(1);
         expect(tenantRepository.create).toHaveBeenCalledTimes(1);
+        expect(userApi.create).not.toHaveBeenCalled();
         expect(companyApi.create).not.toHaveBeenCalled();
-        expect(userApi.delete).toHaveBeenCalledTimes(1);
-        expect(userApi.delete).toHaveBeenCalledWith("user-id");
         expect(tenantRepository.delete).not.toHaveBeenCalled();
     });
 
     it("should propagate company creation errors and compensate tenant and user", async () => {
-        const { useCase, userApi, tenantRepository, companyApi } = makeSut();
+        const { useCase, userApi, tenantRepository, companyApi, membershipApi } = makeSut();
         companyApi.create.mockRejectedValue(new Error("Company creation failed"));
         await expect(useCase.execute(makeInput())).rejects.toThrow("Company creation failed");
         expect(userApi.create).toHaveBeenCalledTimes(1);
         expect(tenantRepository.create).toHaveBeenCalledTimes(1);
         expect(companyApi.create).toHaveBeenCalledTimes(1);
+        expect(membershipApi.create).not.toHaveBeenCalled();
         expect(tenantRepository.delete).toHaveBeenCalledTimes(1);
         expect(tenantRepository.delete).toHaveBeenCalledWith("tenant-id");
         expect(userApi.delete).toHaveBeenCalledTimes(1);
@@ -161,15 +161,31 @@ describe("CreateTenantUseCase", () => {
         expect(userApi.delete).toHaveBeenCalledWith("user-id");
     });
 
-    it("should propagate slug generation errors and compensate the user", async () => {
-        const { useCase, slugGenerateMock, userApi, tenantRepository } = makeSut();
+    it("should propagate tenant slug generation errors", async () => {
+        const { useCase, slugGenerateMock, tenantRepository, userApi, companyApi } = makeSut();
         slugGenerateMock.mockImplementationOnce(() => {
             throw new Error("Slug generation failed");
         });
         await expect(useCase.execute(makeInput())).rejects.toThrow("Slug generation failed");
-        expect(userApi.create).toHaveBeenCalledTimes(1);
+        expect(slugGenerateMock).toHaveBeenCalledTimes(1);
         expect(tenantRepository.create).not.toHaveBeenCalled();
-        expect(userApi.delete).toHaveBeenCalledTimes(1);
+        expect(userApi.create).not.toHaveBeenCalled();
+        expect(companyApi.create).not.toHaveBeenCalled();
+    });
+
+    it("should propagate company slug generation errors and compensate tenant and user", async () => {
+        const { useCase, slugGenerateMock, tenantRepository, userApi, companyApi } = makeSut();
+        slugGenerateMock.mockImplementationOnce(() => "acme-corp-slug");
+        slugGenerateMock.mockImplementationOnce(() => {
+            throw new Error("Company slug generation failed");
+        });
+        await expect(useCase.execute(makeInput())).rejects.toThrow("Company slug generation failed");
+        expect(slugGenerateMock).toHaveBeenCalledTimes(2);
+        expect(tenantRepository.create).toHaveBeenCalledTimes(1);
+        expect(userApi.create).toHaveBeenCalledTimes(1);
+        expect(companyApi.create).not.toHaveBeenCalled();
+        expect(tenantRepository.delete).toHaveBeenCalledWith("tenant-id");
         expect(userApi.delete).toHaveBeenCalledWith("user-id");
+        expect(companyApi.delete).not.toHaveBeenCalled();
     });
 });

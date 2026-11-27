@@ -26,6 +26,8 @@ export class PrismaExceptionHandlingStrategy extends ExceptionHandlingStrategy {
             case "P2003":
             case "P2014":
                 return [{ code: RESPONSE_CODES.BAD_REQUEST, message: "Invalid reference." }];
+            case "P2023":
+                return [{ code: RESPONSE_CODES.BAD_REQUEST, message: "Invalid data format provided." }];
             default:
                 return [{ code: RESPONSE_CODES.INTERNAL_ERROR, message: "An unexpected database error occurred." }];
         }

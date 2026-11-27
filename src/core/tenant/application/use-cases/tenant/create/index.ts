@@ -30,32 +30,13 @@ export class CreateTenantUseCase {
         const tenantId = this.idGenerator.generate();
         const now = new Date();
         const steps = [
-            this.createUserStep(input, tenantId),
             this.createTenantStep(input, tenantId, now),
+            this.createUserStep(input, tenantId),
             this.createCompanyStep(input, tenantId),
             this.createMembershipStep(input, tenantId),
         ];
         await SagaOrchestrator.execute<CreateTenantSagaContext>(steps, {});
         return { id: tenantId };
-    }
-
-    private createUserStep(input: CreateTenantInput, tenantId: string): SagaStep<CreateTenantSagaContext> {
-        return {
-            execute: async (context) => {
-                const user = await this.userApi.create({
-                    email: input.ownerEmail,
-                    firstName: input.ownerFirstName,
-                    lastName: input.ownerLastName,
-                    tenantId,
-                });
-                context.userId = user.id;
-            },
-            compensate: async (context) => {
-                if (context.userId) {
-                    await this.userApi.delete(context.userId);
-                }
-            },
-        };
     }
 
     private createTenantStep(input: CreateTenantInput, tenantId: string, now: Date): SagaStep<CreateTenantSagaContext> {
@@ -81,6 +62,26 @@ export class CreateTenantUseCase {
             },
         };
     }
+
+    private createUserStep(input: CreateTenantInput, tenantId: string): SagaStep<CreateTenantSagaContext> {
+        return {
+            execute: async (context) => {
+                const user = await this.userApi.create({
+                    email: input.ownerEmail,
+                    firstName: input.ownerFirstName,
+                    lastName: input.ownerLastName,
+                    tenantId,
+                });
+                context.userId = user.id;
+            },
+            compensate: async (context) => {
+                if (context.userId) {
+                    await this.userApi.delete(context.userId);
+                }
+            },
+        };
+    }
+
     private createCompanyStep(input: CreateTenantInput, tenantId: string): SagaStep<CreateTenantSagaContext> {
         return {
             execute: async (context) => {

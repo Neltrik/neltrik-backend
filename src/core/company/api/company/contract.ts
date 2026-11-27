@@ -1,5 +1,6 @@
-import { type CreateCompanyOhsInput, type CreateCompanyOhsOutput } from "../../application/use-cases-ohs";
+import type { CreateCompanyResponseDto, CreateCompanyResultDto } from "./result.dto";
 
 export abstract class CompanyApi {
-    public abstract create(input: CreateCompanyOhsInput): Promise<CreateCompanyOhsOutput>;
+    public abstract create(input: CreateCompanyResultDto): Promise<CreateCompanyResponseDto>;
+    public abstract delete(id: string): Promise<void>;
 }

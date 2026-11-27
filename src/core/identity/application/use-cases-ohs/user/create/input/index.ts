@@ -3,5 +3,4 @@ export interface RegisterUserOhsInput {
     lastName: string;
     email: string;
     tenantId: string;
-    roleId: string;
 }

@@ -1,5 +1,5 @@
 import { CreateMembershipOhsUseCaseSpy } from "../../test-doubles";
-import { MembershipApiImpl } from "./index";
+import { MembershipApiImpl } from "./impl";
 
 const input = { tenantId: "tenant-id", userId: "user-id", companyId: "company-id", roleId: "role-id" };
 
@@ -7,7 +7,6 @@ describe("MembershipApiImpl", () => {
     const makeSut = () => {
         const createMembershipOhsUseCase = new CreateMembershipOhsUseCaseSpy();
         const membershipApi = new MembershipApiImpl(createMembershipOhsUseCase);
-
         return { membershipApi, createMembershipOhsUseCase };
     };
 

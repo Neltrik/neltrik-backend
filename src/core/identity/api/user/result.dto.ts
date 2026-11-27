@@ -5,7 +5,6 @@ export class RegisterUserRequestDto {
     lastName!: string;
     email!: string;
     tenantId!: string;
-    roleId!: string;
 }
 
 export class RegisterUserResultDto {

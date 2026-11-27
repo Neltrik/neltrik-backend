@@ -42,5 +42,3 @@ export class CreateMembershipOhsUseCase {
         return { id: membership.id };
     }
 }
-
-export type { CreateMembershipOhsInput };

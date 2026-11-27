@@ -1,5 +1,5 @@
-import type { CreateMembershipOhsInput } from "../../application/use-cases-ohs";
+import type { MembershipResultDto } from "./result.dto";
 
 export abstract class MembershipApi {
-    public abstract create(input: CreateMembershipOhsInput): Promise<void>;
+    public abstract create(input: MembershipResultDto): Promise<void>;
 }

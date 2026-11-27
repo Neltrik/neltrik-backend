@@ -3,7 +3,6 @@ import { createInvitationSchema, revokeInvitationParamsSchema, validateInvitatio
 describe("createInvitationSchema", () => {
     const validPayload = {
         tenantId: "550e8400-e29b-41d4-a716-446655440000",
-        roleId: "550e8400-e29b-41d4-a716-446655440001",
         recipient: "user@example.com",
         mechanism: "email",
     };
@@ -15,11 +14,6 @@ describe("createInvitationSchema", () => {
 
     it("should reject an invalid tenantId", () => {
         const result = createInvitationSchema.safeParse({ ...validPayload, tenantId: "invalid-id" });
-        expect(result.success).toBe(false);
-    });
-
-    it("should reject an invalid roleId", () => {
-        const result = createInvitationSchema.safeParse({ ...validPayload, roleId: "invalid-id" });
         expect(result.success).toBe(false);
     });
 

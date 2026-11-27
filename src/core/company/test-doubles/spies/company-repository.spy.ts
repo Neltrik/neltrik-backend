@@ -9,6 +9,7 @@ export class CompanyRepositorySpy extends CompanyRepository {
     public findById = jest.fn<Promise<Company | null>, [string]>();
     public findBySlug = jest.fn<Promise<Company | null>, [string]>();
     public update = jest.fn<Promise<void>, [Company]>();
+    public delete = jest.fn<Promise<void>, [string]>();
     public findAll = jest.fn<Promise<Company[]>, [PaginationInput]>();
     public findByUserMembership = jest.fn<Promise<Company[]>, [FindByUserMembershipParams]>();
 }

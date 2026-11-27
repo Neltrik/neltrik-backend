@@ -29,5 +29,3 @@ export class CreateCompanyOhsUseCase {
         return { id: company.id };
     }
 }
-
-export { type CreateCompanyOhsInput, type CreateCompanyOhsOutput };

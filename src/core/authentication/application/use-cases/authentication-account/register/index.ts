@@ -36,7 +36,7 @@ export class RegisterUseCase {
                 execute: async (context: RegisterSagaContext) => {
                     const user = await this.userApi.create({
                         tenantId: invitation.tenantId,
-                        roleId: invitation.roleId,
+                        // roleId: invitation.roleId,
                         email: input.email,
                         firstName: input.firstName,
                         lastName: input.lastName,

@@ -49,6 +49,10 @@ export class PrismaCompanyRepository extends CompanyRepository {
         });
     }
 
+    public async delete(id: string): Promise<void> {
+        await this.prisma.tenantClient.company.delete({ where: { id } });
+    }
+
     public async findAll(params: PaginationInput): Promise<Company[]> {
         const companies = await this.prisma.tenantClient.company.findMany({
             orderBy: [{ createdAt: "desc" }, { id: "desc" }],

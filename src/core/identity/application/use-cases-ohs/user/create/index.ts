@@ -29,7 +29,7 @@ export class RegisterUserOhsUseCase {
             lastName: input.lastName,
             email,
             tenantId: input.tenantId,
-            roleId: input.roleId,
+            roleId: "",
             createdAt: now,
             updatedAt: now,
             suspendedAt: null,

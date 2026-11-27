@@ -95,6 +95,10 @@ export class TenantController {
         const input: CreateTenantInput = {
             name: body.name,
             type: body.type,
+            ownerEmail: body.ownerEmail,
+            ownerFirstName: body.ownerFirstName,
+            ownerLastName: body.ownerLastName,
+            ownerRoleId: body.ownerRoleId,
         };
         const tenant = await this.createTenantUseCase.execute(input);
         return { id: tenant.id };
@@ -303,6 +307,7 @@ export class TenantController {
         @Param(new ZodValidationPipe(reactivateTenantParamsSchema))
         params: ReactivateTenantParamsDto,
     ): Promise<void> {
+        // eslint-disable-next-line max-lines
         await this.reactivateTenantUseCase.execute(params.id);
     }
 }

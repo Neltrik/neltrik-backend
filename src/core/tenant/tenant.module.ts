@@ -1,6 +1,7 @@
 import { forwardRef, Module } from "@nestjs/common";
 
 import { AuthorizationModule } from "@/core/authorization/authorization.module";
+import { CompanyModule } from "@/core/company/company.module";
 
 import { InvitationApi, InvitationApiImpl, TenantApi, TenantApiImpl } from "./api";
 import { SlugGenerator } from "./application/slug-generator";
@@ -69,7 +70,7 @@ import { InvitationController, TenantController } from "./presentation/controlle
             useClass: PrismaTenantRepository,
         },
     ],
-    imports: [forwardRef(() => AuthorizationModule)],
+    imports: [forwardRef(() => AuthorizationModule), CompanyModule],
     exports: [TenantApi, InvitationApi],
 })
 export class TenantModule {}

@@ -19,7 +19,6 @@ describe("UserApiImpl", () => {
                 lastName: "Doe",
                 email: "john.doe@example.com",
                 tenantId: "tenant-id",
-                roleId: "role-id",
             };
             const output: RegisterUserResultDto = { id: "user-id" };
             registerUserOhsUseCase.execute.mockResolvedValue(output);
@@ -36,7 +35,6 @@ describe("UserApiImpl", () => {
                 lastName: "Doe",
                 email: "john.doe@example.com",
                 tenantId: "tenant-id",
-                roleId: "role-id",
             };
             registerUserOhsUseCase.execute.mockRejectedValue(new Error("Email already exists"));
             await expect(userApi.create(input)).rejects.toThrow("Email already exists");
@@ -91,7 +89,6 @@ describe("UserApiImpl", () => {
                 lastName: "Doe",
                 email: { value: "john.doe@example.com" },
                 tenantId: "tenant-id",
-                roleId: "role-id",
             };
             getUserByIdOhsUseCase.execute.mockResolvedValue(user);
             const result = await userApi.getUserById("user-id");
@@ -103,7 +100,6 @@ describe("UserApiImpl", () => {
                 lastName: "Doe",
                 email: "john.doe@example.com",
                 tenantId: "tenant-id",
-                roleId: "role-id",
             });
         });
 
@@ -123,13 +119,11 @@ describe("UserApiImpl", () => {
             dto.lastName = "Doe";
             dto.email = "john.doe@example.com";
             dto.tenantId = "tenant-id";
-            dto.roleId = "role-id";
             expect(dto).toEqual({
                 firstName: "John",
                 lastName: "Doe",
                 email: "john.doe@example.com",
                 tenantId: "tenant-id",
-                roleId: "role-id",
             });
         });
 
@@ -152,7 +146,6 @@ describe("UserApiImpl", () => {
             dto.lastName = "Doe";
             dto.email = "john.doe@example.com";
             dto.tenantId = "tenant-id";
-            dto.roleId = "role-id";
             dto.status = "ACTIVE";
             dto.createdAt = new Date("2026-01-01T00:00:00.000Z");
             dto.updatedAt = new Date("2026-01-02T00:00:00.000Z");
@@ -163,7 +156,6 @@ describe("UserApiImpl", () => {
                 lastName: "Doe",
                 email: "john.doe@example.com",
                 tenantId: "tenant-id",
-                roleId: "role-id",
                 status: "ACTIVE",
                 createdAt: new Date("2026-01-01T00:00:00.000Z"),
                 updatedAt: new Date("2026-01-02T00:00:00.000Z"),

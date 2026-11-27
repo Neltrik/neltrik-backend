@@ -29,6 +29,10 @@ export class PrismaTenantRepository extends TenantRepository {
         }
     }
 
+    public async delete(id: string): Promise<void> {
+        await this.prisma.tenantClient.tenant.delete({ where: { id } });
+    }
+
     public async get(id: string): Promise<Tenant | null> {
         const tenant = await this.prisma.tenantClient.tenant.findUnique({ where: { id } });
         if (!tenant) {

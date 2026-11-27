@@ -13,6 +13,26 @@ export class CreateTenantRequestDto {
         example: TENANT_TYPE.CUSTOMER,
     })
     type!: TenantType;
+
+    @ApiProperty({
+        example: "John",
+    })
+    ownerFirstName!: string;
+
+    @ApiProperty({
+        example: "Doe",
+    })
+    ownerLastName!: string;
+
+    @ApiProperty({
+        example: "john.doe@acme.com",
+    })
+    ownerEmail!: string;
+
+    @ApiProperty({
+        example: "550e8400-e29b-41d4-a716-446655440000",
+    })
+    ownerRoleId!: string;
 }
 
 export class CreateTenantResultDto {

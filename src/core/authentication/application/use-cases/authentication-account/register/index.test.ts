@@ -58,7 +58,6 @@ describe("RegisterUseCase", () => {
         expect(userApi.create).toHaveBeenCalledTimes(1);
         expect(userApi.create).toHaveBeenCalledWith({
             tenantId: "tenant-id",
-            roleId: "role-id",
             email: "john@company.com",
             firstName: "John",
             lastName: "Doe",

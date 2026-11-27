@@ -4,7 +4,7 @@
 
 La entidad **User** representa una persona que utiliza **Neltrik** y pertenece a una única organización (**Tenant**).
 
-Cada User constituye la identidad digital de un usuario dentro de la plataforma, permitiéndole interactuar con los diferentes módulos según el rol que tenga asignado.
+Cada User constituye la identidad digital de un usuario dentro de la plataforma. Los roles que un usuario desempeña dentro de las organizaciones a las que pertenece son administrados por el dominio **Company** a través de la entidad `Membership`.
 
 ### User
 
@@ -15,7 +15,6 @@ Cada User constituye la identidad digital de un usuario dentro de la plataforma,
 | `lastName`    | Apellido del usuario.                                                 |
 | `email`       | Correo electrónico único que identifica al usuario dentro de Neltrik. |
 | `tenantId`    | Identificador del Tenant al que pertenece el usuario.                 |
-| `roleId`      | Identificador del rol asignado al usuario.                            |
 | `status`      | Estado actual del usuario.                                            |
 | `createdAt`   | Fecha de creación del usuario.                                        |
 | `updatedAt`   | Fecha de la última actualización del usuario.                         |
@@ -28,7 +27,6 @@ Cada User constituye la identidad digital de un usuario dentro de la plataforma,
 - El correo electrónico constituye el identificador público del usuario dentro de la plataforma.
 - El atributo `email` será modelado como un **Value Object** durante la implementación del dominio.
 - Todo usuario pertenece obligatoriamente a un único **Tenant**.
-- Todo usuario debe tener un único rol asignado.
 
 ## 2. Relaciones
 
@@ -40,21 +38,21 @@ Tenant
 1 ─────── N Users
 
 
-Role
+User
 
-1 ─────── N Users
+1 ─────── N Memberships
 ```
 
 ### Descripción
 
 - Un **Tenant** puede tener múltiples **Users**.
 - Todo **User** pertenece a un único **Tenant**.
-- Un **Role** puede estar asignado a múltiples **Users**.
-- Todo **User** posee un único **Role**.
+- Un User puede tener múltiples Memberships (uno por cada Company a la que pertenece).
+- Todo **Membership** vincula a un User con una **Company** y un **Role**.
 - El **Tenant** proporciona el contexto organizacional utilizado para garantizar el aislamiento de los usuarios.
-- El **Role** determina los permisos que el usuario tendrá dentro de la plataforma.
+- El **Role** (asignado a través de Membership) determina los permisos que el usuario tendrá dentro de una **Company** específica.
 
-> **Nota:** La administración de los **Roles** pertenece al dominio **Authorization**. La entidad **User** únicamente mantiene una referencia (`roleId`) al rol asignado.
+> **Nota:** La administración de los Roles pertenece al dominio **Authorization**. La administración de la relación entre User, **Company** y `Role` pertenece al dominio **Company** a través de la entidad **Membership**. La entidad User no mantiene ninguna referencia directa a roles ni a companies.
 
 ## 3. Enums
 
@@ -79,7 +77,6 @@ Representa el estado actual del usuario.
 - Todo correo electrónico debe ser válido.
 - El correo electrónico debe ser único dentro de la plataforma.
 - Todo usuario debe pertenecer obligatoriamente a un `Tenant`.
-- Todo usuario debe tener un `Role` asignado.
 - Todo usuario inicia con el estado `ACTIVE`.
 - La creación de un usuario solo puede ser realizada por un usuario autorizado.
 
@@ -93,7 +90,6 @@ Los siguientes campos pueden modificarse según el caso de uso y el nivel de aut
 
 - `firstName`
 - `lastName`
-- `roleId`
 
 > **Nota:** La actualización del correo electrónico no forma parte del MVP.
 
@@ -152,7 +148,6 @@ users
 | `last_name`    | VARCHAR(100) | ❌   | —                   |             |
 | `email`        | VARCHAR(255) | ❌   | —                   | UNIQUE      |
 | `tenant_id`    | UUID         | ❌   | —                   | FK          |
-| `role_id`      | UUID         | ❌   | —                   | FK          |
 | `status`       | ENUM         | ❌   | `ACTIVE`            |             |
 | `created_at`   | TIMESTAMP    | ❌   | `NOW()`             |             |
 | `updated_at`   | TIMESTAMP    | ❌   | `NOW()`             |             |
@@ -165,7 +160,6 @@ users
 - `id` es la clave primaria.
 - `email` debe ser único dentro de la plataforma.
 - `tenant_id` referencia el Tenant al que pertenece el usuario.
-- `role_id` referencia el rol asignado al usuario.
 - `status` inicia con el valor `ACTIVE`.
 - `suspended_at` solo debe contener un valor cuando el usuario se encuentre suspendido.
 
@@ -176,5 +170,4 @@ users
 - PK(id)
 - UNIQUE(email)
 - INDEX(tenant_id)
-- INDEX(role_id)
 - INDEX(status)

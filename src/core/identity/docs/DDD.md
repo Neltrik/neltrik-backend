@@ -18,7 +18,6 @@ El módulo **Identity** es responsable de:
 - Actualizar la información de los usuarios.
 - Mantener el estado de los usuarios durante su ciclo de vida.
 - Asociar cada usuario a un único Tenant.
-- Conocer el rol asignado a cada usuario como parte de su identidad.
 
 ---
 
@@ -33,6 +32,7 @@ El módulo **Identity** **no** administra:
 - Sesiones.
 - Roles.
 - Permisos.
+- Membresías organizacionales (relación User ↔ Company con un rol).
 - Configuraciones específicas de otros módulos.
 
 Estas responsabilidades pertenecen a sus respectivos módulos del Core.
@@ -43,7 +43,7 @@ Estas responsabilidades pertenecen a sus respectivos módulos del Core.
 
 Un **User** representa la identidad digital de una persona dentro de **Neltrik**.
 
-Todo usuario pertenece obligatoriamente a un único **Tenant**, independientemente del rol que desempeñe dentro de la plataforma. El módulo **Identity** administra la información básica del usuario y conoce el rol que tiene asignado, pero no administra las reglas de autorización asociadas a dicho rol.
+Todo usuario pertenece obligatoriamente a un único **Tenant**, independientemente del rol que desempeñe dentro de la plataforma. El módulo **Identity** administra únicamente la información básica del usuario (nombre, apellido, email, estado). Los roles que un usuario desempeña dentro de las organizaciones a las que pertenece son administrados por el dominio **Company** a través de la entidad Membership.
 
 ---
 
@@ -52,11 +52,9 @@ Todo usuario pertenece obligatoriamente a un único **Tenant**, independientemen
 ```text
 Tenant
 │
-├── User (PlatformAdmin)
-├── User (Operations)
-├── User (Sales)
-├── User (OwnerTenantAdmin)
-├── User (TenantAdmin)
+├── User (identidad digital)
+├── User (identidad digital)
+├── User (identidad digital)
 └── User (...)
 ```
 
@@ -94,7 +92,6 @@ Los demás módulos pueden utilizar **Identity** para identificar a los usuarios
 - User Identity
 - User Status
 - User Lifecycle
-- Organization Membership
 
 # Paso 3 — Identificar entidades
 
@@ -131,7 +128,6 @@ Tenant
 - Todo **User** posee un correo electrónico único dentro de la plataforma.
 - Todo **User** debe tener un nombre.
 - Todo **User** debe tener un apellido.
-- Todo **User** debe tener un rol asignado.
 - Todo **User** debe tener un estado válido.
 - Todo **User** recién creado inicia con el estado `ACTIVE`.
 - Un **User** puede actualizar la información permitida de su propia identidad.
@@ -144,8 +140,7 @@ Tenant
 
 - Todo **User** debe pertenecer obligatoriamente a un **Tenant**.
 - Todo **User** debe tener un correo electrónico válido.
-- Todo **User** debe tener un rol asignado antes de finalizar su proceso de creación.
-- El proceso de creación de un **User** solo se considera completado cuando el usuario pertenece a un **Tenant** y posee un rol asignado.
+- El proceso de creación de un **User** solo se considera completado cuando el usuario pertenece a un **Tenant**.
 
 ---
 
@@ -168,16 +163,15 @@ Tenant
 
 ## Diccionario del dominio
 
-| Español                     | Inglés (Código)        | Tipo         | Descripción                                                                 |
-| --------------------------- | ---------------------- | ------------ | --------------------------------------------------------------------------- |
-| Usuario                     | User                   | Entidad      | Persona que utiliza la plataforma Neltrik y pertenece a un Tenant.          |
-| Administrador de Plataforma | PlatformAdmin          | Actor        | Responsable de administrar todos los usuarios de la plataforma.             |
-| Propietario del Tenant      | OwnerTenantAdmin       | Actor        | Responsable principal de administrar los usuarios de su organización.       |
-| Administrador del Tenant    | TenantAdmin            | Actor        | Usuario con privilegios administrativos dentro de su organización.          |
-| Identidad del Usuario       | UserIdentity           | Concepto     | Representa la identidad digital de un usuario dentro de Neltrik.            |
-| Membresía Organizacional    | OrganizationMembership | Concepto     | Relación que vincula un usuario con un único Tenant.                        |
-| Estado del Usuario          | UserStatus             | Enum         | Estados posibles durante el ciclo de vida de un usuario.                    |
-| Correo Electrónico          | Email                  | Value Object | Correo electrónico único que identifica al usuario dentro de la plataforma. |
+| Español                     | Inglés (Código)  | Tipo         | Descripción                                                                 |
+| --------------------------- | ---------------- | ------------ | --------------------------------------------------------------------------- |
+| Usuario                     | User             | Entidad      | Persona que utiliza la plataforma Neltrik y pertenece a un Tenant.          |
+| Administrador de Plataforma | PlatformAdmin    | Actor        | Responsable de administrar todos los usuarios de la plataforma.             |
+| Propietario del Tenant      | OwnerTenantAdmin | Actor        | Responsable principal de administrar los usuarios de su organización.       |
+| Administrador del Tenant    | TenantAdmin      | Actor        | Usuario con privilegios administrativos dentro de su organización.          |
+| Identidad del Usuario       | UserIdentity     | Concepto     | Representa la identidad digital de un usuario dentro de Neltrik.            |
+| Estado del Usuario          | UserStatus       | Enum         | Estados posibles durante el ciclo de vida de un usuario.                    |
+| Correo Electrónico          | Email            | Value Object | Correo electrónico único que identifica al usuario dentro de la plataforma. |
 
 ---
 
@@ -204,6 +198,7 @@ Tenant
 - Conceptos como `Password`, `Session`, `AccessToken`, `RefreshToken` o `Authentication` pertenecen al dominio **Authentication**.
 - Conceptos como `Role`, `Permission`, `Policy` o `Authorization` pertenecen al dominio **Authorization**.
 - Conceptos como `Tenant` o `TenantStatus` pertenecen al dominio **Tenant**.
+- Conceptos como `Company`, `Membership` o `RoleTenant` pertenecen al dominio **Company**.
 
 # Resultado
 

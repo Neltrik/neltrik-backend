@@ -1,7 +1,9 @@
-import { forwardRef, Module } from "@nestjs/common";
+import { forwardRef, HttpStatus, Module, OnModuleInit } from "@nestjs/common";
 
 import { AuthorizationModule } from "@/core/authorization/authorization.module";
 import { CompanyModule } from "@/core/company/company.module";
+import { IdentityModule } from "@/core/identity/identity.module";
+import { DomainStatusRegistry } from "@/shared/http";
 
 import { InvitationApi, InvitationApiImpl, TenantApi, TenantApiImpl } from "./api";
 import { SlugGenerator } from "./application/slug-generator";
@@ -23,6 +25,7 @@ import {
     ListTenantsOhsUseCase,
     ValidateInvitationOhsUseCase,
 } from "./application/use-cases-ohs";
+import { DOMAIN_ERROR_CODES } from "./domain/errors/messages";
 import { InvitationRepository, TenantRepository } from "./domain/interfaces";
 import { PrismaInvitationRepository, PrismaTenantRepository } from "./infrastructure/repositories";
 import {
@@ -30,10 +33,10 @@ import {
     MagicLinkGeneratorService,
     ManualStrategy,
 } from "./infrastructure/strategies";
-import { InvitationController, TenantController } from "./presentation/controllers";
+import { InvitationController, TenantController, TenantLifecycleController } from "./presentation/controllers";
 
 @Module({
-    controllers: [InvitationController, TenantController],
+    controllers: [InvitationController, TenantController, TenantLifecycleController],
     providers: [
         CreateInvitationUseCase,
         CreateTenantUseCase,
@@ -70,7 +73,12 @@ import { InvitationController, TenantController } from "./presentation/controlle
             useClass: PrismaTenantRepository,
         },
     ],
-    imports: [forwardRef(() => AuthorizationModule), CompanyModule],
+    imports: [forwardRef(() => AuthorizationModule), CompanyModule, forwardRef(() => IdentityModule)],
     exports: [TenantApi, InvitationApi],
 })
-export class TenantModule {}
+export class TenantModule implements OnModuleInit {
+    public onModuleInit(): void {
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.TENANT_ALREADY_SUSPENDED, HttpStatus.CONFLICT);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.TENANT_ALREADY_ACTIVE, HttpStatus.CONFLICT);
+    }
+}

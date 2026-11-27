@@ -125,5 +125,6 @@ import {
 export class AuthorizationModule implements OnModuleInit {
     public onModuleInit(): void {
         DomainStatusRegistry.register(DOMAIN_ERROR_CODES.ROLE_NOT_ENABLED_FOR_TENANT, HttpStatus.NOT_FOUND);
+        DomainStatusRegistry.register(DOMAIN_ERROR_CODES.ROLE_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 }

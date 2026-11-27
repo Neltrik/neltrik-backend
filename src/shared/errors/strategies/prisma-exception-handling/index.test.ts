@@ -9,7 +9,6 @@ describe("PrismaExceptionHandlingStrategy", () => {
         const strategy = new PrismaExceptionHandlingStrategy();
         return { strategy };
     };
-
     const makePrismaError = (code: string): Prisma.PrismaClientKnownRequestError =>
         new Prisma.PrismaClientKnownRequestError("Test Prisma error", { code, clientVersion: "test" });
 
@@ -57,6 +56,14 @@ describe("PrismaExceptionHandlingStrategy", () => {
             ]);
         });
 
+        it("should return a bad request error for P2023", () => {
+            const { strategy } = makeSut();
+            const error = makePrismaError("P2023");
+            expect(strategy.handle(error)).toEqual([
+                { code: RESPONSE_CODES.BAD_REQUEST, message: "Invalid data format provided." },
+            ]);
+        });
+
         it("should return an internal error for an unsupported Prisma error code", () => {
             const { strategy } = makeSut();
             const error = makePrismaError("P9999");
@@ -76,6 +83,13 @@ describe("PrismaExceptionHandlingStrategy", () => {
         it("should return an internal error when the error is null", () => {
             const { strategy } = makeSut();
             expect(strategy.handle(null)).toEqual([
+                { code: RESPONSE_CODES.INTERNAL_ERROR, message: "An unexpected error occurred." },
+            ]);
+        });
+
+        it("should return an internal error when the error is undefined", () => {
+            const { strategy } = makeSut();
+            expect(strategy.handle(undefined)).toEqual([
                 { code: RESPONSE_CODES.INTERNAL_ERROR, message: "An unexpected error occurred." },
             ]);
         });

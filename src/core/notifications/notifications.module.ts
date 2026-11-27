@@ -1,4 +1,4 @@
-import { HttpStatus, Module } from "@nestjs/common";
+import { forwardRef, HttpStatus, Module } from "@nestjs/common";
 
 import { TenantModule } from "@/core/tenant/tenant.module";
 import { DomainStatusRegistry } from "@/shared/http";
@@ -101,7 +101,7 @@ import {
             useClass: StringInterpolationRenderer,
         },
     ],
-    imports: [TenantModule],
+    imports: [forwardRef(() => TenantModule)],
     exports: [NotificationApi],
 })
 export class NotificationsModule {
